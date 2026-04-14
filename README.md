@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="custom_components/homesec/logo@2x.png" alt="Home Security Assistant" width="200">
+</p>
+
 # Home Security Assistant
 
 Home Security Assistant is a custom Home Assistant integration that provides real-time network security monitoring for your home. It combines passive NetFlow/IPFIX traffic analysis with active network scanning, external IP threat intelligence, DNS blacklist checks, and vulnerability detection — all presented through a dedicated multi-view sidebar dashboard.
