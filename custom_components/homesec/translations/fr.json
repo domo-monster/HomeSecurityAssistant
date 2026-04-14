@@ -1,0 +1,88 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Home Security Assistant",
+        "description": "Configurez l'écouteur NetFlow, les réseaux internes, le scanner actif et l'enrichissement optionnel de renseignements sur les menaces.",
+        "data": {
+          "bind_host": "Hôte d'écoute",
+          "bind_port": "Port d'écoute (UDP, défaut 2055)",
+          "internal_networks": "Réseaux internes (CIDRs séparés par des virgules)",
+          "scan_window_seconds": "Fenêtre de détection de scan de ports (secondes)",
+          "scan_port_threshold": "Ports uniques avant alerte de scan",
+          "high_egress_threshold": "Seuil de trafic sortant élevé (octets par intervalle)",
+          "enable_webui": "Activer le panneau latéral",
+          "enable_scanner": "Activer le scanner réseau actif (ping + scan de ports)",
+          "scan_interval": "Intervalle du scan actif (secondes)",
+          "scan_exceptions": "Exceptions du scanner (IPs à exclure, séparées par des virgules)",
+          "scan_ports": "Ports à scanner (ports ou plages séparés par des virgules, ex. 22,80,443,8000-9000)",
+          "enable_dns_resolution": "Activer la résolution DNS inverse",
+          "blacklist_urls": "URLs des flux de renseignements sur les menaces (séparées par des virgules)",
+          "ipinfo_token": "Jeton IPInfo.io (optionnel, améliore le quota)",
+          "virustotal_api_key": "Clé API VirusTotal (optionnelle)",
+          "shodan_api_key": "Clé API Shodan (optionnelle)",
+          "abuseipdb_api_key": "Clé API AbuseIPDB (optionnelle)",
+          "external_ip_retention_hours": "Rétention des IPs externes (heures, 0 = illimité)",
+          "enrichment_ttl_minutes": "TTL du cache d'enrichissement (minutes, délai avant nouvelle interrogation des fournisseurs)",
+          "ipinfo_daily_budget": "Budget quotidien de requêtes IPInfo",
+          "virustotal_daily_budget": "Budget quotidien de requêtes VirusTotal",
+          "shodan_daily_budget": "Budget quotidien de requêtes Shodan",
+          "abuseipdb_daily_budget": "Budget quotidien de requêtes AbuseIPDB",
+          "nvd_api_key": "Clé API NVD (optionnelle, augmente la limite à 50 req/30 s)",
+          "nvd_api_url": "URL de l'API NVD",
+          "nvd_ttl_hours": "TTL du cache NVD (heures, délai avant nouvelle récupération des CVE)",
+          "nvd_min_year": "Année minimale des CVE NVD (0 = toutes les années, pas de filtrage)",
+          "nvd_keywords": "Mots-clés de recherche NVD (noms de produits séparés par des virgules)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home Security Assistant — Options",
+        "description": "Mettez à jour l'écouteur, les seuils de détection, le scanner actif et les paramètres d'enrichissement.",
+        "data": {
+          "bind_host": "Hôte d'écoute",
+          "bind_port": "Port d'écoute (UDP)",
+          "internal_networks": "Réseaux internes (CIDRs séparés par des virgules)",
+          "scan_window_seconds": "Fenêtre de détection de scan de ports (secondes)",
+          "scan_port_threshold": "Ports uniques avant alerte de scan",
+          "high_egress_threshold": "Seuil de trafic sortant élevé (octets par intervalle)",
+          "enable_webui": "Activer le panneau latéral",
+          "enable_scanner": "Activer le scanner réseau actif",
+          "scan_interval": "Intervalle du scan actif (secondes)",
+          "scan_exceptions": "Exceptions du scanner (IPs à exclure, séparées par des virgules)",
+          "scan_ports": "Ports à scanner (ports ou plages séparés par des virgules, ex. 22,80,443,8000-9000)",
+          "enable_dns_resolution": "Activer la résolution DNS inverse",
+          "blacklist_urls": "URLs des flux de renseignements sur les menaces (séparées par des virgules)",
+          "ipinfo_token": "Jeton IPInfo.io (optionnel)",
+          "virustotal_api_key": "Clé API VirusTotal (optionnelle)",
+          "shodan_api_key": "Clé API Shodan (optionnelle)",
+          "abuseipdb_api_key": "Clé API AbuseIPDB (optionnelle)",
+          "external_ip_retention_hours": "Rétention des IPs externes (heures, 0 = illimité)",
+          "enrichment_ttl_minutes": "TTL du cache d'enrichissement (minutes, délai avant nouvelle interrogation des fournisseurs)",
+          "ipinfo_daily_budget": "Budget quotidien de requêtes IPInfo",
+          "virustotal_daily_budget": "Budget quotidien de requêtes VirusTotal",
+          "shodan_daily_budget": "Budget quotidien de requêtes Shodan",
+          "abuseipdb_daily_budget": "Budget quotidien de requêtes AbuseIPDB",
+          "nvd_api_key": "Clé API NVD (optionnelle, augmente la limite à 50 req/30 s)",
+          "nvd_api_url": "URL de l'API NVD",
+          "nvd_ttl_hours": "TTL du cache NVD (heures, délai avant nouvelle récupération des CVE)",
+          "nvd_min_year": "Année minimale des CVE NVD (0 = toutes les années, pas de filtrage)",
+          "nvd_keywords": "Mots-clés de recherche NVD (noms de produits séparés par des virgules)"
+        }
+      }
+    }
+  },
+  "services": {
+    "trigger_scan": {
+      "name": "Lancer un scan actif des hôtes",
+      "description": "Exécute immédiatement un scan réseau complet (ping + scan de ports) pour toutes les IPs connues et observées, sans attendre le prochain intervalle planifié."
+    },
+    "nvd_refresh": {
+      "name": "Actualiser la base de vulnérabilités NVD",
+      "description": "Vide le cache local des CVE NVD et récupère les données de vulnérabilités à jour depuis la National Vulnerability Database."
+    }
+  }
+}

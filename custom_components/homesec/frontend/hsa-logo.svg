@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="shieldFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a2a44" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#0c1424" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="shieldStroke" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#62e8ff"/>
+      <stop offset="70%" stop-color="#3a8fa0"/>
+      <stop offset="100%" stop-color="#1e4a5a"/>
+    </linearGradient>
+    <linearGradient id="scanLine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#62e8ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#62e8ff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <clipPath id="shieldClip">
+      <path d="M64 14 L100 30 L100 62 Q100 100 64 118 Q28 100 28 62 L28 30 Z"/>
+    </clipPath>
+  </defs>
+  <!-- Shield body -->
+  <path d="M64 14 L100 30 L100 62 Q100 100 64 118 Q28 100 28 62 L28 30 Z"
+        fill="url(#shieldFill)" stroke="url(#shieldStroke)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inner shield border -->
+  <path d="M64 22 L93 35 L93 61 Q93 94 64 110 Q35 94 35 61 L35 35 Z"
+        fill="none" stroke="#62e8ff" stroke-width="0.5" opacity="0.25"/>
+  <!-- Scan sweep -->
+  <g clip-path="url(#shieldClip)" opacity="0.12">
+    <rect x="28" y="50" width="72" height="30" fill="url(#scanLine)"/>
+  </g>
+  <!-- Network topology nodes and edges -->
+  <g filter="url(#glow)">
+    <!-- Central hub node -->
+    <circle cx="64" cy="58" r="6" fill="#0c1424" stroke="#62e8ff" stroke-width="1.8"/>
+    <circle cx="64" cy="58" r="2.5" fill="#62e8ff"/>
+    <!-- Top node -->
+    <line x1="64" y1="52" x2="64" y2="38" stroke="#62e8ff" stroke-width="1" opacity="0.6"/>
+    <circle cx="64" cy="36" r="3.5" fill="#0c1424" stroke="#62e8ff" stroke-width="1.2"/>
+    <circle cx="64" cy="36" r="1.5" fill="#62e8ff" opacity="0.7"/>
+    <!-- Left node -->
+    <line x1="59" y1="62" x2="44" y2="74" stroke="#62e8ff" stroke-width="1" opacity="0.6"/>
+    <circle cx="42" cy="76" r="3.5" fill="#0c1424" stroke="#62e8ff" stroke-width="1.2"/>
+    <circle cx="42" cy="76" r="1.5" fill="#62e8ff" opacity="0.7"/>
+    <!-- Right node -->
+    <line x1="69" y1="62" x2="84" y2="74" stroke="#62e8ff" stroke-width="1" opacity="0.6"/>
+    <circle cx="86" cy="76" r="3.5" fill="#0c1424" stroke="#62e8ff" stroke-width="1.2"/>
+    <circle cx="86" cy="76" r="1.5" fill="#62e8ff" opacity="0.7"/>
+    <!-- Bottom node -->
+    <line x1="64" y1="64" x2="64" y2="90" stroke="#62e8ff" stroke-width="1" opacity="0.6"/>
+    <circle cx="64" cy="92" r="3.5" fill="#0c1424" stroke="#62e8ff" stroke-width="1.2"/>
+    <circle cx="64" cy="92" r="1.5" fill="#62e8ff" opacity="0.7"/>
+    <!-- Upper-left leaf -->
+    <line x1="61" y1="54" x2="46" y2="44" stroke="#3a8fa0" stroke-width="0.8" opacity="0.45"/>
+    <circle cx="44" cy="42" r="2.5" fill="#0c1424" stroke="#3a8fa0" stroke-width="1"/>
+    <!-- Upper-right leaf -->
+    <line x1="67" y1="54" x2="82" y2="44" stroke="#3a8fa0" stroke-width="0.8" opacity="0.45"/>
+    <circle cx="84" cy="42" r="2.5" fill="#0c1424" stroke="#3a8fa0" stroke-width="1"/>
+    <!-- Cross connections (mesh) -->
+    <line x1="44" y1="42" x2="64" y2="36" stroke="#3a8fa0" stroke-width="0.5" opacity="0.3"/>
+    <line x1="84" y1="42" x2="64" y2="36" stroke="#3a8fa0" stroke-width="0.5" opacity="0.3"/>
+    <line x1="42" y1="76" x2="64" y2="92" stroke="#3a8fa0" stroke-width="0.5" opacity="0.3"/>
+    <line x1="86" y1="76" x2="64" y2="92" stroke="#3a8fa0" stroke-width="0.5" opacity="0.3"/>
+  </g>
+  <!-- Lock keyhole at center of hub -->
+  <path d="M62.5 56 L65.5 56 L66 62 L62 62 Z" fill="#62e8ff" opacity="0.5"/>
+</svg>

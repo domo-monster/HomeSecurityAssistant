@@ -1,0 +1,88 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Home Security Assistant",
+        "description": "Configure the NetFlow listener, internal networks, active scanner, and optional threat intel enrichment.",
+        "data": {
+          "bind_host": "Bind host",
+          "bind_port": "Bind port (UDP, default 2055)",
+          "internal_networks": "Internal networks (comma-separated CIDRs)",
+          "scan_window_seconds": "Port-scan detection window (seconds)",
+          "scan_port_threshold": "Unique ports before scan alert",
+          "high_egress_threshold": "High egress threshold (octets per interval)",
+          "enable_webui": "Enable sidebar panel",
+          "enable_scanner": "Enable active network scanner (ping + port scan)",
+          "scan_interval": "Active scan interval (seconds)",
+          "scan_exceptions": "Scan exceptions (comma-separated IPs to skip)",
+          "scan_ports": "Ports to scan (comma-separated ports or ranges, e.g. 22,80,443,8000-9000)",
+          "enable_dns_resolution": "Enable reverse DNS lookups",
+          "blacklist_urls": "Threat intel feed URLs (comma-separated)",
+          "ipinfo_token": "IPInfo.io token (optional, improves quota)",
+          "virustotal_api_key": "VirusTotal API key (optional)",
+          "shodan_api_key": "Shodan API key (optional)",
+          "abuseipdb_api_key": "AbuseIPDB API key (optional)",
+          "external_ip_retention_hours": "External IP retention (hours, 0 = forever)",
+          "enrichment_ttl_minutes": "Enrichment cache TTL (minutes, re-query providers after this)",
+          "ipinfo_daily_budget": "IPInfo daily query budget",
+          "virustotal_daily_budget": "VirusTotal daily query budget",
+          "shodan_daily_budget": "Shodan daily query budget",
+          "abuseipdb_daily_budget": "AbuseIPDB daily query budget",
+          "nvd_api_key": "NVD API key (optional, increases rate limit to 50 req/30 s)",
+          "nvd_api_url": "NVD API URL",
+          "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
+          "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
+          "nvd_keywords": "NVD search keywords (comma-separated product names)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home Security Assistant — Options",
+        "description": "Update listener, detection thresholds, active scanner, and enrichment settings.",
+        "data": {
+          "bind_host": "Bind host",
+          "bind_port": "Bind port (UDP)",
+          "internal_networks": "Internal networks (comma-separated CIDRs)",
+          "scan_window_seconds": "Port-scan detection window (seconds)",
+          "scan_port_threshold": "Unique ports before scan alert",
+          "high_egress_threshold": "High egress threshold (octets per interval)",
+          "enable_webui": "Enable sidebar panel",
+          "enable_scanner": "Enable active network scanner",
+          "scan_interval": "Active scan interval (seconds)",
+          "scan_exceptions": "Scan exceptions (comma-separated IPs to skip)",
+          "scan_ports": "Ports to scan (comma-separated ports or ranges, e.g. 22,80,443,8000-9000)",
+          "enable_dns_resolution": "Enable reverse DNS lookups",
+          "blacklist_urls": "Threat intel feed URLs (comma-separated)",
+          "ipinfo_token": "IPInfo.io token (optional)",
+          "virustotal_api_key": "VirusTotal API key (optional)",
+          "shodan_api_key": "Shodan API key (optional)",
+          "abuseipdb_api_key": "AbuseIPDB API key (optional)",
+          "external_ip_retention_hours": "External IP retention (hours, 0 = forever)",
+          "enrichment_ttl_minutes": "Enrichment cache TTL (minutes, re-query providers after this)",
+          "ipinfo_daily_budget": "IPInfo daily query budget",
+          "virustotal_daily_budget": "VirusTotal daily query budget",
+          "shodan_daily_budget": "Shodan daily query budget",
+          "abuseipdb_daily_budget": "AbuseIPDB daily query budget",
+          "nvd_api_key": "NVD API key (optional, increases rate limit to 50 req/30 s)",
+          "nvd_api_url": "NVD API URL",
+          "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
+          "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
+          "nvd_keywords": "NVD search keywords (comma-separated product names)"
+        }
+      }
+    }
+  },
+  "services": {
+    "trigger_scan": {
+      "name": "Trigger active host scan",
+      "description": "Immediately run a full active network scan (ping + port scan) for all known and observed IPs, without waiting for the next scheduled interval."
+    },
+    "nvd_refresh": {
+      "name": "Refresh NVD vulnerability database",
+      "description": "Flush the local NVD CVE cache and re-fetch fresh vulnerability data from the National Vulnerability Database."
+    }
+  }
+}

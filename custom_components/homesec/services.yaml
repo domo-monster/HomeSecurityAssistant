@@ -1,0 +1,14 @@
+trigger_scan:
+  name: Trigger active host scan
+  description: >
+    Immediately run a full active network scan (ping + port scan) for all known
+    and observed IPs, without waiting for the next scheduled interval. The
+    updated results are available in the dashboard within seconds of completion.
+
+nvd_refresh:
+  name: Refresh NVD vulnerability database
+  description: >
+    Flush the local NVD CVE cache and re-fetch fresh vulnerability data from the
+    National Vulnerability Database on the next scan snapshot. Useful after
+    adding an API key or when you need up-to-date CVE coverage immediately,
+    without waiting for the configured cache TTL to expire.

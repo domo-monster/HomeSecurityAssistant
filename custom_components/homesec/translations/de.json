@@ -1,0 +1,88 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Home Security Assistant",
+        "description": "Konfigurieren Sie den NetFlow-Listener, interne Netzwerke, den aktiven Scanner und optionale Bedrohungsdaten-Anreicherung.",
+        "data": {
+          "bind_host": "Bind-Host",
+          "bind_port": "Bind-Port (UDP, Standard 2055)",
+          "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs)",
+          "scan_window_seconds": "Erkennungsfenster für Port-Scans (Sekunden)",
+          "scan_port_threshold": "Eindeutige Ports vor Scan-Warnung",
+          "high_egress_threshold": "Hoher ausgehender Datenverkehr-Schwellenwert (Oktette pro Intervall)",
+          "enable_webui": "Seitenleisten-Panel aktivieren",
+          "enable_scanner": "Aktiven Netzwerkscanner aktivieren (Ping + Port-Scan)",
+          "scan_interval": "Aktives Scan-Intervall (Sekunden)",
+          "scan_exceptions": "Scanner-Ausnahmen (kommagetrennte IPs, die übersprungen werden sollen)",
+          "scan_ports": "Zu scannende Ports (kommagetrennte Ports oder Bereiche, z.B. 22,80,443,8000-9000)",
+          "enable_dns_resolution": "Reverse-DNS-Auflösung aktivieren",
+          "blacklist_urls": "Bedrohungsdaten-Feed-URLs (kommagetrennt)",
+          "ipinfo_token": "IPInfo.io-Token (optional, erhöht das Kontingent)",
+          "virustotal_api_key": "VirusTotal API-Schlüssel (optional)",
+          "shodan_api_key": "Shodan API-Schlüssel (optional)",
+          "abuseipdb_api_key": "AbuseIPDB API-Schlüssel (optional)",
+          "external_ip_retention_hours": "Aufbewahrung externer IPs (Stunden, 0 = unbegrenzt)",
+          "enrichment_ttl_minutes": "TTL des Anreicherungs-Caches (Minuten, Wartezeit bis zur erneuten Abfrage der Anbieter)",
+          "ipinfo_daily_budget": "Tägliches Abfrage-Budget IPInfo",
+          "virustotal_daily_budget": "Tägliches Abfrage-Budget VirusTotal",
+          "shodan_daily_budget": "Tägliches Abfrage-Budget Shodan",
+          "abuseipdb_daily_budget": "Tägliches Abfrage-Budget AbuseIPDB",
+          "nvd_api_key": "NVD API-Schlüssel (optional, erhöht das Limit auf 50 Anfragen/30 s)",
+          "nvd_api_url": "NVD API-URL",
+          "nvd_ttl_hours": "TTL des NVD-Caches (Stunden, Wartezeit bis zur erneuten CVE-Abfrage)",
+          "nvd_min_year": "NVD-Mindest-CVE-Jahr (0 = alle Jahre, kein Filter)",
+          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home Security Assistant — Optionen",
+        "description": "Aktualisieren Sie Listener, Erkennungsschwellenwerte, aktiven Scanner und Anreicherungseinstellungen.",
+        "data": {
+          "bind_host": "Bind-Host",
+          "bind_port": "Bind-Port (UDP)",
+          "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs)",
+          "scan_window_seconds": "Erkennungsfenster für Port-Scans (Sekunden)",
+          "scan_port_threshold": "Eindeutige Ports vor Scan-Warnung",
+          "high_egress_threshold": "Hoher ausgehender Datenverkehr-Schwellenwert (Oktette pro Intervall)",
+          "enable_webui": "Seitenleisten-Panel aktivieren",
+          "enable_scanner": "Aktiven Netzwerkscanner aktivieren",
+          "scan_interval": "Aktives Scan-Intervall (Sekunden)",
+          "scan_exceptions": "Scanner-Ausnahmen (kommagetrennte IPs, die übersprungen werden sollen)",
+          "scan_ports": "Zu scannende Ports (kommagetrennte Ports oder Bereiche, z.B. 22,80,443,8000-9000)",
+          "enable_dns_resolution": "Reverse-DNS-Auflösung aktivieren",
+          "blacklist_urls": "Bedrohungsdaten-Feed-URLs (kommagetrennt)",
+          "ipinfo_token": "IPInfo.io-Token (optional)",
+          "virustotal_api_key": "VirusTotal API-Schlüssel (optional)",
+          "shodan_api_key": "Shodan API-Schlüssel (optional)",
+          "abuseipdb_api_key": "AbuseIPDB API-Schlüssel (optional)",
+          "external_ip_retention_hours": "Aufbewahrung externer IPs (Stunden, 0 = unbegrenzt)",
+          "enrichment_ttl_minutes": "TTL des Anreicherungs-Caches (Minuten, Wartezeit bis zur erneuten Abfrage der Anbieter)",
+          "ipinfo_daily_budget": "Tägliches Abfrage-Budget IPInfo",
+          "virustotal_daily_budget": "Tägliches Abfrage-Budget VirusTotal",
+          "shodan_daily_budget": "Tägliches Abfrage-Budget Shodan",
+          "abuseipdb_daily_budget": "Tägliches Abfrage-Budget AbuseIPDB",
+          "nvd_api_key": "NVD API-Schlüssel (optional, erhöht das Limit auf 50 Anfragen/30 s)",
+          "nvd_api_url": "NVD API-URL",
+          "nvd_ttl_hours": "TTL des NVD-Caches (Stunden, Wartezeit bis zur erneuten CVE-Abfrage)",
+          "nvd_min_year": "NVD-Mindest-CVE-Jahr (0 = alle Jahre, kein Filter)",
+          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)"
+        }
+      }
+    }
+  },
+  "services": {
+    "trigger_scan": {
+      "name": "Aktiven Host-Scan auslösen",
+      "description": "Führt sofort einen vollständigen aktiven Netzwerkscan (Ping + Port-Scan) für alle bekannten und beobachteten IPs durch, ohne auf das nächste geplante Intervall zu warten."
+    },
+    "nvd_refresh": {
+      "name": "NVD-Schwachstellendatenbank aktualisieren",
+      "description": "Löscht den lokalen NVD-CVE-Cache und ruft aktuelle Schwachstellendaten aus der National Vulnerability Database erneut ab."
+    }
+  }
+}
