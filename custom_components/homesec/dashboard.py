@@ -731,6 +731,37 @@ class HomeSecVulnBrowserView(HomeAssistantView):
                 if svc and svc not in entry["services"]:
                     entry["services"].append(svc)
 
+        # Include ALL cached NVD CVEs (even those not matching a network
+        # host) so the vulnerability browser doubles as a keyword-based
+        # CVE database rather than duplicating the findings view.
+        detected_cves = len(all_vulns)
+        for runtime in entries.values():
+            nvd_client = runtime["collector"]._nvd_client
+            for cve in nvd_client.all_cached_cves:
+                cid = cve.get("cve_id", "")
+                if not cid or cid in all_vulns:
+                    continue
+                cpe_list: list[str] = []
+                for cfg in cve.get("configurations", []):
+                    for node in cfg.get("nodes", []):
+                        for m in node.get("cpeMatch", []):
+                            c = m.get("criteria", "")
+                            if c and c not in cpe_list:
+                                cpe_list.append(c)
+                all_vulns[cid] = {
+                    "cve_id": cid,
+                    "cvss": cve.get("cvss", 0),
+                    "severity": cve.get("severity", ""),
+                    "summary": cve.get("summary", ""),
+                    "published": cve.get("published", ""),
+                    "source": "nvd",
+                    "in_kev": False,
+                    "affected_hosts": [],
+                    "ports": [],
+                    "services": [],
+                    "cpe_criteria": cpe_list,
+                }
+
         # Cross-reference with CISA KEV
         kev_matches = 0
         if kev_client:
@@ -745,10 +776,6 @@ class HomeSecVulnBrowserView(HomeAssistantView):
                     entry["kev_action"] = kev_entry.get("action", "")
                     kev_matches += 1
 
-            # KEV entries that don't overlap with scanned NVD results are
-            # not added — the browser only shows CVEs relevant to services
-            # actually detected on the network.
-
         vuln_list = sorted(
             all_vulns.values(),
             key=lambda v: (-v.get("cvss", 0), v.get("cve_id", "")),
@@ -756,6 +783,7 @@ class HomeSecVulnBrowserView(HomeAssistantView):
         return self.json({
             "vulnerabilities": vuln_list,
             "total": len(vuln_list),
+            "detected_cves": detected_cves,
             "kev_matches": kev_matches,
             "kev_total": kev_client.total if kev_client else 0,
         })

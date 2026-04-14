@@ -1366,7 +1366,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var det = f.details || {};
       var cve = det.cve_id ? '<span class="chip">' + det.cve_id + '</span>' : '';
       var portChip = det.port ? '<span class="chip">port ' + det.port + '</span>' : '';
-      var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port'; })
+      var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
         .map(function(k) { return '<dt>' + k + ':</dt> <dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
       var noteHtml = (isDismissed && f.dismiss_note)
         ? '<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>Note:</strong> ' + self._esc(f.dismiss_note) + '</div>'
@@ -1639,7 +1639,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         self._render();
       }).catch(function() {
         self._vulnLoading = false;
-        self._vulnData = { vulnerabilities: [], total: 0, kev_matches: 0, kev_total: 0 };
+        self._vulnData = { vulnerabilities: [], total: 0, detected_cves: 0, kev_matches: 0, kev_total: 0 };
         self._render();
       });
       return '<div><div class="view-header"><h1>Vulnerability Browser</h1></div>' +
@@ -1649,7 +1649,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return '<div><div class="view-header"><h1>Vulnerability Browser</h1></div>' +
         '<div class="state-box"><div class="loader"></div><p>Loading vulnerabilities\u2026</p></div></div>';
     }
-    var d = this._vulnData || { vulnerabilities: [], total: 0, kev_matches: 0, kev_total: 0 };
+    var d = this._vulnData || { vulnerabilities: [], total: 0, detected_cves: 0, kev_matches: 0, kev_total: 0 };
     var allVulns = d.vulnerabilities || [];
     var q = this._vulnFilter.toLowerCase().trim();
     var filtered = allVulns;
@@ -1708,6 +1708,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>' +
       '<div class="tldr-bar">' +
         '<span><strong>' + d.total + '</strong> CVEs in database</span>' +
+        '<span><strong>' + (d.detected_cves || 0) + '</strong> detected on network</span>' +
         '<span><strong>' + d.kev_matches + '</strong> in CISA KEV</span>' +
         '<span><strong>' + total + '</strong> matching results</span>' +
       '</div>' +
@@ -1740,7 +1741,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var services = (v.services || []).map(function(s) { return '<span class="chip">' + self._esc(s) + '</span>'; }).join('') || '\u2014';
       var ports = (v.ports || []).map(function(p) { return '<span class="chip">' + p + '</span>'; }).join('') || '\u2014';
       var hosts = (v.affected_hosts || []).length;
-      var hostsStr = hosts > 0 ? '<span class="ip-chip">' + hosts + ' host' + (hosts > 1 ? 's' : '') + '</span>' : '\u2014';
+      var hostsStr = hosts > 0 ? '<span class="ip-chip">' + hosts + ' host' + (hosts > 1 ? 's' : '') + '</span>' : '<span class="dim" style="font-size:10px">not detected</span>';
       var summary = self._esc((v.summary || '').substring(0, 200));
       if ((v.summary || '').length > 200) summary += '\u2026';
       var cveBtn = cid ? '<a class="ext-report-link" style="cursor:pointer" data-vuln-detail="' + cid + '" title="View details">' + cid + '</a>' : cid;
@@ -1791,7 +1792,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var sc = sevClass(cvss);
     var services = (v.services || []).map(function(s) { return '<span class="chip">' + self._esc(s) + '</span>'; }).join(' ') || '\u2014';
     var ports = (v.ports || []).map(function(p) { return '<span class="chip">' + p + '</span>'; }).join(' ') || '\u2014';
-    var hosts = (v.affected_hosts || []).map(function(h) { return '<span class="ip-chip">' + h + '</span>'; }).join(' ') || 'None on this network';
+    var hosts = (v.affected_hosts || []).map(function(h) { return '<span class="ip-chip">' + h + '</span>'; }).join(' ') || '<span class="dim">Not detected on this network</span>';
     var cpes = (v.cpe_criteria || []).slice(0, 10).map(function(c) { return '<div class="mono" style="font-size:10px;color:var(--muted);word-break:break-all">' + self._esc(c) + '</div>'; }).join('');
     if ((v.cpe_criteria || []).length > 10) cpes += '<div class="dim" style="font-size:10px">+' + (v.cpe_criteria.length - 10) + ' more</div>';
     if (!cpes) cpes = '<span class="dim">\u2014</span>';
