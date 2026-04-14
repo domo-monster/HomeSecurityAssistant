@@ -145,6 +145,22 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "cpe_product": "samba",
         },
     ],
+    "netbios-ssn": [
+        {
+            "keyword": "Samba",
+            "banner_re": r"samba[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "samba",
+            "cpe_product": "samba",
+        },
+    ],
+    "microsoft-ds": [
+        {
+            "keyword": "Samba",
+            "banner_re": r"samba[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "samba",
+            "cpe_product": "samba",
+        },
+    ],
     "imap": [
         {
             "keyword": "Dovecot",
@@ -165,6 +181,84 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "banner_re": r"emqx[/ ](\d+\.\d+[\w.]*)",
             "cpe_vendor": "emqx",
             "cpe_product": "emqx",
+        },
+    ],
+    "mqtt-tls": [
+        {
+            "keyword": "Mosquitto",
+            "banner_re": r"mosquitto[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "eclipse",
+            "cpe_product": "mosquitto",
+        },
+        {
+            "keyword": "EMQX",
+            "banner_re": r"emqx[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "emqx",
+            "cpe_product": "emqx",
+        },
+    ],
+    "adb": [
+        {
+            "keyword": "Android Debug Bridge",
+            "banner_re": r"android[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "google",
+            "cpe_product": "android",
+        },
+    ],
+    "dns": [
+        {
+            "keyword": "BIND",
+            "banner_re": r"bind[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "isc",
+            "cpe_product": "bind",
+        },
+        {
+            "keyword": "dnsmasq",
+            "banner_re": r"dnsmasq[/ -](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "thekelleys",
+            "cpe_product": "dnsmasq",
+        },
+        {
+            "keyword": "Unbound",
+            "banner_re": r"unbound[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "nlnetlabs",
+            "cpe_product": "unbound",
+        },
+    ],
+    "nfs": [
+        {
+            "keyword": "NFS",
+            "banner_re": r"nfs[/ -]?v?(\d+\.\d+[\w.]*)",
+            "cpe_vendor": "linux",
+            "cpe_product": "linux_kernel",
+        },
+    ],
+    "ntp": [
+        {
+            "keyword": "ntpd",
+            "banner_re": r"ntpd[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "ntp",
+            "cpe_product": "ntp",
+        },
+        {
+            "keyword": "Chrony",
+            "banner_re": r"chrony[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "tuxfamily",
+            "cpe_product": "chrony",
+        },
+    ],
+    "rtsp": [
+        {
+            "keyword": "Live555",
+            "banner_re": r"live555[/ ]v?(\d+[\d.]*)",
+            "cpe_vendor": "live555",
+            "cpe_product": "streaming_media",
+        },
+        {
+            "keyword": "GStreamer RTSP",
+            "banner_re": r"gstreamer[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "gstreamer_project",
+            "cpe_product": "gstreamer",
         },
     ],
 }
@@ -634,12 +728,13 @@ class NVDClient:
         return out
 
     async def prefetch_all_keywords(self) -> None:
-        """Pre-fetch CVEs for every configured keyword.
+        """Pre-fetch CVEs for every configured keyword and product-map keyword.
 
-        When ``custom_keywords`` is provided, those keywords are fetched.
-        Otherwise falls back to every keyword in ``_SERVICE_PRODUCT_MAP``.
-        Also pre-fetches any dynamically discovered keywords from previous
-        calls to ``find_vulnerabilities``.
+        Custom keywords are fetched first, then all keywords from
+        ``_SERVICE_PRODUCT_MAP`` are always fetched so that detected services
+        (MQTT, SMB, etc.) always appear in the keyword list regardless of
+        banner matching.  Also re-fetches any dynamically discovered keywords
+        from previous calls to ``find_vulnerabilities``.
         """
         keywords_done: set[str] = set()
         if self._custom_keywords is not None:
@@ -648,14 +743,15 @@ class NVDClient:
                     continue
                 keywords_done.add(kw)
                 await self._get_cached(kw)
-        else:
-            for products in _SERVICE_PRODUCT_MAP.values():
-                for prod in products:
-                    kw = prod["keyword"]
-                    if kw in keywords_done:
-                        continue
-                    keywords_done.add(kw)
-                    await self._get_cached(kw)
+        # Always fetch product-map keywords so every mapped service gets
+        # NVD coverage even when custom keywords are configured.
+        for products in _SERVICE_PRODUCT_MAP.values():
+            for prod in products:
+                kw = prod["keyword"]
+                if kw in keywords_done:
+                    continue
+                keywords_done.add(kw)
+                await self._get_cached(kw)
         # Also refresh any dynamically discovered keywords already in cache
         for kw in list(self._cache.keys()):
             if kw not in keywords_done:
