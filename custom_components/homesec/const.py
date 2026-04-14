@@ -78,9 +78,7 @@ DEFAULT_NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 DEFAULT_NVD_TTL_HOURS = 12
 DEFAULT_NVD_MIN_YEAR = 2020
 DEFAULT_NVD_KEYWORDS = (
-    "OpenSSH,Apache HTTP Server,nginx,lighttpd,MySQL,MariaDB,"
-    "vsftpd,ProFTPD,Postfix,Exim,Sendmail,Redis,MongoDB,"
-    "PostgreSQL,Samba,Dovecot"
+    "OpenSSH,Apache HTTP Server,nginx,MySQL,MariaDB,vsftpd,Samba"
 )
 
 # DNS / blacklist defaults

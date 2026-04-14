@@ -153,6 +153,20 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "cpe_product": "dovecot",
         },
     ],
+    "mqtt": [
+        {
+            "keyword": "Mosquitto",
+            "banner_re": r"mosquitto[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "eclipse",
+            "cpe_product": "mosquitto",
+        },
+        {
+            "keyword": "EMQX",
+            "banner_re": r"emqx[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "emqx",
+            "cpe_product": "emqx",
+        },
+    ],
 }
 
 # ---------------------------------------------------------------------------
@@ -676,12 +690,12 @@ class NVDClient:
         custom_kws: set[str] = set(self._custom_keywords) if self._custom_keywords is not None else set()
         result: list[dict[str, Any]] = []
         for kw, (ts, cves) in self._cache.items():
-            if kw in static_kws:
+            if kw in custom_kws:
+                source = "custom"
+            elif kw in static_kws:
                 source = "product_map"
             elif kw in tech_kws:
                 source = "fingerprint"
-            elif kw in custom_kws:
-                source = "custom"
             else:
                 source = "banner"
             result.append({

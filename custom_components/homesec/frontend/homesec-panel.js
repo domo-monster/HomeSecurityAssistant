@@ -506,23 +506,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           if (!kws.length) return self._hrow('Keywords', 'None loaded yet', 'warn');
           var configured = kws.filter(function(k) { return k.source === 'custom'; });
           var dynamic = kws.filter(function(k) { return k.source !== 'custom'; });
-          var sourceLabel = { product_map: 'map', fingerprint: 'fp', banner: 'scan' };
-          function renderChips(list) {
+          var cfgStyle = 'background:rgba(158,150,255,.22);border-color:rgba(158,150,255,.5);color:#c4bfff';
+          var dynStyle = 'background:rgba(107,255,200,.18);border-color:rgba(107,255,200,.45);color:#6bffc8';
+          function renderChips(list, style) {
             return list.map(function(k) {
-              var tag = sourceLabel[k.source] || k.source;
-              return '<span class="chip" title="' + self._esc(k.keyword) + ' \u00B7 ' + k.cve_count + ' CVEs \u00B7 source: ' + self._esc(k.source) + '">'
-                + self._esc(k.keyword) + ' <span class="dim" style="font-size:9px">(' + k.cve_count + ')</span></span>';
+              return '<span class="chip" style="' + style + '" title="' + self._esc(k.keyword) + ' \u00B7 ' + k.cve_count + ' CVEs \u00B7 source: ' + self._esc(k.source) + '">'
+                + self._esc(k.keyword) + ' <span style="opacity:.55;font-size:9px">(' + k.cve_count + ')</span></span>';
             }).join(' ');
           }
-          var html = '';
-          if (configured.length) {
-            html += '<div style="margin-top:8px"><div class="section-label" style="margin-bottom:4px">Configured Keywords <span class="dim">(' + configured.length + ')</span></div>' +
-              '<div style="line-height:2">' + renderChips(configured) + '</div></div>';
-          }
-          if (dynamic.length) {
-            html += '<div style="margin-top:8px"><div class="section-label" style="margin-bottom:4px">Dynamic Keywords <span class="dim">(' + dynamic.length + ')</span></div>' +
-              '<div style="line-height:2">' + renderChips(dynamic) + '</div></div>';
-          }
+          var html = '<div class="section-label" style="margin-top:10px;margin-bottom:4px">NVD Keywords (' + kws.length + ')</div>';
+          html += '<div style="display:flex;gap:14px;align-items:center;font-size:10px;color:var(--muted);margin-bottom:6px">' +
+            '<span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(158,150,255,.7);background:rgba(158,150,255,.35)"></span> Configured</span>' +
+            '<span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(107,255,200,.6);background:rgba(107,255,200,.3)"></span> From scans</span>' +
+          '</div>';
+          html += '<div style="line-height:2">';
+          if (configured.length) html += renderChips(configured, cfgStyle);
+          if (configured.length && dynamic.length) html += ' ';
+          if (dynamic.length) html += renderChips(dynamic, dynStyle);
+          html += '</div>';
           return html;
         })() +
       '</div>' +
