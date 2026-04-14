@@ -501,6 +501,30 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         this._hrow('Cache TTL', nvdTtl, '') +
         this._hrow('CVEs in database', nvdTotalCves.toLocaleString(), '') +
         this._hrow('Min publication year', nvdMinYear ? nvdMinYear : 'All years', '') +
+        (function() {
+          var kws = (self._data && self._data.nvd_keywords) || [];
+          if (!kws.length) return self._hrow('Keywords', 'None loaded yet', 'warn');
+          var configured = kws.filter(function(k) { return k.source === 'custom'; });
+          var dynamic = kws.filter(function(k) { return k.source !== 'custom'; });
+          var sourceLabel = { product_map: 'map', fingerprint: 'fp', banner: 'scan' };
+          function renderChips(list) {
+            return list.map(function(k) {
+              var tag = sourceLabel[k.source] || k.source;
+              return '<span class="chip" title="' + self._esc(k.keyword) + ' \u00B7 ' + k.cve_count + ' CVEs \u00B7 source: ' + self._esc(k.source) + '">'
+                + self._esc(k.keyword) + ' <span class="dim" style="font-size:9px">(' + k.cve_count + ')</span></span>';
+            }).join(' ');
+          }
+          var html = '';
+          if (configured.length) {
+            html += '<div style="margin-top:8px"><div class="section-label" style="margin-bottom:4px">Configured Keywords <span class="dim">(' + configured.length + ')</span></div>' +
+              '<div style="line-height:2">' + renderChips(configured) + '</div></div>';
+          }
+          if (dynamic.length) {
+            html += '<div style="margin-top:8px"><div class="section-label" style="margin-bottom:4px">Dynamic Keywords <span class="dim">(' + dynamic.length + ')</span></div>' +
+              '<div style="line-height:2">' + renderChips(dynamic) + '</div></div>';
+          }
+          return html;
+        })() +
       '</div>' +
       (function() {
         var kevTotal = (self._data && self._data.kev_total != null) ? self._data.kev_total : 0;

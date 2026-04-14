@@ -156,6 +156,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
     nvd_ttl_hours: int | None = None
     nvd_total_cves: int = 0
     nvd_min_year: int | None = None
+    nvd_keywords: list[dict[str, Any]] = []
     kev_total: int = 0
     kev_ttl_hours: int | None = None
     kev_last_updated: str | None = None
@@ -249,6 +250,12 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         # and misses cache updates made by the NVD background loop.
         collector = runtime["collector"]
         nvd_total_cves += collector._nvd_client.total_cached_cves
+        # Merge keyword info from the live NVD client (deduplicated by keyword)
+        seen_kws = {k["keyword"] for k in nvd_keywords}
+        for kw_info in collector._nvd_client.cached_keywords:
+            if kw_info["keyword"] not in seen_kws:
+                seen_kws.add(kw_info["keyword"])
+                nvd_keywords.append(kw_info)
         entry_nvd_min = snapshot.get("nvd_min_year")
         if entry_nvd_min is not None:
             nvd_min_year = int(entry_nvd_min)
@@ -323,6 +330,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         "nvd_ttl_hours": nvd_ttl_hours,
         "nvd_total_cves": nvd_total_cves,
         "nvd_min_year": nvd_min_year,
+        "nvd_keywords": nvd_keywords,
         "kev_total": kev_total,
         "kev_ttl_hours": kev_ttl_hours,
         "kev_last_updated": kev_last_updated,
