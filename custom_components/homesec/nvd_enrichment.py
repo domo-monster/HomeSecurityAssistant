@@ -241,6 +241,34 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "cpe_product": "gstreamer",
         },
     ],
+    "upnp": [
+        {
+            "keyword": "MiniUPnP",
+            "banner_re": r"miniupnp[d]?[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "miniupnp_project",
+            "cpe_product": "miniupnpd",
+        },
+        {
+            "keyword": "UPnP",
+            "banner_re": r"upnp[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "upnp",
+            "cpe_product": "upnp",
+        },
+    ],
+    "upnp-alt": [
+        {
+            "keyword": "MiniUPnP",
+            "banner_re": r"miniupnp[d]?[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "miniupnp_project",
+            "cpe_product": "miniupnpd",
+        },
+        {
+            "keyword": "UPnP",
+            "banner_re": r"upnp[/ ](\d+\.\d+[\w.]*)",
+            "cpe_vendor": "upnp",
+            "cpe_product": "upnp",
+        },
+    ],
 }
 
 # ---------------------------------------------------------------------------
