@@ -764,11 +764,24 @@ class NVDClient:
                     continue
                 keywords_done.add(kw)
                 await self._get_cached(kw)
-        # Also refresh any dynamically discovered keywords already in cache
+        # Also refresh dynamically discovered keywords already in cache,
+        # but skip product-map keywords for services not on the network.
+        pm_kws: dict[str, set[str]] = {}  # keyword -> set of service names
+        for svc_name, products in _SERVICE_PRODUCT_MAP.items():
+            for prod in products:
+                pm_kws.setdefault(prod["keyword"], set()).add(svc_name)
         for kw in list(self._cache.keys()):
-            if kw not in keywords_done:
-                keywords_done.add(kw)
-                await self._get_cached(kw)
+            if kw in keywords_done:
+                continue
+            # If this keyword belongs to the product map, only keep it if
+            # at least one of its service names is currently active.
+            if kw in pm_kws and active_services is not None:
+                if not pm_kws[kw] & active_services:
+                    # Evict stale product-map keyword from cache
+                    self._cache.pop(kw, None)
+                    continue
+            keywords_done.add(kw)
+            await self._get_cached(kw)
         _LOGGER.info(
             "NVD prefetch complete: %d keywords, %d total cached CVEs",
             len(keywords_done),

@@ -250,7 +250,7 @@ class HomeSecCollector:
                         if svc_name:
                             active_services.add(svc_name)
                 # Pre-fetch NVD keywords for configured + detected services
-                await self._nvd_client.prefetch_all_keywords(active_services or None)
+                await self._nvd_client.prefetch_all_keywords(active_services)
                 # Fetch CISA KEV catalog
                 await self._kev_client.fetch()
                 if not hosts_with_services:
