@@ -206,12 +206,6 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "cpe_vendor": "thekelleys",
             "cpe_product": "dnsmasq",
         },
-        {
-            "keyword": "Unbound",
-            "banner_re": r"unbound[/ ](\d+\.\d+[\w.]*)",
-            "cpe_vendor": "nlnetlabs",
-            "cpe_product": "unbound",
-        },
     ],
     "ntp": [
         {
