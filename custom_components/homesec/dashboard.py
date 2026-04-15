@@ -11,7 +11,12 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.http.view import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import (
+    CONF_SCAN_INTERVAL,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    get_entry_value,
+)
 from .storage import (
     load_name_overrides,
     load_role_overrides,
@@ -160,6 +165,9 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
     kev_total: int = 0
     kev_ttl_hours: int | None = None
     kev_last_updated: str | None = None
+    scan_last_at: str | None = None
+    scan_duration: float | None = None
+    scan_hosts_found: int | None = None
 
     for entry_id, runtime in entries.items():
         coordinator = runtime["coordinator"]
@@ -268,6 +276,16 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
             kev_ts_str = kev_ts.isoformat()
             if kev_last_updated is None or kev_ts_str > kev_last_updated:
                 kev_last_updated = kev_ts_str
+        scanner = collector._scanner
+        s_at = scanner.last_scan_at
+        if s_at:
+            s_at_str = s_at.isoformat()
+            if scan_last_at is None or s_at_str > scan_last_at:
+                scan_last_at = s_at_str
+        if scanner.last_scan_duration is not None:
+            scan_duration = scanner.last_scan_duration
+        if scanner.last_scan_hosts is not None:
+            scan_hosts_found = scanner.last_scan_hosts
         nvd_ts = collector._nvd_last_fetch_at
         if nvd_ts:
             nvd_ts_str = nvd_ts.isoformat()
@@ -334,6 +352,12 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         "kev_total": kev_total,
         "kev_ttl_hours": kev_ttl_hours,
         "kev_last_updated": kev_last_updated,
+        "scan_last_at": scan_last_at,
+        "scan_duration": scan_duration,
+        "scan_hosts_found": scan_hosts_found,
+        "scan_interval": int(get_entry_value(
+            list(entries.values())[0]["entry"], CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+        )) if entries else None,
         "entries": entry_payloads,
     }
 

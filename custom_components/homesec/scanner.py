@@ -708,6 +708,9 @@ class NetworkScanner:
         self._known_ips: set[str] = set()
         self._running = False
         self._on_scan_complete = on_scan_complete
+        self._last_scan_at: datetime | None = None
+        self._last_scan_duration: float | None = None
+        self._last_scan_hosts: int | None = None
 
     def add_observed_ips(self, ips: Iterable[str]) -> None:
         """Register IPs seen from netflow so the scanner knows what to probe."""
@@ -757,12 +760,25 @@ class NetworkScanner:
                 _LOGGER.exception("Network scan cycle failed")
             await asyncio.sleep(self._scan_interval)
 
+    @property
+    def last_scan_at(self) -> datetime | None:
+        return self._last_scan_at
+
+    @property
+    def last_scan_duration(self) -> float | None:
+        return self._last_scan_duration
+
+    @property
+    def last_scan_hosts(self) -> int | None:
+        return self._last_scan_hosts
+
     async def _run_scan(self) -> None:
         """Execute one full scan cycle."""
         targets = self.get_scan_targets()
         if not targets:
             return
         _LOGGER.info("Starting network scan of %d hosts", len(targets))
+        t0 = datetime.now(UTC)
         results = await scan_network(
             targets,
             ports=self._ports,
@@ -770,12 +786,14 @@ class NetworkScanner:
         )
         for host in results:
             self._hosts[host.ip] = host
-        # Remove hosts that didn't respond and haven't been seen recently
-        stale_cutoff = datetime.now(UTC).isoformat()
+        self._last_scan_at = datetime.now(UTC)
+        self._last_scan_duration = (self._last_scan_at - t0).total_seconds()
+        self._last_scan_hosts = sum(1 for h in self._hosts.values() if h.alive)
         _LOGGER.info(
-            "Scan complete: %d alive, %d total tracked",
-            sum(1 for h in self._hosts.values() if h.alive),
+            "Scan complete: %d alive, %d total tracked (%.1fs)",
+            self._last_scan_hosts,
             len(self._hosts),
+            self._last_scan_duration,
         )
         if self._on_scan_complete is not None:
             await self._on_scan_complete(self.get_hosts_as_dicts())

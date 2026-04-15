@@ -495,6 +495,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           (findings.length > 5 ? '<button class="btn" style="margin-top:10px" data-view="findings">View all findings \u2192</button>' : '') +
         '</div>' +
       '</div>' +
+      (function() {
+        var scanAt = self._data && self._data.scan_last_at;
+        var scanDur = self._data && self._data.scan_duration;
+        var scanHosts = self._data && self._data.scan_hosts_found;
+        var scanInterval = self._data && self._data.scan_interval;
+        var scanAge = scanAt ? self._ago(scanAt) : 'never';
+        var scanStatus = scanAt ? ((Date.now() - new Date(scanAt).getTime()) < (scanInterval || 300) * 2 * 1000 ? 'good' : 'warn') : 'warn';
+        var durStr = scanDur != null ? (scanDur < 60 ? scanDur.toFixed(1) + '\u00a0s' : (scanDur / 60).toFixed(1) + '\u00a0min') : '\u2014';
+        var hostsStr = scanHosts != null ? scanHosts.toLocaleString() : '\u2014';
+        var intervalStr = scanInterval != null ? (scanInterval < 60 ? scanInterval + '\u00a0s' : Math.round(scanInterval / 60) + '\u00a0min') : '\u2014';
+        return '<div class="card" style="margin-top:12px">' +
+          '<div class="card-title">Active Scan</div>' +
+          self._hrow('Last scan', scanAge, scanStatus) +
+          self._hrow('Duration', durStr, '') +
+          self._hrow('Hosts found', hostsStr, scanHosts > 0 ? '' : 'warn') +
+          self._hrow('Scan interval', intervalStr, '') +
+        '</div>';
+      })() +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title">Vulnerability Intelligence (NVD)</div>' +
         this._hrow('Last database fetch', nvdAge, nvdStatus) +
