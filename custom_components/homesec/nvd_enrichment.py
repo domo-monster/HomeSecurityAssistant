@@ -176,12 +176,6 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "cpe_vendor": "eclipse",
             "cpe_product": "mosquitto",
         },
-        {
-            "keyword": "EMQX",
-            "banner_re": r"emqx[/ ](\d+\.\d+[\w.]*)",
-            "cpe_vendor": "emqx",
-            "cpe_product": "emqx",
-        },
     ],
     "mqtt-tls": [
         {
@@ -189,12 +183,6 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "banner_re": r"mosquitto[/ ](\d+\.\d+[\w.]*)",
             "cpe_vendor": "eclipse",
             "cpe_product": "mosquitto",
-        },
-        {
-            "keyword": "EMQX",
-            "banner_re": r"emqx[/ ](\d+\.\d+[\w.]*)",
-            "cpe_vendor": "emqx",
-            "cpe_product": "emqx",
         },
     ],
     "adb": [
@@ -223,14 +211,6 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "banner_re": r"unbound[/ ](\d+\.\d+[\w.]*)",
             "cpe_vendor": "nlnetlabs",
             "cpe_product": "unbound",
-        },
-    ],
-    "nfs": [
-        {
-            "keyword": "NFS",
-            "banner_re": r"nfs[/ -]?v?(\d+\.\d+[\w.]*)",
-            "cpe_vendor": "linux",
-            "cpe_product": "linux_kernel",
         },
     ],
     "ntp": [
@@ -727,14 +707,17 @@ class NVDClient:
                     out.append(cve)
         return out
 
-    async def prefetch_all_keywords(self) -> None:
-        """Pre-fetch CVEs for every configured keyword and product-map keyword.
+    async def prefetch_all_keywords(
+        self, active_services: set[str] | None = None,
+    ) -> None:
+        """Pre-fetch CVEs for configured keywords and product-map keywords.
 
-        Custom keywords are fetched first, then all keywords from
-        ``_SERVICE_PRODUCT_MAP`` are always fetched so that detected services
-        (MQTT, SMB, etc.) always appear in the keyword list regardless of
-        banner matching.  Also re-fetches any dynamically discovered keywords
-        from previous calls to ``find_vulnerabilities``.
+        Custom keywords are always fetched.  Product-map keywords are only
+        fetched for service names present in *active_services* (the set of
+        service names actually detected on the network).  When
+        *active_services* is ``None``, all product-map keywords are fetched
+        (backwards-compatible fallback).  Also re-fetches any dynamically
+        discovered keywords already in the cache.
         """
         keywords_done: set[str] = set()
         if self._custom_keywords is not None:
@@ -743,9 +726,10 @@ class NVDClient:
                     continue
                 keywords_done.add(kw)
                 await self._get_cached(kw)
-        # Always fetch product-map keywords so every mapped service gets
-        # NVD coverage even when custom keywords are configured.
-        for products in _SERVICE_PRODUCT_MAP.values():
+        # Fetch product-map keywords only for services detected on the network
+        for svc_name, products in _SERVICE_PRODUCT_MAP.items():
+            if active_services is not None and svc_name not in active_services:
+                continue
             for prod in products:
                 kw = prod["keyword"]
                 if kw in keywords_done:

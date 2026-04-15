@@ -237,16 +237,22 @@ class HomeSecCollector:
         retry_delay = 60  # seconds between retries while waiting for scan data
         while True:
             try:
-                # Always pre-fetch all product keywords so the CVE count is populated
-                await self._nvd_client.prefetch_all_keywords()
-                # Fetch CISA KEV catalog
-                await self._kev_client.fetch()
-
+                # Collect service names detected across all scanned hosts
                 scan_results = self._scanner.snapshot_as_dicts()
                 hosts_with_services = [
                     h for h in scan_results
                     if h.get("open_ports")
                 ]
+                active_services: set[str] = set()
+                for h in hosts_with_services:
+                    for svc in h.get("open_ports", []):
+                        svc_name = str(svc.get("service_name", "")).lower()
+                        if svc_name:
+                            active_services.add(svc_name)
+                # Pre-fetch NVD keywords for configured + detected services
+                await self._nvd_client.prefetch_all_keywords(active_services or None)
+                # Fetch CISA KEV catalog
+                await self._kev_client.fetch()
                 if not hosts_with_services:
                     _LOGGER.debug("NVD background loop: no scan results yet, retrying in %ds", retry_delay)
                     self._nvd_last_fetch_at = datetime.now(timezone.utc)
