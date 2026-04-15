@@ -51,7 +51,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 ### Sidebar Dashboard
 A dedicated multi-view single-page application registered in the HA sidebar:
 
-- **Overview** — summary stats, NetFlow listener health, recent alerts, and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived)
+- **Overview** — summary stats, **Active Scan** card (last scan time, duration, hosts found, scan interval), NetFlow listener health, recent alerts, and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived)
 - **Network Map** — live force-directed graph with zoom/pan, showing scanned hosts, flow-active hosts, at-risk devices, gateways, and top external peers. Filter toggles: All / Scanned / Flow only / External
 - **Hosts** — searchable device inventory with inferred roles, scan results, and tracker-enriched names (alive hosts only)
 - **Findings** — actionable security findings with dismiss buttons, CVE details, and remediation hints
