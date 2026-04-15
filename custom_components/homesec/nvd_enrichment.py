@@ -44,6 +44,12 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "cpe_vendor": "openbsd",
             "cpe_product": "openssh",
         },
+        {
+            "keyword": "Dropbear SSH",
+            "banner_re": r"dropbear[_/ ]?(\d+\.\d+[\w.]*)",
+            "cpe_vendor": "matt_johnston",
+            "cpe_product": "dropbear_ssh_server",
+        },
     ],
     "http": [
         {
