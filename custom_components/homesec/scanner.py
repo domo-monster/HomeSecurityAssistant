@@ -788,7 +788,7 @@ class NetworkScanner:
             self._hosts[host.ip] = host
         self._last_scan_at = datetime.now(UTC)
         self._last_scan_duration = (self._last_scan_at - t0).total_seconds()
-        self._last_scan_hosts = sum(1 for h in self._hosts.values() if h.alive)
+        self._last_scan_hosts = sum(1 for h in results if h.alive)
         _LOGGER.info(
             "Scan complete: %d alive, %d total tracked (%.1fs)",
             self._last_scan_hosts,
