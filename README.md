@@ -28,7 +28,8 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Configurable **retention window** for external IP history (default 24 hours, 0 = forever)
 
 ### Vulnerability Detection
-- **NVD enrichment** — queries the NIST National Vulnerability Database REST API 2.0 for CVEs matching detected service banners. Precise CPE vendor/product filtering for well-known services (OpenSSH, Apache, nginx, MySQL, etc.) plus generic banner-based matching for other services
+- **NVD enrichment** — queries the NIST National Vulnerability Database REST API 2.0 for CVEs matching detected service banners. Precise CPE vendor/product filtering for 20+ service mappings: SSH (OpenSSH, Dropbear), HTTP (Apache, nginx, lighttpd), MySQL/MariaDB, FTP (vsftpd, ProFTPD), SMTP (Postfix, Exim, Sendmail), Redis, MongoDB, PostgreSQL, SMB/NetBIOS/Microsoft-DS (Samba), IMAP (Dovecot), MQTT/MQTT-TLS (Mosquitto), ADB (Android Debug Bridge), DNS (BIND, dnsmasq), NTP (ntpd, Chrony), RTSP (Live555, GStreamer), and UPnP (MiniUPnP). Generic banner-based matching covers any other service with an identifiable version string
+- **Service-aware prefetching** — NVD keyword prefetch is scoped to services actually detected on the network, avoiding unnecessary API calls for products not present
 - **HTTP technology validation** — CVEs for web applications (WordPress, WooCommerce, Drupal, etc.) are only reported if the technology was actually **confirmed via HTTP fingerprinting**, eliminating false positives
 - **CISA KEV integration** — cross-references findings against the CISA Known Exploited Vulnerabilities catalog, flagging CVEs under active exploitation
 - **Version-range matching** — uses CPE configuration data to check if the exact detected version falls within a vulnerable range
@@ -50,12 +51,12 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 ### Sidebar Dashboard
 A dedicated multi-view single-page application registered in the HA sidebar:
 
-- **Overview** — summary stats, NetFlow listener health, recent alerts
+- **Overview** — summary stats, NetFlow listener health, recent alerts, and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived)
 - **Network Map** — live force-directed graph with zoom/pan, showing scanned hosts, flow-active hosts, at-risk devices, gateways, and top external peers. Filter toggles: All / Scanned / Flow only / External
 - **Hosts** — searchable device inventory with inferred roles, scan results, and tracker-enriched names (alive hosts only)
 - **Findings** — actionable security findings with dismiss buttons, CVE details, and remediation hints
 - **External IPs** — enriched external IP table with threat ratings, VirusTotal hits, AbuseIPDB scores, last-seen timestamps, and on-demand lookup
-- **Vulnerabilities** — sortable vulnerability browser listing all version-validated CVE findings across hosts, with CVSS scores, severity, affected service/technology, published date, CISA KEV flags, and a **CVE detail modal** showing full description and CPE criteria
+- **Vulnerabilities** — sortable vulnerability browser listing **all cached NVD CVEs** (not just network-detected) with CVSS scores, severity, affected service/technology, published date, CISA KEV flags, detected-on-network count, and a **CVE detail modal** showing full description and CPE criteria. CVEs not matching any host on the network are shown with a dimmed "not detected" indicator
 - **Recommendations** — prioritized hardening suggestions based on current network state
 
 The dashboard auto-refreshes every 30 seconds. The network map updates live without resetting the physics simulation.
@@ -74,7 +75,7 @@ Custom integration icons (including dark mode variants) are served for the HA in
 | Vulnerability Count | Count of CVE vulnerabilities detected |
 | Suspicious Sources | Devices reaching commonly abused ports |
 | High Egress Sources | Devices exceeding outbound data threshold |
-| NVD Keywords | Count of NVD search keywords in cache (attributes: per-keyword CVE count, source, fetch time) |
+| NVD Keywords | Count of NVD search keywords in cache (attributes: per-keyword CVE count, source classification — `custom` / `product_map` / `fingerprint` / `banner` — and fetch time) |
 
 Each sensor exposes diagnostic attributes including device inventory, listener health, exporter IPs, protocol versions, template counts, and dropped datagram counters.
 
