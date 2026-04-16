@@ -6,6 +6,8 @@
 
 Home Security Assistant is a custom Home Assistant integration that provides real-time network security monitoring for your home. It combines passive NetFlow/IPFIX traffic analysis with active network scanning, external IP threat intelligence, DNS blacklist checks, and vulnerability detection — all presented through a dedicated multi-view sidebar dashboard.
 
+**Website:** [https://domotic.monster/homesec.html](https://domotic.monster/homesec.html)
+
 ## Features
 
 ### Network Flow Analysis
