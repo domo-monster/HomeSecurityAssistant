@@ -461,7 +461,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="page-header"><h1 class="page-title">Overview</h1></div>' +
       '<div class="stat-grid">' +
         this._stat(s.devices || 0, 'Devices', 'success') +
-        this._stat(s.scanned_devices || 0, 'Scanned', '') +
+        this._stat((this._data && this._data.scan_hosts_found) != null ? this._data.scan_hosts_found : (s.scanned_devices || 0), 'Scanned', '') +
         this._stat(s.findings || 0, findingsLabel, (s.findings || 0) > 0 ? 'danger' : '') +
         this._stat(s.vulnerability_count || 0, cvesLabel, (s.vulnerability_count || 0) > 0 ? 'warn' : '') +
         this._stat(nvdTotalCves, 'NVD CVEs' + (nvdMinYear ? ' <span class="dim" style="font-size:10px;text-transform:none">(\u2265\u00a0' + nvdMinYear + ')</span>' : ''), '') +
