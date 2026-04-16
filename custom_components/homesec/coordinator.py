@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 import logging
 
@@ -160,6 +161,7 @@ class HomeSecCollector:
         self._ext_ip_retention_hours: int = int(
             get_entry_value(entry, CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)
         )
+        self._post_scan_refresh: Callable[[], None] | None = None
 
     async def async_start(self) -> None:
         self._started_at = datetime.now(timezone.utc)
@@ -432,6 +434,8 @@ class HomeSecCollector:
         await self.hass.async_add_executor_job(
             save_discovered_hosts, self._config_dir, hosts
         )
+        if self._post_scan_refresh is not None:
+            self._post_scan_refresh()
 
     def dismiss_finding(self, key: str, note: str = "") -> None:
         self._dismissed_findings[key] = note
@@ -565,6 +569,7 @@ class HomeSecCoordinator(DataUpdateCoordinator[dict[str, object]]):
             update_interval=timedelta(seconds=COORDINATOR_INTERVAL_SECONDS),
         )
         self.collector = collector
+        collector._post_scan_refresh = self.async_request_refresh
 
     async def _async_update_data(self) -> dict[str, object]:
         try:
