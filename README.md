@@ -16,6 +16,12 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Tracks per-device flow counts, byte volumes, and connection history
 - Detects suspicious patterns: outbound traffic to abused ports, port scanning, unusual egress volume
 
+<p align="center">
+  <img src="custom_components/homesec/hsa_netmap.png" alt="Network Map Example" width="600">
+  <br>
+  <em>Example: Network Flow Analysis Map</em>
+</p>
+
 ### Active Network Scanner
 - Optional ping + port scan of all observed internal hosts (nmap-style, configurable interval)
 - **Configurable scan ports** — specify individual ports, ranges, or both (e.g. `22,80,443,8000-9000`). Defaults to 47 well-known ports: 21-23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445, 465, 515, 554, 587, 631, 993, 995, 1080, 1433, 1521, 1723, 1883, 2049, 2323, 3306, 3389, 4443, 5000, 5060, 5432, 5555, 5900, 6379, 6667, 8000, 8008, 8080, 8443, 8883, 8888, 9090, 9100, 9200, 27017, 49152
