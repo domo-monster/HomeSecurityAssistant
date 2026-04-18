@@ -29,11 +29,23 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - **HTTP fingerprinting** — lightweight WhatWeb-style technology detection on HTTP(S) ports. Identifies CMS platforms (WordPress, WooCommerce, Joomla, Drupal, Magento), web servers (Tomcat, IIS, Caddy, Varnish, HAProxy), applications (Grafana, GitLab, Nextcloud, Jenkins, phpMyAdmin, Pi-hole, Synology DSM, UniFi, Elasticsearch, Prometheus), and runtimes (PHP, Node.js, ASP.NET) from response headers, cookies, and HTML content
 - Reports scan results per host: alive status, ping latency, open ports, OS guess, detected technologies
 
+<p align="center">
+  <img src="custom_components/homesec/hsa_hosts.png" alt="Active Network Scanner Example" width="600">
+  <br>
+  <em>Example: Active Network Scanner Hosts View</em>
+</p>
+
 ### External IP Intelligence
 - Enriches external IPs with **IPInfo.io**, **VirusTotal**, **Shodan**, and **AbuseIPDB** (all optional, API keys configurable)
 - **Reverse DNS resolution** for external IPs
 - Checks external IPs and hostnames against **threat intel blacklists** (abuse.ch feeds by default, customizable)
 - Configurable **retention window** for external IP history (default 24 hours, 0 = forever)
+
+<p align="center">
+  <img src="custom_components/homesec/hsa_pip.png" alt="External IP Intelligence Example" width="600">
+  <br>
+  <em>Example: External IP Intelligence Table</em>
+</p>
 
 ### Vulnerability Detection
 - **NVD enrichment** — queries the NIST National Vulnerability Database REST API 2.0 for CVEs matching detected service banners. Precise CPE vendor/product filtering for 20+ service mappings: SSH (OpenSSH, Dropbear), HTTP (Apache, nginx, lighttpd), MySQL/MariaDB, FTP (vsftpd, ProFTPD), SMTP (Postfix, Exim, Sendmail), Redis, MongoDB, PostgreSQL, SMB/NetBIOS/Microsoft-DS (Samba), IMAP (Dovecot), MQTT/MQTT-TLS (Mosquitto), ADB (Android Debug Bridge), DNS (BIND, dnsmasq), NTP (ntpd, Chrony), RTSP (Live555, GStreamer), and UPnP (MiniUPnP). Generic banner-based matching covers any other service with an identifiable version string
@@ -43,6 +55,12 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - **Version-range matching** — uses CPE configuration data to check if the exact detected version falls within a vulnerable range
 - Configurable NVD API key (increases rate limit), cache TTL, minimum CVE year, and **customizable search keywords**
 
+<p align="center">
+  <img src="custom_components/homesec/hsa_nvdbrowser.png" alt="Vulnerability Detection Example" width="600">
+  <br>
+  <em>Example: Vulnerability Detection & NVD Browser</em>
+</p>
+
 ### Device Fingerprinting & Enrichment
 - Fingerprints devices from observed service ports and traffic behavior
 - Infers device roles: gateway, camera, IoT, unknown, etc.
@@ -50,11 +68,23 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Enriches device identities from Home Assistant `device_tracker` entities (IP, name, hostname, MAC)
 - Flags devices with known high/critical CVE vulnerabilities as "at risk"
 
+<p align="center">
+  <img src="custom_components/homesec/hsa_ov_cards.png" alt="Device Fingerprinting and Enrichment Example" width="600">
+  <br>
+  <em>Example: Device Fingerprinting & Enrichment Overview Cards</em>
+</p>
+
 ### Security Findings
 - Actionable findings for high/critical issues with severity, source IP, category, and occurrence count
 - Categories: suspicious ports, port scanning, high egress, vulnerabilities
 - **Dismissible findings** — dismiss individual findings from the UI
 - Hardening recommendations derived from observed behavior and telemetry gaps
+
+<p align="center">
+  <img src="custom_components/homesec/hsa_reco.png" alt="Security Findings Example" width="600">
+  <br>
+  <em>Example: Security Findings & Recommendations</em>
+</p>
 
 ### Sidebar Dashboard
 A dedicated multi-view single-page application registered in the HA sidebar:
