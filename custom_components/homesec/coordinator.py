@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
+import ipaddress
 import logging
 
 from homeassistant.config_entries import ConfigEntry
@@ -385,11 +386,11 @@ class HomeSecCollector:
         payload["collector_started_at"] = self._started_at.isoformat() if self._started_at else None
         nvd_ts = self._nvd_last_fetch_at
         payload["nvd_last_updated"] = nvd_ts.isoformat() if nvd_ts else None
-        payload["nvd_ttl_hours"] = self._nvd_client._ttl_hours
+        payload["nvd_ttl_hours"] = self._nvd_client.ttl_hours
         payload["nvd_total_cves"] = self._nvd_client.total_cached_cves
         payload["nvd_vuln_count"] = sum(len(v) for v in self._nvd_results.values())
         payload["nvd_keywords"] = self._nvd_client.cached_keywords
-        payload["nvd_min_year"] = self._nvd_client._min_year
+        payload["nvd_min_year"] = self._nvd_client.min_year
         payload["kev_total"] = self._kev_client.total
         payload["kev_ttl_hours"] = self._kev_client.ttl_hours
         kev_ts = self._kev_client.fetched_at
@@ -471,8 +472,7 @@ class HomeSecCollector:
     @staticmethod
     def _build_multicast_entry(ip: str) -> dict[str, object]:
         """Build a lightweight entry for a multicast destination (no enrichment)."""
-        import ipaddress as _ip
-        addr = _ip.ip_address(ip)
+        addr = ipaddress.ip_address(ip)
         # Well-known multicast group labels
         _KNOWN: dict[str, str] = {
             "224.0.0.1": "All Hosts",
@@ -488,9 +488,9 @@ class HomeSecCollector:
         }
         label = _KNOWN.get(ip, "")
         if not label:
-            if addr in _ip.ip_network("239.0.0.0/8"):
+            if addr in ipaddress.ip_network("239.0.0.0/8"):
                 label = "Admin-scoped multicast"
-            elif addr in _ip.ip_network("224.0.0.0/24"):
+            elif addr in ipaddress.ip_network("224.0.0.0/24"):
                 label = "Local network control"
             else:
                 label = "Multicast group"
@@ -504,7 +504,7 @@ class HomeSecCollector:
     async def lookup_ip(self, ip: str) -> dict[str, object]:
         """On-demand enrichment + DNS lookup for a specific IP (used by the lookup endpoint)."""
         hostname = await self._resolver.resolve(ip)
-        self._resolver._hostname_cache[ip] = hostname
+        self._resolver.set_hostname(ip, hostname)
         enrichment = await self._enricher.enrich_now(ip)
         blacklist = self._resolver.check(ip)
         hostname_threat = self._resolver.check(hostname) if hostname else None
@@ -548,8 +548,8 @@ class HomeSecCollector:
         self._analyzer.ingest(records)
         # Update last_seen for external IPs appearing in live flow records
         now = datetime.now(timezone.utc)
-        is_internal = self._analyzer._is_internal
-        is_multicast = self._analyzer._is_multicast
+        is_internal = self._analyzer.is_internal
+        is_multicast = self._analyzer.is_multicast
         for rec in records:
             src_internal = is_internal(rec.src_ip)
             dst_internal = is_internal(rec.dst_ip)

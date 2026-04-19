@@ -5,12 +5,18 @@ from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 import ipaddress
+import logging
 
 from .netflow import FlowRecord
 
+_LOGGER = logging.getLogger(__name__)
+
 SUSPICIOUS_PORTS = {23, 2323, 3389, 4444, 5555, 6667}
 
-MULTICAST_NETWORK = ipaddress.ip_network("224.0.0.0/4")
+MULTICAST_NETWORKS = (
+    ipaddress.ip_network("224.0.0.0/4"),
+    ipaddress.ip_network("ff00::/8"),
+)
 
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "low": 4, "info": 5}
 
@@ -92,7 +98,15 @@ class HomeSecurityAnalyzer:
         scan_port_threshold: int,
         high_egress_threshold: int,
     ) -> None:
-        self._internal_networks = [ipaddress.ip_network(network.strip()) for network in internal_networks if network.strip()]
+        self._internal_networks = []
+        for raw in internal_networks:
+            token = raw.strip()
+            if not token:
+                continue
+            try:
+                self._internal_networks.append(ipaddress.ip_network(token))
+            except ValueError:
+                _LOGGER.warning("HSA: ignoring invalid internal network %r", token)
         self._scan_window = timedelta(seconds=scan_window_seconds)
         self._scan_port_threshold = scan_port_threshold
         self._high_egress_threshold = high_egress_threshold
@@ -111,10 +125,10 @@ class HomeSecurityAnalyzer:
                 self._total_flows += 1
                 self._last_flow_at = record.timestamp
 
-                src_internal = self._is_internal(record.src_ip)
-                dst_internal = self._is_internal(record.dst_ip)
+                src_internal = self.is_internal(record.src_ip)
+                dst_internal = self.is_internal(record.dst_ip)
 
-                dst_multicast = self._is_multicast(record.dst_ip)
+                dst_multicast = self.is_multicast(record.dst_ip)
 
                 if src_internal:
                     self._observe_internal_source(record)
@@ -126,7 +140,7 @@ class HomeSecurityAnalyzer:
 
                 self._observe_connection(record, src_internal, dst_internal, dst_multicast)
             except Exception:
-                pass  # skip malformed record, keep processing
+                _LOGGER.debug("HSA: skipping malformed flow record", exc_info=True)
 
     def get_observed_ips(self) -> list[str]:
         """Return IPs of all devices seen via NetFlow."""
@@ -254,12 +268,13 @@ class HomeSecurityAnalyzer:
                 },
             )
 
-    def _is_internal(self, address: ipaddress.IPv4Address) -> bool:
-        return any(address in network for network in self._internal_networks)
+    def is_internal(self, address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+        return any(address in network for network in self._internal_networks if network.version == address.version)
 
     @staticmethod
-    def _is_multicast(address: ipaddress.IPv4Address) -> bool:
-        return address in MULTICAST_NETWORK
+    def is_multicast(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+        return any(address in network for network in MULTICAST_NETWORKS if network.version == address.version)
+
 
     def _observe_internal_source(self, record: FlowRecord) -> None:
         device = self._device_for(record.src_ip, record.timestamp)

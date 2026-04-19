@@ -605,8 +605,8 @@ class NVDClient:
         self._api_url = api_url.rstrip("/")
         self._api_key = api_key
         self._ttl = timedelta(hours=ttl_hours)
-        self._ttl_hours = ttl_hours
-        self._min_year = min_year
+        self.ttl_hours = ttl_hours
+        self.min_year = min_year
         self._custom_keywords = custom_keywords
         # keyword -> (fetched_at, simplified_cve_list)
         self._cache: dict[str, tuple[datetime, list[dict[str, Any]]]] = {}
@@ -618,7 +618,7 @@ class NVDClient:
         """Query NVD for CVEs matching *keyword*. Returns simplified CVE list.
 
         Paginates automatically when the total exceeds a single page.
-        Filters by ``_min_year`` client-side (the NVD date-range parameters
+        Filters by ``min_year`` client-side (the NVD date-range parameters
         require both start+end and a ≤120-day window which makes server-side
         filtering impractical for multi-year ranges).
         """
@@ -627,7 +627,7 @@ class NVDClient:
         if self._api_key:
             headers["apiKey"] = self._api_key
 
-        min_year_prefix = f"{self._min_year}-" if self._min_year else ""
+        min_year_prefix = f"{self.min_year}-" if self.min_year else ""
         all_results: list[dict[str, Any]] = []
         start_index = 0
 
@@ -683,7 +683,7 @@ class NVDClient:
                 break
             await asyncio.sleep(self._rate_delay)
 
-        _LOGGER.info("NVD: %d CVEs fetched for keyword %r (>= %s)", len(all_results), keyword, self._min_year or 'all years')
+        _LOGGER.info("NVD: %d CVEs fetched for keyword %r (>= %s)", len(all_results), keyword, self.min_year or 'all years')
         return all_results
 
     async def _get_cached(self, keyword: str) -> list[dict[str, Any]]:
