@@ -472,8 +472,11 @@ class HomeSecCollector:
     def _build_multicast_entry(ip: str) -> dict[str, object]:
         """Build a lightweight entry for a multicast destination (no enrichment)."""
         import ipaddress as _ip
-        addr = _ip.ip_address(ip)
-        # Well-known multicast group labels
+        try:
+            addr = _ip.ip_address(ip)
+        except ValueError:
+            return {"ip": ip, "label": "Multicast group", "kind": "multicast", "internal_sources": []}
+        # Well-known multicast group labels (v4 + v6)
         _KNOWN: dict[str, str] = {
             "224.0.0.1": "All Hosts",
             "224.0.0.2": "All Routers",
@@ -485,15 +488,34 @@ class HomeSecCollector:
             "224.0.0.252": "LLMNR",
             "239.255.255.250": "SSDP / UPnP",
             "239.255.255.253": "SLPv2",
+            "ff02::1": "All Nodes (link-local)",
+            "ff02::2": "All Routers (link-local)",
+            "ff02::5": "OSPFv3 All Routers",
+            "ff02::6": "OSPFv3 Designated Routers",
+            "ff02::9": "RIPng Routers",
+            "ff02::16": "MLDv2",
+            "ff02::fb": "mDNSv6",
+            "ff02::1:2": "DHCPv6 Relay/Server",
+            "ff02::1:3": "LLMNRv6",
         }
         label = _KNOWN.get(ip, "")
         if not label:
-            if addr in _ip.ip_network("239.0.0.0/8"):
-                label = "Admin-scoped multicast"
-            elif addr in _ip.ip_network("224.0.0.0/24"):
-                label = "Local network control"
+            if isinstance(addr, _ip.IPv6Address):
+                if addr in _ip.ip_network("ff02::/16"):
+                    label = "Link-local multicast (v6)"
+                elif addr in _ip.ip_network("ff05::/16"):
+                    label = "Site-local multicast (v6)"
+                elif addr in _ip.ip_network("ff0e::/16"):
+                    label = "Global multicast (v6)"
+                else:
+                    label = "Multicast group (v6)"
             else:
-                label = "Multicast group"
+                if addr in _ip.ip_network("239.0.0.0/8"):
+                    label = "Admin-scoped multicast"
+                elif addr in _ip.ip_network("224.0.0.0/24"):
+                    label = "Local network control"
+                else:
+                    label = "Multicast group"
         return {
             "ip": ip,
             "label": label,
