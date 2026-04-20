@@ -13,10 +13,10 @@ _LOGGER = logging.getLogger(__name__)
 
 SUSPICIOUS_PORTS = {23, 2323, 3389, 4444, 5555, 6667}
 
-MULTICAST_NETWORKS = (
-    ipaddress.ip_network("224.0.0.0/4"),
-    ipaddress.ip_network("ff00::/8"),
-)
+MULTICAST_NETWORK = ipaddress.ip_network("224.0.0.0/4")
+MULTICAST_NETWORK_V6 = ipaddress.ip_network("ff00::/8")
+
+IPAddress = ipaddress.IPv4Address | ipaddress.IPv6Address
 
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "low": 4, "info": 5}
 
@@ -268,13 +268,16 @@ class HomeSecurityAnalyzer:
                 },
             )
 
-    def is_internal(self, address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
-        return any(address in network for network in self._internal_networks if network.version == address.version)
+    def _is_internal(self, address: IPAddress) -> bool:
+        # ipaddress.IPv4Network.__contains__ returns False (not TypeError) for
+        # a mismatched-version address, so iterating mixed v4/v6 CIDRs is safe.
+        return any(address in network for network in self._internal_networks)
 
     @staticmethod
-    def is_multicast(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
-        return any(address in network for network in MULTICAST_NETWORKS if network.version == address.version)
-
+    def _is_multicast(address: IPAddress) -> bool:
+        if isinstance(address, ipaddress.IPv6Address):
+            return address in MULTICAST_NETWORK_V6
+        return address in MULTICAST_NETWORK
 
     def _observe_internal_source(self, record: FlowRecord) -> None:
         device = self._device_for(record.src_ip, record.timestamp)
@@ -339,7 +342,7 @@ class HomeSecurityAnalyzer:
                 when=record.timestamp,
             )
 
-    def _device_for(self, address: ipaddress.IPv4Address, when: datetime) -> DeviceProfile:
+    def _device_for(self, address: IPAddress, when: datetime) -> DeviceProfile:
         key = str(address)
         device = self._devices.get(key)
         if device is None:

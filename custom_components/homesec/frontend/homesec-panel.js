@@ -1237,9 +1237,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       { key: 'os', label: 'OS' },
       { key: 'role', label: 'Role' },
       { key: null, label: 'Open ports' },
-      { key: null, label: 'CVEs' },
-      { key: null, label: 'Ping' },
-      { key: null, label: 'Traffic' }
+      { key: 'cve', label: 'CVEs' },
+      { key: 'ping', label: 'Ping' },
+      { key: 'traffic', label: 'Traffic' }
     ];
     return '<tr>' + cols.map(function(c) {
       if (!c.key) return '<th>' + c.label + '</th>';
@@ -1286,6 +1286,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       } else if (sortKey === 'role') {
         va = (a.probable_role || '').toLowerCase();
         vb = (b.probable_role || '').toLowerCase();
+      } else if (sortKey === 'cve') {
+        va = (a.vulnerabilities || []).length;
+        vb = (b.vulnerabilities || []).length;
+      } else if (sortKey === 'ping') {
+        // Hosts without a ping RTT sort to the end in ascending order.
+        va = (a.ping_ms != null) ? a.ping_ms : Infinity;
+        vb = (b.ping_ms != null) ? b.ping_ms : Infinity;
+      } else if (sortKey === 'traffic') {
+        va = a.total_octets || 0;
+        vb = b.total_octets || 0;
       } else {
         return 0;
       }

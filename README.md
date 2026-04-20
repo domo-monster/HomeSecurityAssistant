@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="custom_components/homesec/logo@2x.png" alt="Home Security Assistant" width="200">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/logo%402x.png" alt="Home Security Assistant" width="200">
 </p>
 
 # Home Security Assistant
@@ -17,7 +17,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Detects suspicious patterns: outbound traffic to abused ports, port scanning, unusual egress volume
 
 <p align="center">
-  <img src="custom_components/homesec/hsa_netmap.png" alt="Network Map Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_netmap.png" alt="Network Map Example" width="600">
   <br>
   <em>Example: Network Flow Analysis Map</em>
 </p>
@@ -30,7 +30,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Reports scan results per host: alive status, ping latency, open ports, OS guess, detected technologies
 
 <p align="center">
-  <img src="custom_components/homesec/hsa_hosts.png" alt="Active Network Scanner Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_hosts.png" alt="Active Network Scanner Example" width="600">
   <br>
   <em>Example: Active Network Scanner Hosts View</em>
 </p>
@@ -42,7 +42,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Configurable **retention window** for external IP history (default 24 hours, 0 = forever)
 
 <p align="center">
-  <img src="custom_components/homesec/hsa_pip.png" alt="External IP Intelligence Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_pip.png" alt="External IP Intelligence Example" width="600">
   <br>
   <em>Example: External IP Intelligence Table</em>
 </p>
@@ -56,7 +56,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Configurable NVD API key (increases rate limit), cache TTL, minimum CVE year, and **customizable search keywords**
 
 <p align="center">
-  <img src="custom_components/homesec/hsa_nvdbrowser.png" alt="Vulnerability Detection Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_nvdbrowser.png" alt="Vulnerability Detection Example" width="600">
   <br>
   <em>Example: Vulnerability Detection & NVD Browser</em>
 </p>
@@ -69,7 +69,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Flags devices with known high/critical CVE vulnerabilities as "at risk"
 
 <p align="center">
-  <img src="custom_components/homesec/hsa_ov_cards.png" alt="Device Fingerprinting and Enrichment Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_ov_cards.png" alt="Device Fingerprinting and Enrichment Example" width="600">
   <br>
   <em>Example: Device Fingerprinting & Enrichment Overview Cards</em>
 </p>
@@ -81,7 +81,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Hardening recommendations derived from observed behavior and telemetry gaps
 
 <p align="center">
-  <img src="custom_components/homesec/hsa_reco.png" alt="Security Findings Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_reco.png" alt="Security Findings Example" width="600">
   <br>
   <em>Example: Security Findings & Recommendations</em>
 </p>
