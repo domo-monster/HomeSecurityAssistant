@@ -484,6 +484,7 @@ async def _http_get(
                 timeout=timeout,
             )
 
+        # RFC 7230 §5.4: IPv6 literals must be bracketed in the Host header.
         try:
             host_header = f"[{ip}]" if ipaddress.ip_address(ip).version == 6 else ip
         except ValueError:
