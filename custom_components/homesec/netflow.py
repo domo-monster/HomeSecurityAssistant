@@ -44,8 +44,8 @@ class ParserStats:
 
 @dataclass(slots=True)
 class FlowRecord:
-    src_ip: ipaddress.IPv4Address
-    dst_ip: ipaddress.IPv4Address
+    src_ip: ipaddress.IPv4Address | ipaddress.IPv6Address
+    dst_ip: ipaddress.IPv4Address | ipaddress.IPv6Address
     src_port: int
     dst_port: int
     protocol: int
@@ -292,16 +292,25 @@ class NetFlowParser:
             values[field.field_type] = payload[offset : offset + field.field_length]
             offset += field.field_length
 
+        # IPFIX/NetFlow v9 address fields: 8/12 = sourceIPv4Address/destinationIPv4Address,
+        # 27/28 = sourceIPv6Address/destinationIPv6Address. A template uses one pair or the other.
         src_ip_raw = values.get(8)
         dst_ip_raw = values.get(12)
-        if src_ip_raw is None or dst_ip_raw is None:
-            return None
-        if len(src_ip_raw) != 4 or len(dst_ip_raw) != 4:
+        src_v6_raw = values.get(27)
+        dst_v6_raw = values.get(28)
+
+        if src_ip_raw is not None and dst_ip_raw is not None and len(src_ip_raw) == 4 and len(dst_ip_raw) == 4:
+            src_ip: ipaddress.IPv4Address | ipaddress.IPv6Address = ipaddress.IPv4Address(src_ip_raw)
+            dst_ip: ipaddress.IPv4Address | ipaddress.IPv6Address = ipaddress.IPv4Address(dst_ip_raw)
+        elif src_v6_raw is not None and dst_v6_raw is not None and len(src_v6_raw) == 16 and len(dst_v6_raw) == 16:
+            src_ip = ipaddress.IPv6Address(src_v6_raw)
+            dst_ip = ipaddress.IPv6Address(dst_v6_raw)
+        else:
             return None
 
         return FlowRecord(
-            src_ip=ipaddress.IPv4Address(src_ip_raw),
-            dst_ip=ipaddress.IPv4Address(dst_ip_raw),
+            src_ip=src_ip,
+            dst_ip=dst_ip,
             src_port=self._int_from_field(values.get(7)),
             dst_port=self._int_from_field(values.get(11)),
             protocol=self._int_from_field(values.get(4)),

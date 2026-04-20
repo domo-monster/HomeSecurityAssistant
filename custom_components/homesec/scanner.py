@@ -146,10 +146,22 @@ class ScannedHost:
 
 
 async def ping_host(ip: str, timeout: float = 1.5) -> tuple[bool, float | None, int | None]:
-    """ICMP-echo ping using subprocess (no raw-socket privilege needed)."""
+    """ICMP-echo ping using subprocess (no raw-socket privilege needed).
+
+    For IPv6 targets, switches to ``ping -6`` and matches the hop-limit
+    field (``hlim=``) in addition to the v4 ``ttl=`` field.
+    """
+    try:
+        version = ipaddress.ip_address(ip).version
+    except ValueError:
+        return False, None, None
+    args: list[str] = ["ping"]
+    if version == 6:
+        args.append("-6")
+    args.extend(["-c", "1", "-W", str(int(timeout)), ip])
     try:
         process = await asyncio.create_subprocess_exec(
-            "ping", "-c", "1", "-W", str(int(timeout)), ip,
+            *args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.DEVNULL,
         )
@@ -158,7 +170,7 @@ async def ping_host(ip: str, timeout: float = 1.5) -> tuple[bool, float | None, 
             return False, None, None
         text = stdout.decode(errors="replace")
         rtt_match = re.search(r"time[=<]([\d.]+)", text)
-        ttl_match = re.search(r"ttl=(\d+)", text, re.IGNORECASE)
+        ttl_match = re.search(r"(?:ttl|hlim)=(\d+)", text, re.IGNORECASE)
         rtt = float(rtt_match.group(1)) if rtt_match else None
         ttl = int(ttl_match.group(1)) if ttl_match else None
         return True, rtt, ttl
@@ -453,9 +465,14 @@ async def _http_get(
                 timeout=timeout,
             )
 
+        # RFC 7230 §5.4: IPv6 literals must be bracketed in the Host header.
+        try:
+            host_header = f"[{ip}]" if ipaddress.ip_address(ip).version == 6 else ip
+        except ValueError:
+            host_header = ip
         request = (
             f"GET {path} HTTP/1.0\r\n"
-            f"Host: {ip}\r\n"
+            f"Host: {host_header}\r\n"
             f"User-Agent: HomeSec-Scanner/1.0\r\n"
             f"Accept: text/html,application/json,*/*\r\n"
             f"Connection: close\r\n\r\n"
@@ -717,16 +734,24 @@ class NetworkScanner:
         self._known_ips.update(ips)
 
     def get_scan_targets(self) -> list[str]:
-        """Build list of IPs to scan: union of known IPs and small subnet enumeration."""
+        """Build list of IPs to scan: union of known IPs and small subnet enumeration.
+
+        IPv6 networks are never enumerated (a /64 alone is 2**64 addresses). For
+        v6, only addresses observed via NetFlow or device trackers are scanned —
+        the ``self._known_ips`` union already covers that path.
+        """
         targets: set[str] = set(self._known_ips)
         for network in self._internal_networks:
-            if network.prefixlen >= 24:
+            if network.version == 4 and network.prefixlen >= 24:
                 targets.update(str(h) for h in network.hosts())
-            # For larger subnets, only scan known IPs (no blind /16 sweep)
-        # Exclude network/broadcast addresses
+            # For larger v4 subnets and all v6 subnets, only scan known IPs.
+        # Exclude network/broadcast addresses (v6 has no broadcast_address
+        # concept in the traditional sense — the call still returns the last
+        # address of the range, so discarding it is harmless).
         for network in self._internal_networks:
             targets.discard(str(network.network_address))
-            targets.discard(str(network.broadcast_address))
+            if network.version == 4:
+                targets.discard(str(network.broadcast_address))
         # Exclude user-configured safe IPs (e.g. printers)
         targets -= self._excluded_ips
         return sorted(targets)
