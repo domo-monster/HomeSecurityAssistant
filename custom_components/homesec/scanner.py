@@ -6,9 +6,8 @@ import asyncio
 import ipaddress
 import logging
 import re
-import socket
 import ssl
-import struct
+import sys
 from collections.abc import Callable, Coroutine, Iterable
 from typing import Any
 from dataclasses import dataclass, field
@@ -143,6 +142,18 @@ class ScannedHost:
             ttl=d.get("ttl"),
             open_ports=[ServiceInfo.from_dict(s) for s in d.get("open_ports", []) if isinstance(s, dict)],
         )
+
+
+def _ping_command(ip: str, timeout: float) -> list[str]:
+    """Build the ping command for the current platform.
+
+    BSD/Linux/macOS use ``-c`` (count) and ``-W`` (seconds). Windows uses
+    ``-n`` (count) and ``-w`` (milliseconds). IPv6 literals don't need a
+    separate flag on modern pings — the address itself tells the OS.
+    """
+    if sys.platform == "win32":
+        return ["ping", "-n", "1", "-w", str(int(timeout * 1000)), ip]
+    return ["ping", "-c", "1", "-W", str(max(1, int(timeout))), ip]
 
 
 async def ping_host(ip: str, timeout: float = 1.5) -> tuple[bool, float | None, int | None]:
@@ -452,6 +463,9 @@ async def _http_get(
     use_tls = port in (443, 4443, 8443)
     try:
         if use_tls:
+            # Fingerprinting probes target raw LAN IPs, so certificate verification
+            # and SNI hostname validation would reject self-signed and LAN-only
+            # services that we explicitly want to identify.
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
@@ -713,9 +727,15 @@ class NetworkScanner:
         ports: tuple[int, ...] = SCAN_PORTS,
         on_scan_complete: Callable[[dict[str, dict]], Coroutine[Any, Any, None]] | None = None,
     ) -> None:
-        self._internal_networks = [
-            ipaddress.ip_network(n.strip()) for n in internal_networks if n.strip()
-        ]
+        self._internal_networks = []
+        for raw in internal_networks:
+            token = raw.strip()
+            if not token:
+                continue
+            try:
+                self._internal_networks.append(ipaddress.ip_network(token))
+            except ValueError:
+                _LOGGER.warning("HSA: ignoring invalid internal network %r", token)
         self._scan_interval = scan_interval_seconds
         self._max_concurrent = max_concurrent
         self._excluded_ips: set[str] = set(excluded_ips or [])

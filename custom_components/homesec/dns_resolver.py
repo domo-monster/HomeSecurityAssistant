@@ -68,6 +68,10 @@ class DNSBlacklistChecker:
         """Return cached hostname, or None if not yet resolved."""
         return self._hostname_cache.get(ip)
 
+    def set_hostname(self, ip: str, hostname: str | None) -> None:
+        """Populate the reverse-DNS cache (used after an on-demand lookup)."""
+        self._hostname_cache[ip] = hostname
+
     def check(self, indicator: str) -> dict[str, object] | None:
         """Return a hit dict if the IP or hostname is on a bad list, else None."""
         if not indicator:
@@ -139,12 +143,18 @@ class DNSBlacklistChecker:
             self._source_map.clear()
             await self._fetch_all()
 
+    @staticmethod
+    def _url_source(url: str) -> str:
+        """Return just the host for log messages so query strings (which may
+        carry access tokens) never reach the log stream."""
+        return url.split("/")[2] if url.count("/") >= 2 else url
+
     async def _fetch_all(self) -> None:
         for url in self._urls:
             try:
                 await self._fetch_one(url)
             except Exception as exc:
-                _LOGGER.warning("HSA: blacklist %s failed: %s", url, exc)
+                _LOGGER.warning("HSA: blacklist %s failed: %s", self._url_source(url), exc)
         self._last_refresh = datetime.now()
         _LOGGER.info(
             "HSA: threat intel loaded — %d blocked IPs, %d blocked domains from %d sources",
@@ -156,7 +166,7 @@ class DNSBlacklistChecker:
     async def _fetch_one(self, url: str) -> None:
         import aiohttp as _aiohttp  # imported here to avoid circular init issues
 
-        source = url.split("/")[2] if url.count("/") >= 2 else url
+        source = self._url_source(url)
         async with self._session.get(
             url,
             timeout=_aiohttp.ClientTimeout(total=_FETCH_TIMEOUT),
