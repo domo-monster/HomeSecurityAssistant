@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import ipaddress
+import logging
+import re
 from pathlib import Path
 from typing import Any
-import logging
+
 from aiohttp import web
 
 from homeassistant.components import panel_custom
@@ -29,8 +31,7 @@ BUILT_IN_ROLES = (
     "nas_or_desktop", "dns_or_gateway", "linux_host", "web_service", "iot_device",
 )
 
-import re as _re
-_ROLE_RE = _re.compile(r'^[a-z0-9_]{1,40}$')
+_ROLE_RE = re.compile(r'^[a-z0-9_]{1,40}$')
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,8 +68,11 @@ def _register_brand_route(hass: HomeAssistant, fname: str, fpath: Path) -> None:
         hass.http.app.router.add_get(
             f"/api/brands/integration/{DOMAIN}/{fname}", _serve
         )
-    except Exception:  # noqa: BLE001
-        _LOGGER.debug("Could not register brand route for %s", fname)
+    except Exception:
+        # aiohttp raises multiple exception types when a route is already
+        # registered (e.g. by a previous entry setup). Log and continue so a
+        # duplicate-route error never blocks integration startup.
+        _LOGGER.debug("Could not register brand route for %s", fname, exc_info=True)
 
 
 async def async_setup_dashboard(hass: HomeAssistant) -> None:

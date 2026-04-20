@@ -3,7 +3,7 @@
   "name": "Home Security Assistant",
   "version": "0.5.0",
   "documentation": "https://domotic.monster/homesec.html",
-  "requirements": ["python-dateutil==2.9.0.post0", "cachetools==5.5.2"],
+  "requirements": [],
   "issue_tracker": "https://github.com/domo-monster/homesec/issues",
   "dependencies": ["frontend", "panel_custom"],
   "config_flow": true,

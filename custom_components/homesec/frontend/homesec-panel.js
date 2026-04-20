@@ -1217,7 +1217,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           if (intelParts) extra += '<br><span style="color:#8a9dbf;font-size:9px">' + intelParts + '</span>';
           extra += '<br><span style="color:var(--accent);font-size:9px;opacity:.6">Click for full lookup</span>';
         }
-        tip.innerHTML = '<strong style="color:#62e8ff">' + this._esc(lbl) + '</strong><br><span class="ip">' + ip + '</span>' + role + ctry + extra + risk;
+        tip.innerHTML = '<strong style="color:#62e8ff">' + this._esc(lbl) + '</strong><br><span class="ip">' + this._esc(ip) + '</span>' + role + ctry + extra + risk;
         var tipX = n.x * this._mapZoom + this._mapPanX + 14;
         var tipY = n.y * this._mapZoom + this._mapPanY - 14;
         tip.style.cssText = 'display:block;left:' + tipX + 'px;top:' + tipY + 'px';
@@ -1969,7 +1969,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (d < 86400000) return Math.floor(d/3600000) + 'h ago';
     return Math.floor(d/86400000) + 'd ago';
   }
-  _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 }
 
 // ─── CSS ─────────────────────────────────────────────────────────────────────

@@ -6,9 +6,8 @@ import asyncio
 import ipaddress
 import logging
 import re
-import socket
 import ssl
-import struct
+import sys
 from collections.abc import Callable, Coroutine, Iterable
 from typing import Any
 from dataclasses import dataclass, field
@@ -145,6 +144,27 @@ class ScannedHost:
         )
 
 
+def _ping_command(ip: str, timeout: float) -> list[str]:
+    """Build the ping command for the current platform.
+
+    BSD/Linux/macOS use ``-c`` (count) and ``-W`` (seconds). Windows uses
+    ``-n`` (count) and ``-w`` (milliseconds). On Unix, ``-6`` is added
+    explicitly for IPv6 literals; Windows ping auto-detects the family
+    from the address.
+    """
+    try:
+        is_v6 = ipaddress.ip_address(ip).version == 6
+    except ValueError:
+        is_v6 = False
+    if sys.platform == "win32":
+        return ["ping", "-n", "1", "-w", str(int(timeout * 1000)), ip]
+    args = ["ping"]
+    if is_v6:
+        args.append("-6")
+    args.extend(["-c", "1", "-W", str(max(1, int(timeout))), ip])
+    return args
+
+
 async def ping_host(ip: str, timeout: float = 1.5) -> tuple[bool, float | None, int | None]:
     """ICMP-echo ping using subprocess (no raw-socket privilege needed).
 
@@ -152,16 +172,12 @@ async def ping_host(ip: str, timeout: float = 1.5) -> tuple[bool, float | None, 
     field (``hlim=``) in addition to the v4 ``ttl=`` field.
     """
     try:
-        version = ipaddress.ip_address(ip).version
+        ipaddress.ip_address(ip)
     except ValueError:
         return False, None, None
-    args: list[str] = ["ping"]
-    if version == 6:
-        args.append("-6")
-    args.extend(["-c", "1", "-W", str(int(timeout)), ip])
     try:
         process = await asyncio.create_subprocess_exec(
-            *args,
+            *_ping_command(ip, timeout),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.DEVNULL,
         )
@@ -452,6 +468,9 @@ async def _http_get(
     use_tls = port in (443, 4443, 8443)
     try:
         if use_tls:
+            # Fingerprinting probes target raw LAN IPs, so certificate verification
+            # and SNI hostname validation would reject self-signed and LAN-only
+            # services that we explicitly want to identify.
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
@@ -465,7 +484,6 @@ async def _http_get(
                 timeout=timeout,
             )
 
-        # RFC 7230 §5.4: IPv6 literals must be bracketed in the Host header.
         try:
             host_header = f"[{ip}]" if ipaddress.ip_address(ip).version == 6 else ip
         except ValueError:
@@ -713,9 +731,15 @@ class NetworkScanner:
         ports: tuple[int, ...] = SCAN_PORTS,
         on_scan_complete: Callable[[dict[str, dict]], Coroutine[Any, Any, None]] | None = None,
     ) -> None:
-        self._internal_networks = [
-            ipaddress.ip_network(n.strip()) for n in internal_networks if n.strip()
-        ]
+        self._internal_networks = []
+        for raw in internal_networks:
+            token = raw.strip()
+            if not token:
+                continue
+            try:
+                self._internal_networks.append(ipaddress.ip_network(token))
+            except ValueError:
+                _LOGGER.warning("HSA: ignoring invalid internal network %r", token)
         self._scan_interval = scan_interval_seconds
         self._max_concurrent = max_concurrent
         self._excluded_ips: set[str] = set(excluded_ips or [])

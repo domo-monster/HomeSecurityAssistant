@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -52,6 +55,17 @@ def _ver_lt(version: str, ceiling: str) -> bool:
 def _ver_between(version: str, floor: str, ceiling: str) -> bool:
     v = _ver_tuple(version)
     return bool(v) and _ver_tuple(floor) <= v < _ver_tuple(ceiling)
+
+
+def _extract_version(banner: str, prefix: str) -> str:
+    """Return the version string following *prefix* in *banner* or empty.
+
+    Example: ``_extract_version('SSH-2.0-OpenSSH_8.9p1', 'openssh')`` → ``'8.9'``.
+    Returns ``''`` when the prefix is absent so callers get a consistent,
+    non-raising behaviour when banners don't match the expected shape.
+    """
+    match = re.search(rf"{re.escape(prefix)}[ _/]?([\d.]+)", banner, re.IGNORECASE)
+    return match.group(1) if match else ""
 
 
 # ──────────────────────────────────────────────────────────────
@@ -114,7 +128,7 @@ VULN_DATABASE: list[_VulnRule] = [
     # ── SSH ──────────────────────────────────────────────
     _VulnRule(
         service_pattern="ssh",
-        version_check=lambda v: "openssh" in v.lower() and _ver_lt(re.sub(r"[^0-9.]", ".", v.lower().split("openssh")[1]), "9.6"),
+        version_check=lambda v: bool(_extract_version(v, "openssh")) and _ver_lt(_extract_version(v, "openssh"), "9.6"),
         cve_id="CVE-2023-51385",
         cvss=6.5,
         severity="medium",
@@ -131,7 +145,7 @@ VULN_DATABASE: list[_VulnRule] = [
     ),
     _VulnRule(
         service_pattern="ssh",
-        version_check=lambda v: "openssh" in v.lower() and _ver_lt(re.sub(r"[^0-9.]", ".", v.lower().split("openssh")[1]), "9.8"),
+        version_check=lambda v: bool(_extract_version(v, "openssh")) and _ver_lt(_extract_version(v, "openssh"), "9.8"),
         cve_id="CVE-2024-6387",
         cvss=8.1,
         severity="high",
@@ -153,7 +167,7 @@ VULN_DATABASE: list[_VulnRule] = [
     # ── HTTP/Web Servers ─────────────────────────────────
     _VulnRule(
         service_pattern="http",
-        version_check=lambda v: "apache" in v.lower() and _ver_lt(re.sub(r"[^0-9.]", ".", v.lower().split("apache/")[1] if "apache/" in v.lower() else v), "2.4.58"),
+        version_check=lambda v: bool(_extract_version(v, "apache")) and _ver_lt(_extract_version(v, "apache"), "2.4.58"),
         cve_id="CVE-2023-44487",
         cvss=7.5,
         severity="high",
@@ -162,7 +176,7 @@ VULN_DATABASE: list[_VulnRule] = [
     ),
     _VulnRule(
         service_pattern="http",
-        version_check=lambda v: "nginx" in v.lower() and _ver_lt(re.sub(r"[^0-9.]", ".", v.lower().split("nginx/")[1] if "nginx/" in v.lower() else v), "1.25.3"),
+        version_check=lambda v: bool(_extract_version(v, "nginx")) and _ver_lt(_extract_version(v, "nginx"), "1.25.3"),
         cve_id="CVE-2023-44487",
         cvss=7.5,
         severity="high",
@@ -252,7 +266,7 @@ VULN_DATABASE: list[_VulnRule] = [
     # ── FTP ──────────────────────────────────────────────
     _VulnRule(
         service_pattern="ftp",
-        version_check=lambda v: "vsftpd" in v.lower() and _ver_lt(re.sub(r"[^0-9.]", ".", v), "3.0.5"),
+        version_check=lambda v: bool(_extract_version(v, "vsftpd")) and _ver_lt(_extract_version(v, "vsftpd"), "3.0.5"),
         cve_id="CVE-2021-3618",
         cvss=7.4,
         severity="high",
@@ -320,7 +334,10 @@ def match_vulnerabilities(
                     )
                     seen_cves.add(dedup_key)
             except Exception:
-                pass  # Version parsing edge case
+                _LOGGER.debug(
+                    "HSA: vulnerability rule %s failed on %s:%d",
+                    rule.cve_id, ip, svc_port, exc_info=True,
+                )
 
     # Sort by severity
     severity_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
