@@ -1,7 +1,7 @@
 {
   "domain": "homesec",
   "name": "Home Security Assistant",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "documentation": "https://domotic.monster/homesec.html",
   "requirements": [],
   "issue_tracker": "https://github.com/domo-monster/homesec/issues",
