@@ -139,6 +139,32 @@ class ExternalIPEnricher:
         self._enriched_at[ip] = datetime.now()
         return dict(result)
 
+    def enrichment_stats(self) -> list[dict[str, object]]:
+        """Return per-provider enrichment usage vs daily budget."""
+        today = datetime.now().strftime("%Y-%m-%d")
+        if today != self._prov_day:
+            self._prov_day = today
+            self._prov_daily_count.clear()
+        stats: list[dict[str, object]] = []
+        provider_keys = {
+            "ipinfo": self._ipinfo_token or "_always_",
+            "virustotal": self._vt_key,
+            "shodan": self._shodan_key,
+            "abuseipdb": self._abuse_key,
+        }
+        for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
+            budget = self._limits.get(prov, (interval, default_budget))[1]
+            used = self._prov_daily_count.get(prov, 0)
+            configured = provider_keys.get(prov) not in (None, "")
+            stats.append({
+                "provider": prov,
+                "used": used,
+                "budget": budget,
+                "configured": configured,
+                "exhausted": used >= budget,
+            })
+        return stats
+
     # ------------------------------------------------------------------ #
     # Private
 

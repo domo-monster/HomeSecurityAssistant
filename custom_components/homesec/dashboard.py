@@ -313,6 +313,70 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
     )
     connections = sorted(all_connections, key=lambda connection: connection.get("octets", 0), reverse=True)[:120]
 
+    # ── New aggregate statistics ─────────────────────────────────────────
+    TOP_N = 10
+
+    # Top public IPs by number of distinct internal sources contacting them
+    ext_ip_connection_count: dict[str, int] = {}
+    for conn in all_connections:
+        if conn.get("target_kind") == "external":
+            ip = str(conn.get("target", ""))
+            if ip:
+                ext_ip_connection_count[ip] = ext_ip_connection_count.get(ip, 0) + int(conn.get("flows", 1))
+    top_public_ips: list[dict[str, Any]] = []
+    for ip, flow_count in sorted(ext_ip_connection_count.items(), key=lambda kv: kv[1], reverse=True)[:TOP_N]:
+        ext_info = all_external_ips.get(ip, {})
+        top_public_ips.append({
+            "ip": ip,
+            "flows": flow_count,
+            "hostname": ext_info.get("hostname") or ext_info.get("hostname_ipinfo") or "",
+            "org": ext_info.get("org") or "",
+            "country": ext_info.get("country") or "",
+            "country_name": ext_info.get("country_name") or "",
+            "blacklisted": ext_info.get("blacklisted", False),
+            "rating": ext_info.get("rating") or "",
+        })
+
+    # Top countries contacted (by number of external IPs seen from that country)
+    country_ip_count: dict[str, dict[str, Any]] = {}
+    for ext_entry in all_external_ips.values():
+        cc = str(ext_entry.get("country") or "")
+        cn = str(ext_entry.get("country_name") or cc)
+        if not cc:
+            continue
+        if cc not in country_ip_count:
+            country_ip_count[cc] = {"country": cc, "country_name": cn, "ip_count": 0, "flow_count": 0}
+        country_ip_count[cc]["ip_count"] = country_ip_count[cc]["ip_count"] + 1
+        country_ip_count[cc]["flow_count"] = country_ip_count[cc]["flow_count"] + ext_ip_connection_count.get(str(ext_entry.get("ip", "")), 0)
+    top_countries: list[dict[str, Any]] = sorted(
+        country_ip_count.values(), key=lambda c: c["flow_count"], reverse=True
+    )[:TOP_N]
+
+    # Top internal talkers by total_octets
+    top_internal_talkers: list[dict[str, Any]] = []
+    for device in sorted(all_devices, key=lambda d: d.get("total_octets", 0), reverse=True)[:TOP_N]:
+        top_internal_talkers.append({
+            "ip": device.get("ip", ""),
+            "display_name": device.get("display_name") or device.get("hostname") or device.get("ip", ""),
+            "probable_role": device.get("probable_role", "unknown"),
+            "total_octets": device.get("total_octets", 0),
+        })
+
+    # Enrichment budget stats — aggregate across all entries
+    enrichment_stats_merged: dict[str, dict[str, Any]] = {}
+    for entry_id, runtime in entries.items():
+        for stat in runtime["collector"]._enricher.enrichment_stats():
+            prov = stat["provider"]
+            if prov not in enrichment_stats_merged:
+                enrichment_stats_merged[prov] = dict(stat)
+            else:
+                enrichment_stats_merged[prov]["used"] = enrichment_stats_merged[prov]["used"] + stat["used"]
+                # configured = True if any entry has it configured
+                enrichment_stats_merged[prov]["configured"] = enrichment_stats_merged[prov]["configured"] or stat["configured"]
+                enrichment_stats_merged[prov]["exhausted"] = enrichment_stats_merged[prov]["used"] >= enrichment_stats_merged[prov]["budget"]
+    enrichment_stats: list[dict[str, Any]] = list(enrichment_stats_merged.values())
+    # ─────────────────────────────────────────────────────────────────────
+
     return {
         "summary": {
             "entries": len(entries),
@@ -359,6 +423,10 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
             list(entries.values())[0]["entry"], CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
         )) if entries else None,
         "entries": entry_payloads,
+        "top_public_ips": top_public_ips,
+        "top_countries": top_countries,
+        "top_internal_talkers": top_internal_talkers,
+        "enrichment_stats": enrichment_stats,
     }
 
 

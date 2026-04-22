@@ -383,6 +383,7 @@ class HomeSecCollector:
         )
         payload["blacklist_stats"] = self._resolver.stats()
         payload["collector_started_at"] = self._started_at.isoformat() if self._started_at else None
+        payload["enrichment_stats"] = self._enricher.enrichment_stats()
         nvd_ts = self._nvd_last_fetch_at
         payload["nvd_last_updated"] = nvd_ts.isoformat() if nvd_ts else None
         payload["nvd_ttl_hours"] = self._nvd_client._ttl_hours
