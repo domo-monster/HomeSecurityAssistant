@@ -126,6 +126,18 @@ Each sensor exposes diagnostic attributes including device inventory, listener h
 
 ## Installation
 
+### Installation via HACS (Recommended)
+
+1. In Home Assistant, go to **HACS → Integrations → Custom Repositories**.
+2. Add this repository URL: `https://github.com/domo-monster/HomeSecurityAssistant` as a custom integration.
+3. Search for "Home Security Assistant" in HACS and click **Install**.
+4. Restart Home Assistant.
+5. Go to **Settings → Devices & Services → Add Integration** and search for "Home Security Assistant".
+6. Configure the bind host, UDP port, internal network CIDRs, scanner settings, and optional API keys.
+7. Point your router or flow exporter at the Home Assistant host and configured port.
+
+### Manual Installation
+
 1. Copy the `custom_components/homesec` directory into your Home Assistant `custom_components/` folder.
 2. Restart Home Assistant.
 3. Go to **Settings → Devices & Services → Add Integration** and search for "Home Security Assistant".
