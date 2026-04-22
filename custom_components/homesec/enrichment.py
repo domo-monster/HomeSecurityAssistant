@@ -25,7 +25,8 @@ def collect_tracker_enrichment(hass: HomeAssistant) -> dict[str, dict[str, objec
                 address = ipaddress.ip_address(candidate)
             except ValueError:
                 continue
-            valid_ips.append(str(address))
+            if address.version == 4:
+                valid_ips.append(str(address))
 
         if not valid_ips:
             continue

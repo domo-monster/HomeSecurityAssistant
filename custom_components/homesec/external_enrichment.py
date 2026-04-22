@@ -5,9 +5,6 @@ import asyncio
 from datetime import datetime, timedelta
 import ipaddress
 import logging
-import time
-
-import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -156,6 +153,7 @@ class ExternalIPEnricher:
 
     async def _throttle(self, provider: str) -> None:
         """Enforce per-provider minimum interval between consecutive API calls."""
+        import time
         min_interval = self._limits.get(provider, (1.0, 9999))[0]
         last = self._prov_last_call.get(provider, 0.0)
         now = time.monotonic()
@@ -185,6 +183,8 @@ class ExternalIPEnricher:
             await asyncio.sleep(_WORKER_DELAY)
 
     async def _enrich(self, ip: str) -> dict[str, object]:
+        import aiohttp as _aiohttp  # lazy import
+
         result: dict[str, object] = {
             "ip": ip,
             "enriched_at": datetime.now().isoformat(),
@@ -207,7 +207,7 @@ class ExternalIPEnricher:
                 continue
             await self._throttle(name)
             try:
-                data = await method(ip)
+                data = await method(ip, _aiohttp)
                 if data:
                     result.update(data)
                     result["sources"].append(name)  # type: ignore[union-attr]
@@ -217,7 +217,7 @@ class ExternalIPEnricher:
         result["rating"], result["rating_source"] = self._compute_rating(result)
         return result
 
-    async def _ipinfo(self, ip: str) -> dict[str, object] | None:
+    async def _ipinfo(self, ip: str, aiohttp) -> dict[str, object] | None:
         headers: dict[str, str] = {}
         if self._ipinfo_token:
             headers["Authorization"] = f"Bearer {self._ipinfo_token}"
@@ -244,7 +244,7 @@ class ExternalIPEnricher:
             "timezone": str(d.get("timezone") or ""),
         }
 
-    async def _virustotal(self, ip: str) -> dict[str, object] | None:
+    async def _virustotal(self, ip: str, aiohttp) -> dict[str, object] | None:
         url = _VT_URL.format(ip=ip)
         headers = {"x-apikey": self._vt_key}
         async with self._session.get(
@@ -265,7 +265,7 @@ class ExternalIPEnricher:
             "vt_asn": int(attrs.get("asn") or 0),
         }
 
-    async def _shodan(self, ip: str) -> dict[str, object] | None:
+    async def _shodan(self, ip: str, aiohttp) -> dict[str, object] | None:
         url = _SHODAN_URL.format(ip=ip, key=self._shodan_key)
         async with self._session.get(
             url, timeout=aiohttp.ClientTimeout(total=12)
@@ -283,7 +283,7 @@ class ExternalIPEnricher:
             "shodan_tags": list(d.get("tags") or []),
         }
 
-    async def _abuseipdb(self, ip: str) -> dict[str, object] | None:
+    async def _abuseipdb(self, ip: str, aiohttp) -> dict[str, object] | None:
         headers = {"Key": self._abuse_key, "Accept": "application/json"}
         params = {"ipAddress": ip, "maxAgeInDays": "90"}
         async with self._session.get(
