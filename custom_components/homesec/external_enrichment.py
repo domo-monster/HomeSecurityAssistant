@@ -94,6 +94,10 @@ class ExternalIPEnricher:
         for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
             budget = (daily_budgets or {}).get(prov, default_budget)
             self._limits[prov] = (interval, max(0, budget))
+        # When an IPInfo token is provided the daily quota is effectively unlimited;
+        # override the internal budget so enrichment is never stopped by the counter.
+        if self._ipinfo_token:
+            self._limits["ipinfo"] = (self._limits["ipinfo"][0], 999_999)
         # Per-provider rate-limit tracking
         self._prov_last_call: dict[str, float] = {}   # provider → monotonic ts
         self._prov_daily_count: dict[str, int] = {}   # provider → count today
@@ -193,13 +197,22 @@ class ExternalIPEnricher:
             budget = self._limits.get(prov, (interval, default_budget))[1]
             used = self._prov_daily_count.get(prov, 0)
             configured = provider_keys.get(prov) not in (None, "")
+            # IPInfo: distinguish anonymous legacy (1 500/day) from keyed lite (unlimited)
+            if prov == "ipinfo":
+                variant: str | None = "lite" if self._ipinfo_token else "legacy"
+                display_budget: int | None = None if self._ipinfo_token else budget
+            else:
+                variant = None
+                display_budget = budget
+            exhausted = (display_budget is not None) and (used >= display_budget)
             stats.append({
                 "provider": prov,
                 "used": used,
-                "budget": budget,
+                "budget": display_budget,
                 "configured": configured,
-                "exhausted": used >= budget,
+                "exhausted": exhausted,
                 "last_error": self._prov_last_error.get(prov),
+                "variant": variant,
             })
         return stats
 
