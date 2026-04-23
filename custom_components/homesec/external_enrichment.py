@@ -299,8 +299,30 @@ class ExternalIPEnricher:
             if resp.status != 200:
                 return None
             d = await resp.json(content_type=None)
+        # Build enriched service list and collect web technologies from HTTP banners
+        services: list[dict[str, object]] = []
+        technologies: list[str] = []
+        seen_tech: set[str] = set()
+        for svc in (d.get("data") or []):
+            port = svc.get("port")
+            if port is not None:
+                services.append({
+                    "port": int(port),
+                    "transport": str(svc.get("transport") or "tcp"),
+                    "product": str(svc.get("product") or ""),
+                    "version": str(svc.get("version") or ""),
+                })
+            http = svc.get("http") or {}
+            for tech in (http.get("components") or {}).keys():
+                if tech not in seen_tech:
+                    seen_tech.add(tech)
+                    technologies.append(tech)
+        domains: list[str] = list(d.get("domains") or d.get("hostnames") or [])
         return {
             "shodan_ports": list(d.get("ports") or []),
+            "shodan_services": services,
+            "shodan_domains": domains,
+            "shodan_technologies": technologies,
             "shodan_vulns": list((d.get("vulns") or {}).keys()),
             "shodan_org": str(d.get("org") or ""),
             "shodan_isp": str(d.get("isp") or ""),
