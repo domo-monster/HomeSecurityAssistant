@@ -98,17 +98,23 @@ class ExternalIPEnricher:
         # override the internal budget so enrichment is never stopped by the counter.
         if self._ipinfo_token:
             self._limits["ipinfo"] = (self._limits["ipinfo"][0], 999_999)
+        # Shodan host lookups have no hard daily cap (rate-limited only) on any plan;
+        # override the internal budget when a key is configured.
+        if self._shodan_key:
+            self._limits["shodan"] = (self._limits["shodan"][0], 999_999)
         # Per-provider rate-limit tracking
         self._prov_last_call: dict[str, float] = {}   # provider → monotonic ts
         self._prov_daily_count: dict[str, int] = {}   # provider → count today
         self._prov_day: str = ""                       # YYYY-MM-DD to reset
         self._prov_last_error: dict[str, str] = {}    # provider → last error note
+        self._prov_tier: dict[str, str] = {}          # provider → detected plan/tier string
 
     # ------------------------------------------------------------------ #
     # Lifecycle
 
     async def async_start(self) -> None:
         self._task = asyncio.create_task(self._worker())
+        asyncio.create_task(self._detect_tiers())
 
     async def async_stop(self) -> None:
         if self._task:
@@ -201,6 +207,16 @@ class ExternalIPEnricher:
             if prov == "ipinfo":
                 variant: str | None = "lite" if self._ipinfo_token else "legacy"
                 display_budget: int | None = None if self._ipinfo_token else budget
+            elif prov == "shodan":
+                # All Shodan plans have unlimited host lookups (rate-limited only)
+                variant = self._prov_tier.get("shodan") or ("free" if self._shodan_key else None)
+                display_budget = None if self._shodan_key else budget
+            elif prov == "virustotal":
+                variant = self._prov_tier.get("virustotal") or ("community" if self._vt_key else None)
+                display_budget = budget
+            elif prov == "abuseipdb":
+                variant = self._prov_tier.get("abuseipdb")
+                display_budget = budget
             else:
                 variant = None
                 display_budget = budget
@@ -218,6 +234,41 @@ class ExternalIPEnricher:
 
     # ------------------------------------------------------------------ #
     # Private
+
+    async def _detect_tiers(self) -> None:
+        """One-time startup detection of provider account plan/tier."""
+        import aiohttp as _aiohttp
+        calls: list[tuple[str, object]] = []
+        if self._vt_key:
+            calls.append(("virustotal", self._detect_vt_tier(_aiohttp)))
+        if self._shodan_key:
+            calls.append(("shodan", self._detect_shodan_tier(_aiohttp)))
+        for prov, coro in calls:
+            try:
+                await coro  # type: ignore[misc]
+            except Exception as exc:
+                _LOGGER.debug("HSA: %s tier detection failed: %s", prov, exc)
+
+    async def _detect_vt_tier(self, aiohttp) -> None:
+        """Fetch VirusTotal account type (community / premium / enterprise …)."""
+        url = "https://www.virustotal.com/api/v3/users/self"
+        headers = {"x-apikey": self._vt_key}
+        async with self._session.get(
+            url, headers=headers, timeout=aiohttp.ClientTimeout(total=8)
+        ) as resp:
+            if resp.status == 200:
+                d = await resp.json(content_type=None)
+                tier = str(d.get("data", {}).get("attributes", {}).get("type") or "community")
+                self._prov_tier["virustotal"] = tier
+
+    async def _detect_shodan_tier(self, aiohttp) -> None:
+        """Fetch Shodan account plan (oss / dev / freelancer / membership …)."""
+        url = f"https://api.shodan.io/api-info?key={self._shodan_key}"
+        async with self._session.get(url, timeout=aiohttp.ClientTimeout(total=8)) as resp:
+            if resp.status == 200:
+                d = await resp.json(content_type=None)
+                plan = str(d.get("plan") or "free")
+                self._prov_tier["shodan"] = plan
 
     def _budget_ok(self, provider: str) -> bool:
         """Return True if the daily budget for *provider* has not been exhausted."""
@@ -419,6 +470,14 @@ class ExternalIPEnricher:
                 return None
             if resp.status != 200:
                 raise _ProviderError(resp.status)
+            # Detect tier from rate-limit header on first successful response
+            if "abuseipdb" not in self._prov_tier:
+                try:
+                    limit_val = int(resp.headers.get("X-RateLimit-Limit", 0))
+                    if limit_val > 0:
+                        self._prov_tier["abuseipdb"] = "basic" if limit_val <= 1000 else "premium"
+                except (ValueError, TypeError):
+                    pass
             d = await resp.json(content_type=None)
         dd = d.get("data") or {}
         return {
