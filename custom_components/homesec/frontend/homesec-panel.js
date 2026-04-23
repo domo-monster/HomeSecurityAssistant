@@ -853,7 +853,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var errCell = '';
           if (s.last_error) {
             var errStr = String(s.last_error);
-            // Auth errors (401/403) in orange; rate-limit (429) and server errors (5xx) in red
+            // Auth errors (401/403) in orange; server errors (5xx) in red
             var errColor = (errStr.indexOf('401') !== -1 || errStr.indexOf('403') !== -1)
               ? '#ffc107' : '#ff4d6d';
             errCell = '<span style="color:' + errColor + ';font-size:11px;font-weight:600">\u26A0\uFE0F ' + self._esc(errStr) + '</span>';

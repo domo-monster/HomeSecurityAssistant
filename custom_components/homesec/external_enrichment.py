@@ -298,22 +298,26 @@ class ExternalIPEnricher:
         return self._prov_daily_count.get(provider, 0) < limit[1]
 
     async def _throttle(self, provider: str) -> None:
-        """Enforce per-provider minimum interval between consecutive API calls.
+        """Reserve a time slot for *provider* and sleep until it becomes available.
 
-        Uses a per-provider lock so concurrent callers (multiple enrich_now()
-        coroutines) are serialised rather than all bursting at once.
+        The lock is held only for the dictionary read/write (microseconds).
+        Sleeping happens *outside* the lock so concurrent callers can reserve
+        their own slots in parallel rather than chaining 1-second waits.
         """
         if provider not in self._prov_locks:
             self._prov_locks[provider] = asyncio.Lock()
+        min_interval = self._limits.get(provider, (1.0, 9999))[0]
         async with self._prov_locks[provider]:
-            min_interval = self._limits.get(provider, (1.0, 9999))[0]
-            last = self._prov_last_call.get(provider, 0.0)
             now = _time.monotonic()
-            elapsed = now - last
-            if elapsed < min_interval:
-                await asyncio.sleep(min_interval - elapsed)
-            self._prov_last_call[provider] = _time.monotonic()
+            last = self._prov_last_call.get(provider, 0.0)
+            # Reserve the next available slot (always at least min_interval after the last)
+            next_slot = max(now, last + min_interval)
+            self._prov_last_call[provider] = next_slot
             self._prov_daily_count[provider] = self._prov_daily_count.get(provider, 0) + 1
+            sleep_for = next_slot - now
+        # Sleep outside the lock so the next caller can reserve its slot immediately
+        if sleep_for > 0:
+            await asyncio.sleep(sleep_for)
 
     async def _worker(self) -> None:
         while True:
@@ -395,16 +399,18 @@ class ExternalIPEnricher:
                 self._prov_backoff_until.pop(name, None)  # clear backoff on success
             except _ProviderError as exc:
                 note = _HTTP_ERROR_NOTES.get(exc.status, f"HTTP {exc.status}")
-                self._prov_last_error[name] = note
                 if exc.status == 429:
                     backoff = 120.0
                     self._prov_backoff_until[name] = _time.monotonic() + backoff
+                    # 429 is transient — don't persist it as a sticky error in the UI
+                    self._prov_last_error.pop(name, None)
                     _LOGGER.warning(
                         "HSA: %s returned HTTP 429 (rate limited) – backing off for %.0fs. "
                         "If this recurs with a paid token, check your plan's per-second limit.",
                         name, backoff,
                     )
                 elif name == "shodan" and exc.status == 403:
+                    self._prov_last_error[name] = note
                     if not self._shodan_key_invalid:
                         self._shodan_key_invalid = True
                         _LOGGER.warning(
@@ -413,6 +419,7 @@ class ExternalIPEnricher:
                             "Free/OSS keys do not support the host-lookup endpoint."
                         )
                 else:
+                    self._prov_last_error[name] = note
                     _LOGGER.debug("HSA: %s returned %s for %s", name, exc.status, ip)
             except Exception as exc:
                 _LOGGER.debug("HSA: %s failed for %s: %s", name, ip, exc)
