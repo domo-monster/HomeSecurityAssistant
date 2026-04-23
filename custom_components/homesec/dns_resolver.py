@@ -5,7 +5,7 @@ import asyncio
 import ipaddress
 import logging
 import socket
-from datetime import datetime
+from datetime import datetime, UTC
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -145,7 +145,7 @@ class DNSBlacklistChecker:
                 await self._fetch_one(url)
             except Exception as exc:
                 _LOGGER.warning("HSA: blacklist %s failed: %s", url, exc)
-        self._last_refresh = datetime.now()
+        self._last_refresh = datetime.now(UTC)
         _LOGGER.info(
             "HSA: threat intel loaded — %d blocked IPs, %d blocked domains from %d sources",
             len(self._bad_ips),
@@ -178,7 +178,10 @@ class DNSBlacklistChecker:
             if "/" in token:
                 try:
                     net = ipaddress.ip_network(token, strict=False)
-                    if net.prefixlen >= 32:
+                    # num_addresses == 1 correctly identifies /32 (IPv4) and
+                    # /128 (IPv6) as single-host entries; larger prefixes are
+                    # network ranges and are skipped to avoid false positives.
+                    if net.num_addresses == 1:
                         s = str(net.network_address)
                         self._bad_ips.add(s)
                         self._source_map.setdefault(s, source)

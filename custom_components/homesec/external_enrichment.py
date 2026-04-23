@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import ipaddress
 import logging
 
@@ -102,7 +102,7 @@ class ExternalIPEnricher:
         ts = self._enriched_at.get(ip)
         if ts is None:
             return True
-        return datetime.now() - ts > self._ttl
+        return datetime.now(UTC) - ts > self._ttl
 
     @staticmethod
     def _is_public(ip: str) -> bool:
@@ -136,12 +136,12 @@ class ExternalIPEnricher:
             return dict(self._cache[ip])
         result = await self._enrich(ip)
         self._cache[ip] = result
-        self._enriched_at[ip] = datetime.now()
+        self._enriched_at[ip] = datetime.now(UTC)
         return dict(result)
 
     def enrichment_stats(self) -> list[dict[str, object]]:
         """Return per-provider enrichment usage vs daily budget."""
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
         if today != self._prov_day:
             self._prov_day = today
             self._prov_daily_count.clear()
@@ -170,7 +170,7 @@ class ExternalIPEnricher:
 
     def _budget_ok(self, provider: str) -> bool:
         """Return True if the daily budget for *provider* has not been exhausted."""
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
         if today != self._prov_day:
             self._prov_day = today
             self._prov_daily_count.clear()
@@ -196,16 +196,16 @@ class ExternalIPEnricher:
             if self._is_stale(ip):
                 try:
                     self._cache[ip] = await self._enrich(ip)
-                    self._enriched_at[ip] = datetime.now()
+                    self._enriched_at[ip] = datetime.now(UTC)
                 except Exception as exc:
                     _LOGGER.debug("HSA: enrichment error for %s: %s", ip, exc)
                     self._cache[ip] = {
                         "ip": ip,
                         "error": str(exc),
-                        "enriched_at": datetime.now().isoformat(),
+                        "enriched_at": datetime.now(UTC).isoformat(),
                         "sources": [],
                     }
-                    self._enriched_at[ip] = datetime.now()
+                    self._enriched_at[ip] = datetime.now(UTC)
             await asyncio.sleep(_WORKER_DELAY)
 
     async def _enrich(self, ip: str) -> dict[str, object]:
@@ -213,7 +213,7 @@ class ExternalIPEnricher:
 
         result: dict[str, object] = {
             "ip": ip,
-            "enriched_at": datetime.now().isoformat(),
+            "enriched_at": datetime.now(UTC).isoformat(),
             "sources": [],
         }
 
