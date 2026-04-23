@@ -83,7 +83,11 @@ from .fingerprints import HomeSecurityAnalyzer
 from .netflow import FlowRecord, NetFlowDatagramProtocol
 from .nvd_enrichment import NVDClient, CISAKEVClient
 from .scanner import NetworkScanner, parse_scan_ports
-from .storage import load_discovered_hosts, save_discovered_hosts, load_dismissed_findings, save_dismissed_findings
+from .storage import (
+    load_discovered_hosts, save_discovered_hosts,
+    load_dismissed_findings, save_dismissed_findings,
+    load_timeseries, save_timeseries, TIMESERIES_INTERVAL_SECONDS,
+)
 from .vulnerabilities import match_vulnerabilities
 
 _LOGGER = logging.getLogger(__name__)
@@ -177,6 +181,9 @@ class HomeSecCollector:
             get_entry_value(entry, CONF_RETENTION_MALICIOUS_HOURS, DEFAULT_RETENTION_MALICIOUS_HOURS)
         )
         self._post_scan_refresh: Callable[[], Coroutine[Any, Any, None]] | None = None
+        self._timeseries: list[dict] = []
+        self._ts_last_point: datetime | None = None
+        self._timeseries_dirty: bool = False
 
     async def async_start(self) -> None:
         self._started_at = datetime.now(timezone.utc)
@@ -205,6 +212,15 @@ class HomeSecCollector:
         if persisted_dismissed:
             self._dismissed_findings.update(persisted_dismissed)
             _LOGGER.info("Restored %d dismissed findings", len(persisted_dismissed))
+
+        ts_data = await self.hass.async_add_executor_job(load_timeseries, self._config_dir)
+        if ts_data:
+            self._timeseries = ts_data
+            try:
+                self._ts_last_point = datetime.fromisoformat(ts_data[-1]["ts"])
+            except (ValueError, TypeError, KeyError):
+                pass
+            _LOGGER.info("Restored %d timeseries points", len(ts_data))
 
         if self._scanner_enabled:
             await self._scanner.async_start()
@@ -430,6 +446,18 @@ class HomeSecCollector:
         kev_ts = self._kev_client.fetched_at
         payload["kev_last_updated"] = kev_ts.isoformat() if kev_ts else None
 
+        # Record timeseries point every TIMESERIES_INTERVAL_SECONDS
+        _ts_now = datetime.now(timezone.utc)
+        if self._ts_last_point is None or (_ts_now - self._ts_last_point).total_seconds() >= TIMESERIES_INTERVAL_SECONDS:
+            self._timeseries.append({
+                "ts": _ts_now.isoformat(),
+                "ext_ips": len(external_ips),
+                "hosts": len(payload.get("devices", [])),
+                "scanned": int(payload.get("scanned_devices", 0) or 0),
+            })
+            self._ts_last_point = _ts_now
+            self._timeseries_dirty = True
+
         # Fire HA events for malicious external IPs
         for ext in payload.get("external_ips", []):
             if ext.get("blacklisted") or ext.get("rating") == "malicious":
@@ -630,6 +658,13 @@ class HomeSecCoordinator(DataUpdateCoordinator[dict[str, object]]):
 
     async def _async_update_data(self) -> dict[str, object]:
         try:
-            return self.collector.snapshot()
+            result = self.collector.snapshot()
+            if self.collector._timeseries_dirty:
+                self.collector._timeseries_dirty = False
+                ts_copy = list(self.collector._timeseries)
+                self.hass.async_add_executor_job(
+                    save_timeseries, self.collector._config_dir, ts_copy
+                )
+            return result
         except Exception as err:
             raise UpdateFailed(f"Snapshot failed: {err}") from err

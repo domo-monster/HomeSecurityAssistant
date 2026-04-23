@@ -273,3 +273,42 @@ def save_discovered_hosts(hass_config_dir: str, hosts: dict[str, dict]) -> None:
         _LOGGER.debug("Saved %d discovered hosts to %s", len(hosts), path)
     except Exception:
         _LOGGER.warning("Failed to write %s", path, exc_info=True)
+
+
+TIMESERIES_FILENAME = "homesec_timeseries.yaml"
+TIMESERIES_MAX_POINTS = 8640  # 30 days at 5-min resolution
+TIMESERIES_INTERVAL_SECONDS = 300  # one point per 5 minutes
+
+
+def _timeseries_path(hass_config_dir: str) -> Path:
+    return Path(hass_config_dir) / TIMESERIES_FILENAME
+
+
+def load_timeseries(hass_config_dir: str) -> list[dict[str, Any]]:
+    """Load historical timeseries points from YAML. Returns empty list if missing."""
+    path = _timeseries_path(hass_config_dir)
+    if not path.is_file():
+        return []
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+        if not isinstance(data, list):
+            return []
+        return [p for p in data if isinstance(p, dict) and "ts" in p]
+    except Exception:
+        _LOGGER.warning("Failed to read %s", path, exc_info=True)
+        return []
+
+
+def save_timeseries(hass_config_dir: str, points: list[dict[str, Any]]) -> None:
+    """Persist timeseries history to YAML, capped at TIMESERIES_MAX_POINTS entries."""
+    path = _timeseries_path(hass_config_dir)
+    trimmed = points[-TIMESERIES_MAX_POINTS:]
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("# Home Security Assistant — historical timeseries data\n")
+            fh.write("# Auto-managed. Do not edit manually.\n\n")
+            yaml.safe_dump(trimmed, fh, default_flow_style=False, sort_keys=False)
+        _LOGGER.debug("Saved timeseries (%d points) to %s", len(trimmed), path)
+    except Exception:
+        _LOGGER.warning("Failed to write %s", path, exc_info=True)

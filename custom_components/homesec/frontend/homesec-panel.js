@@ -77,6 +77,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._mapFilter    = 'all';
     this._mapParticles = [];
     this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie' };
+    this._timelinePeriod = '24h';
   }
 
   set hass(v) {
@@ -214,6 +215,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (vd) { this._openVulnDetail(vd.dataset.vulnDetail); return; }
     var st = e.target.closest('[data-statstoggle]');
     if (st) { var _sp = st.dataset.statstoggle.split(':'); this._statsViewModes[_sp[0]] = _sp[1]; this._render(); return; }
+    var tlp = e.target.closest('[data-timelineperiod]');
+    if (tlp) { this._timelinePeriod = tlp.dataset.timelineperiod; this._render(); return; }
   }
 
   _onInput(e) {
@@ -614,12 +617,107 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }).join('');
   }
 
+  // ── SVG line/area chart helper ───────────────────────────────────────
+  // series: [{key, label, color}]  points: array of timeseries objects with a "ts" field
+  _lineChart(points, series) {
+    var W = 560, H = 120, ML = 42, MR = 14, MT = 8, MB = 28;
+    var PW = W - ML - MR, PH = H - MT - MB;
+    if (!points || points.length < 2) {
+      return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Not enough data yet — check back after a few minutes</div>';
+    }
+    var parsed = [];
+    for (var i = 0; i < points.length; i++) {
+      var t = new Date(points[i].ts).getTime();
+      if (!isNaN(t)) parsed.push({ t: t, d: points[i] });
+    }
+    if (parsed.length < 2) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No data for this period</div>';
+    var tMin = parsed[0].t, tMax = parsed[parsed.length - 1].t, tRange = tMax - tMin || 1;
+    function xp(t) { return (ML + (t - tMin) / tRange * PW).toFixed(1); }
+    var svg = '';
+    // Border + horizontal gridlines
+    svg += '<rect x="' + ML + '" y="' + MT + '" width="' + PW + '" height="' + PH + '" fill="none" stroke="rgba(255,255,255,.08)" rx="2"/>';
+    [0.25, 0.5, 0.75].forEach(function(f) {
+      var gy = (MT + PH * f).toFixed(1);
+      svg += '<line x1="' + ML + '" y1="' + gy + '" x2="' + (ML + PW) + '" y2="' + gy + '" stroke="rgba(255,255,255,.05)"/>';
+    });
+    // X-axis ticks
+    var xRangeH = tRange / 3600000;
+    for (var ti = 0; ti <= 5; ti++) {
+      var tt = tMin + tRange * ti / 5;
+      var tx = xp(tt);
+      var dd = new Date(tt);
+      var lbl = xRangeH <= 48
+        ? dd.getHours().toString().padStart(2,'0') + ':' + dd.getMinutes().toString().padStart(2,'0')
+        : (dd.getMonth()+1) + '/' + dd.getDate();
+      svg += '<line x1="' + tx + '" y1="' + (MT+PH) + '" x2="' + tx + '" y2="' + (MT+PH+4) + '" stroke="rgba(255,255,255,.15)"/>';
+      svg += '<text x="' + tx + '" y="' + (MT+PH+14) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lbl + '</text>';
+      if (ti > 0 && ti < 5) svg += '<line x1="' + tx + '" y1="' + MT + '" x2="' + tx + '" y2="' + (MT+PH) + '" stroke="rgba(255,255,255,.04)"/>';
+    }
+    // Compute overall Y max across all series for a shared scale
+    var yMaxAll = 1;
+    series.forEach(function(s) {
+      parsed.forEach(function(p) { var v = Number(p.d[s.key] || 0); if (v > yMaxAll) yMaxAll = v; });
+    });
+    // Y-axis labels (left side)
+    [0, 0.5, 1].forEach(function(f) {
+      var yv = Math.round(yMaxAll * f);
+      var yy = (MT + PH - f * PH).toFixed(1);
+      svg += '<text x="' + (ML-4) + '" y="' + yy + '" dy="0.35em" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="end">' + yv + '</text>';
+    });
+    // Series lines + area fills
+    series.forEach(function(s, si) {
+      var gradId = 'tlg-' + s.key;
+      svg += '<defs><linearGradient id="' + gradId + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="' + s.color + '" stop-opacity="0.28"/>' +
+        '<stop offset="100%" stop-color="' + s.color + '" stop-opacity="0.02"/>' +
+        '</linearGradient></defs>';
+      function yp(v) { return (MT + PH - (Math.min(v, yMaxAll) / yMaxAll) * PH).toFixed(1); }
+      var lineD = parsed.map(function(p, i) {
+        return (i === 0 ? 'M' : 'L') + xp(p.t) + ',' + yp(Number(p.d[s.key] || 0));
+      }).join(' ');
+      var areaD = lineD + ' L' + xp(parsed[parsed.length-1].t) + ',' + (MT+PH) + ' L' + xp(parsed[0].t) + ',' + (MT+PH) + ' Z';
+      svg += '<path d="' + areaD + '" fill="url(#' + gradId + ')"/>';
+      svg += '<path d="' + lineD + '" fill="none" stroke="' + s.color + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    });
+    var legend = series.map(function(s) {
+      return '<span style="color:' + s.color + ';font-size:10px;margin-right:10px">' +
+        '<svg width="14" height="2" style="vertical-align:middle;margin-right:3px;overflow:visible"><line x1="0" y1="1" x2="14" y2="1" stroke="' + s.color + '" stroke-width="2"/></svg>' + s.label + '</span>';
+    }).join('');
+    return '<div style="width:100%;height:' + H + 'px">' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="100%" preserveAspectRatio="none">' + svg + '</svg>' +
+      '</div><div style="text-align:right;margin-top:3px">' + legend + '</div>';
+  }
+
   // ── Statistics view ──────────────────────────────────────────────────
   _viewStatistics() {
     var self = this;
     var modes = this._statsViewModes;
     var topN = (this._data && this._data.stats_top_n) || 10;
     var COLORS = ['#8f86ff','#3ac5c9','#6bffc8','#ffc107','#ff8c42','#ff4d6d','#7fb3f5','#d4a843','#a8e063','#f472b6','#60a5fa','#34d399','#fb923c','#a78bfa','#22d3ee'];
+
+    // ── Timeline ─────────────────────────────────────────────────────
+    var allPoints = (this._data && this._data.timeseries) || [];
+    var periodMs = {'1h': 3600000, '6h': 21600000, '24h': 86400000, '7d': 604800000, '30d': 2592000000};
+    var activePeriod = this._timelinePeriod || '24h';
+    var cutoff = Date.now() - (periodMs[activePeriod] || periodMs['24h']);
+    var filteredPts = allPoints.filter(function(p) { return new Date(p.ts).getTime() >= cutoff; });
+    var periodBtns = ['1h','6h','24h','7d','30d'].map(function(p) {
+      return '<button class="btn' + (activePeriod === p ? ' active' : '') + '" style="padding:3px 8px;font-size:10px" data-timelineperiod="' + p + '">' + p + '</button>';
+    }).join('');
+    var timelineHtml = '<div class="stat-card" style="grid-column:1/-1">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+        '<span class="card-title" style="margin-bottom:0">ACTIVITY TIMELINE</span>' +
+        '<span style="display:flex;gap:4px">' + periodBtns + '</span>' +
+      '</div>' +
+      '<div style="margin-bottom:16px">' +
+        '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">Public IPs tracked</div>' +
+        self._lineChart(filteredPts, [{key:'ext_ips', label:'Public IPs', color:'#8f86ff'}]) +
+      '</div>' +
+      '<div>' +
+        '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">Hosts</div>' +
+        self._lineChart(filteredPts, [{key:'hosts', label:'Hosts seen', color:'#3ac5c9'}, {key:'scanned', label:'Scanned alive', color:'#6bffc8'}]) +
+      '</div>' +
+    '</div>';
 
     function toggleBtns(id, current) {
       return '<span style="display:flex;gap:4px;flex-shrink:0">' +
@@ -812,7 +910,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
-      '<div class="two-col">' +
+      timelineHtml +
+      '<div class="two-col" style="margin-top:12px">' +
         '<div class="card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
           ipsSection +

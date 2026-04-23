@@ -380,6 +380,15 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
                 enrichment_stats_merged[prov]["exhausted"] = enrichment_stats_merged[prov]["used"] >= enrichment_stats_merged[prov]["budget"]
     enrichment_stats: list[dict[str, Any]] = list(enrichment_stats_merged.values())
 
+    # Timeseries — merge points from all collectors, deduplicated by timestamp
+    timeseries_merged: dict[str, dict[str, Any]] = {}
+    for entry_id, runtime in entries.items():
+        for pt in runtime["collector"]._timeseries:
+            ts_key = str(pt.get("ts", ""))
+            if ts_key and ts_key not in timeseries_merged:
+                timeseries_merged[ts_key] = pt
+    timeseries: list[dict[str, Any]] = sorted(timeseries_merged.values(), key=lambda p: p["ts"])
+
     # Top suspicious/malicious external IPs — ranked by severity then flow count
     _THREAT_RATINGS = {"malicious": 0, "suspicious": 1}
     threat_candidates: list[dict[str, Any]] = []
@@ -462,6 +471,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         "top_internal_talkers": top_internal_talkers,
         "top_threat_ips": top_threat_ips,
         "enrichment_stats": enrichment_stats,
+        "timeseries": timeseries,
     }
 
 
