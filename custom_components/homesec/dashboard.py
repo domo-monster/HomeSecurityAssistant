@@ -1,10 +1,18 @@
 from __future__ import annotations
 
 import ipaddress
+import json
 from pathlib import Path
 from typing import Any
 import logging
 from aiohttp import web
+
+_MANIFEST_PATH = Path(__file__).parent / "manifest.json"
+def _read_version() -> str:
+    try:
+        return json.loads(_MANIFEST_PATH.read_text())["version"]
+    except Exception:
+        return "?"
 
 from homeassistant.components import panel_custom
 from homeassistant.components.http import StaticPathConfig
@@ -439,6 +447,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
             "last_parser_error": last_parser_error,
             "last_flow_at": last_flow_at,
             "collector_started_at": collector_started_at,
+            "version": _read_version(),
         },
         "role_overrides": domain_data.get("role_overrides", {}),
         "name_overrides": domain_data.get("name_overrides", {}),

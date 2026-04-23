@@ -443,7 +443,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="brand-text"><span class="brand-name">Home Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">Network security telemetry with live flow context</span></div></div>' +
       '<ul class="nav-list">' + items + '</ul>' +
       '<div class="sidebar-status ' + status + '"><div class="status-dot"></div><span>' +
-      (status === 'online' ? 'Collector active' : 'Awaiting flows') + '</span></div>';
+      (status === 'online' ? 'Collector active' : 'Awaiting flows') + '</span>' +
+      '<span style="margin-left:auto;opacity:.45;font-size:9px">v' + ((this._data && this._data.summary && this._data.summary.version) || '…') + '</span>' +
+      '</div>';
   }
 
   _viewOverview() {

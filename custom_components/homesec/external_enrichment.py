@@ -117,6 +117,8 @@ class ExternalIPEnricher:
             self._prov_tier["shodan"] = "free"
         if self._abuse_key:
             self._prov_tier["abuseipdb"] = "basic"
+        # Set to True after a 403 from the host-lookup endpoint (OSS/free key)
+        self._shodan_key_invalid: bool = False
 
     # ------------------------------------------------------------------ #
     # Lifecycle
@@ -346,6 +348,12 @@ class ExternalIPEnricher:
                 # Always skip when called from on-demand lookup path
                 if skip_shodan:
                     continue
+                # Only enrich public (external) IPs with Shodan
+                if not self._is_public(ip):
+                    continue
+                # Skip if key was rejected by the host-lookup endpoint (free/OSS key)
+                if self._shodan_key_invalid:
+                    continue
                 # Respect the configured enrichment scope
                 if self._shodan_mode == "none":
                     continue
@@ -369,7 +377,16 @@ class ExternalIPEnricher:
             except _ProviderError as exc:
                 note = _HTTP_ERROR_NOTES.get(exc.status, f"HTTP {exc.status}")
                 self._prov_last_error[name] = note
-                _LOGGER.debug("HSA: %s returned %s for %s", name, exc.status, ip)
+                if name == "shodan" and exc.status == 403:
+                    if not self._shodan_key_invalid:
+                        self._shodan_key_invalid = True
+                        _LOGGER.warning(
+                            "HSA: Shodan API key is invalid or does not have host-lookup "
+                            "access (HTTP 403). Shodan enrichment disabled for this session. "
+                            "Free/OSS keys do not support the host-lookup endpoint."
+                        )
+                else:
+                    _LOGGER.debug("HSA: %s returned %s for %s", name, exc.status, ip)
             except Exception as exc:
                 _LOGGER.debug("HSA: %s failed for %s: %s", name, ip, exc)
 
