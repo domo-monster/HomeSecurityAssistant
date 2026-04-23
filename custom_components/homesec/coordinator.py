@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections import deque
 from collections.abc import Callable, Coroutine
 from typing import Any
 from datetime import datetime, timedelta, timezone
@@ -17,6 +18,9 @@ from .const import (
     CONF_BIND_HOST,
     CONF_BIND_PORT,
     CONF_BLACKLIST_URLS,
+    CONF_DNS_PROXY_ENABLED,
+    CONF_DNS_PROXY_PORT,
+    CONF_DNS_PROXY_UPSTREAM,
     CONF_ENABLE_DNS_RESOLUTION,
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
@@ -43,6 +47,9 @@ from .const import (
     DEFAULT_BIND_HOST,
     DEFAULT_BIND_PORT,
     DEFAULT_BLACKLIST_URLS,
+    DEFAULT_DNS_PROXY_ENABLED,
+    DEFAULT_DNS_PROXY_PORT,
+    DEFAULT_DNS_PROXY_UPSTREAM,
     DEFAULT_ENABLE_DNS_RESOLUTION,
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENRICHMENT_TTL_MINUTES,
@@ -67,6 +74,7 @@ from .const import (
     get_entry_value,
 )
 from .dns_resolver import DNSBlacklistChecker
+from .dns_proxy import DNSProxyServer, DNS_LOG_MAX
 from .enrichment import collect_tracker_enrichment
 from .external_enrichment import ExternalIPEnricher
 from .fingerprints import HomeSecurityAnalyzer
@@ -170,6 +178,21 @@ class HomeSecCollector:
         self._ts_last_point: datetime | None = None
         self._timeseries_dirty: bool = False
 
+        # DNS proxy
+        self._dns_log: deque = deque(maxlen=DNS_LOG_MAX)
+        dns_proxy_enabled = bool(get_entry_value(entry, CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED))
+        if dns_proxy_enabled:
+            self._dns_proxy: DNSProxyServer | None = DNSProxyServer(
+                host=str(get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST)),
+                port=int(get_entry_value(entry, CONF_DNS_PROXY_PORT, DEFAULT_DNS_PROXY_PORT)),
+                upstream=str(get_entry_value(entry, CONF_DNS_PROXY_UPSTREAM, DEFAULT_DNS_PROXY_UPSTREAM)),
+                checker=self._resolver,
+                dns_log=self._dns_log,
+                on_malicious=self._on_malicious_dns,
+            )
+        else:
+            self._dns_proxy = None
+
     async def async_start(self) -> None:
         self._started_at = datetime.now(timezone.utc)
         loop = asyncio.get_running_loop()
@@ -213,6 +236,8 @@ class HomeSecCollector:
 
         await self._resolver.async_start()
         await self._enricher.async_start()
+        if self._dns_proxy is not None:
+            await self._dns_proxy.async_start()
         self._nvd_task = self.hass.async_create_background_task(
             self._nvd_background_loop(), name="homesec_nvd_background"
         )
@@ -226,10 +251,29 @@ class HomeSecCollector:
         if exc is not None:
             _LOGGER.error("NVD background task crashed: %s", exc)
 
+    def _on_malicious_dns(self, src_ip: str, domain: str, qtype: str, hit: dict) -> None:
+        """Called by DNSProxyProtocol when a queried domain matches the threat-intel blacklist."""
+        _LOGGER.warning(
+            "HomeSec DNS proxy: malicious domain query from %s — %s (%s) matched %s",
+            src_ip, domain, qtype, hit.get("source", "threat_intel"),
+        )
+        self.hass.bus.async_fire(
+            f"{DOMAIN}_malicious_dns",
+            {
+                "src_ip": src_ip,
+                "domain": domain,
+                "qtype": qtype,
+                "source": hit.get("source", "threat_intel"),
+                "indicator": hit.get("indicator", domain),
+            },
+        )
+
     async def async_stop(self) -> None:
         if self._nvd_task is not None:
             self._nvd_task.cancel()
             self._nvd_task = None
+        if self._dns_proxy is not None:
+            await self._dns_proxy.async_stop()
         if self._transport is not None:
             self._transport.close()
             self._transport = None
@@ -423,6 +467,8 @@ class HomeSecCollector:
         payload["blacklist_stats"] = self._resolver.stats()
         payload["collector_started_at"] = self._started_at.isoformat() if self._started_at else None
         payload["enrichment_stats"] = self._enricher.enrichment_stats()
+        payload["dns_log"] = list(self._dns_log)
+        payload["dns_proxy_stats"] = self._dns_proxy.stats() if self._dns_proxy is not None else {"running": False}
         nvd_ts = self._nvd_last_fetch_at
         payload["nvd_last_updated"] = nvd_ts.isoformat() if nvd_ts else None
         payload["nvd_ttl_hours"] = self._nvd_client._ttl_hours
@@ -489,8 +535,17 @@ class HomeSecCollector:
         if self._post_scan_refresh is not None:
             await self._post_scan_refresh()
 
-    def dismiss_finding(self, key: str, note: str = "") -> None:
-        self._dismissed_findings[key] = note
+    def dns_log_snapshot(self) -> list[dict]:
+        """Return a snapshot of the DNS query ring buffer."""
+        return list(self._dns_log)
+
+    def dns_proxy_stats(self) -> dict:
+        """Return DNS proxy status stats."""
+        if self._dns_proxy is not None:
+            return self._dns_proxy.stats()
+        return {"running": False}
+
+    def dismiss_finding(self, key: str, note: str = "") -> None:        self._dismissed_findings[key] = note
         self.hass.async_add_executor_job(
             save_dismissed_findings, self._config_dir, dict(self._dismissed_findings)
         )

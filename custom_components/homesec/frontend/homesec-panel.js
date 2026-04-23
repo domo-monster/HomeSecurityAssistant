@@ -3,7 +3,7 @@
 // Views: Overview · Network Map · Hosts · Findings · External IPs · Recommendations
 // ─────────────────────────────────────────────────────────────────────────────
 
-const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'statistics', 'recommendations'];
+const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'statistics', 'dns', 'recommendations'];
 const _VIEW_LABELS = {
   overview:        'Overview',
   map:             'Network Map',
@@ -12,6 +12,7 @@ const _VIEW_LABELS = {
   external:        'External IPs',
   vulnerabilities:  'Vulnerabilities',
   statistics:      'Statistics',
+  dns:             'DNS Queries',
   recommendations: 'Recommendations',
 };
 const _VIEW_ICONS = {
@@ -22,6 +23,7 @@ const _VIEW_ICONS = {
   external:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
   vulnerabilities:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>`,
   statistics:      `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"/></svg>`,
+  dns:             `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
   recommendations: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`,
 };
 
@@ -152,6 +154,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         case 'external':        content.innerHTML = this._viewExternal();  break;
         case 'vulnerabilities':  content.innerHTML = this._viewVulns();        break;
         case 'statistics':       content.innerHTML = this._viewStatistics();   break;
+        case 'dns':             content.innerHTML = this._viewDns();       break;
         case 'recommendations': content.innerHTML = this._viewRecs();      break;
       }
     } catch (err) {
@@ -429,11 +432,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _sidebar() {
     var findings   = (this._data && this._data.findings && this._data.findings.length) || 0;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
+    var dns_malicious = (this._data && this._data.dns_log || []).filter(function(e) { return e.malicious; }).length;
     var self = this;
     var items = _VIEWS.map(function(v) {
       var badge = '';
-      if (v === 'findings' && findings > 0)   badge = '<span class="nav-badge">' + findings + '</span>';
-      if (v === 'external' && ext_threat > 0) badge = '<span class="nav-badge danger">' + ext_threat + '</span>';
+      if (v === 'findings' && findings > 0)       badge = '<span class="nav-badge">' + findings + '</span>';
+      if (v === 'external' && ext_threat > 0)     badge = '<span class="nav-badge danger">' + ext_threat + '</span>';
+      if (v === 'dns' && dns_malicious > 0)       badge = '<span class="nav-badge">' + dns_malicious + '</span>';
       return '<li class="nav-item ' + (self._view === v ? 'active' : '') + '" data-view="' + v + '">' +
         _VIEW_ICONS[v] + '<span class="nav-label">' + _VIEW_LABELS[v] + '</span>' + badge + '</li>';
     }).join('');
@@ -2359,6 +2364,102 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</div>' +
       '</div>' +
     '</div>';
+  }
+
+  _viewDns() {
+    var stats   = (this._data && this._data.dns_proxy_stats) || {};
+    var log     = (this._data && this._data.dns_log) || [];
+    var running = stats.running || false;
+
+    // Status card
+    var statusColor = running ? 'var(--success)' : 'var(--muted)';
+    var statusText  = running ? 'Running' : 'Stopped';
+    var port        = stats.port || '—';
+    var upstream    = stats.upstream || '—';
+    var total       = stats.total_queries != null ? stats.total_queries : log.length;
+
+    var statusCard = '<div class="card" style="margin-bottom:14px">' +
+      '<div class="card-title">DNS Proxy Status</div>' +
+      '<div style="display:flex;gap:24px;flex-wrap:wrap;font-size:12px">' +
+        '<div><span style="color:var(--muted)">Status</span> &nbsp;<strong style="color:' + statusColor + '">' + statusText + '</strong></div>' +
+        '<div><span style="color:var(--muted)">Port</span> &nbsp;<span class="mono">' + this._esc(String(port)) + '</span></div>' +
+        '<div><span style="color:var(--muted)">Upstream</span> &nbsp;<span class="mono">' + this._esc(String(upstream)) + '</span></div>' +
+        '<div><span style="color:var(--muted)">Total queries (session)</span> &nbsp;<strong>' + total + '</strong></div>' +
+      '</div>' +
+      (!running ? '<div style="margin-top:10px;padding:8px 12px;background:rgba(255,179,71,.08);border:1px solid rgba(255,179,71,.25);border-radius:6px;font-size:11px;color:var(--warn)">' +
+        'DNS proxy is not running. Enable it in the integration options (<em>dns_proxy_enabled</em>). ' +
+        'Port 53 requires HA to run as root or with <code>CAP_NET_BIND_SERVICE</code>.' +
+        '</div>' : '') +
+    '</div>';
+
+    // Filter controls
+    var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
+      '<input class="search-bar" id="dns-search" placeholder="Filter by IP or domain…" style="width:220px" ' +
+        'oninput="this.getRootNode().host._dnsFilter()" />' +
+      '<label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer">' +
+        '<input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()"> Malicious only' +
+      '</label>' +
+      '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto"></span>' +
+    '</div>';
+
+    // Table
+    var maliciousCount = log.filter(function(e) { return e.malicious; }).length;
+    var summaryBadge = maliciousCount > 0
+      ? '<span class="badge badge-malicious" style="margin-left:8px">' + maliciousCount + ' malicious</span>'
+      : '';
+
+    var tableHead = '<table class="data-table" id="dns-table" style="min-width:640px">' +
+      '<thead><tr>' +
+        '<th>Time</th><th>Client IP</th><th>Domain</th><th>Type</th><th>Status</th>' +
+      '</tr></thead><tbody>';
+
+    var tableRows = log.slice(0, 500).map(function(e) {
+      var ts   = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
+      var ip   = this._esc(e.src_ip || '—');
+      var dom  = this._esc(e.domain || '—');
+      var qtype = this._esc(e.qtype || 'A');
+      var mal  = e.malicious;
+      var badge = mal
+        ? '<span class="badge badge-malicious">malicious</span>'
+        : '<span class="badge badge-clean">clean</span>';
+      var rowStyle = mal ? ' style="background:rgba(255,77,109,.05)"' : '';
+      return '<tr' + rowStyle + ' data-malicious="' + (mal ? '1' : '0') + '" data-ip="' + ip.toLowerCase() + '" data-domain="' + dom.toLowerCase() + '">' +
+        '<td class="mono" style="white-space:nowrap;font-size:11px">' + ts + '</td>' +
+        '<td class="mono ip">' + ip + '</td>' +
+        '<td class="mono" style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + dom + '">' + dom + '</td>' +
+        '<td><span class="chip">' + qtype + '</span></td>' +
+        '<td>' + badge + '</td>' +
+      '</tr>';
+    }, this).join('');
+
+    var tableEnd = '</tbody></table>';
+
+    return '<div>' +
+      '<div class="view-header"><h1>DNS Queries ' + summaryBadge + '</h1></div>' +
+      statusCard +
+      '<div class="card table-card">' +
+        '<div style="padding:14px 14px 8px">' + filterBar + '</div>' +
+        '<div style="overflow-x:auto">' + tableHead + tableRows + tableEnd + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  _dnsFilter() {
+    var root   = this.shadowRoot;
+    var search = (root.getElementById('dns-search') || {value: ''}).value.toLowerCase().trim();
+    var malOnly = (root.getElementById('dns-malicious-only') || {checked: false}).checked;
+    var rows   = root.querySelectorAll('#dns-table tbody tr');
+    var visible = 0;
+    rows.forEach(function(row) {
+      var ip     = row.dataset.ip || '';
+      var domain = row.dataset.domain || '';
+      var mal    = row.dataset.malicious === '1';
+      var show   = (!malOnly || mal) && (!search || ip.includes(search) || domain.includes(search));
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    var cnt = root.getElementById('dns-count');
+    if (cnt) cnt.textContent = visible + ' / ' + rows.length + ' entries';
   }
 
   _viewRecs() {

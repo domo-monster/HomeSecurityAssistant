@@ -128,6 +128,7 @@ async def async_setup_dashboard(hass: HomeAssistant) -> None:
     hass.http.register_view(HomeSecRoleOverrideView())
     hass.http.register_view(HomeSecNameOverrideView())
     hass.http.register_view(HomeSecVulnBrowserView())
+    hass.http.register_view(HomeSecDnsLogView())
     await panel_custom.async_register_panel(
         hass,
         webcomponent_name=PANEL_COMPONENT,
@@ -482,7 +483,30 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         "top_threat_ips": top_threat_ips,
         "enrichment_stats": enrichment_stats,
         "timeseries": timeseries,
+        "dns_log": _build_dns_log(entries),
+        "dns_proxy_stats": _build_dns_proxy_stats(entries),
     }
+
+
+def _build_dns_log(entries: dict) -> list[dict[str, Any]]:
+    """Merge and sort DNS log entries from all collectors (newest first, max 500)."""
+    merged: list[dict[str, Any]] = []
+    for runtime in entries.values():
+        merged.extend(runtime["collector"].dns_log_snapshot())
+    merged.sort(key=lambda e: e.get("ts", ""), reverse=True)
+    return merged[:500]
+
+
+def _build_dns_proxy_stats(entries: dict) -> dict[str, Any]:
+    """Return DNS proxy stats from the first collector that has one running."""
+    for runtime in entries.values():
+        stats = runtime["collector"].dns_proxy_stats()
+        if stats.get("running"):
+            return stats
+    # Return the first available stats (may be running=False) or a default
+    for runtime in entries.values():
+        return runtime["collector"].dns_proxy_stats()
+    return {"running": False}
 
 
 def _build_recommendations(
@@ -942,3 +966,37 @@ class HomeSecVulnBrowserView(HomeAssistantView):
             "kev_matches": kev_matches,
             "kev_total": kev_client.total if kev_client else 0,
         })
+
+
+class HomeSecDnsLogView(HomeAssistantView):
+    """Return recent DNS proxy query log entries.
+
+    GET /api/homesec/dns/log?limit=200&malicious_only=true
+    """
+
+    url = "/api/homesec/dns/log"
+    name = "api:homesec:dns:log"
+    requires_auth = True
+
+    async def get(self, request: web.Request) -> web.Response:
+        hass: HomeAssistant = request.app["hass"]
+        domain_data = hass.data.get(DOMAIN, {})
+        entries = domain_data.get("entries", {})
+        if not entries:
+            return self.json({"entries": [], "total": 0})
+
+        try:
+            limit = min(int(request.query.get("limit", 500)), 5000)
+        except (ValueError, TypeError):
+            limit = 500
+        malicious_only = request.query.get("malicious_only", "").lower() in ("1", "true", "yes")
+
+        merged: list[dict] = []
+        for runtime in entries.values():
+            merged.extend(runtime["collector"].dns_log_snapshot())
+        merged.sort(key=lambda e: e.get("ts", ""), reverse=True)
+        if malicious_only:
+            merged = [e for e in merged if e.get("malicious")]
+        merged = merged[:limit]
+
+        return self.json({"entries": merged, "total": len(merged)})

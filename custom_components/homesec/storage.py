@@ -74,6 +74,9 @@ PERSISTED_KEYS = (
     "retention_malicious_hours",
     "enable_dns_resolution",
     "blacklist_urls",
+    "dns_proxy_enabled",
+    "dns_proxy_port",
+    "dns_proxy_upstream",
     "virustotal_api_key",
     "abuseipdb_api_key",
 )

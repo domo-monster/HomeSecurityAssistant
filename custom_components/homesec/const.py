@@ -34,6 +34,11 @@ CONF_ABUSEIPDB_DAILY_BUDGET = "abuseipdb_daily_budget"
 CONF_ENABLE_DNS_RESOLUTION = "enable_dns_resolution"
 CONF_BLACKLIST_URLS = "blacklist_urls"
 
+# DNS proxy
+CONF_DNS_PROXY_ENABLED = "dns_proxy_enabled"
+CONF_DNS_PROXY_PORT = "dns_proxy_port"
+CONF_DNS_PROXY_UPSTREAM = "dns_proxy_upstream"
+
 # NVD CVE enrichment
 CONF_NVD_API_KEY = "nvd_api_key"
 CONF_NVD_API_URL = "nvd_api_url"
@@ -89,6 +94,11 @@ DEFAULT_BLACKLIST_URLS = (
     "https://feodotracker.abuse.ch/downloads/ipblocklist.txt,"
     "https://sslbl.abuse.ch/blacklist/sslipblacklist.txt"
 )
+
+# DNS proxy defaults
+DEFAULT_DNS_PROXY_ENABLED = False
+DEFAULT_DNS_PROXY_PORT = 53
+DEFAULT_DNS_PROXY_UPSTREAM = "1.1.1.1"
 
 COORDINATOR_INTERVAL_SECONDS = 30
 
