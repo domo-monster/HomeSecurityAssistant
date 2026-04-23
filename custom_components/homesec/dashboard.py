@@ -7,12 +7,13 @@ from typing import Any
 import logging
 from aiohttp import web
 
-_MANIFEST_PATH = Path(__file__).parent / "manifest.json"
 def _read_version() -> str:
-    try:
-        return json.loads(_MANIFEST_PATH.read_text())["version"]
-    except Exception:
-        return "?"
+    return _VERSION
+
+try:
+    _VERSION: str = json.loads((Path(__file__).parent / "manifest.json").read_text())["version"]
+except Exception:
+    _VERSION = "?"
 
 from homeassistant.components import panel_custom
 from homeassistant.components.http import StaticPathConfig
