@@ -690,6 +690,77 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div><div style="text-align:right;margin-top:3px">' + legend + '</div>';
   }
 
+  // ── Hourly bar chart (max value per 1-hour bucket) ────────────────────
+  _hourlyBarChart(points, key, color) {
+    var W = 560, H = 120, ML = 42, MR = 14, MT = 8, MB = 28;
+    var PW = W - ML - MR, PH = H - MT - MB;
+    if (!points || points.length < 2) {
+      return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Not enough data yet — check back after a few minutes</div>';
+    }
+    // Determine time range from the points
+    var tMin = Infinity, tMax = -Infinity;
+    for (var i = 0; i < points.length; i++) {
+      var t = new Date(points[i].ts).getTime();
+      if (!isNaN(t)) { if (t < tMin) tMin = t; if (t > tMax) tMax = t; }
+    }
+    if (!isFinite(tMin)) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No data for this period</div>';
+    // Snap tMin back to the start of its hour so buckets align to clock hours
+    var tMinHour = Math.floor(tMin / 3600000) * 3600000;
+    var numBuckets = Math.max(1, Math.ceil((tMax - tMinHour) / 3600000));
+    // Limit to a reasonable display maximum
+    if (numBuckets > 168) numBuckets = 168;  // cap at 7 days of hours
+    var buckets = new Array(numBuckets).fill(0);
+    for (var i = 0; i < points.length; i++) {
+      var t = new Date(points[i].ts).getTime();
+      if (isNaN(t)) continue;
+      var bi = Math.floor((t - tMinHour) / 3600000);
+      if (bi < 0) bi = 0;
+      if (bi >= numBuckets) bi = numBuckets - 1;
+      var v = Number(points[i][key] || 0);
+      if (v > buckets[bi]) buckets[bi] = v;
+    }
+    var yMax = 1;
+    for (var i = 0; i < buckets.length; i++) { if (buckets[i] > yMax) yMax = buckets[i]; }
+    var barW = Math.max(1, (PW / numBuckets) - 1);
+    var svg = '';
+    // Border
+    svg += '<rect x="' + ML + '" y="' + MT + '" width="' + PW + '" height="' + PH + '" fill="none" stroke="rgba(255,255,255,.08)" rx="2"/>';
+    // Horizontal gridlines
+    [0.25, 0.5, 0.75].forEach(function(f) {
+      var gy = (MT + PH * f).toFixed(1);
+      svg += '<line x1="' + ML + '" y1="' + gy + '" x2="' + (ML + PW) + '" y2="' + gy + '" stroke="rgba(255,255,255,.05)"/>';
+    });
+    // Bars
+    for (var i = 0; i < numBuckets; i++) {
+      var bh = ((buckets[i] / yMax) * PH);
+      var bx = (ML + i * (PW / numBuckets)).toFixed(1);
+      var by = (MT + PH - bh).toFixed(1);
+      svg += '<rect x="' + bx + '" y="' + by + '" width="' + barW.toFixed(1) + '" height="' + bh.toFixed(1) + '" fill="' + color + '" opacity="0.75" rx="1"/>';
+    }
+    // X-axis ticks — show up to 6 labels
+    var tickCount = Math.min(6, numBuckets);
+    for (var ti = 0; ti <= tickCount; ti++) {
+      var frac = ti / tickCount;
+      var tx = (ML + frac * PW).toFixed(1);
+      var tt = tMinHour + frac * (numBuckets * 3600000);
+      var dd = new Date(tt);
+      var lbl = numBuckets <= 48
+        ? dd.getHours().toString().padStart(2,'0') + ':00'
+        : (dd.getMonth()+1) + '/' + dd.getDate();
+      svg += '<line x1="' + tx + '" y1="' + (MT+PH) + '" x2="' + tx + '" y2="' + (MT+PH+4) + '" stroke="rgba(255,255,255,.15)"/>';
+      svg += '<text x="' + tx + '" y="' + (MT+PH+14) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lbl + '</text>';
+    }
+    // Y-axis labels
+    [0, 0.5, 1].forEach(function(f) {
+      var yv = Math.round(yMax * f);
+      var yy = (MT + PH - f * PH).toFixed(1);
+      svg += '<text x="' + (ML-4) + '" y="' + yy + '" dy="0.35em" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="end">' + yv + '</text>';
+    });
+    return '<div style="width:100%;height:' + H + 'px">' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="100%" preserveAspectRatio="none">' + svg + '</svg>' +
+      '</div>';
+  }
+
   // ── Statistics view ──────────────────────────────────────────────────
   _viewStatistics() {
     var self = this;
@@ -735,7 +806,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<span style="font-size:10px;color:var(--muted)">Public IPs tracked</span>' +
           extIpsBadges +
         '</div>' +
-        self._lineChart(filteredPts, [{key:'ext_ips', label:'Public IPs', color:'#8f86ff'}]) +
+        self._hourlyBarChart(filteredPts, 'ext_ips', '#8f86ff') +
       '</div>' +
       '<div>' +
         '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">Hosts</div>' +
