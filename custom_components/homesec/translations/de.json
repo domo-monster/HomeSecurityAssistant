@@ -22,7 +22,9 @@
           "virustotal_api_key": "VirusTotal API-Schlüssel (optional)",
           "shodan_api_key": "Shodan API-Schlüssel (optional)",
           "abuseipdb_api_key": "AbuseIPDB API-Schlüssel (optional)",
-          "external_ip_retention_hours": "Aufbewahrung externer IPs (Stunden, 0 = unbegrenzt)",
+          "external_ip_retention_hours": "Aufbewahrung bereinigter IPs (Stunden, 0 = unbegrenzt)",
+          "retention_suspicious_hours": "Aufbewahrung verdächtiger IPs (Stunden, 0 = unbegrenzt)",
+          "retention_malicious_hours": "Aufbewahrung schädlicher IPs (Stunden, 0 = unbegrenzt)",
           "enrichment_ttl_minutes": "TTL des Anreicherungs-Caches (Minuten, Wartezeit bis zur erneuten Abfrage der Anbieter)",
           "ipinfo_daily_budget": "Tägliches Abfrage-Budget IPInfo",
           "virustotal_daily_budget": "Tägliches Abfrage-Budget VirusTotal",
@@ -32,7 +34,9 @@
           "nvd_api_url": "NVD API-URL",
           "nvd_ttl_hours": "TTL des NVD-Caches (Stunden, Wartezeit bis zur erneuten CVE-Abfrage)",
           "nvd_min_year": "NVD-Mindest-CVE-Jahr (0 = alle Jahre, kein Filter)",
-          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)"
+          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)",
+          "stats_top_n": "Statistiken: Top-N Einträge anzeigen (3–25)",
+          "shodan_enrich_mode": "Shodan-Anreicherungsbereich (all = jede öffentliche IP, threat = nur verdächtig/schädlich, none = deaktiviert)"
         }
       }
     }
@@ -60,7 +64,9 @@
           "virustotal_api_key": "VirusTotal API-Schlüssel (optional)",
           "shodan_api_key": "Shodan API-Schlüssel (optional)",
           "abuseipdb_api_key": "AbuseIPDB API-Schlüssel (optional)",
-          "external_ip_retention_hours": "Aufbewahrung externer IPs (Stunden, 0 = unbegrenzt)",
+          "external_ip_retention_hours": "Aufbewahrung bereinigter IPs (Stunden, 0 = unbegrenzt)",
+          "retention_suspicious_hours": "Aufbewahrung verdächtiger IPs (Stunden, 0 = unbegrenzt)",
+          "retention_malicious_hours": "Aufbewahrung schädlicher IPs (Stunden, 0 = unbegrenzt)",
           "enrichment_ttl_minutes": "TTL des Anreicherungs-Caches (Minuten, Wartezeit bis zur erneuten Abfrage der Anbieter)",
           "ipinfo_daily_budget": "Tägliches Abfrage-Budget IPInfo",
           "virustotal_daily_budget": "Tägliches Abfrage-Budget VirusTotal",
@@ -70,7 +76,9 @@
           "nvd_api_url": "NVD API-URL",
           "nvd_ttl_hours": "TTL des NVD-Caches (Stunden, Wartezeit bis zur erneuten CVE-Abfrage)",
           "nvd_min_year": "NVD-Mindest-CVE-Jahr (0 = alle Jahre, kein Filter)",
-          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)"
+          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)",
+          "stats_top_n": "Statistiken: Top-N Einträge anzeigen (3–25)",
+          "shodan_enrich_mode": "Shodan-Anreicherungsbereich (all = jede öffentliche IP, threat = nur verdächtig/schädlich, none = deaktiviert)"
         }
       }
     }
