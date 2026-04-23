@@ -76,7 +76,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._vulnDetail   = null;
     this._mapFilter    = 'all';
     this._mapParticles = [];
-    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie' };
+    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie' };
   }
 
   set hass(v) {
@@ -755,6 +755,48 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</tbody></table>';
     }
 
+    // ── Top suspicious / malicious IPs ────────────────────────────────
+    var THREAT_COLORS = ['#ff4d6d','#ff8c42','#ffc107','#f472b6','#fb923c','#ff6b6b','#e879f9','#facc15','#fd8dac','#ffb347'];
+    var topThr = (this._data && this._data.top_threat_ips) || [];
+    var threatSection;
+    if (!topThr.length) {
+      threatSection = '<div class="empty-state"><div class="empty-icon" style="font-size:24px">✅</div><p style="margin:8px 0">No suspicious or malicious IPs detected</p></div>';
+    } else if (modes.threat_ips === 'pie') {
+      threatSection = chartSection(
+        self._pieSvg(topThr, function(e) { return Math.max(e.flows, 1); }, function(e) {
+          return e.ip + (e.hostname ? ' (' + e.hostname + ')' : '') + ' — ' + e.rating;
+        }, THREAT_COLORS),
+        self._statsLegend(topThr, function(e) { return Math.max(e.flows, 1); }, function(e) {
+          var label = e.hostname || e.org || e.ip;
+          return label + ' · ' + e.rating + (e.flows ? ' · ' + e.flows.toLocaleString() + ' flows' : '');
+        }, THREAT_COLORS) +
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Malicious first, then by flow count</div>' +
+        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs →</button>'
+      );
+    } else {
+      threatSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>IP</th><th>Hostname / Org</th><th>Country</th><th style="text-align:right">Flows</th><th>Rating</th><th>Details</th>' +
+        '</tr></thead><tbody>' +
+        topThr.map(function(e, i) {
+          var label = e.hostname || e.org || e.ip;
+          var country = e.country_name || e.country || '';
+          var bc = e.rating === 'malicious' ? 'badge-critical' : 'badge-warn';
+          var details = [];
+          if (e.vt_malicious != null && e.vt_malicious > 0) details.push('VT ' + e.vt_malicious);
+          if (e.abuse_confidence != null && e.abuse_confidence > 0) details.push('Abuse ' + e.abuse_confidence + '%');
+          if (e.blacklist_info && typeof e.blacklist_info === 'object' && e.blacklist_info.source) details.push(self._esc(e.blacklist_info.source));
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span class="ip">' + self._esc(e.ip) + '</span></td>' +
+            '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(label) + '</td>' +
+            '<td>' + self._esc(country) + '</td>' +
+            '<td style="text-align:right">' + (e.flows || 0).toLocaleString() + '</td>' +
+            '<td><span class="badge ' + bc + '">' + self._esc(e.rating) + '</span></td>' +
+            '<td style="font-size:10px;color:var(--muted)">' + details.join(', ') + '</td></tr>';
+        }).join('') +
+        '</tbody></table>' +
+        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs →</button>';
+    }
+
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
       '<div class="two-col">' +
@@ -767,9 +809,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           countriesSection +
         '</div>' +
       '</div>' +
-      '<div class="card" style="margin-top:12px">' +
-        '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Internal Talkers' + toggleBtns('talkers', modes.talkers) + '</div>' +
-        talkersSection +
+      '<div class="two-col" style="margin-top:12px">' +
+        '<div class="card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Internal Talkers' + toggleBtns('talkers', modes.talkers) + '</div>' +
+          talkersSection +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' +
+          (topThr.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Threat IPs <span class="badge badge-critical" style="font-size:9px">' + topThr.length + '</span></span>' : 'Top\u00a0' + topN + ' Threat IPs') +
+          toggleBtns('threat_ips', modes.threat_ips) + '</div>' +
+          threatSection +
+        '</div>' +
       '</div>' +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title">Enrichment Budget (Today)</div>' +

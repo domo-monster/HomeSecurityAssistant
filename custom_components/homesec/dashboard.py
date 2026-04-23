@@ -379,6 +379,35 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
                 enrichment_stats_merged[prov]["configured"] = enrichment_stats_merged[prov]["configured"] or stat["configured"]
                 enrichment_stats_merged[prov]["exhausted"] = enrichment_stats_merged[prov]["used"] >= enrichment_stats_merged[prov]["budget"]
     enrichment_stats: list[dict[str, Any]] = list(enrichment_stats_merged.values())
+
+    # Top suspicious/malicious external IPs — ranked by severity then flow count
+    _THREAT_RATINGS = {"malicious": 0, "suspicious": 1}
+    threat_candidates: list[dict[str, Any]] = []
+    for ext_entry in all_external_ips.values():
+        is_blacklisted = ext_entry.get("blacklisted", False)
+        rating = str(ext_entry.get("rating") or "")
+        if not is_blacklisted and rating not in _THREAT_RATINGS:
+            continue
+        ip = str(ext_entry.get("ip", ""))
+        effective_rating = "malicious" if is_blacklisted else rating
+        threat_candidates.append({
+            "ip": ip,
+            "flows": ext_ip_connection_count.get(ip, 0),
+            "hostname": ext_entry.get("hostname") or ext_entry.get("hostname_ipinfo") or "",
+            "org": ext_entry.get("org") or "",
+            "country": ext_entry.get("country") or "",
+            "country_name": ext_entry.get("country_name") or "",
+            "blacklisted": bool(is_blacklisted),
+            "rating": effective_rating,
+            "blacklist_info": ext_entry.get("blacklist_info"),
+            "vt_malicious": ext_entry.get("vt_malicious"),
+            "abuse_confidence": ext_entry.get("abuse_confidence"),
+            "internal_sources": ext_entry.get("internal_sources", []),
+        })
+    top_threat_ips: list[dict[str, Any]] = sorted(
+        threat_candidates,
+        key=lambda e: (_THREAT_RATINGS.get(e["rating"], 2), -e["flows"]),
+    )[:TOP_N]
     # ─────────────────────────────────────────────────────────────────────
 
     return {
@@ -431,6 +460,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         "top_public_ips": top_public_ips,
         "top_countries": top_countries,
         "top_internal_talkers": top_internal_talkers,
+        "top_threat_ips": top_threat_ips,
         "enrichment_stats": enrichment_stats,
     }
 
