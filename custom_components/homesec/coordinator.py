@@ -545,7 +545,8 @@ class HomeSecCollector:
             return self._dns_proxy.stats()
         return {"running": False}
 
-    def dismiss_finding(self, key: str, note: str = "") -> None:        self._dismissed_findings[key] = note
+    def dismiss_finding(self, key: str, note: str = "") -> None:
+        self._dismissed_findings[key] = note
         self.hass.async_add_executor_job(
             save_dismissed_findings, self._config_dir, dict(self._dismissed_findings)
         )
