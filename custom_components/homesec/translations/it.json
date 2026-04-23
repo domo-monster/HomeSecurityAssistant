@@ -18,25 +18,20 @@
           "scan_ports": "Porte da scansionare (porte o intervalli separati da virgola, es. 22,80,443,8000-9000)",
           "enable_dns_resolution": "Abilita risoluzione DNS inversa",
           "blacklist_urls": "URL feed informazioni sulle minacce (separati da virgola)",
-          "ipinfo_token": "Token IPInfo.io (opzionale, migliora la quota)",
           "virustotal_api_key": "Chiave API VirusTotal (opzionale)",
-          "shodan_api_key": "Chiave API Shodan (opzionale)",
           "abuseipdb_api_key": "Chiave API AbuseIPDB (opzionale)",
           "external_ip_retention_hours": "Conservazione IP puliti (ore, 0 = illimitato)",
           "retention_suspicious_hours": "Conservazione IP sospetti (ore, 0 = illimitato)",
           "retention_malicious_hours": "Conservazione IP dannosi (ore, 0 = illimitato)",
           "enrichment_ttl_minutes": "TTL cache arricchimento (minuti, attesa prima di interrogare nuovamente i provider)",
-          "ipinfo_daily_budget": "Budget giornaliero query IPInfo",
           "virustotal_daily_budget": "Budget giornaliero query VirusTotal",
-          "shodan_daily_budget": "Budget giornaliero query Shodan",
           "abuseipdb_daily_budget": "Budget giornaliero query AbuseIPDB",
           "nvd_api_key": "Chiave API NVD (opzionale, aumenta il limite a 50 req/30 s)",
           "nvd_api_url": "URL API NVD",
           "nvd_ttl_hours": "TTL cache NVD (ore, attesa prima di aggiornare i CVE)",
           "nvd_min_year": "Anno minimo CVE NVD (0 = tutti gli anni, nessun filtro)",
           "nvd_keywords": "Parole chiave di ricerca NVD (nomi di prodotti separati da virgole)",
-          "stats_top_n": "Statistiche: mostra i primi N elementi (3–25)",
-          "shodan_enrich_mode": "Ambito arricchimento Shodan (all = ogni IP pubblica, threat = solo sospetti/dannosi, none = disabilitato)"
+          "stats_top_n": "Statistiche: mostra i primi N elementi (3–25)"
         }
       }
     }
@@ -60,25 +55,20 @@
           "scan_ports": "Porte da scansionare (porte o intervalli separati da virgola, es. 22,80,443,8000-9000)",
           "enable_dns_resolution": "Abilita risoluzione DNS inversa",
           "blacklist_urls": "URL feed informazioni sulle minacce (separati da virgola)",
-          "ipinfo_token": "Token IPInfo.io (opzionale)",
           "virustotal_api_key": "Chiave API VirusTotal (opzionale)",
-          "shodan_api_key": "Chiave API Shodan (opzionale)",
           "abuseipdb_api_key": "Chiave API AbuseIPDB (opzionale)",
           "external_ip_retention_hours": "Conservazione IP puliti (ore, 0 = illimitato)",
           "retention_suspicious_hours": "Conservazione IP sospetti (ore, 0 = illimitato)",
           "retention_malicious_hours": "Conservazione IP dannosi (ore, 0 = illimitato)",
           "enrichment_ttl_minutes": "TTL cache arricchimento (minuti, attesa prima di interrogare nuovamente i provider)",
-          "ipinfo_daily_budget": "Budget giornaliero query IPInfo",
           "virustotal_daily_budget": "Budget giornaliero query VirusTotal",
-          "shodan_daily_budget": "Budget giornaliero query Shodan",
           "abuseipdb_daily_budget": "Budget giornaliero query AbuseIPDB",
           "nvd_api_key": "Chiave API NVD (opzionale, aumenta il limite a 50 req/30 s)",
           "nvd_api_url": "URL API NVD",
           "nvd_ttl_hours": "TTL cache NVD (ore, attesa prima di aggiornare i CVE)",
           "nvd_min_year": "Anno minimo CVE NVD (0 = tutti gli anni, nessun filtro)",
           "nvd_keywords": "Parole chiave di ricerca NVD (nomi di prodotti separati da virgole)",
-          "stats_top_n": "Statistiche: mostra i primi N elementi (3–25)",
-          "shodan_enrich_mode": "Ambito arricchimento Shodan (all = ogni IP pubblica, threat = solo sospetti/dannosi, none = disabilitato)"
+          "stats_top_n": "Statistiche: mostra i primi N elementi (3–25)"
         }
       }
     }

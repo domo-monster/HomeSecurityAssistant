@@ -25,13 +25,9 @@ CONF_RETENTION_MALICIOUS_HOURS = "retention_malicious_hours"
 CONF_ENRICHMENT_TTL_MINUTES = "enrichment_ttl_minutes"
 
 # External IP enrichment
-CONF_IPINFO_TOKEN = "ipinfo_token"
 CONF_VIRUSTOTAL_API_KEY = "virustotal_api_key"
-CONF_SHODAN_API_KEY = "shodan_api_key"
 CONF_ABUSEIPDB_API_KEY = "abuseipdb_api_key"
-CONF_IPINFO_DAILY_BUDGET = "ipinfo_daily_budget"
 CONF_VIRUSTOTAL_DAILY_BUDGET = "virustotal_daily_budget"
-CONF_SHODAN_DAILY_BUDGET = "shodan_daily_budget"
 CONF_ABUSEIPDB_DAILY_BUDGET = "abuseipdb_daily_budget"
 
 # DNS resolution + blacklists
@@ -47,13 +43,6 @@ CONF_NVD_KEYWORDS = "nvd_keywords"
 
 # Statistics view
 CONF_STATS_TOP_N = "stats_top_n"
-
-# Shodan enrichment mode: which IPs to enrich with Shodan
-CONF_SHODAN_ENRICH_MODE = "shodan_enrich_mode"
-SHODAN_MODE_ALL = "all"      # Enrich every public IP
-SHODAN_MODE_THREAT = "threat"  # Only suspicious / malicious IPs
-SHODAN_MODE_NONE = "none"    # Disable Shodan enrichment entirely
-DEFAULT_SHODAN_ENRICH_MODE = "all"
 
 DEFAULT_BIND_HOST = "0.0.0.0"
 DEFAULT_BIND_PORT = 2055
@@ -77,13 +66,9 @@ DEFAULT_RETENTION_MALICIOUS_HOURS = 168  # 7 days
 DEFAULT_ENRICHMENT_TTL_MINUTES = 1440  # 24 hours
 
 # External enrichment defaults (empty = disabled)
-DEFAULT_IPINFO_TOKEN = ""
 DEFAULT_VIRUSTOTAL_API_KEY = ""
-DEFAULT_SHODAN_API_KEY = ""
 DEFAULT_ABUSEIPDB_API_KEY = ""
-DEFAULT_IPINFO_DAILY_BUDGET = 9999
 DEFAULT_VIRUSTOTAL_DAILY_BUDGET = 500
-DEFAULT_SHODAN_DAILY_BUDGET = 9999
 DEFAULT_ABUSEIPDB_DAILY_BUDGET = 1000
 
 # NVD defaults

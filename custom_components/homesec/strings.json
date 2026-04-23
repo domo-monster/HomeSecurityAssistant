@@ -18,25 +18,20 @@
           "scan_ports": "Ports to scan (comma-separated ports or ranges, e.g. 22,80,443,8000-9000)",
           "enable_dns_resolution": "Enable reverse DNS lookups",
           "blacklist_urls": "Threat intel feed URLs (comma-separated)",
-          "ipinfo_token": "IPInfo.io token (optional, improves quota)",
           "virustotal_api_key": "VirusTotal API key (optional)",
-          "shodan_api_key": "Shodan API key (optional)",
           "abuseipdb_api_key": "AbuseIPDB API key (optional)",
           "external_ip_retention_hours": "Clean IP retention (hours, 0 = forever)",
           "retention_suspicious_hours": "Suspicious IP retention (hours, 0 = forever)",
           "retention_malicious_hours": "Malicious IP retention (hours, 0 = forever)",
           "enrichment_ttl_minutes": "Enrichment cache TTL (minutes, re-query providers after this)",
-          "ipinfo_daily_budget": "IPInfo daily query budget",
           "virustotal_daily_budget": "VirusTotal daily query budget",
-          "shodan_daily_budget": "Shodan daily query budget",
           "abuseipdb_daily_budget": "AbuseIPDB daily query budget",
           "nvd_api_key": "NVD API key (optional, increases rate limit to 50 req/30 s)",
           "nvd_api_url": "NVD API URL",
           "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
           "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
           "nvd_keywords": "NVD search keywords (comma-separated product names)",
-          "stats_top_n": "Statistics: top N entries to show (3–25)",
-          "shodan_enrich_mode": "Shodan enrichment scope (all = every public IP, threat = suspicious/malicious only, none = disabled)"
+          "stats_top_n": "Statistics: top N entries to show (3–25)"
         }
       }
     }
@@ -60,25 +55,20 @@
           "scan_ports": "Ports to scan (comma-separated ports or ranges, e.g. 22,80,443,8000-9000)",
           "enable_dns_resolution": "Enable reverse DNS lookups",
           "blacklist_urls": "Threat intel feed URLs (comma-separated)",
-          "ipinfo_token": "IPInfo.io token (optional)",
           "virustotal_api_key": "VirusTotal API key (optional)",
-          "shodan_api_key": "Shodan API key (optional)",
           "abuseipdb_api_key": "AbuseIPDB API key (optional)",
           "external_ip_retention_hours": "Clean IP retention (hours, 0 = forever)",
           "retention_suspicious_hours": "Suspicious IP retention (hours, 0 = forever)",
           "retention_malicious_hours": "Malicious IP retention (hours, 0 = forever)",
           "enrichment_ttl_minutes": "Enrichment cache TTL (minutes, re-query providers after this)",
-          "ipinfo_daily_budget": "IPInfo daily query budget",
           "virustotal_daily_budget": "VirusTotal daily query budget",
-          "shodan_daily_budget": "Shodan daily query budget",
           "abuseipdb_daily_budget": "AbuseIPDB daily query budget",
           "nvd_api_key": "NVD API key (optional, increases rate limit to 50 req/30 s)",
           "nvd_api_url": "NVD API URL",
           "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
           "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
           "nvd_keywords": "NVD search keywords (comma-separated product names)",
-          "stats_top_n": "Statistics: top N entries to show (3–25)",
-          "shodan_enrich_mode": "Shodan enrichment scope (all = every public IP, threat = suspicious/malicious only, none = disabled)"
+          "stats_top_n": "Statistics: top N entries to show (3–25)"
         }
       }
     }

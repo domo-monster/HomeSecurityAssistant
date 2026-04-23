@@ -18,25 +18,20 @@
           "scan_ports": "Puertos a escanear (puertos o rangos separados por comas, ej. 22,80,443,8000-9000)",
           "enable_dns_resolution": "Habilitar resolución DNS inversa",
           "blacklist_urls": "URLs de feeds de inteligencia de amenazas (separadas por comas)",
-          "ipinfo_token": "Token IPInfo.io (opcional, mejora la cuota)",
           "virustotal_api_key": "Clave API de VirusTotal (opcional)",
-          "shodan_api_key": "Clave API de Shodan (opcional)",
           "abuseipdb_api_key": "Clave API de AbuseIPDB (opcional)",
           "external_ip_retention_hours": "Retención de IPs limpias (horas, 0 = ilimitado)",
           "retention_suspicious_hours": "Retención de IPs sospechosas (horas, 0 = ilimitado)",
           "retention_malicious_hours": "Retención de IPs maliciosas (horas, 0 = ilimitado)",
           "enrichment_ttl_minutes": "TTL de caché de enriquecimiento (minutos, espera antes de consultar nuevamente a los proveedores)",
-          "ipinfo_daily_budget": "Presupuesto diario de consultas IPInfo",
           "virustotal_daily_budget": "Presupuesto diario de consultas VirusTotal",
-          "shodan_daily_budget": "Presupuesto diario de consultas Shodan",
           "abuseipdb_daily_budget": "Presupuesto diario de consultas AbuseIPDB",
           "nvd_api_key": "Clave API de NVD (opcional, aumenta el límite a 50 req/30 s)",
           "nvd_api_url": "URL de la API de NVD",
           "nvd_ttl_hours": "TTL de caché NVD (horas, espera antes de actualizar los CVE)",
           "nvd_min_year": "Año mínimo de CVE NVD (0 = todos los años, sin filtrado)",
           "nvd_keywords": "Palabras clave de búsqueda NVD (nombres de productos separados por comas)",
-          "stats_top_n": "Estadísticas: mostrar los N primeros (3–25)",
-          "shodan_enrich_mode": "Alcance del enriquecimiento Shodan (all = toda IP pública, threat = solo sospechosas/maliciosas, none = desactivado)"
+          "stats_top_n": "Estadísticas: mostrar los N primeros (3–25)"
         }
       }
     }
@@ -60,25 +55,20 @@
           "scan_ports": "Puertos a escanear (puertos o rangos separados por comas, ej. 22,80,443,8000-9000)",
           "enable_dns_resolution": "Habilitar resolución DNS inversa",
           "blacklist_urls": "URLs de feeds de inteligencia de amenazas (separadas por comas)",
-          "ipinfo_token": "Token IPInfo.io (opcional)",
           "virustotal_api_key": "Clave API de VirusTotal (opcional)",
-          "shodan_api_key": "Clave API de Shodan (opcional)",
           "abuseipdb_api_key": "Clave API de AbuseIPDB (opcional)",
           "external_ip_retention_hours": "Retención de IPs limpias (horas, 0 = ilimitado)",
           "retention_suspicious_hours": "Retención de IPs sospechosas (horas, 0 = ilimitado)",
           "retention_malicious_hours": "Retención de IPs maliciosas (horas, 0 = ilimitado)",
           "enrichment_ttl_minutes": "TTL de caché de enriquecimiento (minutos, espera antes de consultar nuevamente a los proveedores)",
-          "ipinfo_daily_budget": "Presupuesto diario de consultas IPInfo",
           "virustotal_daily_budget": "Presupuesto diario de consultas VirusTotal",
-          "shodan_daily_budget": "Presupuesto diario de consultas Shodan",
           "abuseipdb_daily_budget": "Presupuesto diario de consultas AbuseIPDB",
           "nvd_api_key": "Clave API de NVD (opcional, aumenta el límite a 50 req/30 s)",
           "nvd_api_url": "URL de la API de NVD",
           "nvd_ttl_hours": "TTL de caché NVD (horas, espera antes de actualizar los CVE)",
           "nvd_min_year": "Año mínimo de CVE NVD (0 = todos los años, sin filtrado)",
           "nvd_keywords": "Palabras clave de búsqueda NVD (nombres de productos separados por comas)",
-          "stats_top_n": "Estadísticas: mostrar los N primeros (3–25)",
-          "shodan_enrich_mode": "Alcance del enriquecimiento Shodan (all = toda IP pública, threat = solo sospechosas/maliciosas, none = desactivado)"
+          "stats_top_n": "Estadísticas: mostrar los N primeros (3–25)"
         }
       }
     }

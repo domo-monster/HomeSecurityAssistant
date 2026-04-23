@@ -341,7 +341,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         top_public_ips.append({
             "ip": ip,
             "flows": flow_count,
-            "hostname": ext_info.get("hostname") or ext_info.get("hostname_ipinfo") or "",
+            "hostname": ext_info.get("hostname") or "",
             "org": ext_info.get("org") or "",
             "country": ext_info.get("country") or "",
             "country_name": ext_info.get("country_name") or "",
@@ -410,7 +410,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         threat_candidates.append({
             "ip": ip,
             "flows": ext_ip_connection_count.get(ip, 0),
-            "hostname": ext_entry.get("hostname") or ext_entry.get("hostname_ipinfo") or "",
+            "hostname": ext_entry.get("hostname") or "",
             "org": ext_entry.get("org") or "",
             "country": ext_entry.get("country") or "",
             "country_name": ext_entry.get("country_name") or "",

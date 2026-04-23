@@ -74,11 +74,8 @@ PERSISTED_KEYS = (
     "retention_malicious_hours",
     "enable_dns_resolution",
     "blacklist_urls",
-    "ipinfo_token",
     "virustotal_api_key",
-    "shodan_api_key",
     "abuseipdb_api_key",
-    "shodan_enrich_mode",
 )
 
 

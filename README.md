@@ -36,9 +36,8 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 </p>
 
 ### External IP Intelligence
-- Enriches external IPs with **IPInfo.io**, **VirusTotal**, **Shodan**, and **AbuseIPDB** (all optional, API keys configurable)
+- Enriches external IPs with **ipwho.is** (free, no auth), **VirusTotal**, and **AbuseIPDB** (all optional, API keys configurable)
 - **Background-only enrichment** — all provider calls run in a background worker queue; on-demand lookups (IP detail panel) return cached results instantly, never blocking the UI
-- **Shodan scope control** (`all` / `threat` / `none`) — optionally restrict Shodan lookups to IPs already flagged as suspicious or malicious by VirusTotal and AbuseIPDB, reducing API usage
 - **Reverse DNS resolution** for external IPs
 - Checks external IPs and hostnames against **threat intel blacklists** (abuse.ch feeds by default, customizable)
 - **Severity-based retention** — separate configurable windows for clean, suspicious, and malicious IPs (clean: default 24 h, suspicious: 48 h, malicious: 168 h / 7 days)
@@ -97,7 +96,7 @@ A dedicated multi-view single-page application registered in the HA sidebar:
 - **Findings** — actionable security findings with dismiss buttons, CVE details, and remediation hints
 - **External IPs** — enriched external IP table with threat ratings, VirusTotal hits, AbuseIPDB scores, last-seen timestamps, and on-demand lookup
 - **Vulnerabilities** — sortable vulnerability browser listing **all cached NVD CVEs** (not just network-detected) with CVSS scores, severity, affected service/technology, published date, CISA KEV flags, detected-on-network count, and a **CVE detail modal** showing full description and CPE criteria. CVEs not matching any host on the network are shown with a dimmed "not detected" indicator
-- **Statistics** — at-a-glance operational dashboard showing top external IP talkers and contacted countries (configurable N), plus an **Enrichment Budget** card with per-provider usage, daily budget (∞ for unlimited tiers), usage bar, status badge, detected account tier/plan (e.g. IPInfo legacy/lite, VirusTotal community/premium, Shodan free/membership, AbuseIPDB basic/premium), and any recent API errors
+- **Statistics** — at-a-glance operational dashboard showing top external IP talkers and contacted countries (configurable N), plus an **Enrichment Budget** card with per-provider usage, daily budget (∞ for unlimited tiers), usage bar, status badge, detected account tier/plan (e.g. ipwho.is free, VirusTotal community/premium, AbuseIPDB basic/premium), and any recent API errors
 - **Recommendations** — prioritized hardening suggestions based on current network state
 
 The dashboard auto-refreshes every 30 seconds. The network map updates live without resetting the physics simulation.
@@ -169,21 +168,16 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | Malicious IP retention | `168` h | How long to keep external IPs rated as malicious (default 7 days) |
 | Enable reverse DNS | `true` | Resolve external IP hostnames |
 | Blacklist URLs | abuse.ch feeds | Comma-separated threat intel feed URLs |
-| IPInfo token | _(empty)_ | Optional, improves IP geolocation quota |
 | VirusTotal API key | _(empty)_ | Optional, enables VT lookups |
-| Shodan API key | _(empty)_ | Optional, enables Shodan lookups |
 | AbuseIPDB API key | _(empty)_ | Optional, enables abuse score lookups |
 | Enrichment cache TTL | `300` min | Minutes before re-querying external enrichment providers |
-| IPInfo daily budget | `1500` | Max daily IPInfo queries |
 | VirusTotal daily budget | `500` | Max daily VirusTotal queries |
-| Shodan daily budget | `1000` | Max daily Shodan queries |
 | AbuseIPDB daily budget | `1000` | Max daily AbuseIPDB queries |
 | NVD API key | _(empty)_ | Optional, increases NVD rate limit to 50 req / 30 s |
 | NVD API URL | `services.nvd.nist.gov/…` | NVD REST API 2.0 endpoint |
 | NVD cache TTL | `12` h | Hours before re-fetching CVE data from NVD |
 | NVD minimum CVE year | `2020` | Oldest CVE year to include (0 = all years) |
 | NVD search keywords | _(16 defaults)_ | Comma-separated product names to query NVD for (e.g. OpenSSH, nginx, WordPress) |
-| Shodan enrichment scope | `all` | When to run Shodan lookups: `all` (every external IP), `threat` (suspicious/malicious only), `none` (disabled) |
 | Statistics top N | `10` | Number of top entries shown in the Statistics view (3–25) |
 
 All options can be changed after setup via **Configure** on the integration card. Changes trigger an automatic reload.
@@ -251,11 +245,10 @@ All user-facing configuration options are mirrored here on every reload. At star
 | `enable_scanner` / `scan_interval` / `scan_exceptions` / `scan_ports` | Active scanner settings |
 | `external_ip_retention_hours` | Retention window for external IP history |
 | `enable_dns_resolution` / `blacklist_urls` | DNS resolution and threat-feed URLs |
-| `ipinfo_token` / `virustotal_api_key` / `shodan_api_key` / `abuseipdb_api_key` | External enrichment API credentials |
+| `virustotal_api_key` / `abuseipdb_api_key` | External enrichment API credentials |
 | `enrichment_ttl_minutes` | Enrichment provider cache TTL |
-| `ipinfo_daily_budget` / `virustotal_daily_budget` / `shodan_daily_budget` / `abuseipdb_daily_budget` | Per-provider daily query budgets |
+| `virustotal_daily_budget` / `abuseipdb_daily_budget` | Per-provider daily query budgets |
 | `retention_suspicious_hours` / `retention_malicious_hours` | Severity-based retention windows for external IPs |
-| `shodan_enrich_mode` | Shodan lookup scope: `all`, `threat`, or `none` |
 | `stats_top_n` | Number of top entries shown in the Statistics view |
 | `nvd_api_key` / `nvd_api_url` / `nvd_ttl_hours` / `nvd_min_year` | NVD CVE enrichment settings |
 | `nvd_keywords` | Comma-separated NVD search keywords |

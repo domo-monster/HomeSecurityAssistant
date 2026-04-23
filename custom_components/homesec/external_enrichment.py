@@ -1,4 +1,4 @@
-"""External IP enrichment via IPInfo, VirusTotal, Shodan, and AbuseIPDB."""
+"""External IP enrichment via ipwho.is, VirusTotal, and AbuseIPDB."""
 from __future__ import annotations
 
 import asyncio
@@ -9,9 +9,8 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-_IPINFO_URL = "https://ipinfo.io/{ip}/json"
+_IPWHO_URL = "https://ipwho.is/{ip}"  # free HTTPS, no auth, max ~1 req/s
 _VT_URL = "https://www.virustotal.com/api/v3/ip_addresses/{ip}"
-_SHODAN_URL = "https://api.shodan.io/shodan/host/{ip}?key={key}"
 _ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 
 _QUEUE_MAX = 500
@@ -38,10 +37,9 @@ class _ProviderError(Exception):
 
 # Per-provider rate limits: (min_interval_seconds, daily_budget)
 _PROVIDER_LIMITS: dict[str, tuple[float, int]] = {
-    "ipinfo":    (1.0,  1500),  # free: 50k/month ≈ 1 666/day
+    "ipwho":      (1.0,  999_999),  # ipwho.is: free, no daily cap — 1 req/s to be polite
     "virustotal": (15.0, 480),  # free: 500/day, 4 req/min
-    "shodan":    (1.2,  950),   # free: ~unlimited lookups with key, 1 req/s
-    "abuseipdb": (1.5,  950),   # free: 1 000/day
+    "abuseipdb":  (1.5,  950),  # free: 1 000/day
 }
 
 
@@ -70,20 +68,14 @@ class ExternalIPEnricher:
     def __init__(
         self,
         session,  # aiohttp.ClientSession
-        ipinfo_token: str | None = None,
         virustotal_key: str | None = None,
-        shodan_key: str | None = None,
         abuseipdb_key: str | None = None,
         enrichment_ttl_minutes: int = 60,
         daily_budgets: dict[str, int] | None = None,
-        shodan_mode: str = "all",
     ) -> None:
         self._session = session
-        self._ipinfo_token = ipinfo_token
         self._vt_key = virustotal_key
-        self._shodan_key = shodan_key
         self._abuse_key = abuseipdb_key
-        self._shodan_mode = shodan_mode  # "all" | "threat" | "none"
         self._ttl = timedelta(minutes=max(1, enrichment_ttl_minutes))
         self._cache: dict[str, dict[str, object]] = {}
         self._enriched_at: dict[str, datetime] = {}
@@ -95,14 +87,8 @@ class ExternalIPEnricher:
         for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
             budget = (daily_budgets or {}).get(prov, default_budget)
             self._limits[prov] = (interval, max(0, budget))
-        # When an IPInfo token is provided the daily quota is effectively unlimited;
-        # override the internal budget so enrichment is never stopped by the counter.
-        if self._ipinfo_token:
-            self._limits["ipinfo"] = (self._limits["ipinfo"][0], 999_999)
-        # Shodan host lookups have no hard daily cap (rate-limited only) on any plan;
-        # override the internal budget when a key is configured.
-        if self._shodan_key:
-            self._limits["shodan"] = (self._limits["shodan"][0], 999_999)
+        # ipwho.is is effectively unlimited; override the internal budget counter.
+        self._limits["ipwho"] = (self._limits["ipwho"][0], 999_999)
         # Per-provider rate-limit tracking
         self._prov_last_call: dict[str, float] = {}   # provider → monotonic ts
         self._prov_daily_count: dict[str, int] = {}   # provider → count today
@@ -110,16 +96,11 @@ class ExternalIPEnricher:
         self._prov_last_error: dict[str, str] = {}    # provider → last error note
         # Pre-populate sensible tier defaults; detection at startup may refine these.
         self._prov_tier: dict[str, str] = {}
-        if self._ipinfo_token:
-            self._prov_tier["ipinfo"] = "lite"
+        self._prov_tier["ipwho"] = "free"  # ipwho.is is always active (no auth required)
         if self._vt_key:
             self._prov_tier["virustotal"] = "community"
-        if self._shodan_key:
-            self._prov_tier["shodan"] = "free"
         if self._abuse_key:
             self._prov_tier["abuseipdb"] = "basic"
-        # Set to True after a 403 from the host-lookup endpoint (OSS/free key)
-        self._shodan_key_invalid: bool = False
         # Per-provider locks so concurrent enrich_now() calls don't burst past rate limits
         self._prov_locks: dict[str, asyncio.Lock] = {}
         # Per-provider backoff: monotonic timestamp until which the provider is skipped
@@ -182,20 +163,19 @@ class ExternalIPEnricher:
     async def enrich_now(self, ip: str) -> dict[str, object]:
         """Return cached enrichment for on-demand lookups (non-blocking).
 
-        Shodan is background-only.  If this IP has been enriched before
-        (even if the cached entry is now stale), the cached data is returned
-        immediately and the background worker is asked to refresh it.
-        If the IP has never been enriched at all, a fast enrich (without
-        Shodan) is done synchronously so the caller gets *some* data; the
-        background worker will then perform the full enrichment including
-        Shodan on the next queue cycle.
+        If this IP has been enriched before (even if the cached entry is now
+        stale), the cached data is returned immediately and the background
+        worker is asked to refresh it.  If the IP has never been enriched at
+        all, a fast ipwho.is-only enrich is done synchronously so the caller
+        gets *some* data; the background worker will then perform the full
+        enrichment on the next queue cycle.
         """
         if ip in self._cache:
             # Return cached data right away; queue background refresh if stale
             if self._is_stale(ip):
                 self.queue_ip(ip)
             return dict(self._cache[ip])
-        # First time we see this IP — do a fast IPInfo-only enrich so the caller
+        # First time we see this IP — do a fast ipwho.is-only enrich so the caller
         # gets location/ASN data without waiting for VT (15 s throttle) or AbuseIPDB.
         # Mark stale immediately so the background worker runs the full enrichment.
         result = await self._enrich(ip, fast_only=True)
@@ -211,31 +191,24 @@ class ExternalIPEnricher:
             self._prov_day = today
             self._prov_daily_count.clear()
         stats: list[dict[str, object]] = []
-        provider_keys = {
-            "ipinfo": self._ipinfo_token or "_always_",
-            "virustotal": self._vt_key,
-            "shodan": self._shodan_key,
-            "abuseipdb": self._abuse_key,
-        }
         for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
             budget = self._limits.get(prov, (interval, default_budget))[1]
             used = self._prov_daily_count.get(prov, 0)
-            configured = provider_keys.get(prov) not in (None, "")
-            # IPInfo: distinguish anonymous legacy (1 500/day) from keyed lite (unlimited)
-            if prov == "ipinfo":
-                variant: str | None = self._prov_tier.get("ipinfo") or ("legacy" if not self._ipinfo_token else "lite")
-                display_budget: int | None = None if self._ipinfo_token else budget
-            elif prov == "shodan":
-                # All Shodan plans have unlimited host lookups (rate-limited only)
-                variant = self._prov_tier.get("shodan") if configured else None
-                display_budget = None if configured else budget
+            # ipwho.is: always active, no auth, no effective daily cap
+            if prov == "ipwho":
+                configured = True
+                variant: str | None = "free"
+                display_budget: int | None = None
             elif prov == "virustotal":
+                configured = self._vt_key not in (None, "")
                 variant = self._prov_tier.get("virustotal") if configured else None
                 display_budget = budget
             elif prov == "abuseipdb":
+                configured = self._abuse_key not in (None, "")
                 variant = self._prov_tier.get("abuseipdb") if configured else None
                 display_budget = budget
             else:
+                configured = False
                 variant = None
                 display_budget = budget
             exhausted = (display_budget is not None) and (used >= display_budget)
@@ -259,8 +232,6 @@ class ExternalIPEnricher:
         calls: list[tuple[str, object]] = []
         if self._vt_key:
             calls.append(("virustotal", self._detect_vt_tier(_aiohttp)))
-        if self._shodan_key:
-            calls.append(("shodan", self._detect_shodan_tier(_aiohttp)))
         for prov, coro in calls:
             try:
                 await coro  # type: ignore[misc]
@@ -278,15 +249,6 @@ class ExternalIPEnricher:
                 d = await resp.json(content_type=None)
                 tier = str(d.get("data", {}).get("attributes", {}).get("type") or "community")
                 self._prov_tier["virustotal"] = tier
-
-    async def _detect_shodan_tier(self, aiohttp) -> None:
-        """Fetch Shodan account plan (oss / dev / freelancer / membership …)."""
-        url = f"https://api.shodan.io/api-info?key={self._shodan_key}"
-        async with self._session.get(url, timeout=aiohttp.ClientTimeout(total=8)) as resp:
-            if resp.status == 200:
-                d = await resp.json(content_type=None)
-                plan = str(d.get("plan") or "free")
-                self._prov_tier["shodan"] = plan
 
     def _budget_ok(self, provider: str) -> bool:
         """Return True if the daily budget for *provider* has not been exhausted."""
@@ -338,7 +300,7 @@ class ExternalIPEnricher:
                     self._enriched_at[ip] = datetime.now(UTC)
             await asyncio.sleep(_WORKER_DELAY)
 
-    async def _enrich(self, ip: str, skip_shodan: bool = False, fast_only: bool = False) -> dict[str, object]:
+    async def _enrich(self, ip: str, fast_only: bool = False) -> dict[str, object]:
         import aiohttp as _aiohttp  # lazy import
 
         result: dict[str, object] = {
@@ -349,36 +311,16 @@ class ExternalIPEnricher:
 
         # Each provider: check budget → throttle → call
         providers: list[tuple[str, str | None, object]] = [
-            ("ipinfo",     "_always_",     self._ipinfo),
+            ("ipwho",      "_always_",      self._ipwho),
             ("virustotal", self._vt_key,    self._virustotal),
-            ("shodan",     self._shodan_key, self._shodan),
-            ("abuseipdb",  self._abuse_key,  self._abuseipdb),
+            ("abuseipdb",  self._abuse_key, self._abuseipdb),
         ]
         for name, gate, method in providers:
             if gate is None:
                 continue
-            # fast_only: IPInfo-only path for on-demand lookups (avoids VT 15 s throttle)
-            if fast_only and name != "ipinfo":
+            # fast_only: ipwho.is-only path for on-demand lookups (avoids VT 15 s throttle)
+            if fast_only and name != "ipwho":
                 continue
-            if name == "shodan":
-                # Always skip when called from on-demand lookup path
-                if skip_shodan:
-                    continue
-                # Only enrich public (external) IPs with Shodan
-                if not self._is_public(ip):
-                    continue
-                # Skip if key was rejected by the host-lookup endpoint (free/OSS key)
-                if self._shodan_key_invalid:
-                    continue
-                # Respect the configured enrichment scope
-                if self._shodan_mode == "none":
-                    continue
-                if self._shodan_mode == "threat":
-                    # VirusTotal + AbuseIPDB have already run; use their results
-                    # to determine whether this IP is worth a Shodan lookup.
-                    prov_rating, _ = self._compute_rating(result)
-                    if prov_rating not in ("suspicious", "malicious"):
-                        continue
             if not self._budget_ok(name):
                 _LOGGER.debug("HSA: %s daily budget exhausted (%d), skipping %s",
                               name, self._prov_daily_count.get(name, 0), ip)
@@ -409,15 +351,6 @@ class ExternalIPEnricher:
                         "If this recurs with a paid token, check your plan's per-second limit.",
                         name, backoff,
                     )
-                elif name == "shodan" and exc.status == 403:
-                    self._prov_last_error[name] = note
-                    if not self._shodan_key_invalid:
-                        self._shodan_key_invalid = True
-                        _LOGGER.warning(
-                            "HSA: Shodan API key is invalid or does not have host-lookup "
-                            "access (HTTP 403). Shodan enrichment disabled for this session. "
-                            "Free/OSS keys do not support the host-lookup endpoint."
-                        )
                 else:
                     self._prov_last_error[name] = note
                     _LOGGER.debug("HSA: %s returned %s for %s", name, exc.status, ip)
@@ -427,33 +360,32 @@ class ExternalIPEnricher:
         result["rating"], result["rating_source"] = self._compute_rating(result)
         return result
 
-    async def _ipinfo(self, ip: str, aiohttp) -> dict[str, object] | None:
-        headers: dict[str, str] = {}
-        if self._ipinfo_token:
-            headers["Authorization"] = f"Bearer {self._ipinfo_token}"
-        url = _IPINFO_URL.format(ip=ip)
+    async def _ipwho(self, ip: str, aiohttp) -> dict[str, object] | None:
+        """Query ipwho.is for country and ASN data (free, no auth, 1 req/s)."""
+        url = _IPWHO_URL.format(ip=ip)
         async with self._session.get(
-            url, headers=headers, timeout=aiohttp.ClientTimeout(total=8)
+            url, timeout=aiohttp.ClientTimeout(total=8)
         ) as resp:
             if resp.status == 404:
                 return None
             if resp.status != 200:
                 raise _ProviderError(resp.status)
             d = await resp.json(content_type=None)
-        org = str(d.get("org") or "")
-        asn = org.split(" ", 1)[0] if " " in org else ""
-        isp = org.split(" ", 1)[1] if " " in org else org
-        country = str(d.get("country") or "")
+        if not d.get("success"):
+            return None
+        country_code = str(d.get("country_code") or "")
+        conn = d.get("connection") or {}
+        asn_num = conn.get("asn") or 0
+        asn = f"AS{asn_num}" if asn_num else ""
+        as_name = str(conn.get("isp") or conn.get("org") or "")
         return {
-            "country": country,
-            "country_name": _COUNTRY_NAMES.get(country, country),
+            "country": country_code,
+            "country_name": _COUNTRY_NAMES.get(country_code, str(d.get("country") or "")),
             "city": str(d.get("city") or ""),
             "region": str(d.get("region") or ""),
-            "org": org,
             "asn": asn,
-            "isp": isp,
-            "hostname_ipinfo": str(d.get("hostname") or ""),
-            "timezone": str(d.get("timezone") or ""),
+            "as_name": as_name,
+            "isp": as_name,
         }
 
     async def _virustotal(self, ip: str, aiohttp) -> dict[str, object] | None:
@@ -477,48 +409,6 @@ class ExternalIPEnricher:
             "vt_country": str(attrs.get("country") or ""),
             "vt_as_owner": str(attrs.get("as_owner") or ""),
             "vt_asn": int(attrs.get("asn") or 0),
-        }
-
-    async def _shodan(self, ip: str, aiohttp) -> dict[str, object] | None:
-        url = _SHODAN_URL.format(ip=ip, key=self._shodan_key)
-        async with self._session.get(
-            url, timeout=aiohttp.ClientTimeout(total=12)
-        ) as resp:
-            if resp.status == 404:
-                return None
-            if resp.status != 200:
-                raise _ProviderError(resp.status)
-            d = await resp.json(content_type=None)
-        # Build enriched service list and collect web technologies from HTTP banners
-        services: list[dict[str, object]] = []
-        technologies: list[str] = []
-        seen_tech: set[str] = set()
-        for svc in (d.get("data") or []):
-            port = svc.get("port")
-            if port is not None:
-                services.append({
-                    "port": int(port),
-                    "transport": str(svc.get("transport") or "tcp"),
-                    "product": str(svc.get("product") or ""),
-                    "version": str(svc.get("version") or ""),
-                })
-            http = svc.get("http") or {}
-            for tech in (http.get("components") or {}).keys():
-                if tech not in seen_tech:
-                    seen_tech.add(tech)
-                    technologies.append(tech)
-        domains: list[str] = list(d.get("domains") or d.get("hostnames") or [])
-        return {
-            "shodan_ports": list(d.get("ports") or []),
-            "shodan_services": services,
-            "shodan_domains": domains,
-            "shodan_technologies": technologies,
-            "shodan_vulns": list((d.get("vulns") or {}).keys()),
-            "shodan_org": str(d.get("org") or ""),
-            "shodan_isp": str(d.get("isp") or ""),
-            "shodan_country": str(d.get("country_name") or ""),
-            "shodan_os": str(d.get("os") or ""),
-            "shodan_tags": list(d.get("tags") or []),
         }
 
     async def _abuseipdb(self, ip: str, aiohttp) -> dict[str, object] | None:

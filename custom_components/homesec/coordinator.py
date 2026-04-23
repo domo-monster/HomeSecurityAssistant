@@ -25,8 +25,6 @@ from .const import (
     CONF_RETENTION_MALICIOUS_HOURS,
     CONF_HIGH_EGRESS_THRESHOLD,
     CONF_INTERNAL_NETWORKS,
-    CONF_IPINFO_DAILY_BUDGET,
-    CONF_IPINFO_TOKEN,
     CONF_SCAN_EXCEPTIONS,
     CONF_SCAN_INTERVAL,
     CONF_SCAN_PORT_THRESHOLD,
@@ -37,9 +35,6 @@ from .const import (
     CONF_NVD_TTL_HOURS,
     CONF_NVD_MIN_YEAR,
     CONF_NVD_KEYWORDS,
-    CONF_SHODAN_API_KEY,
-    CONF_SHODAN_DAILY_BUDGET,
-    CONF_SHODAN_ENRICH_MODE,
     CONF_VIRUSTOTAL_API_KEY,
     CONF_VIRUSTOTAL_DAILY_BUDGET,
     COORDINATOR_INTERVAL_SECONDS,
@@ -56,8 +51,6 @@ from .const import (
     DEFAULT_RETENTION_MALICIOUS_HOURS,
     DEFAULT_HIGH_EGRESS_THRESHOLD,
     DEFAULT_INTERNAL_NETWORKS,
-    DEFAULT_IPINFO_DAILY_BUDGET,
-    DEFAULT_IPINFO_TOKEN,
     DEFAULT_SCAN_EXCEPTIONS,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SCAN_PORT_THRESHOLD,
@@ -68,9 +61,6 @@ from .const import (
     DEFAULT_NVD_TTL_HOURS,
     DEFAULT_NVD_MIN_YEAR,
     DEFAULT_NVD_KEYWORDS,
-    DEFAULT_SHODAN_API_KEY,
-    DEFAULT_SHODAN_DAILY_BUDGET,
-    DEFAULT_SHODAN_ENRICH_MODE,
     DEFAULT_VIRUSTOTAL_API_KEY,
     DEFAULT_VIRUSTOTAL_DAILY_BUDGET,
     DOMAIN,
@@ -132,18 +122,13 @@ class HomeSecCollector:
         )
         self._enricher = ExternalIPEnricher(
             session=session,
-            ipinfo_token=str(get_entry_value(entry, CONF_IPINFO_TOKEN, DEFAULT_IPINFO_TOKEN)) or None,
             virustotal_key=str(get_entry_value(entry, CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY)) or None,
-            shodan_key=str(get_entry_value(entry, CONF_SHODAN_API_KEY, DEFAULT_SHODAN_API_KEY)) or None,
             abuseipdb_key=str(get_entry_value(entry, CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY)) or None,
             enrichment_ttl_minutes=int(get_entry_value(entry, CONF_ENRICHMENT_TTL_MINUTES, DEFAULT_ENRICHMENT_TTL_MINUTES)),
             daily_budgets={
-                "ipinfo": int(get_entry_value(entry, CONF_IPINFO_DAILY_BUDGET, DEFAULT_IPINFO_DAILY_BUDGET)),
                 "virustotal": int(get_entry_value(entry, CONF_VIRUSTOTAL_DAILY_BUDGET, DEFAULT_VIRUSTOTAL_DAILY_BUDGET)),
-                "shodan": int(get_entry_value(entry, CONF_SHODAN_DAILY_BUDGET, DEFAULT_SHODAN_DAILY_BUDGET)),
                 "abuseipdb": int(get_entry_value(entry, CONF_ABUSEIPDB_DAILY_BUDGET, DEFAULT_ABUSEIPDB_DAILY_BUDGET)),
             },
-            shodan_mode=str(get_entry_value(entry, CONF_SHODAN_ENRICH_MODE, DEFAULT_SHODAN_ENRICH_MODE)),
         )
         nvd_api_key = str(get_entry_value(entry, CONF_NVD_API_KEY, DEFAULT_NVD_API_KEY)) or None
         nvd_api_url = str(get_entry_value(entry, CONF_NVD_API_URL, DEFAULT_NVD_API_URL)) or DEFAULT_NVD_API_URL
