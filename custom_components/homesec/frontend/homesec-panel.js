@@ -3,7 +3,7 @@
 // Views: Overview · Network Map · Hosts · Findings · External IPs · Recommendations
 // ─────────────────────────────────────────────────────────────────────────────
 
-const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'recommendations'];
+const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'statistics', 'recommendations'];
 const _VIEW_LABELS = {
   overview:        'Overview',
   map:             'Network Map',
@@ -11,6 +11,7 @@ const _VIEW_LABELS = {
   findings:        'Findings',
   external:        'External IPs',
   vulnerabilities:  'Vulnerabilities',
+  statistics:      'Statistics',
   recommendations: 'Recommendations',
 };
 const _VIEW_ICONS = {
@@ -20,6 +21,7 @@ const _VIEW_ICONS = {
   findings:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v6h-2V7zm0 8h2v2h-2v-2z"/></svg>`,
   external:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
   vulnerabilities:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>`,
+  statistics:      `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"/></svg>`,
   recommendations: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`,
 };
 
@@ -74,6 +76,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._vulnDetail   = null;
     this._mapFilter    = 'all';
     this._mapParticles = [];
+    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie' };
   }
 
   set hass(v) {
@@ -146,7 +149,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         case 'hosts':           content.innerHTML = this._viewHosts();     break;
         case 'findings':        content.innerHTML = this._viewFindings();  break;
         case 'external':        content.innerHTML = this._viewExternal();  break;
-        case 'vulnerabilities':  content.innerHTML = this._viewVulns();     break;
+        case 'vulnerabilities':  content.innerHTML = this._viewVulns();        break;
+        case 'statistics':       content.innerHTML = this._viewStatistics();   break;
         case 'recommendations': content.innerHTML = this._viewRecs();      break;
       }
     } catch (err) {
@@ -208,6 +212,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     var vd = e.target.closest('[data-vuln-detail]');
     if (vd) { this._openVulnDetail(vd.dataset.vulnDetail); return; }
+    var st = e.target.closest('[data-statstoggle]');
+    if (st) { var _sp = st.dataset.statstoggle.split(':'); this._statsViewModes[_sp[0]] = _sp[1]; this._render(); return; }
   }
 
   _onInput(e) {
@@ -559,102 +565,216 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</div>';
       })() +
       '<button class="btn" style="margin-top:6px" data-view="vulnerabilities">Browse all vulnerabilities \u2192</button>' +
-      (function() {
-        // ── Top public IPs ──────────────────────────────────────────────
-        var topIPs = (self._data && self._data.top_public_ips) || [];
-        if (!topIPs.length) return '';
-        var rows = topIPs.map(function(e) {
-          var label = e.hostname || e.ip;
+      '<button class="btn" style="margin-top:6px;margin-left:6px" data-view="statistics">View Statistics \u2192</button>' +
+    '</div>';
+  }
+
+  // ── SVG donut-pie chart helper ───────────────────────────────────────
+  _pieSvg(items, getVal, getLabel, colors) {
+    var total = items.reduce(function(s, it) { return s + getVal(it); }, 0);
+    if (!total) return '<div style="text-align:center;color:var(--muted);padding:20px;font-size:11px">No data</div>';
+    var size = 180, cx = 90, cy = 90, r = 72, ri = 32;
+    var TAU = Math.PI * 2;
+    var angle = -Math.PI / 2;
+    var GAP = 0.018;
+    var paths = '';
+    items.forEach(function(it, i) {
+      var val = getVal(it);
+      if (!val) return;
+      var sweep = (val / total) * TAU;
+      if (sweep < 0.004) return;
+      var a1 = angle + GAP / 2;
+      var a2 = angle + sweep - GAP / 2;
+      var x1 = (cx + r * Math.cos(a1)).toFixed(2), y1 = (cy + r * Math.sin(a1)).toFixed(2);
+      var x2 = (cx + r * Math.cos(a2)).toFixed(2), y2 = (cy + r * Math.sin(a2)).toFixed(2);
+      var xi1 = (cx + ri * Math.cos(a1)).toFixed(2), yi1 = (cy + ri * Math.sin(a1)).toFixed(2);
+      var xi2 = (cx + ri * Math.cos(a2)).toFixed(2), yi2 = (cy + ri * Math.sin(a2)).toFixed(2);
+      var large = (a2 - a1) > Math.PI ? 1 : 0;
+      var d = 'M ' + x1 + ' ' + y1 +
+              ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 +
+              ' L ' + xi2 + ' ' + yi2 +
+              ' A ' + ri + ' ' + ri + ' 0 ' + large + ' 0 ' + xi1 + ' ' + yi1 + ' Z';
+      paths += '<path d="' + d + '" fill="' + colors[i % colors.length] + '" opacity="0.88"><title>' + getLabel(it) + '</title></path>';
+      angle += sweep;
+    });
+    return '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '" style="flex-shrink:0">' + paths + '</svg>';
+  }
+
+  // ── Pie chart legend helper ──────────────────────────────────────────
+  _statsLegend(items, getVal, getLabel, colors) {
+    var total = items.reduce(function(s, it) { return s + getVal(it); }, 0);
+    return items.map(function(it, i) {
+      var val = getVal(it);
+      var pct = total > 0 ? Math.round((val / total) * 100) : 0;
+      return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:11px">' +
+        '<div style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + colors[i % colors.length] + ';opacity:.88"></div>' +
+        '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + getLabel(it) + '</span>' +
+        '<span style="color:var(--muted);white-space:nowrap;margin-left:4px">' + pct + '%</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ── Statistics view ──────────────────────────────────────────────────
+  _viewStatistics() {
+    var self = this;
+    var modes = this._statsViewModes;
+    var topN = (this._data && this._data.stats_top_n) || 10;
+    var COLORS = ['#8f86ff','#3ac5c9','#6bffc8','#ffc107','#ff8c42','#ff4d6d','#7fb3f5','#d4a843','#a8e063','#f472b6','#60a5fa','#34d399','#fb923c','#a78bfa','#22d3ee'];
+
+    function toggleBtns(id, current) {
+      return '<span style="display:flex;gap:4px;flex-shrink:0">' +
+        '<button class="btn' + (current === 'pie' ? ' active' : '') + '" style="padding:3px 8px;font-size:10px" data-statstoggle="' + id + ':pie">' +
+        '<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M7 1.07A7 7 0 1 0 15 9H7V1.07z"/><path d="M8.5.5v7h7A7.5 7.5 0 0 0 8.5.5z"/></svg>Pie</button>' +
+        '<button class="btn' + (current === 'list' ? ' active' : '') + '" style="padding:3px 8px;font-size:10px" data-statstoggle="' + id + ':list">' +
+        '<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>List</button>' +
+      '</span>';
+    }
+
+    function chartSection(svgHtml, legendHtml) {
+      return '<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding-top:10px">' +
+        svgHtml + '<div style="flex:1;min-width:160px">' + legendHtml + '</div>' +
+      '</div>';
+    }
+
+    // ── Top public IPs ────────────────────────────────────────────────
+    var topIPs = (this._data && this._data.top_public_ips) || [];
+    var ipsSection;
+    if (!topIPs.length) {
+      ipsSection = '<div class="empty-state"><p style="margin:12px 0">No external flow data yet</p></div>';
+    } else if (modes.public_ips === 'pie') {
+      ipsSection = chartSection(
+        self._pieSvg(topIPs, function(e) { return e.flows; }, function(e) { return (e.hostname || e.org || e.ip) + (e.country ? ' [' + e.country + ']' : ''); }, COLORS),
+        self._statsLegend(topIPs, function(e) { return e.flows; }, function(e) {
+          return (e.hostname || e.org || e.ip) + (e.country ? ' [' + e.country + ']' : '') + (e.blacklisted ? ' \u26a0' : '');
+        }, COLORS) +
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Ranked by flow count</div>' +
+        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs \u2192</button>'
+      );
+    } else {
+      ipsSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>IP</th><th>Hostname / Org</th><th>Country</th><th style="text-align:right">Flows</th><th>Rating</th>' +
+        '</tr></thead><tbody>' +
+        topIPs.map(function(e, i) {
+          var label = e.hostname || e.org || e.ip;
           var country = e.country_name || e.country || '';
-          var badgeClass = e.blacklisted ? 'badge-critical' : (e.rating === 'suspicious' ? 'badge-warn' : 'badge-ok');
-          var badgeLabel = e.blacklisted ? 'malicious' : (e.rating || 'ok');
-          return '<tr>' +
+          var bc = e.blacklisted ? 'badge-critical' : (e.rating === 'suspicious' ? 'badge-warn' : 'badge-ok');
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
             '<td><span class="ip">' + self._esc(e.ip) + '</span></td>' +
-            '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + self._esc(label) + '">' + self._esc(label) + '</td>' +
+            '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(label) + '</td>' +
             '<td>' + self._esc(country) + '</td>' +
             '<td style="text-align:right">' + e.flows.toLocaleString() + '</td>' +
-            '<td><span class="badge ' + badgeClass + '">' + self._esc(badgeLabel) + '</span></td>' +
-            '</tr>';
-        }).join('');
-        return '<div class="card" style="margin-top:12px">' +
-          '<div class="card-title">Top Public IPs Contacted</div>' +
-          '<table class="data-table" style="width:100%"><thead><tr>' +
-          '<th>IP</th><th>Hostname / Org</th><th>Country</th><th style="text-align:right">Flows</th><th>Rating</th>' +
-          '</tr></thead><tbody>' + rows + '</tbody></table>' +
-          '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs \u2192</button>' +
-        '</div>';
-      })() +
-      (function() {
-        // ── Top countries contacted ─────────────────────────────────────
-        var topC = (self._data && self._data.top_countries) || [];
-        if (!topC.length) return '';
-        var maxFlows = topC[0] ? topC[0].flow_count : 1;
-        var rows = topC.map(function(c) {
+            '<td><span class="badge ' + bc + '">' + self._esc(e.blacklisted ? 'malicious' : (e.rating || 'ok')) + '</span></td></tr>';
+        }).join('') +
+        '</tbody></table>' +
+        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs \u2192</button>';
+    }
+
+    // ── Top countries ─────────────────────────────────────────────────
+    var topC = (this._data && this._data.top_countries) || [];
+    var countriesSection;
+    if (!topC.length) {
+      countriesSection = '<div class="empty-state"><p style="margin:12px 0">No country data yet</p></div>';
+    } else if (modes.countries === 'pie') {
+      countriesSection = chartSection(
+        self._pieSvg(topC, function(c) { return c.flow_count; }, function(c) { return (c.country_name || c.country) + ' (' + c.ip_count + ' IPs)'; }, COLORS),
+        self._statsLegend(topC, function(c) { return c.flow_count; }, function(c) {
+          return (c.country_name || c.country || '\u2014') + ' (' + c.ip_count + ' IPs)';
+        }, COLORS) +
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Ranked by flow count</div>'
+      );
+    } else {
+      var maxFlows = topC[0] ? topC[0].flow_count : 1;
+      countriesSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>CC</th><th>Country</th><th style="text-align:right">Unique IPs</th><th style="text-align:right">Flows</th><th>Share</th>' +
+        '</tr></thead><tbody>' +
+        topC.map(function(c, i) {
           var pct = maxFlows > 0 ? Math.round((c.flow_count / maxFlows) * 100) : 0;
-          return '<tr>' +
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
             '<td><b>' + self._esc(c.country || '\u2014') + '</b></td>' +
             '<td>' + self._esc(c.country_name || c.country || '\u2014') + '</td>' +
             '<td style="text-align:right">' + c.ip_count.toLocaleString() + '</td>' +
             '<td style="text-align:right">' + c.flow_count.toLocaleString() + '</td>' +
-            '<td style="width:120px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:var(--accent,#8f86ff);border-radius:3px;height:8px"></div></div></td>' +
-            '</tr>';
-        }).join('');
-        return '<div class="card" style="margin-top:12px">' +
-          '<div class="card-title">Top Countries Contacted</div>' +
-          '<table class="data-table" style="width:100%"><thead><tr>' +
-          '<th>CC</th><th>Country</th><th style="text-align:right">IPs</th><th style="text-align:right">Flows</th><th>Share</th>' +
-          '</tr></thead><tbody>' + rows + '</tbody></table>' +
-        '</div>';
-      })() +
-      (function() {
-        // ── Top internal talkers ────────────────────────────────────────
-        var topT = (self._data && self._data.top_internal_talkers) || [];
-        if (!topT.length) return '';
-        var maxOct = topT[0] ? topT[0].total_octets : 1;
-        var rows = topT.map(function(d, idx) {
+            '<td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:var(--accent,#8f86ff);border-radius:3px;height:8px"></div></div></td></tr>';
+        }).join('') +
+        '</tbody></table>';
+    }
+
+    // ── Top internal talkers ──────────────────────────────────────────
+    var topT = (this._data && this._data.top_internal_talkers) || [];
+    var talkersSection;
+    if (!topT.length) {
+      talkersSection = '<div class="empty-state"><p style="margin:12px 0">No traffic data yet</p></div>';
+    } else if (modes.talkers === 'pie') {
+      talkersSection = chartSection(
+        self._pieSvg(topT, function(d) { return d.total_octets; }, function(d) { return d.display_name || d.ip; }, COLORS),
+        self._statsLegend(topT, function(d) { return d.total_octets; }, function(d) {
+          return (d.display_name || d.ip) + ' \u00b7 ' + self._bytes(d.total_octets);
+        }, COLORS) +
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Ranked by total traffic</div>' +
+        '<button class="btn" style="margin-top:8px" data-view="hosts">View all hosts \u2192</button>'
+      );
+    } else {
+      var maxOct = topT[0] ? topT[0].total_octets : 1;
+      talkersSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>IP</th><th>Name</th><th>Role</th><th style="text-align:right">Traffic</th><th>Share</th>' +
+        '</tr></thead><tbody>' +
+        topT.map(function(d, i) {
           var pct = maxOct > 0 ? Math.round((d.total_octets / maxOct) * 100) : 0;
-          var medal = idx === 0 ? '\ud83e\udd47 ' : (idx === 1 ? '\ud83e\udd48 ' : (idx === 2 ? '\ud83e\udd49 ' : ''));
-          return '<tr>' +
-            '<td>' + medal + '<span class="ip">' + self._esc(d.ip) + '</span></td>' +
-            '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + self._esc(d.display_name) + '">' + self._esc(d.display_name) + '</td>' +
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span class="ip">' + self._esc(d.ip) + '</span></td>' +
+            '<td>' + self._esc(d.display_name) + '</td>' +
             '<td>' + self._esc(d.probable_role || '\u2014') + '</td>' +
             '<td style="text-align:right">' + self._bytes(d.total_octets) + '</td>' +
-            '<td style="width:120px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:#3ac5c9;border-radius:3px;height:8px"></div></div></td>' +
-            '</tr>';
-        }).join('');
-        return '<div class="card" style="margin-top:12px">' +
-          '<div class="card-title">Top Internal Talkers</div>' +
-          '<table class="data-table" style="width:100%"><thead><tr>' +
-          '<th>IP</th><th>Name</th><th>Role</th><th style="text-align:right">Traffic</th><th>Share</th>' +
-          '</tr></thead><tbody>' + rows + '</tbody></table>' +
-          '<button class="btn" style="margin-top:8px" data-view="hosts">View all hosts \u2192</button>' +
-        '</div>';
-      })() +
-      (function() {
-        // ── Enrichment budget ───────────────────────────────────────────
-        var stats = (self._data && self._data.enrichment_stats) || [];
-        if (!stats.length) return '';
-        var rows = stats.map(function(s) {
+            '<td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:#3ac5c9;border-radius:3px;height:8px"></div></div></td></tr>';
+        }).join('') +
+        '</tbody></table>' +
+        '<button class="btn" style="margin-top:8px" data-view="hosts">View all hosts \u2192</button>';
+    }
+
+    // ── Enrichment budget (table only) ────────────────────────────────
+    var eStats = (this._data && this._data.enrichment_stats) || [];
+    var enrichSection;
+    if (!eStats.length) {
+      enrichSection = '<div class="empty-state"><p style="margin:12px 0">No enrichment data</p></div>';
+    } else {
+      enrichSection = '<table class="data-table" style="width:100%"><thead><tr>' +
+        '<th>Provider</th><th style="text-align:right">Used today</th><th style="text-align:right">Daily budget</th><th>Usage</th><th>Status</th>' +
+        '</tr></thead><tbody>' +
+        eStats.map(function(s) {
           var pct = s.budget > 0 ? Math.min(100, Math.round((s.used / s.budget) * 100)) : 0;
           var barColor = s.exhausted ? '#ff4d6d' : (pct > 80 ? '#ffc107' : '#6bffc8');
-          var statusBadge = !s.configured ? '<span class="badge badge-dim">not configured</span>' :
+          var badge = !s.configured ? '<span class="badge badge-dim">not configured</span>' :
             (s.exhausted ? '<span class="badge badge-critical">exhausted</span>' :
             (pct > 80 ? '<span class="badge badge-warn">high</span>' : '<span class="badge badge-ok">ok</span>'));
-          return '<tr>' +
-            '<td><b>' + self._esc(s.provider) + '</b></td>' +
+          return '<tr><td><b>' + self._esc(s.provider) + '</b></td>' +
             '<td style="text-align:right">' + s.used.toLocaleString() + '</td>' +
             '<td style="text-align:right">' + s.budget.toLocaleString() + '</td>' +
             '<td style="width:120px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:' + barColor + ';border-radius:3px;height:8px"></div></div></td>' +
-            '<td>' + statusBadge + '</td>' +
-            '</tr>';
-        }).join('');
-        return '<div class="card" style="margin-top:12px">' +
-          '<div class="card-title">Enrichment Budget (Today)</div>' +
-          '<table class="data-table" style="width:100%"><thead><tr>' +
-          '<th>Provider</th><th style="text-align:right">Used</th><th style="text-align:right">Budget</th><th>Usage</th><th>Status</th>' +
-          '</tr></thead><tbody>' + rows + '</tbody></table>' +
-        '</div>';
-      })() +
+            '<td>' + badge + '</td></tr>';
+        }).join('') +
+        '</tbody></table>';
+    }
+
+    return '<div>' +
+      '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
+      '<div class="two-col">' +
+        '<div class="card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
+          ipsSection +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Countries' + toggleBtns('countries', modes.countries) + '</div>' +
+          countriesSection +
+        '</div>' +
+      '</div>' +
+      '<div class="card" style="margin-top:12px">' +
+        '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Internal Talkers' + toggleBtns('talkers', modes.talkers) + '</div>' +
+        talkersSection +
+      '</div>' +
+      '<div class="card" style="margin-top:12px">' +
+        '<div class="card-title">Enrichment Budget (Today)</div>' +
+        enrichSection +
+      '</div>' +
     '</div>';
   }
 

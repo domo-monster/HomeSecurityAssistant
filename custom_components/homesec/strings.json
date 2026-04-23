@@ -32,7 +32,8 @@
           "nvd_api_url": "NVD API URL",
           "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
           "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
-          "nvd_keywords": "NVD search keywords (comma-separated product names)"
+          "nvd_keywords": "NVD search keywords (comma-separated product names)",
+          "stats_top_n": "Statistics: top N entries to show (3–25)"
         }
       }
     }
@@ -70,7 +71,8 @@
           "nvd_api_url": "NVD API URL",
           "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
           "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
-          "nvd_keywords": "NVD search keywords (comma-separated product names)"
+          "nvd_keywords": "NVD search keywords (comma-separated product names)",
+          "stats_top_n": "Statistics: top N entries to show (3–25)"
         }
       }
     }

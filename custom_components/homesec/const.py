@@ -43,6 +43,9 @@ CONF_NVD_TTL_HOURS = "nvd_ttl_hours"
 CONF_NVD_MIN_YEAR = "nvd_min_year"
 CONF_NVD_KEYWORDS = "nvd_keywords"
 
+# Statistics view
+CONF_STATS_TOP_N = "stats_top_n"
+
 DEFAULT_BIND_HOST = "0.0.0.0"
 DEFAULT_BIND_PORT = 2055
 DEFAULT_INTERNAL_NETWORKS = "192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,fd00::/8,fe80::/10"
@@ -80,6 +83,9 @@ DEFAULT_NVD_MIN_YEAR = 2020
 DEFAULT_NVD_KEYWORDS = (
     "OpenSSH,Android Debug Bridge,Apache HTTP Server,nginx,MySQL,MariaDB,Samba"
 )
+
+# Statistics view defaults
+DEFAULT_STATS_TOP_N = 10
 
 # DNS / blacklist defaults
 DEFAULT_ENABLE_DNS_RESOLUTION = True

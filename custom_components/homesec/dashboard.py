@@ -13,7 +13,9 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     CONF_SCAN_INTERVAL,
+    CONF_STATS_TOP_N,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_STATS_TOP_N,
     DOMAIN,
     get_entry_value,
 )
@@ -314,7 +316,9 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
     connections = sorted(all_connections, key=lambda connection: connection.get("octets", 0), reverse=True)[:120]
 
     # ── New aggregate statistics ─────────────────────────────────────────
-    TOP_N = 10
+    TOP_N = int(get_entry_value(
+        list(entries.values())[0]["entry"], CONF_STATS_TOP_N, DEFAULT_STATS_TOP_N
+    )) if entries else DEFAULT_STATS_TOP_N
 
     # Top public IPs by number of distinct internal sources contacting them
     ext_ip_connection_count: dict[str, int] = {}
@@ -423,6 +427,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
             list(entries.values())[0]["entry"], CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
         )) if entries else None,
         "entries": entry_payloads,
+        "stats_top_n": TOP_N,
         "top_public_ips": top_public_ips,
         "top_countries": top_countries,
         "top_internal_talkers": top_internal_talkers,
