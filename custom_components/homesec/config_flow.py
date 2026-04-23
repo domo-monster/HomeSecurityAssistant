@@ -16,6 +16,8 @@ from .const import (
     CONF_DNS_PROXY_ENABLED,
     CONF_DNS_PROXY_PORT,
     CONF_DNS_PROXY_UPSTREAM,
+    CONF_DNS_LOG_RETENTION_HOURS,
+    CONF_DNS_PROXY_CHECK_SOURCES,
     CONF_ENABLE_DNS_RESOLUTION,
     CONF_ENABLE_SCANNER,
     CONF_ENABLE_WEBUI,
@@ -46,6 +48,8 @@ from .const import (
     DEFAULT_DNS_PROXY_ENABLED,
     DEFAULT_DNS_PROXY_PORT,
     DEFAULT_DNS_PROXY_UPSTREAM,
+    DEFAULT_DNS_LOG_RETENTION_HOURS,
+    DEFAULT_DNS_PROXY_CHECK_SOURCES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENABLE_WEBUI,
@@ -92,6 +96,8 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
             vol.Required(CONF_DNS_PROXY_ENABLED, default=defaults.get(CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED)): bool,
             vol.Optional(CONF_DNS_PROXY_PORT, default=defaults.get(CONF_DNS_PROXY_PORT, DEFAULT_DNS_PROXY_PORT)): vol.All(int, vol.Range(min=1, max=65535)),
             vol.Optional(CONF_DNS_PROXY_UPSTREAM, default=defaults.get(CONF_DNS_PROXY_UPSTREAM, DEFAULT_DNS_PROXY_UPSTREAM)): str,
+            vol.Optional(CONF_DNS_LOG_RETENTION_HOURS, default=defaults.get(CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)): vol.All(int, vol.Range(min=0, max=8760)),
+            vol.Optional(CONF_DNS_PROXY_CHECK_SOURCES, default=defaults.get(CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES)): str,
             vol.Optional(CONF_VIRUSTOTAL_API_KEY, default=defaults.get(CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY)): str,
             vol.Optional(CONF_ABUSEIPDB_API_KEY, default=defaults.get(CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY)): str,
             vol.Optional(CONF_EXTERNAL_IP_RETENTION, default=defaults.get(CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)): int,
@@ -120,7 +126,7 @@ class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, object] | None = None) -> ConfigFlowResult:
         if user_input is not None:
             await self.async_set_unique_id(f"{user_input[CONF_BIND_HOST]}:{user_input[CONF_BIND_PORT]}")
-            self._abort_if_unique_id_configured()
+            self._abort_if_unique_id_configured(updates=user_input)
             return self.async_create_entry(title="Home Security Assistant", data=user_input)
 
         schema = _build_schema(
@@ -141,6 +147,8 @@ class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_DNS_PROXY_ENABLED: DEFAULT_DNS_PROXY_ENABLED,
                 CONF_DNS_PROXY_PORT: DEFAULT_DNS_PROXY_PORT,
                 CONF_DNS_PROXY_UPSTREAM: DEFAULT_DNS_PROXY_UPSTREAM,
+                CONF_DNS_LOG_RETENTION_HOURS: DEFAULT_DNS_LOG_RETENTION_HOURS,
+                CONF_DNS_PROXY_CHECK_SOURCES: DEFAULT_DNS_PROXY_CHECK_SOURCES,
                 CONF_VIRUSTOTAL_API_KEY: DEFAULT_VIRUSTOTAL_API_KEY,
                 CONF_ABUSEIPDB_API_KEY: DEFAULT_ABUSEIPDB_API_KEY,
                 CONF_EXTERNAL_IP_RETENTION: DEFAULT_EXTERNAL_IP_RETENTION,
@@ -184,6 +192,8 @@ class HomeSecOptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_DNS_PROXY_ENABLED: get_entry_value(self.config_entry, CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED),
                 CONF_DNS_PROXY_PORT: get_entry_value(self.config_entry, CONF_DNS_PROXY_PORT, DEFAULT_DNS_PROXY_PORT),
                 CONF_DNS_PROXY_UPSTREAM: get_entry_value(self.config_entry, CONF_DNS_PROXY_UPSTREAM, DEFAULT_DNS_PROXY_UPSTREAM),
+                CONF_DNS_LOG_RETENTION_HOURS: get_entry_value(self.config_entry, CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS),
+                CONF_DNS_PROXY_CHECK_SOURCES: get_entry_value(self.config_entry, CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES),
                 CONF_VIRUSTOTAL_API_KEY: get_entry_value(self.config_entry, CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY),
                 CONF_ABUSEIPDB_API_KEY: get_entry_value(self.config_entry, CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY),
                 CONF_EXTERNAL_IP_RETENTION: get_entry_value(self.config_entry, CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION),

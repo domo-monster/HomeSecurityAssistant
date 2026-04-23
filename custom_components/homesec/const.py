@@ -38,6 +38,8 @@ CONF_BLACKLIST_URLS = "blacklist_urls"
 CONF_DNS_PROXY_ENABLED = "dns_proxy_enabled"
 CONF_DNS_PROXY_PORT = "dns_proxy_port"
 CONF_DNS_PROXY_UPSTREAM = "dns_proxy_upstream"
+CONF_DNS_LOG_RETENTION_HOURS = "dns_log_retention_hours"
+CONF_DNS_PROXY_CHECK_SOURCES = "dns_proxy_check_sources"
 
 # NVD CVE enrichment
 CONF_NVD_API_KEY = "nvd_api_key"
@@ -99,6 +101,8 @@ DEFAULT_BLACKLIST_URLS = (
 DEFAULT_DNS_PROXY_ENABLED = False
 DEFAULT_DNS_PROXY_PORT = 53
 DEFAULT_DNS_PROXY_UPSTREAM = "1.1.1.1"
+DEFAULT_DNS_LOG_RETENTION_HOURS = 24
+DEFAULT_DNS_PROXY_CHECK_SOURCES = ""  # empty = check all sources
 
 COORDINATOR_INTERVAL_SECONDS = 30
 

@@ -576,6 +576,23 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       })() +
       '<button class="btn" style="margin-top:6px" data-view="vulnerabilities">Browse all vulnerabilities \u2192</button>' +
       '<button class="btn" style="margin-top:6px;margin-left:6px" data-view="statistics">View Statistics \u2192</button>' +
+      (function() {
+        var dnsStats = (self._data && self._data.dns_proxy_stats) || {};
+        var dnsLog   = (self._data && self._data.dns_log) || [];
+        var dnsRunning = dnsStats.running || false;
+        var dnsMal  = dnsLog.filter(function(e) { return e.malicious; }).length;
+        var dnsTotal = dnsStats.total_queries != null ? dnsStats.total_queries : dnsLog.length;
+        var dnsStatusColor = dnsRunning ? 'var(--success)' : 'var(--muted)';
+        return '<div class="card" style="margin-top:12px">' +
+          '<div class="card-title">DNS Proxy</div>' +
+          self._hrow('Status', dnsRunning ? 'Running' : 'Stopped', dnsRunning ? 'good' : '') +
+          (dnsRunning ? self._hrow('Port', String(dnsStats.port || '\u2014'), '') : '') +
+          (dnsRunning ? self._hrow('Upstream', String(dnsStats.upstream || '\u2014'), '') : '') +
+          self._hrow('Queries in log', dnsLog.length.toLocaleString(), '') +
+          self._hrow('Malicious queries', dnsMal.toLocaleString(), dnsMal > 0 ? 'bad' : 'good') +
+          '<button class="btn" style="margin-top:8px" data-view="dns">View DNS Queries \u2192</button>' +
+        '</div>';
+      })() +
     '</div>';
   }
 
@@ -1008,6 +1025,80 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs →</button>';
     }
 
+    // ── DNS activity ──────────────────────────────────────────────────
+    var dnsLog = (this._data && this._data.dns_log) || [];
+    var dnsStats = (this._data && this._data.dns_proxy_stats) || {};
+
+    // Hourly bar chart for last 24h DNS queries (normal=blue, malicious=red)
+    var dnsChartHtml;
+    if (!dnsLog.length) {
+      dnsChartHtml = '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>';
+    } else {
+      var now = Date.now();
+      var DNS_HOURS = 24;
+      var dnsBuckets = [];
+      for (var hi = 0; hi < DNS_HOURS; hi++) {
+        var bucketEnd = now - hi * 3600000;
+        var bucketStart = bucketEnd - 3600000;
+        var total_q = 0, mal_q = 0;
+        for (var di = 0; di < dnsLog.length; di++) {
+          var et = dnsLog[di].timestamp ? new Date(dnsLog[di].timestamp).getTime() : 0;
+          if (et >= bucketStart && et < bucketEnd) {
+            total_q++;
+            if (dnsLog[di].malicious) mal_q++;
+          }
+        }
+        dnsBuckets.unshift({ total: total_q, mal: mal_q });
+      }
+      var maxDns = Math.max.apply(null, dnsBuckets.map(function(b) { return b.total; })) || 1;
+      var BAR_W = 18, BAR_GAP = 3, CHART_H = 60;
+      var svgW = DNS_HOURS * (BAR_W + BAR_GAP);
+      var bars = dnsBuckets.map(function(b, i) {
+        var x = i * (BAR_W + BAR_GAP);
+        var barH = Math.max(2, Math.round((b.total / maxDns) * CHART_H));
+        var malH = b.total > 0 ? Math.round((b.mal / b.total) * barH) : 0;
+        var y = CHART_H - barH;
+        return '<rect x="' + x + '" y="' + y + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"/>' +
+          (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"/>' : '');
+      }).join('');
+      dnsChartHtml = '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">DNS queries per hour (last 24h)</div>' +
+        '<svg width="' + svgW + '" height="' + CHART_H + '" style="display:block">' + bars + '</svg>' +
+        '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.5);display:inline-block;border-radius:2px"></span>Clean</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
+        '</div>';
+    }
+
+    // Top 5 malicious domains
+    var topMalDomains = [];
+    (function() {
+      var counts = {};
+      for (var i = 0; i < dnsLog.length; i++) {
+        if (dnsLog[i].malicious && dnsLog[i].domain) {
+          counts[dnsLog[i].domain] = (counts[dnsLog[i].domain] || 0) + 1;
+        }
+      }
+      topMalDomains = Object.keys(counts).map(function(d) { return { domain: d, count: counts[d] }; });
+      topMalDomains.sort(function(a, b) { return b.count - a.count; });
+      topMalDomains = topMalDomains.slice(0, 5);
+    })();
+
+    var dnsTopMalHtml;
+    if (!topMalDomains.length) {
+      dnsTopMalHtml = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No malicious DNS queries detected</p></div>';
+    } else {
+      dnsTopMalHtml = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>Domain</th><th style="text-align:right">Queries</th>' +
+        '</tr></thead><tbody>' +
+        topMalDomains.map(function(d, i) {
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td class="mono" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(d.domain) + '</td>' +
+            '<td style="text-align:right"><span class="badge badge-malicious">' + d.count + '</span></td></tr>';
+        }).join('') +
+        '</tbody></table>' +
+        '<button class="btn" style="margin-top:8px" data-view="dns">View DNS log \u2192</button>';
+    }
+
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
       timelineHtml +
@@ -1031,6 +1122,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           (topThr.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Threat IPs <span class="badge badge-critical" style="font-size:9px">' + topThr.length + '</span></span>' : 'Top\u00a0' + topN + ' Threat IPs') +
           toggleBtns('threat_ips', modes.threat_ips) + '</div>' +
           threatSection +
+        '</div>' +
+      '</div>' +
+      '<div class="two-col" style="margin-top:12px">' +
+        '<div class="card">' +
+          '<div class="card-title">DNS Activity</div>' +
+          dnsChartHtml +
+        '</div>' +
+        '<div class="card">' +
+          '<div class="card-title">' +
+          (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top 5 Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top 5 Malicious Domains') +
+          '</div>' +
+          dnsTopMalHtml +
         '</div>' +
       '</div>' +
       '<div class="card" style="margin-top:12px">' +
@@ -2408,17 +2511,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       ? '<span class="badge badge-malicious" style="margin-left:8px">' + maliciousCount + ' malicious</span>'
       : '';
 
-    var tableHead = '<table class="data-table" id="dns-table" style="min-width:640px">' +
+    var tableHead = '<table class="data-table" id="dns-table" style="min-width:780px">' +
       '<thead><tr>' +
-        '<th>Time</th><th>Client IP</th><th>Domain</th><th>Type</th><th>Status</th>' +
+        '<th>Time</th><th>Client IP</th><th>Domain</th><th>Type</th><th>Response</th><th>Answer</th><th>Status</th>' +
       '</tr></thead><tbody>';
 
+    var self = this;
     var tableRows = log.slice(0, 500).map(function(e) {
-      var ts   = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
-      var ip   = this._esc(e.src_ip || '—');
-      var dom  = this._esc(e.domain || '—');
-      var qtype = this._esc(e.qtype || 'A');
-      var mal  = e.malicious;
+      var ts    = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
+      var ip    = self._esc(e.src_ip || '—');
+      var dom   = self._esc(e.domain || '—');
+      var qtype = self._esc(e.qtype || 'A');
+      var rcode = e.rcode || '…';
+      var ans   = e.answer ? self._esc(e.answer) : '<span style="color:var(--muted)">—</span>';
+      var mal   = e.malicious;
+      var rcodeColor = rcode === 'NOERROR' ? 'var(--success)' : rcode === 'NXDOMAIN' ? 'var(--warn)' : rcode === '…' ? 'var(--muted)' : 'var(--danger)';
       var badge = mal
         ? '<span class="badge badge-malicious">malicious</span>'
         : '<span class="badge badge-clean">clean</span>';
@@ -2426,11 +2533,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return '<tr' + rowStyle + ' data-malicious="' + (mal ? '1' : '0') + '" data-ip="' + ip.toLowerCase() + '" data-domain="' + dom.toLowerCase() + '">' +
         '<td class="mono" style="white-space:nowrap;font-size:11px">' + ts + '</td>' +
         '<td class="mono ip">' + ip + '</td>' +
-        '<td class="mono" style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + dom + '">' + dom + '</td>' +
+        '<td class="mono" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + dom + '">' + dom + '</td>' +
         '<td><span class="chip">' + qtype + '</span></td>' +
+        '<td class="mono" style="font-size:11px;color:' + rcodeColor + '">' + self._esc(rcode) + '</td>' +
+        '<td class="mono" style="font-size:11px">' + ans + '</td>' +
         '<td>' + badge + '</td>' +
       '</tr>';
-    }, this).join('');
+    }).join('');
 
     var tableEnd = '</tbody></table>';
 

@@ -77,6 +77,8 @@ PERSISTED_KEYS = (
     "dns_proxy_enabled",
     "dns_proxy_port",
     "dns_proxy_upstream",
+    "dns_log_retention_hours",
+    "dns_proxy_check_sources",
     "virustotal_api_key",
     "abuseipdb_api_key",
 )

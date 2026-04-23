@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import socket
 import struct
 from collections import deque
 from datetime import datetime, UTC
@@ -53,6 +54,11 @@ _QTYPES: dict[int, str] = {
     33: "SRV",
     65: "HTTPS",
     255: "ANY",
+}
+
+_RCODES: dict[int, str] = {
+    0: "NOERROR", 1: "FORMERR", 2: "SERVFAIL",
+    3: "NXDOMAIN", 4: "NOTIMP", 5: "REFUSED",
 }
 
 
@@ -94,6 +100,65 @@ def _parse_dns_question(data: bytes) -> tuple[str, str] | None:
     except Exception:
         return None
 
+def _parse_rcode(data: bytes) -> str:
+    """Return the RCODE from a DNS response as a human-readable string."""
+    if len(data) < 4:
+        return "?"
+    return _RCODES.get(data[3] & 0x0F, str(data[3] & 0x0F))
+
+
+def _parse_first_answer(data: bytes) -> str | None:
+    """Extract the first A or AAAA answer value from a DNS response, or None."""
+    try:
+        if len(data) < 12:
+            return None
+        qdcount = struct.unpack_from("!H", data, 4)[0]
+        ancount = struct.unpack_from("!H", data, 6)[0]
+        if ancount == 0:
+            return None
+        pos = 12
+        # skip question section
+        for _ in range(qdcount):
+            while pos < len(data):
+                length = data[pos]
+                if length == 0:
+                    pos += 1
+                    break
+                if (length & 0xC0) == 0xC0:
+                    pos += 2
+                    break
+                pos += 1 + length
+            pos += 4  # qtype + qclass
+        # walk answer records
+        for _ in range(min(ancount, 5)):
+            if pos + 2 > len(data):
+                break
+            if (data[pos] & 0xC0) == 0xC0:
+                pos += 2
+            else:
+                while pos < len(data):
+                    length = data[pos]
+                    if length == 0:
+                        pos += 1
+                        break
+                    if (length & 0xC0) == 0xC0:
+                        pos += 2
+                        break
+                    pos += 1 + length
+            if pos + 10 > len(data):
+                break
+            rtype, _, _, rdlength = struct.unpack_from("!HHIH", data, pos)
+            pos += 10
+            if pos + rdlength > len(data):
+                break
+            if rtype == 1 and rdlength == 4:
+                return socket.inet_ntoa(data[pos : pos + 4])
+            if rtype == 28 and rdlength == 16:
+                return socket.inet_ntop(socket.AF_INET6, data[pos : pos + 16])
+            pos += rdlength
+        return None
+    except Exception:
+        return None
 
 class _UpstreamProtocol(asyncio.DatagramProtocol):
     """One-shot: send the raw DNS query to upstream, relay the response back."""
@@ -103,10 +168,12 @@ class _UpstreamProtocol(asyncio.DatagramProtocol):
         query: bytes,
         client_transport: asyncio.DatagramTransport,
         client_addr: tuple[str, int],
+        log_entry: dict,
     ) -> None:
         self._query = query
         self._client_transport = client_transport
         self._client_addr = client_addr
+        self._log_entry = log_entry
         self._transport: asyncio.DatagramTransport | None = None
 
     def connection_made(self, transport: asyncio.DatagramTransport) -> None:
@@ -114,6 +181,10 @@ class _UpstreamProtocol(asyncio.DatagramProtocol):
         transport.sendto(self._query)
 
     def datagram_received(self, data: bytes, addr: tuple) -> None:
+        self._log_entry["rcode"] = _parse_rcode(data)
+        answer = _parse_first_answer(data)
+        if answer:
+            self._log_entry["answer"] = answer
         if self._client_transport and not self._client_transport.is_closing():
             self._client_transport.sendto(data, self._client_addr)
         if self._transport:
@@ -138,13 +209,16 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         checker,  # DNSBlacklistChecker
         dns_log: deque,
         on_malicious: Callable[[str, str, str, dict], None],
+        check_sources: set[str] | None = None,
     ) -> None:
         self._upstream_host = upstream_host
         self._upstream_port = upstream_port
         self._checker = checker
         self._dns_log = dns_log
         self._on_malicious = on_malicious
+        self._check_sources = check_sources  # None = all sources allowed
         self._transport: asyncio.DatagramTransport | None = None
+        self._total_queries: int = 0
 
     def connection_made(self, transport: asyncio.DatagramTransport) -> None:
         self._transport = transport
@@ -154,6 +228,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
 
     async def _handle(self, data: bytes, addr: tuple) -> None:
         src_ip = str(addr[0])
+        self._total_queries += 1
         question = _parse_dns_question(data)
         qname = question[0] if question else ""
         qtype = question[1] if question else "?"
@@ -161,18 +236,24 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         hit: dict | None = None
 
         if qname and not qname.endswith(".in-addr.arpa") and not qname.endswith(".ip6.arpa"):
-            hit = self._checker.check(qname)
-            if hit:
-                is_malicious = True
-                self._on_malicious(src_ip, qname, qtype, hit)
+            raw_hit = self._checker.check(qname)
+            if raw_hit:
+                # Filter by allowed sources if configured
+                if self._check_sources is None or raw_hit.get("source", "") in self._check_sources:
+                    hit = raw_hit
+                    is_malicious = True
+                    self._on_malicious(src_ip, qname, qtype, hit)
 
-        self._dns_log.append({
-            "ts": datetime.now(UTC).isoformat(),
-            "src": src_ip,
+        entry: dict = {
+            "timestamp": datetime.now(UTC).isoformat(),
+            "src_ip": src_ip,
             "domain": qname,
             "qtype": qtype,
             "malicious": is_malicious,
-        })
+            "rcode": None,
+            "answer": None,
+        }
+        self._dns_log.append(entry)
 
         # Forward to upstream
         if self._transport is None or self._transport.is_closing():
@@ -180,7 +261,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         try:
             loop = asyncio.get_running_loop()
             await loop.create_datagram_endpoint(
-                lambda: _UpstreamProtocol(data, self._transport, addr),
+                lambda: _UpstreamProtocol(data, self._transport, addr, entry),
                 remote_addr=(self._upstream_host, self._upstream_port),
             )
         except Exception as exc:
@@ -204,6 +285,7 @@ class DNSProxyServer:
         checker,  # DNSBlacklistChecker
         dns_log: deque,
         on_malicious: Callable[[str, str, str, dict], None],
+        check_sources: set[str] | None = None,
     ) -> None:
         self._host = host
         self._port = port
@@ -211,7 +293,9 @@ class DNSProxyServer:
         self._checker = checker
         self._dns_log = dns_log
         self._on_malicious = on_malicious
+        self._check_sources = check_sources
         self._transport: asyncio.DatagramTransport | None = None
+        self._protocol: DNSProxyProtocol | None = None
         self._running = False
 
     @staticmethod
@@ -233,17 +317,20 @@ class DNSProxyServer:
     async def async_start(self) -> None:
         loop = asyncio.get_running_loop()
         try:
+            proto = DNSProxyProtocol(
+                self._upstream_host,
+                self._upstream_port,
+                self._checker,
+                self._dns_log,
+                self._on_malicious,
+                self._check_sources,
+            )
             transport, _ = await loop.create_datagram_endpoint(
-                lambda: DNSProxyProtocol(
-                    self._upstream_host,
-                    self._upstream_port,
-                    self._checker,
-                    self._dns_log,
-                    self._on_malicious,
-                ),
+                lambda: proto,
                 local_addr=(self._host, self._port),
             )
             self._transport = transport
+            self._protocol = proto
             self._running = True
             _LOGGER.info(
                 "HomeSec DNS proxy listening on %s:%d → upstream %s:%d",
@@ -262,6 +349,7 @@ class DNSProxyServer:
         if self._transport is not None:
             self._transport.close()
             self._transport = None
+        self._protocol = None
         self._running = False
 
     @property
@@ -269,9 +357,11 @@ class DNSProxyServer:
         return self._running
 
     def stats(self) -> dict:
+        total = self._protocol._total_queries if self._protocol is not None else 0
         return {
             "running": self._running,
             "host": self._host,
             "port": self._port,
             "upstream": f"{self._upstream_host}:{self._upstream_port}",
+            "total_queries": total,
         }

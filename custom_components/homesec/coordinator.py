@@ -21,6 +21,8 @@ from .const import (
     CONF_DNS_PROXY_ENABLED,
     CONF_DNS_PROXY_PORT,
     CONF_DNS_PROXY_UPSTREAM,
+    CONF_DNS_LOG_RETENTION_HOURS,
+    CONF_DNS_PROXY_CHECK_SOURCES,
     CONF_ENABLE_DNS_RESOLUTION,
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
@@ -50,6 +52,8 @@ from .const import (
     DEFAULT_DNS_PROXY_ENABLED,
     DEFAULT_DNS_PROXY_PORT,
     DEFAULT_DNS_PROXY_UPSTREAM,
+    DEFAULT_DNS_LOG_RETENTION_HOURS,
+    DEFAULT_DNS_PROXY_CHECK_SOURCES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENRICHMENT_TTL_MINUTES,
@@ -180,7 +184,14 @@ class HomeSecCollector:
 
         # DNS proxy
         self._dns_log: deque = deque(maxlen=DNS_LOG_MAX)
+        self._dns_log_retention_hours: int = int(
+            get_entry_value(entry, CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)
+        )
         dns_proxy_enabled = bool(get_entry_value(entry, CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED))
+        check_sources_raw = str(get_entry_value(entry, CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES))
+        check_sources: set[str] | None = (
+            {s.strip() for s in check_sources_raw.split(",") if s.strip()} or None
+        )
         if dns_proxy_enabled:
             self._dns_proxy: DNSProxyServer | None = DNSProxyServer(
                 host=str(get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST)),
@@ -189,6 +200,7 @@ class HomeSecCollector:
                 checker=self._resolver,
                 dns_log=self._dns_log,
                 on_malicious=self._on_malicious_dns,
+                check_sources=check_sources,
             )
         else:
             self._dns_proxy = None
@@ -467,6 +479,7 @@ class HomeSecCollector:
         payload["blacklist_stats"] = self._resolver.stats()
         payload["collector_started_at"] = self._started_at.isoformat() if self._started_at else None
         payload["enrichment_stats"] = self._enricher.enrichment_stats()
+        self._purge_dns_log()
         payload["dns_log"] = list(self._dns_log)
         payload["dns_proxy_stats"] = self._dns_proxy.stats() if self._dns_proxy is not None else {"running": False}
         nvd_ts = self._nvd_last_fetch_at
@@ -538,6 +551,14 @@ class HomeSecCollector:
     def dns_log_snapshot(self) -> list[dict]:
         """Return a snapshot of the DNS query ring buffer."""
         return list(self._dns_log)
+
+    def _purge_dns_log(self) -> None:
+        """Remove DNS log entries older than the configured retention window."""
+        if not self._dns_log or self._dns_log_retention_hours == 0:
+            return
+        cutoff = (datetime.now(timezone.utc) - timedelta(hours=self._dns_log_retention_hours)).isoformat()
+        while self._dns_log and self._dns_log[0].get("timestamp", "") < cutoff:
+            self._dns_log.popleft()
 
     def dns_proxy_stats(self) -> dict:
         """Return DNS proxy status stats."""

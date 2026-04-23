@@ -493,7 +493,7 @@ def _build_dns_log(entries: dict) -> list[dict[str, Any]]:
     merged: list[dict[str, Any]] = []
     for runtime in entries.values():
         merged.extend(runtime["collector"].dns_log_snapshot())
-    merged.sort(key=lambda e: e.get("ts", ""), reverse=True)
+    merged.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
     return merged[:500]
 
 
@@ -994,7 +994,7 @@ class HomeSecDnsLogView(HomeAssistantView):
         merged: list[dict] = []
         for runtime in entries.values():
             merged.extend(runtime["collector"].dns_log_snapshot())
-        merged.sort(key=lambda e: e.get("ts", ""), reverse=True)
+        merged.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
         if malicious_only:
             merged = [e for e in merged if e.get("malicious")]
         merged = merged[:limit]
