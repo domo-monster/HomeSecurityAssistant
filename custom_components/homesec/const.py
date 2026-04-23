@@ -48,6 +48,13 @@ CONF_NVD_KEYWORDS = "nvd_keywords"
 # Statistics view
 CONF_STATS_TOP_N = "stats_top_n"
 
+# Shodan enrichment mode: which IPs to enrich with Shodan
+CONF_SHODAN_ENRICH_MODE = "shodan_enrich_mode"
+SHODAN_MODE_ALL = "all"      # Enrich every public IP
+SHODAN_MODE_THREAT = "threat"  # Only suspicious / malicious IPs
+SHODAN_MODE_NONE = "none"    # Disable Shodan enrichment entirely
+DEFAULT_SHODAN_ENRICH_MODE = "all"
+
 DEFAULT_BIND_HOST = "0.0.0.0"
 DEFAULT_BIND_PORT = 2055
 DEFAULT_INTERNAL_NETWORKS = "192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,fd00::/8,fe80::/10"

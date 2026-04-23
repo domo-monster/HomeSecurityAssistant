@@ -78,6 +78,7 @@ PERSISTED_KEYS = (
     "virustotal_api_key",
     "shodan_api_key",
     "abuseipdb_api_key",
+    "shodan_enrich_mode",
 )
 
 

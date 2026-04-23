@@ -738,7 +738,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       enrichSection = '<div class="empty-state"><p style="margin:12px 0">No enrichment data</p></div>';
     } else {
       enrichSection = '<table class="data-table" style="width:100%"><thead><tr>' +
-        '<th>Provider</th><th style="text-align:right">Used today</th><th style="text-align:right">Daily budget</th><th>Usage</th><th>Status</th>' +
+        '<th>Provider</th><th style="text-align:right">Used today</th><th style="text-align:right">Daily budget</th><th>Usage</th><th>Status</th><th>Errors / Notes</th>' +
         '</tr></thead><tbody>' +
         eStats.map(function(s) {
           var pct = s.budget > 0 ? Math.min(100, Math.round((s.used / s.budget) * 100)) : 0;
@@ -746,11 +746,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var badge = !s.configured ? '<span class="badge badge-dim">not configured</span>' :
             (s.exhausted ? '<span class="badge badge-critical">exhausted</span>' :
             (pct > 80 ? '<span class="badge badge-warn">high</span>' : '<span class="badge badge-ok">ok</span>'));
+          var errCell = '';
+          if (s.last_error) {
+            var errStr = String(s.last_error);
+            // Auth errors (401/403) in orange; rate-limit (429) and server errors (5xx) in red
+            var errColor = (errStr.indexOf('401') !== -1 || errStr.indexOf('403') !== -1)
+              ? '#ffc107' : '#ff4d6d';
+            errCell = '<span style="color:' + errColor + ';font-size:11px;font-weight:600">\u26A0\uFE0F ' + self._esc(errStr) + '</span>';
+          }
           return '<tr><td><b>' + self._esc(s.provider) + '</b></td>' +
             '<td style="text-align:right">' + s.used.toLocaleString() + '</td>' +
             '<td style="text-align:right">' + s.budget.toLocaleString() + '</td>' +
             '<td style="width:120px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:' + barColor + ';border-radius:3px;height:8px"></div></div></td>' +
-            '<td>' + badge + '</td></tr>';
+            '<td>' + badge + '</td>' +
+            '<td>' + errCell + '</td></tr>';
         }).join('') +
         '</tbody></table>';
     }

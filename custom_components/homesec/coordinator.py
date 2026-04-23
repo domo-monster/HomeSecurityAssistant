@@ -38,6 +38,7 @@ from .const import (
     CONF_NVD_KEYWORDS,
     CONF_SHODAN_API_KEY,
     CONF_SHODAN_DAILY_BUDGET,
+    CONF_SHODAN_ENRICH_MODE,
     CONF_VIRUSTOTAL_API_KEY,
     CONF_VIRUSTOTAL_DAILY_BUDGET,
     COORDINATOR_INTERVAL_SECONDS,
@@ -68,6 +69,7 @@ from .const import (
     DEFAULT_NVD_KEYWORDS,
     DEFAULT_SHODAN_API_KEY,
     DEFAULT_SHODAN_DAILY_BUDGET,
+    DEFAULT_SHODAN_ENRICH_MODE,
     DEFAULT_VIRUSTOTAL_API_KEY,
     DEFAULT_VIRUSTOTAL_DAILY_BUDGET,
     DOMAIN,
@@ -136,6 +138,7 @@ class HomeSecCollector:
                 "shodan": int(get_entry_value(entry, CONF_SHODAN_DAILY_BUDGET, DEFAULT_SHODAN_DAILY_BUDGET)),
                 "abuseipdb": int(get_entry_value(entry, CONF_ABUSEIPDB_DAILY_BUDGET, DEFAULT_ABUSEIPDB_DAILY_BUDGET)),
             },
+            shodan_mode=str(get_entry_value(entry, CONF_SHODAN_ENRICH_MODE, DEFAULT_SHODAN_ENRICH_MODE)),
         )
         nvd_api_key = str(get_entry_value(entry, CONF_NVD_API_KEY, DEFAULT_NVD_API_KEY)) or None
         nvd_api_url = str(get_entry_value(entry, CONF_NVD_API_URL, DEFAULT_NVD_API_URL)) or DEFAULT_NVD_API_URL

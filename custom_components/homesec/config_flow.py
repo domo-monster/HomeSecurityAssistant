@@ -37,6 +37,7 @@ from .const import (
     CONF_STATS_TOP_N,
     CONF_SHODAN_API_KEY,
     CONF_SHODAN_DAILY_BUDGET,
+    CONF_SHODAN_ENRICH_MODE,
     CONF_VIRUSTOTAL_API_KEY,
     CONF_VIRUSTOTAL_DAILY_BUDGET,
     DEFAULT_ABUSEIPDB_API_KEY,
@@ -66,8 +67,12 @@ from .const import (
     DEFAULT_NVD_MIN_YEAR,
     DEFAULT_NVD_KEYWORDS,
     DEFAULT_STATS_TOP_N,
+    SHODAN_MODE_ALL,
+    SHODAN_MODE_THREAT,
+    SHODAN_MODE_NONE,
     DEFAULT_SHODAN_API_KEY,
     DEFAULT_SHODAN_DAILY_BUDGET,
+    DEFAULT_SHODAN_ENRICH_MODE,
     DEFAULT_VIRUSTOTAL_API_KEY,
     DEFAULT_VIRUSTOTAL_DAILY_BUDGET,
     DOMAIN,
@@ -109,6 +114,7 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
             vol.Optional(CONF_NVD_MIN_YEAR, default=defaults.get(CONF_NVD_MIN_YEAR, DEFAULT_NVD_MIN_YEAR)): int,
             vol.Optional(CONF_NVD_KEYWORDS, default=defaults.get(CONF_NVD_KEYWORDS, DEFAULT_NVD_KEYWORDS)): str,
             vol.Optional(CONF_STATS_TOP_N, default=defaults.get(CONF_STATS_TOP_N, DEFAULT_STATS_TOP_N)): vol.All(int, vol.Range(min=3, max=25)),
+            vol.Optional(CONF_SHODAN_ENRICH_MODE, default=defaults.get(CONF_SHODAN_ENRICH_MODE, DEFAULT_SHODAN_ENRICH_MODE)): vol.In([SHODAN_MODE_ALL, SHODAN_MODE_THREAT, SHODAN_MODE_NONE]),
         }
     )
 
@@ -159,6 +165,7 @@ class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_NVD_MIN_YEAR: DEFAULT_NVD_MIN_YEAR,
                 CONF_NVD_KEYWORDS: DEFAULT_NVD_KEYWORDS,
                 CONF_STATS_TOP_N: DEFAULT_STATS_TOP_N,
+                CONF_SHODAN_ENRICH_MODE: DEFAULT_SHODAN_ENRICH_MODE,
             }
         )
         return self.async_show_form(step_id="user", data_schema=schema)
@@ -203,6 +210,7 @@ class HomeSecOptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_NVD_MIN_YEAR: get_entry_value(self.config_entry, CONF_NVD_MIN_YEAR, DEFAULT_NVD_MIN_YEAR),
                 CONF_NVD_KEYWORDS: get_entry_value(self.config_entry, CONF_NVD_KEYWORDS, DEFAULT_NVD_KEYWORDS),
                 CONF_STATS_TOP_N: get_entry_value(self.config_entry, CONF_STATS_TOP_N, DEFAULT_STATS_TOP_N),
+                CONF_SHODAN_ENRICH_MODE: get_entry_value(self.config_entry, CONF_SHODAN_ENRICH_MODE, DEFAULT_SHODAN_ENRICH_MODE),
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)

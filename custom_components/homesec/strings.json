@@ -35,7 +35,8 @@
           "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
           "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
           "nvd_keywords": "NVD search keywords (comma-separated product names)",
-          "stats_top_n": "Statistics: top N entries to show (3–25)"
+          "stats_top_n": "Statistics: top N entries to show (3–25)",
+          "shodan_enrich_mode": "Shodan enrichment scope (all = every public IP, threat = suspicious/malicious only, none = disabled)"
         }
       }
     }
@@ -76,7 +77,8 @@
           "nvd_ttl_hours": "NVD cache TTL (hours, re-fetch CVEs after this)",
           "nvd_min_year": "NVD minimum CVE year (0 = all years, no filtering)",
           "nvd_keywords": "NVD search keywords (comma-separated product names)",
-          "stats_top_n": "Statistics: top N entries to show (3–25)"
+          "stats_top_n": "Statistics: top N entries to show (3–25)",
+          "shodan_enrich_mode": "Shodan enrichment scope (all = every public IP, threat = suspicious/malicious only, none = disabled)"
         }
       }
     }

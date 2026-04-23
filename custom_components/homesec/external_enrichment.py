@@ -16,6 +16,25 @@ _ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 _QUEUE_MAX = 500
 _WORKER_DELAY = 1.2  # seconds between API calls (rate limiting)
 
+# Human-readable notes for common HTTP error status codes
+_HTTP_ERROR_NOTES: dict[int, str] = {
+    401: "HTTP 401 – unauthorized (check API key)",
+    403: "HTTP 403 – forbidden (invalid API key)",
+    429: "HTTP 429 – rate limited",
+    500: "HTTP 500 – server error",
+    502: "HTTP 502 – bad gateway",
+    503: "HTTP 503 – service unavailable",
+    504: "HTTP 504 – gateway timeout",
+}
+
+
+class _ProviderError(Exception):
+    """Raised by a provider method when the API returns a notable non-success status."""
+    def __init__(self, status: int) -> None:
+        self.status = status
+        super().__init__(f"HTTP {status}")
+
+
 # Per-provider rate limits: (min_interval_seconds, daily_budget)
 _PROVIDER_LIMITS: dict[str, tuple[float, int]] = {
     "ipinfo":    (1.0,  1500),  # free: 50k/month ≈ 1 666/day
@@ -56,12 +75,14 @@ class ExternalIPEnricher:
         abuseipdb_key: str | None = None,
         enrichment_ttl_minutes: int = 60,
         daily_budgets: dict[str, int] | None = None,
+        shodan_mode: str = "all",
     ) -> None:
         self._session = session
         self._ipinfo_token = ipinfo_token
         self._vt_key = virustotal_key
         self._shodan_key = shodan_key
         self._abuse_key = abuseipdb_key
+        self._shodan_mode = shodan_mode  # "all" | "threat" | "none"
         self._ttl = timedelta(minutes=max(1, enrichment_ttl_minutes))
         self._cache: dict[str, dict[str, object]] = {}
         self._enriched_at: dict[str, datetime] = {}
@@ -77,6 +98,7 @@ class ExternalIPEnricher:
         self._prov_last_call: dict[str, float] = {}   # provider → monotonic ts
         self._prov_daily_count: dict[str, int] = {}   # provider → count today
         self._prov_day: str = ""                       # YYYY-MM-DD to reset
+        self._prov_last_error: dict[str, str] = {}    # provider → last error note
 
     # ------------------------------------------------------------------ #
     # Lifecycle
@@ -131,12 +153,27 @@ class ExternalIPEnricher:
         return dict(self._cache.get(ip, {}))
 
     async def enrich_now(self, ip: str) -> dict[str, object]:
-        """Synchronously enrich an IP (for on-demand lookups)."""
-        if not self._is_stale(ip):
+        """Return cached enrichment for on-demand lookups (non-blocking).
+
+        Shodan is background-only.  If this IP has been enriched before
+        (even if the cached entry is now stale), the cached data is returned
+        immediately and the background worker is asked to refresh it.
+        If the IP has never been enriched at all, a fast enrich (without
+        Shodan) is done synchronously so the caller gets *some* data; the
+        background worker will then perform the full enrichment including
+        Shodan on the next queue cycle.
+        """
+        if ip in self._cache:
+            # Return cached data right away; queue background refresh if stale
+            if self._is_stale(ip):
+                self.queue_ip(ip)
             return dict(self._cache[ip])
-        result = await self._enrich(ip)
+        # First time we see this IP — do a fast synchronous enrich without Shodan
+        result = await self._enrich(ip, skip_shodan=True)
         self._cache[ip] = result
-        self._enriched_at[ip] = datetime.now(UTC)
+        # Mark as stale immediately so the background worker will run full
+        # enrichment (including Shodan if scope allows) on the next cycle.
+        self._enriched_at[ip] = datetime.min.replace(tzinfo=UTC)
         return dict(result)
 
     def enrichment_stats(self) -> list[dict[str, object]]:
@@ -162,6 +199,7 @@ class ExternalIPEnricher:
                 "budget": budget,
                 "configured": configured,
                 "exhausted": used >= budget,
+                "last_error": self._prov_last_error.get(prov),
             })
         return stats
 
@@ -208,7 +246,7 @@ class ExternalIPEnricher:
                     self._enriched_at[ip] = datetime.now(UTC)
             await asyncio.sleep(_WORKER_DELAY)
 
-    async def _enrich(self, ip: str) -> dict[str, object]:
+    async def _enrich(self, ip: str, skip_shodan: bool = False) -> dict[str, object]:
         import aiohttp as _aiohttp  # lazy import
 
         result: dict[str, object] = {
@@ -227,6 +265,19 @@ class ExternalIPEnricher:
         for name, gate, method in providers:
             if gate is None:
                 continue
+            if name == "shodan":
+                # Always skip when called from on-demand lookup path
+                if skip_shodan:
+                    continue
+                # Respect the configured enrichment scope
+                if self._shodan_mode == "none":
+                    continue
+                if self._shodan_mode == "threat":
+                    # VirusTotal + AbuseIPDB have already run; use their results
+                    # to determine whether this IP is worth a Shodan lookup.
+                    prov_rating, _ = self._compute_rating(result)
+                    if prov_rating not in ("suspicious", "malicious"):
+                        continue
             if not self._budget_ok(name):
                 _LOGGER.debug("HSA: %s daily budget exhausted (%d), skipping %s",
                               name, self._prov_daily_count.get(name, 0), ip)
@@ -237,6 +288,11 @@ class ExternalIPEnricher:
                 if data:
                     result.update(data)
                     result["sources"].append(name)  # type: ignore[union-attr]
+                self._prov_last_error.pop(name, None)  # clear error on success
+            except _ProviderError as exc:
+                note = _HTTP_ERROR_NOTES.get(exc.status, f"HTTP {exc.status}")
+                self._prov_last_error[name] = note
+                _LOGGER.debug("HSA: %s returned %s for %s", name, exc.status, ip)
             except Exception as exc:
                 _LOGGER.debug("HSA: %s failed for %s: %s", name, ip, exc)
 
@@ -251,8 +307,10 @@ class ExternalIPEnricher:
         async with self._session.get(
             url, headers=headers, timeout=aiohttp.ClientTimeout(total=8)
         ) as resp:
-            if resp.status != 200:
+            if resp.status == 404:
                 return None
+            if resp.status != 200:
+                raise _ProviderError(resp.status)
             d = await resp.json(content_type=None)
         org = str(d.get("org") or "")
         asn = org.split(" ", 1)[0] if " " in org else ""
@@ -276,8 +334,10 @@ class ExternalIPEnricher:
         async with self._session.get(
             url, headers=headers, timeout=aiohttp.ClientTimeout(total=10)
         ) as resp:
-            if resp.status != 200:
+            if resp.status == 404:
                 return None
+            if resp.status != 200:
+                raise _ProviderError(resp.status)
             d = await resp.json(content_type=None)
         attrs = d.get("data", {}).get("attributes", {})
         stats = attrs.get("last_analysis_stats", {})
@@ -296,8 +356,10 @@ class ExternalIPEnricher:
         async with self._session.get(
             url, timeout=aiohttp.ClientTimeout(total=12)
         ) as resp:
-            if resp.status != 200:
+            if resp.status == 404:
                 return None
+            if resp.status != 200:
+                raise _ProviderError(resp.status)
             d = await resp.json(content_type=None)
         # Build enriched service list and collect web technologies from HTTP banners
         services: list[dict[str, object]] = []
@@ -340,8 +402,10 @@ class ExternalIPEnricher:
             params=params,
             timeout=aiohttp.ClientTimeout(total=8),
         ) as resp:
-            if resp.status != 200:
+            if resp.status == 404:
                 return None
+            if resp.status != 200:
+                raise _ProviderError(resp.status)
             d = await resp.json(content_type=None)
         dd = d.get("data") or {}
         return {
