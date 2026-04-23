@@ -113,7 +113,7 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
             vol.Optional(CONF_NVD_TTL_HOURS, default=defaults.get(CONF_NVD_TTL_HOURS, DEFAULT_NVD_TTL_HOURS)): int,
             vol.Optional(CONF_NVD_MIN_YEAR, default=defaults.get(CONF_NVD_MIN_YEAR, DEFAULT_NVD_MIN_YEAR)): int,
             vol.Optional(CONF_NVD_KEYWORDS, default=defaults.get(CONF_NVD_KEYWORDS, DEFAULT_NVD_KEYWORDS)): str,
-            vol.Optional(CONF_STATS_TOP_N, default=defaults.get(CONF_STATS_TOP_N, DEFAULT_STATS_TOP_N)): vol.All(int, vol.Range(min=3, max=25)),
+            vol.Required(CONF_STATS_TOP_N, default=defaults.get(CONF_STATS_TOP_N, DEFAULT_STATS_TOP_N)): vol.All(int, vol.Range(min=3, max=25)),
             vol.Optional(CONF_SHODAN_ENRICH_MODE, default=defaults.get(CONF_SHODAN_ENRICH_MODE, DEFAULT_SHODAN_ENRICH_MODE)): vol.In([SHODAN_MODE_ALL, SHODAN_MODE_THREAT, SHODAN_MODE_NONE]),
         }
     )
