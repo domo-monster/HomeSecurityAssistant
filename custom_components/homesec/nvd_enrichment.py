@@ -638,22 +638,39 @@ class NVDClient:
                 "resultsPerPage": page_size,
                 "startIndex": start_index,
             }
-            try:
-                async with self._session.get(
-                    self._api_url,
-                    params=params,
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=30),
-                ) as resp:
-                    if resp.status == 429:
-                        _LOGGER.warning("NVD rate limit hit for keyword %r — will retry next cycle", keyword)
+            data: dict[str, Any] | None = None
+            for attempt in range(3):
+                try:
+                    async with self._session.get(
+                        self._api_url,
+                        params=params,
+                        headers=headers,
+                        timeout=aiohttp.ClientTimeout(total=60),
+                    ) as resp:
+                        if resp.status == 429:
+                            _LOGGER.warning("NVD rate limit hit for keyword %r — will retry next cycle", keyword)
+                            return all_results
+                        if resp.status in (502, 503, 504):
+                            if attempt < 2:
+                                _LOGGER.debug("NVD HTTP %d for keyword %r (attempt %d/3) — retrying", resp.status, keyword, attempt + 1)
+                                await asyncio.sleep(15 * (attempt + 1))
+                                continue
+                            _LOGGER.warning("NVD API HTTP %d for keyword %r after 3 attempts", resp.status, keyword)
+                            return all_results
+                        if resp.status != 200:
+                            _LOGGER.warning("NVD API HTTP %d for keyword %r", resp.status, keyword)
+                            return all_results
+                        data = await resp.json(content_type=None)
+                    break  # success
+                except Exception as exc:
+                    exc_desc = repr(exc) if not str(exc) else str(exc)
+                    if attempt < 2:
+                        _LOGGER.debug("NVD fetch error for %r (attempt %d/3): %s — retrying", keyword, attempt + 1, exc_desc)
+                        await asyncio.sleep(10 * (attempt + 1))
+                    else:
+                        _LOGGER.warning("NVD fetch error for %r: %s", keyword, exc_desc)
                         return all_results
-                    if resp.status != 200:
-                        _LOGGER.warning("NVD API HTTP %d for keyword %r", resp.status, keyword)
-                        return all_results
-                    data: dict[str, Any] = await resp.json(content_type=None)
-            except Exception as exc:
-                _LOGGER.warning("NVD fetch error for %r: %s", keyword, exc)
+            if data is None:
                 return all_results
 
             for vuln in data.get("vulnerabilities", []):

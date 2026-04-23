@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
+from typing import Any
 from datetime import datetime, timedelta, timezone
 import logging
 
@@ -175,7 +176,7 @@ class HomeSecCollector:
         self._retention_malicious_hours: int = int(
             get_entry_value(entry, CONF_RETENTION_MALICIOUS_HOURS, DEFAULT_RETENTION_MALICIOUS_HOURS)
         )
-        self._post_scan_refresh: Callable[[], None] | None = None
+        self._post_scan_refresh: Callable[[], Coroutine[Any, Any, None]] | None = None
 
     async def async_start(self) -> None:
         self._started_at = datetime.now(timezone.utc)
@@ -469,7 +470,7 @@ class HomeSecCollector:
             save_discovered_hosts, self._config_dir, hosts
         )
         if self._post_scan_refresh is not None:
-            self._post_scan_refresh()
+            await self._post_scan_refresh()
 
     def dismiss_finding(self, key: str, note: str = "") -> None:
         self._dismissed_findings[key] = note
