@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import time as _time
 from datetime import datetime, timedelta, UTC
 import ipaddress
 import logging
@@ -119,6 +120,11 @@ class ExternalIPEnricher:
             self._prov_tier["abuseipdb"] = "basic"
         # Set to True after a 403 from the host-lookup endpoint (OSS/free key)
         self._shodan_key_invalid: bool = False
+        # Per-provider locks so concurrent enrich_now() calls don't burst past rate limits
+        self._prov_locks: dict[str, asyncio.Lock] = {}
+        # Per-provider backoff: monotonic timestamp until which the provider is skipped
+        # (set after a 429/503 to avoid a flood of pointless retries)
+        self._prov_backoff_until: dict[str, float] = {}
 
     # ------------------------------------------------------------------ #
     # Lifecycle
@@ -292,16 +298,22 @@ class ExternalIPEnricher:
         return self._prov_daily_count.get(provider, 0) < limit[1]
 
     async def _throttle(self, provider: str) -> None:
-        """Enforce per-provider minimum interval between consecutive API calls."""
-        import time
-        min_interval = self._limits.get(provider, (1.0, 9999))[0]
-        last = self._prov_last_call.get(provider, 0.0)
-        now = time.monotonic()
-        elapsed = now - last
-        if elapsed < min_interval:
-            await asyncio.sleep(min_interval - elapsed)
-        self._prov_last_call[provider] = time.monotonic()
-        self._prov_daily_count[provider] = self._prov_daily_count.get(provider, 0) + 1
+        """Enforce per-provider minimum interval between consecutive API calls.
+
+        Uses a per-provider lock so concurrent callers (multiple enrich_now()
+        coroutines) are serialised rather than all bursting at once.
+        """
+        if provider not in self._prov_locks:
+            self._prov_locks[provider] = asyncio.Lock()
+        async with self._prov_locks[provider]:
+            min_interval = self._limits.get(provider, (1.0, 9999))[0]
+            last = self._prov_last_call.get(provider, 0.0)
+            now = _time.monotonic()
+            elapsed = now - last
+            if elapsed < min_interval:
+                await asyncio.sleep(min_interval - elapsed)
+            self._prov_last_call[provider] = _time.monotonic()
+            self._prov_daily_count[provider] = self._prov_daily_count.get(provider, 0) + 1
 
     async def _worker(self) -> None:
         while True:
@@ -367,6 +379,12 @@ class ExternalIPEnricher:
                 _LOGGER.debug("HSA: %s daily budget exhausted (%d), skipping %s",
                               name, self._prov_daily_count.get(name, 0), ip)
                 continue
+            # Skip provider if it returned 429/503 recently (backoff window)
+            backoff_remaining = self._prov_backoff_until.get(name, 0.0) - _time.monotonic()
+            if backoff_remaining > 0:
+                _LOGGER.debug("HSA: %s in backoff, skipping %s (%.0fs remaining)",
+                              name, ip, backoff_remaining)
+                continue
             await self._throttle(name)
             try:
                 data = await method(ip, _aiohttp)
@@ -374,10 +392,19 @@ class ExternalIPEnricher:
                     result.update(data)
                     result["sources"].append(name)  # type: ignore[union-attr]
                 self._prov_last_error.pop(name, None)  # clear error on success
+                self._prov_backoff_until.pop(name, None)  # clear backoff on success
             except _ProviderError as exc:
                 note = _HTTP_ERROR_NOTES.get(exc.status, f"HTTP {exc.status}")
                 self._prov_last_error[name] = note
-                if name == "shodan" and exc.status == 403:
+                if exc.status == 429:
+                    backoff = 120.0
+                    self._prov_backoff_until[name] = _time.monotonic() + backoff
+                    _LOGGER.warning(
+                        "HSA: %s returned HTTP 429 (rate limited) – backing off for %.0fs. "
+                        "If this recurs with a paid token, check your plan's per-second limit.",
+                        name, backoff,
+                    )
+                elif name == "shodan" and exc.status == 403:
                     if not self._shodan_key_invalid:
                         self._shodan_key_invalid = True
                         _LOGGER.warning(
