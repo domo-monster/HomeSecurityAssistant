@@ -70,6 +70,8 @@ PERSISTED_KEYS = (
     "scan_interval",
     "scan_exceptions",
     "external_ip_retention_hours",
+    "retention_suspicious_hours",
+    "retention_malicious_hours",
     "enable_dns_resolution",
     "blacklist_urls",
     "ipinfo_token",

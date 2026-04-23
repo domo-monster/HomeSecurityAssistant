@@ -20,6 +20,8 @@ from .const import (
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
     CONF_EXTERNAL_IP_RETENTION,
+    CONF_RETENTION_SUSPICIOUS_HOURS,
+    CONF_RETENTION_MALICIOUS_HOURS,
     CONF_HIGH_EGRESS_THRESHOLD,
     CONF_INTERNAL_NETWORKS,
     CONF_IPINFO_DAILY_BUDGET,
@@ -48,6 +50,8 @@ from .const import (
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENRICHMENT_TTL_MINUTES,
     DEFAULT_EXTERNAL_IP_RETENTION,
+    DEFAULT_RETENTION_SUSPICIOUS_HOURS,
+    DEFAULT_RETENTION_MALICIOUS_HOURS,
     DEFAULT_HIGH_EGRESS_THRESHOLD,
     DEFAULT_INTERNAL_NETWORKS,
     DEFAULT_IPINFO_DAILY_BUDGET,
@@ -158,8 +162,15 @@ class HomeSecCollector:
         self._ext_ip_last_seen: dict[str, datetime] = {}
         self._ext_ip_sources: dict[str, set[str]] = {}
         self._ext_ip_ports: dict[str, set[int]] = {}
+        self._ext_ip_ratings: dict[str, str] = {}  # ip -> "clean" | "suspicious" | "malicious"
         self._ext_ip_retention_hours: int = int(
             get_entry_value(entry, CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)
+        )
+        self._retention_suspicious_hours: int = int(
+            get_entry_value(entry, CONF_RETENTION_SUSPICIOUS_HOURS, DEFAULT_RETENTION_SUSPICIOUS_HOURS)
+        )
+        self._retention_malicious_hours: int = int(
+            get_entry_value(entry, CONF_RETENTION_MALICIOUS_HOURS, DEFAULT_RETENTION_MALICIOUS_HOURS)
         )
         self._post_scan_refresh: Callable[[], None] | None = None
 
@@ -353,16 +364,35 @@ class HomeSecCollector:
                 if dst_port:
                     self._ext_ip_ports.setdefault(ext_ip, set()).add(int(dst_port))
 
-        # Include previously-seen external IPs that are still within the retention window
-        retention_hours = self._ext_ip_retention_hours
-        if retention_hours > 0:
-            cutoff = now - timedelta(hours=retention_hours)
-            stale = [ip for ip, ts in self._ext_ip_last_seen.items() if ts < cutoff]
-            for ip in stale:
-                self._ext_ip_last_seen.pop(ip, None)
-                self._ext_ip_sources.pop(ip, None)
-                self._ext_ip_ports.pop(ip, None)
-                external_ips.pop(ip, None)
+        # Include previously-seen external IPs that are still within the retention window.
+        # Update severity tracking from freshly built entries so pruning uses current ratings.
+        for ip, entry in external_ips.items():
+            blacklisted = bool(entry.get("blacklisted", False))
+            rating = str(entry.get("rating") or "")
+            if blacklisted or rating == "malicious":
+                self._ext_ip_ratings[ip] = "malicious"
+            elif rating == "suspicious":
+                self._ext_ip_ratings[ip] = "suspicious"
+            else:
+                self._ext_ip_ratings[ip] = "clean"
+
+        stale = []
+        for ip, ts in self._ext_ip_last_seen.items():
+            severity = self._ext_ip_ratings.get(ip, "clean")
+            if severity == "malicious":
+                h = self._retention_malicious_hours
+            elif severity == "suspicious":
+                h = self._retention_suspicious_hours
+            else:
+                h = self._ext_ip_retention_hours
+            if h > 0 and ts < now - timedelta(hours=h):
+                stale.append(ip)
+        for ip in stale:
+            self._ext_ip_last_seen.pop(ip, None)
+            self._ext_ip_sources.pop(ip, None)
+            self._ext_ip_ports.pop(ip, None)
+            self._ext_ip_ratings.pop(ip, None)
+            external_ips.pop(ip, None)
         # Add retained IPs not in current snapshot
         for ip, ts in self._ext_ip_last_seen.items():
             if ip not in external_ips:

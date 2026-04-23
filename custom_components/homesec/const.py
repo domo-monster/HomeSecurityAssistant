@@ -20,6 +20,8 @@ CONF_SCAN_INTERVAL = "scan_interval"
 CONF_SCAN_PORTS = "scan_ports"
 CONF_SCAN_EXCEPTIONS = "scan_exceptions"
 CONF_EXTERNAL_IP_RETENTION = "external_ip_retention_hours"
+CONF_RETENTION_SUSPICIOUS_HOURS = "retention_suspicious_hours"
+CONF_RETENTION_MALICIOUS_HOURS = "retention_malicious_hours"
 CONF_ENRICHMENT_TTL_MINUTES = "enrichment_ttl_minutes"
 
 # External IP enrichment
@@ -63,6 +65,8 @@ DEFAULT_SCAN_PORTS = (
 )
 DEFAULT_SCAN_EXCEPTIONS = ""
 DEFAULT_EXTERNAL_IP_RETENTION = 5
+DEFAULT_RETENTION_SUSPICIOUS_HOURS = 48   # 2 days
+DEFAULT_RETENTION_MALICIOUS_HOURS = 168  # 7 days
 DEFAULT_ENRICHMENT_TTL_MINUTES = 300
 
 # External enrichment defaults (empty = disabled)
