@@ -107,7 +107,16 @@ class ExternalIPEnricher:
         self._prov_daily_count: dict[str, int] = {}   # provider → count today
         self._prov_day: str = ""                       # YYYY-MM-DD to reset
         self._prov_last_error: dict[str, str] = {}    # provider → last error note
-        self._prov_tier: dict[str, str] = {}          # provider → detected plan/tier string
+        # Pre-populate sensible tier defaults; detection at startup may refine these.
+        self._prov_tier: dict[str, str] = {}
+        if self._ipinfo_token:
+            self._prov_tier["ipinfo"] = "lite"
+        if self._vt_key:
+            self._prov_tier["virustotal"] = "community"
+        if self._shodan_key:
+            self._prov_tier["shodan"] = "free"
+        if self._abuse_key:
+            self._prov_tier["abuseipdb"] = "basic"
 
     # ------------------------------------------------------------------ #
     # Lifecycle
@@ -178,12 +187,13 @@ class ExternalIPEnricher:
             if self._is_stale(ip):
                 self.queue_ip(ip)
             return dict(self._cache[ip])
-        # First time we see this IP — do a fast synchronous enrich without Shodan
-        result = await self._enrich(ip, skip_shodan=True)
+        # First time we see this IP — do a fast IPInfo-only enrich so the caller
+        # gets location/ASN data without waiting for VT (15 s throttle) or AbuseIPDB.
+        # Mark stale immediately so the background worker runs the full enrichment.
+        result = await self._enrich(ip, fast_only=True)
         self._cache[ip] = result
-        # Mark as stale immediately so the background worker will run full
-        # enrichment (including Shodan if scope allows) on the next cycle.
         self._enriched_at[ip] = datetime.min.replace(tzinfo=UTC)
+        self.queue_ip(ip)
         return dict(result)
 
     def enrichment_stats(self) -> list[dict[str, object]]:
@@ -205,17 +215,17 @@ class ExternalIPEnricher:
             configured = provider_keys.get(prov) not in (None, "")
             # IPInfo: distinguish anonymous legacy (1 500/day) from keyed lite (unlimited)
             if prov == "ipinfo":
-                variant: str | None = "lite" if self._ipinfo_token else "legacy"
+                variant: str | None = self._prov_tier.get("ipinfo") or ("legacy" if not self._ipinfo_token else "lite")
                 display_budget: int | None = None if self._ipinfo_token else budget
             elif prov == "shodan":
                 # All Shodan plans have unlimited host lookups (rate-limited only)
-                variant = self._prov_tier.get("shodan") or ("free" if self._shodan_key else None)
-                display_budget = None if self._shodan_key else budget
+                variant = self._prov_tier.get("shodan") if configured else None
+                display_budget = None if configured else budget
             elif prov == "virustotal":
-                variant = self._prov_tier.get("virustotal") or ("community" if self._vt_key else None)
+                variant = self._prov_tier.get("virustotal") if configured else None
                 display_budget = budget
             elif prov == "abuseipdb":
-                variant = self._prov_tier.get("abuseipdb")
+                variant = self._prov_tier.get("abuseipdb") if configured else None
                 display_budget = budget
             else:
                 variant = None
@@ -310,7 +320,7 @@ class ExternalIPEnricher:
                     self._enriched_at[ip] = datetime.now(UTC)
             await asyncio.sleep(_WORKER_DELAY)
 
-    async def _enrich(self, ip: str, skip_shodan: bool = False) -> dict[str, object]:
+    async def _enrich(self, ip: str, skip_shodan: bool = False, fast_only: bool = False) -> dict[str, object]:
         import aiohttp as _aiohttp  # lazy import
 
         result: dict[str, object] = {
@@ -328,6 +338,9 @@ class ExternalIPEnricher:
         ]
         for name, gate, method in providers:
             if gate is None:
+                continue
+            # fast_only: IPInfo-only path for on-demand lookups (avoids VT 15 s throttle)
+            if fast_only and name != "ipinfo":
                 continue
             if name == "shodan":
                 # Always skip when called from on-demand lookup path
