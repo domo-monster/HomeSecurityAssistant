@@ -452,7 +452,11 @@ async def _http_get(
     use_tls = port in (443, 4443, 8443)
     try:
         if use_tls:
-            ctx = ssl.create_default_context()
+            # ssl.create_default_context() calls load_default_certs() which is
+            # blocking I/O (reads from the OS cert store).  Since we disable
+            # hostname verification and cert validation anyway, build the
+            # context manually — no cert-store access needed.
+            ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
             reader, writer = await asyncio.wait_for(
