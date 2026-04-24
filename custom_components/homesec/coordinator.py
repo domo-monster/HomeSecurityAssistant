@@ -6,6 +6,7 @@ from collections.abc import Callable, Coroutine
 from typing import Any
 from datetime import datetime, timedelta, timezone
 import logging
+import socket
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -223,9 +224,25 @@ class HomeSecCollector:
         bind_port = int(get_entry_value(self.entry, CONF_BIND_PORT, DEFAULT_BIND_PORT))
         self._protocol = NetFlowDatagramProtocol(self._handle_records)
 
+        # Pre-create the socket with SO_REUSEADDR so that integration reloads
+        # don't fail with EADDRINUSE while the previous socket is still draining.
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            sock.bind((bind_host, bind_port))
+        except OSError as exc:
+            sock.close()
+            _LOGGER.error(
+                "HomeSec could not bind NetFlow listener on %s:%d — %s. "
+                "Check whether another process already owns UDP port %d, "
+                "or change the bind port in integration options.",
+                bind_host, bind_port, exc, bind_port,
+            )
+            raise
+        sock.setblocking(False)
         transport, _ = await loop.create_datagram_endpoint(
             lambda: self._protocol,
-            local_addr=(bind_host, bind_port),
+            sock=sock,
         )
         self._transport = transport
         _LOGGER.info("Home Security Assistant listening for NetFlow v5/v9/IPFIX on %s:%s", bind_host, bind_port)

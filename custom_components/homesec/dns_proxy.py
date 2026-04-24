@@ -370,9 +370,23 @@ class DNSProxyServer:
                 self._check_sources,
                 self._blocked_categories,
             )
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                sock.bind((self._host, self._port))
+            except OSError as bind_exc:
+                sock.close()
+                _LOGGER.error(
+                    "HomeSec DNS proxy could not bind %s:%d — %s. "
+                    "Check whether another service (e.g. systemd-resolved or AdGuard) "
+                    "already owns port %d, or change dns_proxy_port in integration options.",
+                    self._host, self._port, bind_exc, self._port,
+                )
+                return
+            sock.setblocking(False)
             transport, _ = await loop.create_datagram_endpoint(
                 lambda: proto,
-                local_addr=(self._host, self._port),
+                sock=sock,
             )
             self._transport = transport
             self._protocol = proto
@@ -407,6 +421,6 @@ class DNSProxyServer:
             "running": self._running,
             "host": self._host,
             "port": self._port,
-            "upstream": f"{self._upstream_host}:{self._upstream_port}",
+            "upstream": ", ".join(f"{h}:{p}" for h, p in self._upstreams),
             "total_queries": total,
         }
