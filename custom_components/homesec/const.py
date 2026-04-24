@@ -61,7 +61,7 @@ DEFAULT_SCAN_WINDOW_SECONDS = 600
 DEFAULT_HIGH_EGRESS_THRESHOLD = 50_000_000
 DEFAULT_ENABLE_WEBUI = True
 DEFAULT_ENABLE_SCANNER = True
-DEFAULT_SCAN_INTERVAL = 300
+DEFAULT_SCAN_INTERVAL = 3000
 DEFAULT_SCAN_PORTS = (
     "21-23,25,53,80,110,111,135,139,143,443,445,465,515,554,587,631,"
     "993,995,1080,1433,1521,1723,1883,2049,2323,3306,3389,4443,5000,"
@@ -96,7 +96,8 @@ DEFAULT_STATS_TOP_N = 10
 DEFAULT_ENABLE_DNS_RESOLUTION = True
 DEFAULT_BLACKLIST_URLS = (
     "https://feodotracker.abuse.ch/downloads/ipblocklist.txt,"
-    "https://sslbl.abuse.ch/blacklist/sslipblacklist.txt"
+    "https://sslbl.abuse.ch/blacklist/sslipblacklist.txt,"
+    "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt"
 )
 
 # DNS proxy defaults

@@ -5,9 +5,12 @@ Used to classify queried domain names into broad content categories
 Category "malware" is assigned externally by dns_proxy.py when a domain
 matches the threat-intelligence blacklist; it is not produced by this module.
 
-The lookup is purely local and static — no network calls are made.
-Matching is suffix-based (longest match wins): e.g. "www.pornhub.com" is
-matched first against "www.pornhub.com", then "pornhub.com", then "com".
+The lookup is two-stage:
+1. Suffix-based map (longest match wins): e.g. "www.pornhub.com" tries
+   "www.pornhub.com", then "pornhub.com", then "com".
+2. Keyword-pattern fallback: if no suffix matched, scan for telltale
+   substrings ("analytics", "adserver", …) as a safety net for the long
+   tail of tracker/ad domains that aren't explicitly listed.
 
 Exported symbols
 ----------------
@@ -33,10 +36,977 @@ CATEGORY_LABELS: dict[str, str] = {
     "gaming":    "Gaming",
     "streaming": "Streaming",
     "news":      "News",
+    "cdn":       "CDN",
+    "cloud":     "Cloud",
+    "iot":       "IoT",
+    "tech":      "Tech",
     "other":     "Other",
 }
 
 KNOWN_CATEGORIES: frozenset[str] = frozenset(CATEGORY_LABELS)
+
+# ---------------------------------------------------------------------------
+# Suffix → category map
+# Keys are bare domain suffixes (no leading dot).  Matching is tried from
+# the most-specific suffix to the least-specific (TLD).
+# ---------------------------------------------------------------------------
+_SUFFIX_MAP: dict[str, str] = {
+
+    # ── Adult ────────────────────────────────────────────────────────────────
+    "pornhub.com":          "adult",
+    "xvideos.com":          "adult",
+    "xhamster.com":         "adult",
+    "xnxx.com":             "adult",
+    "xnxx-cdn.com":         "adult",
+    "brazzers.com":         "adult",
+    "redtube.com":          "adult",
+    "youporn.com":          "adult",
+    "tube8.com":            "adult",
+    "livejasmin.com":       "adult",
+    "chaturbate.com":       "adult",
+    "onlyfans.com":         "adult",
+    "fapello.com":          "adult",
+    "erome.com":            "adult",
+    "spankbang.com":        "adult",
+    "tnaflix.com":          "adult",
+    "drtuber.com":          "adult",
+    "porn.com":             "adult",
+    "porntrex.com":         "adult",
+    "hentaihaven.xxx":      "adult",
+    "slutload.com":         "adult",
+    "beeg.com":             "adult",
+    "bang.com":             "adult",
+    "reality-kings.com":    "adult",
+    "bangbros.com":         "adult",
+    # Adult TLDs (catch-all for any domain under these TLDs)
+    "xxx":                  "adult",
+    "adult":                "adult",
+    "sex":                  "adult",
+    "porn":                 "adult",
+
+    # ── Gambling ─────────────────────────────────────────────────────────────
+    "bet365.com":           "gambling",
+    "pokerstars.com":       "gambling",
+    "888casino.com":        "gambling",
+    "888sport.com":         "gambling",
+    "888holdings.com":      "gambling",
+    "betway.com":           "gambling",
+    "ladbrokes.com":        "gambling",
+    "williamhill.com":      "gambling",
+    "bwin.com":             "gambling",
+    "unibet.com":           "gambling",
+    "draftkings.com":       "gambling",
+    "fanduel.com":          "gambling",
+    "betonline.ag":         "gambling",
+    "bovada.lv":            "gambling",
+    "betfair.com":          "gambling",
+    "pointsbet.com":        "gambling",
+    "caesars.com":          "gambling",
+    "borgataonline.com":    "gambling",
+    "partycasino.com":      "gambling",
+    "paddy-power.com":      "gambling",
+    "betvictor.com":        "gambling",
+    "coral.co.uk":          "gambling",
+    "skybet.com":           "gambling",
+    "mrgreen.com":          "gambling",
+    "casumo.com":           "gambling",
+    "leovegas.com":         "gambling",
+    "pokerfull.com":        "gambling",
+    "partypoker.com":       "gambling",
+
+    # ── Ads ───────────────────────────────────────────────────────────────────
+    "doubleclick.net":          "ads",
+    "googlesyndication.com":    "ads",
+    "googleadservices.com":     "ads",
+    "adnxs.com":                "ads",
+    "advertising.com":          "ads",
+    "taboola.com":              "ads",
+    "outbrain.com":             "ads",
+    "criteo.com":               "ads",
+    "criteo.net":               "ads",
+    "amazon-adsystem.com":      "ads",
+    "moatads.com":              "ads",
+    "adroll.com":               "ads",
+    "rubiconproject.com":       "ads",
+    "pubmatic.com":             "ads",
+    "openx.net":                "ads",
+    "smaato.net":               "ads",
+    "medianet.com":             "ads",
+    "adcolony.com":             "ads",
+    "appnexus.com":             "ads",
+    "mopub.com":                "ads",
+    "inmobi.com":               "ads",
+    "tradedoubler.com":         "ads",
+    "contextweb.com":           "ads",
+    "casalemedia.com":          "ads",
+    "yieldmanager.com":         "ads",
+    "serving-sys.com":          "ads",
+    "smartadserver.com":        "ads",
+    "33across.com":             "ads",
+    "bidswitch.net":            "ads",
+    "adsrvr.org":               "ads",
+    "lijit.com":                "ads",
+    "sonobi.com":               "ads",
+    "sharethrough.com":         "ads",
+    "teads.tv":                 "ads",
+    "ads.yahoo.com":            "ads",
+    "media.net":                "ads",
+    "mgid.com":                 "ads",
+    "revcontent.com":           "ads",
+    "triplelift.com":           "ads",
+    "spotxchange.com":          "ads",
+    "spotx.tv":                 "ads",
+    "yieldmo.com":              "ads",
+    "rhythmone.com":            "ads",
+    "gumgum.com":               "ads",
+    "undertone.com":            "ads",
+    "indexexchange.com":        "ads",
+    "adtarget.me":              "ads",
+    "districtm.io":             "ads",
+    "emxdgt.com":               "ads",
+    "synacor.com":              "ads",
+    "kontera.com":              "ads",
+    "valueclick.com":           "ads",
+    "zanox.com":                "ads",
+    "awin.com":                 "ads",
+    "impact.com":               "ads",
+    "impactradius.com":         "ads",
+    "shareasale.com":           "ads",
+    "rakutenadvertising.com":   "ads",
+    "linksynergy.com":          "ads",
+    "cj.com":                   "ads",
+    "a8.net":                   "ads",
+    "adform.net":               "ads",
+    "adform.com":               "ads",
+    "bidtheatre.com":           "ads",
+    "smartclip.net":            "ads",
+    "yume.com":                 "ads",
+    "unrulymedia.com":          "ads",
+    "flashtalking.com":         "ads",
+    "sizmek.com":               "ads",
+    "conversantmedia.com":      "ads",
+    "dotomi.com":               "ads",
+    "epom.com":                 "ads",
+    "zedo.com":                 "ads",
+    "adtech.de":                "ads",
+    "yieldlab.net":             "ads",
+    "adscale.de":               "ads",
+    "iponweb.net":              "ads",
+
+    # ── Tracking ──────────────────────────────────────────────────────────────
+    "google-analytics.com":     "tracking",
+    "googletagmanager.com":     "tracking",
+    "googletagservices.com":    "tracking",
+    "hotjar.com":               "tracking",
+    "mixpanel.com":             "tracking",
+    "segment.com":              "tracking",
+    "segment.io":               "tracking",
+    "amplitude.com":            "tracking",
+    "heap.io":                  "tracking",
+    "fullstory.com":            "tracking",
+    "logrocket.com":            "tracking",
+    "newrelic.com":             "tracking",
+    "nr-data.net":              "tracking",
+    "mouseflow.com":            "tracking",
+    "statcounter.com":          "tracking",
+    "clicky.com":               "tracking",
+    "scorecardresearch.com":    "tracking",
+    "quantserve.com":           "tracking",
+    "chartbeat.com":            "tracking",
+    "parsely.com":              "tracking",
+    "kissmetrics.com":          "tracking",
+    "intercom.io":              "tracking",
+    "intercom.com":             "tracking",
+    "crazyegg.com":             "tracking",
+    "pingdom.net":              "tracking",
+    "pingdom.com":              "tracking",
+    "branch.io":                "tracking",
+    "appsflyer.com":            "tracking",
+    "adjust.com":               "tracking",
+    "kochava.com":              "tracking",
+    "mparticle.com":            "tracking",
+    "omtrdc.net":               "tracking",
+    "demdex.net":               "tracking",
+    "2o7.net":                  "tracking",
+    "omniture.com":             "tracking",
+    "adobedtm.com":             "tracking",
+    "launchdarkly.com":         "tracking",
+    "optimizely.com":           "tracking",
+    "vwo.com":                  "tracking",
+    "clarity.ms":               "tracking",
+    "bing.com":                 "tracking",  # mostly used for analytics/ads
+    "bingads.com":              "tracking",
+    "bat.bing.com":             "tracking",
+    "facebook.net":             "tracking",  # Facebook pixel / SDK
+    "connect.facebook.net":     "tracking",
+    "analytics.google.com":     "tracking",
+    "piwik.pro":                "tracking",
+    "matomo.cloud":             "tracking",
+    "heap.com":                 "tracking",
+    "sentry.io":                "tracking",
+    "bugsnag.com":              "tracking",
+    "rollbar.com":              "tracking",
+    "datadoghq.com":            "tracking",
+    "datadoghq.eu":             "tracking",
+    "dynatrace.com":            "tracking",
+    "elastic.co":               "tracking",
+    "splunk.com":               "tracking",
+    "sumologic.com":            "tracking",
+    "loggly.com":               "tracking",
+    "keen.io":                  "tracking",
+    "clearbits.net":            "tracking",
+    "Nielsen.com":              "tracking",
+    "comscore.com":             "tracking",
+    "nielsen.com":              "tracking",
+    "addthis.com":              "tracking",
+    "sharethis.com":            "tracking",
+    "disqus.com":               "tracking",
+    "disquscdn.com":            "tracking",
+    "braze.com":                "tracking",
+    "appboy.com":               "tracking",
+    "onesignal.com":            "tracking",
+    "push.io":                  "tracking",
+    "clevertap.com":            "tracking",
+    "leanplum.com":             "tracking",
+    "uxcam.com":                "tracking",
+    "glassbox.com":             "tracking",
+    "contentsquare.com":        "tracking",
+    "conviva.com":              "tracking",
+    "coralogix.com":            "tracking",
+    "raygun.com":               "tracking",
+    "pagerduty.com":            "tracking",
+    "instana.io":               "tracking",
+    "instana.com":              "tracking",
+
+    # ── Social ────────────────────────────────────────────────────────────────
+    "facebook.com":             "social",
+    "fbcdn.net":                "social",
+    "fbsbx.com":                "social",
+    "fb.com":                   "social",
+    "instagram.com":            "social",
+    "cdninstagram.com":         "social",
+    "twitter.com":              "social",
+    "t.co":                     "social",
+    "twimg.com":                "social",
+    "x.com":                    "social",
+    "tiktok.com":               "social",
+    "tiktokv.com":              "social",
+    "tiktokcdn.com":            "social",
+    "musically.com":            "social",
+    "snapchat.com":             "social",
+    "sc-cdn.net":               "social",
+    "pinterest.com":            "social",
+    "pinimg.com":               "social",
+    "linkedin.com":             "social",
+    "licdn.com":                "social",
+    "reddit.com":               "social",
+    "redd.it":                  "social",
+    "redditmedia.com":          "social",
+    "reddituploads.com":        "social",
+    "tumblr.com":               "social",
+    "discord.com":              "social",
+    "discordapp.com":           "social",
+    "discordapp.net":           "social",
+    "whatsapp.com":             "social",
+    "whatsapp.net":             "social",
+    "telegram.org":             "social",
+    "t.me":                     "social",
+    "mastodon.social":          "social",
+    "bsky.app":                 "social",
+    "bsky.social":              "social",
+    "vk.com":                   "social",
+    "vk.me":                    "social",
+    "ok.ru":                    "social",
+    "weibo.com":                "social",
+    "wechat.com":               "social",
+    "wx.qq.com":                "social",
+    "line.me":                  "social",
+    "kakao.com":                "social",
+    "viber.com":                "social",
+    "signal.org":               "social",
+    "guilded.gg":               "social",
+    "threads.net":              "social",
+    "nostr.com":                "social",
+    "lemmy.world":              "social",
+    "kik.com":                  "social",
+    "quora.com":                "social",
+    "medium.com":               "social",
+    "substack.com":             "social",
+    "nextdoor.com":             "social",
+    "clubhouse.com":            "social",
+    "mewe.com":                 "social",
+
+    # ── Gaming ────────────────────────────────────────────────────────────────
+    "steampowered.com":         "gaming",
+    "steamcommunity.com":       "gaming",
+    "steamstatic.com":          "gaming",
+    "steamusercontent.com":     "gaming",
+    "epicgames.com":            "gaming",
+    "unrealengine.com":         "gaming",
+    "roblox.com":               "gaming",
+    "rbxcdn.com":               "gaming",
+    "ea.com":                   "gaming",
+    "origin.com":               "gaming",
+    "battle.net":               "gaming",
+    "blizzard.com":             "gaming",
+    "minecraft.net":            "gaming",
+    "mojang.com":               "gaming",
+    "playfab.com":              "gaming",
+    "xboxlive.com":             "gaming",
+    "xbox.com":                 "gaming",
+    "playstation.com":          "gaming",
+    "psn.com":                  "gaming",
+    "nintendo.com":             "gaming",
+    "gog.com":                  "gaming",
+    "ubisoft.com":              "gaming",
+    "ubi.com":                  "gaming",
+    "activision.com":           "gaming",
+    "riotgames.com":            "gaming",
+    "valorant.com":             "gaming",
+    "leagueoflegends.com":      "gaming",
+    "2k.com":                   "gaming",
+    "rockstargames.com":        "gaming",
+    "bethesda.net":             "gaming",
+    "bethesda.com":             "gaming",
+    "cdprojektred.com":         "gaming",
+    "cdprojekt.com":            "gaming",
+    "kongregate.com":           "gaming",
+    "poki.com":                 "gaming",
+    "itch.io":                  "gaming",
+    "gameloft.com":             "gaming",
+    "supercell.com":            "gaming",
+    "twitch.tv":                "gaming",
+    "jtvnw.net":                "gaming",
+    "twitchsvc.net":            "gaming",
+    "wargaming.net":            "gaming",
+    "nexusmods.com":            "gaming",
+    "curseforge.com":           "gaming",
+    "overwolf.com":             "gaming",
+    "ageofempires.com":         "gaming",
+    "finalfantasyxiv.com":      "gaming",
+    "squex.mobi":               "gaming",
+    "square-enix.com":          "gaming",
+    "pathofexile.com":          "gaming",
+    "grindinggear.com":         "gaming",
+    "humblebundle.com":         "gaming",
+    "fanatical.com":            "gaming",
+    "greenmanleaming.com":      "gaming",
+    "indiegala.com":            "gaming",
+    "gamebanana.com":           "gaming",
+    "speedrun.com":             "gaming",
+    "chess.com":                "gaming",
+    "lichess.org":              "gaming",
+
+    # ── Streaming ─────────────────────────────────────────────────────────────
+    "netflix.com":              "streaming",
+    "nflximg.net":              "streaming",
+    "nflxvideo.net":            "streaming",
+    "nflxext.com":              "streaming",
+    "nflxso.net":               "streaming",
+    "youtube.com":              "streaming",
+    "youtu.be":                 "streaming",
+    "googlevideo.com":          "streaming",
+    "ytimg.com":                "streaming",
+    "yt3.ggpht.com":            "streaming",
+    "hulu.com":                 "streaming",
+    "hulustream.com":           "streaming",
+    "disneyplus.com":           "streaming",
+    "bamgrid.com":              "streaming",
+    "primevideo.com":           "streaming",
+    "aiv-cdn.net":              "streaming",
+    "amazonvideo.com":          "streaming",
+    "spotify.com":              "streaming",
+    "scdn.co":                  "streaming",
+    "spotifycdn.com":           "streaming",
+    "soundcloud.com":           "streaming",
+    "sndcdn.com":               "streaming",
+    "vimeo.com":                "streaming",
+    "vimeocdn.com":             "streaming",
+    "deezer.com":               "streaming",
+    "tidal.com":                "streaming",
+    "plex.tv":                  "streaming",
+    "plexapp.com":              "streaming",
+    "dailymotion.com":          "streaming",
+    "crunchyroll.com":          "streaming",
+    "funimation.com":           "streaming",
+    "paramountplus.com":        "streaming",
+    "discoveryplus.com":        "streaming",
+    "hbomax.com":               "streaming",
+    "max.com":                  "streaming",
+    "peacocktv.com":            "streaming",
+    "appletv.apple.com":        "streaming",
+    "mzstatic.com":             "streaming",
+    "apple-relay.com":          "streaming",
+    "tv.apple.com":             "streaming",
+    "music.apple.com":          "streaming",
+    "podcasts.apple.com":       "streaming",
+    "music.amazon.com":         "streaming",
+    "tuneinyour.com":           "streaming",
+    "tunein.com":               "streaming",
+    "iheart.com":               "streaming",
+    "iheartradio.com":          "streaming",
+    "pandora.com":              "streaming",
+    "pandora.net":              "streaming",
+    "stitcher.com":             "streaming",
+    "podbean.com":              "streaming",
+    "libsyn.com":               "streaming",
+    "buzzsprout.com":           "streaming",
+    "anchor.fm":                "streaming",
+    "mlb.com":                  "streaming",
+    "nfl.com":                  "streaming",
+    "nba.com":                  "streaming",
+    "dazn.com":                 "streaming",
+    "espn.com":                 "streaming",
+    "fubo.tv":                  "streaming",
+    "kodi.tv":                  "streaming",
+    "pbs.org":                  "streaming",
+    "curiositystream.com":      "streaming",
+    "mubi.com":                 "streaming",
+    "criterion.com":            "streaming",
+    "shudder.com":              "streaming",
+    "arrow-player.com":         "streaming",
+    "britbox.com":              "streaming",
+    "acorn.tv":                 "streaming",
+    "iplayer.bbc.co.uk":        "streaming",
+    "bbcplayer.co.uk":          "streaming",
+    "itvhub.com":               "streaming",
+    "channel4.com":             "streaming",
+    "all4.com":                 "streaming",
+    "rtve.es":                  "streaming",
+    "ard.de":                   "streaming",
+    "zdf.de":                   "streaming",
+    "france.tv":                "streaming",
+    "rai.it":                   "streaming",
+
+    # ── News ──────────────────────────────────────────────────────────────────
+    "cnn.com":                  "news",
+    "bbc.com":                  "news",
+    "bbc.co.uk":                "news",
+    "bbci.co.uk":               "news",
+    "nytimes.com":              "news",
+    "theguardian.com":          "news",
+    "reuters.com":              "news",
+    "apnews.com":               "news",
+    "washingtonpost.com":       "news",
+    "foxnews.com":              "news",
+    "nbcnews.com":              "news",
+    "cbsnews.com":              "news",
+    "bloomberg.com":            "news",
+    "forbes.com":               "news",
+    "techcrunch.com":           "news",
+    "theverge.com":             "news",
+    "arstechnica.com":          "news",
+    "engadget.com":             "news",
+    "wired.com":                "news",
+    "gizmodo.com":              "news",
+    "mashable.com":             "news",
+    "zdnet.com":                "news",
+    "theregister.com":          "news",
+    "abcnews.go.com":           "news",
+    "msn.com":                  "news",
+    "usatoday.com":             "news",
+    "time.com":                 "news",
+    "economist.com":            "news",
+    "ft.com":                   "news",
+    "lemonde.fr":               "news",
+    "lefigaro.fr":              "news",
+    "spiegel.de":               "news",
+    "faz.net":                  "news",
+    "corriere.it":              "news",
+    "elpais.com":               "news",
+    "marca.com":                "news",
+    "huffpost.com":             "news",
+    "vox.com":                  "news",
+    "politico.com":             "news",
+    "axios.com":                "news",
+    "thehill.com":              "news",
+    "slate.com":                "news",
+    "salon.com":                "news",
+    "dailymail.co.uk":          "news",
+    "thesun.co.uk":             "news",
+    "mirror.co.uk":             "news",
+    "independent.co.uk":        "news",
+    "sky.com":                  "news",
+    "itv.com":                  "news",
+    "aljazeera.com":            "news",
+    "dw.com":                   "news",
+    "euronews.com":             "news",
+    "franceinfo.fr":            "news",
+    "liberation.fr":            "news",
+    "20minutes.fr":             "news",
+    "bild.de":                  "news",
+    "welt.de":                  "news",
+    "sueddeutsche.de":          "news",
+    "handelsblatt.com":         "news",
+    "repubblica.it":            "news",
+    "elmundo.es":               "news",
+    "rtve.es":                  "news",
+    "publico.pt":               "news",
+    "abc.net.au":               "news",
+    "smh.com.au":               "news",
+    "cbc.ca":                   "news",
+    "globo.com":                "news",
+    "folha.com.br":             "news",
+    "tass.ru":                  "news",
+    "rt.com":                   "news",
+    "nhk.jp":                   "news",
+    "yomiuri.co.jp":            "news",
+    "xinhuanet.com":            "news",
+    "scmp.com":                 "news",
+    "haaretz.com":              "news",
+    "jpost.com":                "news",
+    "naver.com":                "news",
+
+    # ── CDN / Infrastructure ─────────────────────────────────────────────────
+    # Cloudflare
+    "cloudflare.com":           "cdn",
+    "cloudflare.net":           "cdn",
+    "cf-ipfs.com":              "cdn",
+    "workers.dev":              "cdn",
+    "pages.dev":                "cdn",
+    # AWS CloudFront
+    "cloudfront.net":           "cdn",
+    # Fastly
+    "fastly.net":               "cdn",
+    "fastlylb.net":             "cdn",
+    "fastly.com":               "cdn",
+    # Akamai
+    "akamai.net":               "cdn",
+    "akamaiedge.net":           "cdn",
+    "akamaized.net":            "cdn",
+    "akamaihd.net":             "cdn",
+    "akamaitech.net":           "cdn",
+    "edgekey.net":              "cdn",
+    "edgesuite.net":            "cdn",
+    "akadns.net":               "cdn",
+    "akamai-staging.net":       "cdn",
+    # Google CDN / static
+    "gstatic.com":              "cdn",
+    "googleusercontent.com":    "cdn",
+    "ggpht.com":                "cdn",
+    "googleapis.com":           "cdn",
+    "fonts.gstatic.com":        "cdn",
+    # Microsoft / Azure CDN
+    "azureedge.net":            "cdn",
+    "azurefd.net":              "cdn",
+    "msecnd.net":               "cdn",
+    "trafficmanager.net":       "cdn",
+    "windows.net":              "cdn",
+    # jsDelivr / npm CDN
+    "jsdelivr.net":             "cdn",
+    "unpkg.com":                "cdn",
+    "cdnjs.cloudflare.com":     "cdn",
+    "cdn.jsdelivr.net":         "cdn",
+    # Bootstrap CDN
+    "bootstrapcdn.com":         "cdn",
+    # Amazon CloudFront / S3
+    "s3.amazonaws.com":         "cdn",
+    # WordPress CDN / Gravatar
+    "wp.com":                   "cdn",
+    "gravatar.com":             "cdn",
+    "wordpress.com":            "cdn",
+    # BunnyCDN
+    "bunnycdn.com":             "cdn",
+    "b-cdn.net":                "cdn",
+    # StackPath
+    "stackpathcdn.com":         "cdn",
+    "hwcdn.net":                "cdn",
+    # Limelight
+    "limelight.com":            "cdn",
+    "llnwd.net":                "cdn",
+    # Verizon / EdgeCast
+    "edgecastcdn.net":          "cdn",
+    "edgecast.com":             "cdn",
+    # Level3 / CenturyLink
+    "footprint.net":            "cdn",
+    "fpbns.net":                "cdn",
+    # Imperva Incapsula
+    "incapdns.net":             "cdn",
+    # Sucuri
+    "sucuri.net":               "cdn",
+    # Pantheon
+    "pantheon.io":              "cdn",
+    # RackSpace
+    "rackcdn.com":              "cdn",
+    # Cloudinary
+    "cloudinary.com":           "cdn",
+    "res.cloudinary.com":       "cdn",
+    # imgix
+    "imgix.net":                "cdn",
+    # jspm / skypack
+    "jspm.dev":                 "cdn",
+    "cdn.skypack.dev":          "cdn",
+    # Vercel / Netlify edge
+    "vercel-infrastructure.com": "cdn",
+    "netlify.com":              "cdn",
+    # Zendesk CDN
+    "zdassets.com":             "cdn",
+    # Shopify CDN
+    "cdn.shopify.com":          "cdn",
+    "shopifycdn.com":           "cdn",
+
+    # ── Cloud / SaaS / Platform services ────────────────────────────────────
+    # Google
+    "google.com":               "cloud",
+    "google.de":                "cloud",
+    "google.fr":                "cloud",
+    "google.co.uk":             "cloud",
+    "google.es":                "cloud",
+    "google.it":                "cloud",
+    "google.ca":                "cloud",
+    "google.com.au":            "cloud",
+    "google.co.jp":             "cloud",
+    "google.com.br":            "cloud",
+    "accounts.google.com":      "cloud",
+    "oauth2.googleapis.com":    "cloud",
+    "mail.google.com":          "cloud",
+    "drive.google.com":         "cloud",
+    "docs.google.com":          "cloud",
+    # Apple
+    "apple.com":                "cloud",
+    "icloud.com":               "cloud",
+    "me.com":                   "cloud",
+    "icloud-content.com":       "cloud",
+    "push.apple.com":           "cloud",
+    "apns.apple.com":           "cloud",
+    "itunes.apple.com":         "cloud",
+    "apps.apple.com":           "cloud",
+    "sw-content.itunes.apple.com": "cloud",
+    # Microsoft 365 / Azure
+    "microsoft.com":            "cloud",
+    "microsoftonline.com":      "cloud",
+    "live.com":                 "cloud",
+    "outlook.com":              "cloud",
+    "hotmail.com":              "cloud",
+    "office.com":               "cloud",
+    "office365.com":            "cloud",
+    "sharepoint.com":           "cloud",
+    "onedrive.com":             "cloud",
+    "skype.com":                "cloud",
+    "teams.microsoft.com":      "cloud",
+    "azure.com":                "cloud",
+    "azure.net":                "cloud",
+    "management.azure.com":     "cloud",
+    "login.microsoftonline.com": "cloud",
+    # Amazon Web Services
+    "amazonaws.com":            "cloud",
+    "aws.amazon.com":           "cloud",
+    "awsstatic.com":            "cloud",
+    # Dropbox
+    "dropbox.com":              "cloud",
+    "dropboxstatic.com":        "cloud",
+    "dropboxusercontent.com":   "cloud",
+    # Box
+    "box.com":                  "cloud",
+    "boxcdn.net":               "cloud",
+    # Zoom
+    "zoom.us":                  "cloud",
+    "zoomgov.com":              "cloud",
+    "zoom.com":                 "cloud",
+    # Slack
+    "slack.com":                "cloud",
+    "slack-msgs.com":           "cloud",
+    "slack-edge.com":           "cloud",
+    # Notion
+    "notion.so":                "cloud",
+    "notion.com":               "cloud",
+    # Trello / Atlassian
+    "trello.com":               "cloud",
+    "atlassian.com":            "cloud",
+    "atlassian.net":            "cloud",
+    "jira.com":                 "cloud",
+    "confluence.com":           "cloud",
+    # Salesforce
+    "salesforce.com":           "cloud",
+    "force.com":                "cloud",
+    "salesforceliveagent.com":  "cloud",
+    # HubSpot
+    "hubspot.com":              "cloud",
+    "hubapi.com":               "cloud",
+    # Zendesk
+    "zendesk.com":              "cloud",
+    # Freshdesk
+    "freshdesk.com":            "cloud",
+    "freshworks.com":           "cloud",
+    # ServiceNow
+    "servicenow.com":           "cloud",
+    # DocuSign
+    "docusign.com":             "cloud",
+    "docusign.net":             "cloud",
+    # Twilio
+    "twilio.com":               "cloud",
+    "twilio.net":               "cloud",
+    # SendGrid / Mailgun / Mailchimp
+    "sendgrid.net":             "cloud",
+    "sendgrid.com":             "cloud",
+    "mailgun.com":              "cloud",
+    "mailchimp.com":            "cloud",
+    "mandrillapp.com":          "cloud",
+    # Stripe / PayPal
+    "stripe.com":               "cloud",
+    "paypal.com":               "cloud",
+    "paypalobjects.com":        "cloud",
+    "braintreegateway.com":     "cloud",
+    # Auth0 / Okta
+    "auth0.com":                "cloud",
+    "okta.com":                 "cloud",
+    "oktacdn.com":              "cloud",
+    # Firebase / Firestore
+    "firebase.google.com":      "cloud",
+    "firebaseapp.com":          "cloud",
+    "firebaseio.com":           "cloud",
+    "firebasestorage.googleapis.com": "cloud",
+    # Vercel / Netlify hosting
+    "vercel.app":               "cloud",
+    "now.sh":                   "cloud",
+    "netlify.app":              "cloud",
+    # Heroku
+    "heroku.com":               "cloud",
+    "herokuapp.com":            "cloud",
+    "herokudns.com":            "cloud",
+    # DigitalOcean
+    "digitalocean.com":         "cloud",
+    "digitaloceanspaces.com":   "cloud",
+    # Linode / Akamai Cloud
+    "linode.com":               "cloud",
+    # Cloudflare R2 / Pages
+    "r2.dev":                   "cloud",
+    # iCloud relay / Private Relay
+    "mask.icloud.com":          "cloud",
+    "mask-h2.icloud.com":       "cloud",
+
+    # ── IoT / Smart Home ─────────────────────────────────────────────────────
+    # Google / Nest
+    "nest.com":                 "iot",
+    "nestlabs.com":             "iot",
+    "home.google.com":          "iot",
+    "cast.google.com":          "iot",
+    # Amazon Echo / Alexa
+    "amazon.com":               "iot",  # broad catch for Echo devices
+    "amazonecho.com":           "iot",
+    "device-messaging.amazon.com": "iot",
+    "avs-alexa-na.amazon.com":  "iot",
+    # Ring
+    "ring.com":                 "iot",
+    # Philips Hue
+    "meethue.com":              "iot",
+    "signify.com":              "iot",
+    # Sonos
+    "sonos.com":                "iot",
+    "sonos.net":                "iot",
+    # Ecobee
+    "ecobee.com":               "iot",
+    # Samsung SmartThings
+    "smartthings.com":          "iot",
+    "samsungsmarthome.com":     "iot",
+    # Tuya (large OEM behind many white-label IoT devices)
+    "tuya.com":                 "iot",
+    "tuyaus.com":               "iot",
+    "tuyaeu.com":               "iot",
+    "tuyacn.com":               "iot",
+    "gw.tuyaeu.com":            "iot",
+    "gw.tuyaus.com":            "iot",
+    "gw.tuyacn.com":            "iot",
+    "iot.tuya.com":             "iot",
+    # eWeLink / Sonoff
+    "ewelink.cc":               "iot",
+    "coolkit.cn":               "iot",
+    # TP-Link / Kasa / Tapo
+    "tplinkcloud.com":          "iot",
+    "tp-link.com":              "iot",
+    # IFTTT
+    "ifttt.com":                "iot",
+    # Home Assistant
+    "home-assistant.io":        "iot",
+    "nabucasa.com":             "iot",
+    # Wyze
+    "wyze.com":                 "iot",
+    "wyzecam.com":              "iot",
+    # Arlo
+    "arlo.com":                 "iot",
+    "netgear.com":              "iot",
+    # Shelly
+    "shelly.cloud":             "iot",
+    "shellycloud.com":          "iot",
+    # Homey
+    "homey.app":                "iot",
+    "athom.com":                "iot",
+    # Particle (dev boards)
+    "particle.io":              "iot",
+    # Lutron
+    "lutron.com":               "iot",
+    # Insteon
+    "insteon.com":              "iot",
+    # Wink
+    "winkapp.com":              "iot",
+    # Hubitat
+    "hubitat.com":              "iot",
+    # Eve / Elgato
+    "evehome.com":              "iot",
+    # Eufy / Anker
+    "eufylife.com":             "iot",
+    "anker.com":                "iot",
+    # Govee
+    "govee.com":                "iot",
+    # Meross
+    "meross.com":               "iot",
+    # Roku
+    "roku.com":                 "iot",
+    # Chromecast (Google)
+    "gvt2.com":                 "iot",
+    # Apple HomeKit relay
+    "homekit.apple.com":        "iot",
+    # Z-Wave / Zigbee hubs
+    "z-wave.me":                "iot",
+    "zigbee2mqtt.io":           "iot",
+    # Roomba / iRobot
+    "irobot.com":               "iot",
+    "irobothome.com":           "iot",
+    # Xiaomi / Mi Home
+    "mi.com":                   "iot",
+    "xiaomi.com":               "iot",
+    "miui.com":                 "iot",
+    "miot.cloud":               "iot",
+    # SwitchBot
+    "switch-bot.com":           "iot",
+
+    # ── Tech / Software / Dev platforms ─────────────────────────────────────
+    # OS updates
+    "windows.com":              "tech",
+    "windowsupdate.com":        "tech",
+    "update.microsoft.com":     "tech",
+    "download.windowsupdate.com": "tech",
+    "wns.windows.com":          "tech",
+    "wdcp.microsoft.com":       "tech",
+    "definitionupdates.microsoft.com": "tech",
+    "dl.delivery.mp.microsoft.com": "tech",
+    "swscan.apple.com":         "tech",
+    "swdownload.apple.com":     "tech",
+    "osxapps.itunes.apple.com": "tech",
+    "xprotect.apple.com":       "tech",
+    # Developer platforms
+    "github.com":               "tech",
+    "githubusercontent.com":    "tech",
+    "githubassets.com":         "tech",
+    "gitlab.com":               "tech",
+    "gitlab.io":                "tech",
+    "bitbucket.org":            "tech",
+    "npmjs.com":                "tech",
+    "registry.npmjs.org":       "tech",
+    "pypi.org":                 "tech",
+    "files.pythonhosted.org":   "tech",
+    "packagist.org":            "tech",
+    "rubygems.org":             "tech",
+    "nuget.org":                "tech",
+    "maven.org":                "tech",
+    "mvnrepository.com":        "tech",
+    "docker.io":                "tech",
+    "docker.com":               "tech",
+    "hub.docker.com":           "tech",
+    "ghcr.io":                  "tech",
+    "quay.io":                  "tech",
+    # Linux distro updates
+    "debian.org":               "tech",
+    "ubuntu.com":               "tech",
+    "canonical.com":            "tech",
+    "fedoraproject.org":        "tech",
+    "centos.org":               "tech",
+    "archlinux.org":            "tech",
+    "opensuse.org":             "tech",
+    # CI / DevOps
+    "circleci.com":             "tech",
+    "travis-ci.com":            "tech",
+    "jenkins.io":               "tech",
+    "sonarqube.com":            "tech",
+    "codecov.io":               "tech",
+    # IDEs / Dev tools
+    "jetbrains.com":            "tech",
+    "visualstudio.com":         "tech",
+    "vscode.dev":               "tech",
+    "marketplace.visualstudio.com": "tech",
+    "update.code.visualstudio.com": "tech",
+    # Stack Overflow / Dev community
+    "stackoverflow.com":        "tech",
+    "stackexchange.com":        "tech",
+    "sstatic.net":              "tech",
+    "askubuntu.com":            "tech",
+    # Homebrew
+    "brew.sh":                  "tech",
+    "formulae.brew.sh":         "tech",
+    # Cloudflare 1.1.1.1 / DNS-over-HTTPS
+    "cloudflare-dns.com":       "tech",
+    "dns.google":               "tech",
+    "doh.opendns.com":          "tech",
+}
+
+
+# ---------------------------------------------------------------------------
+# Keyword-pattern fallback
+# Applied in order when no suffix match is found.  Only very unambiguous
+# substrings are listed to keep false-positive rate near zero.
+# ---------------------------------------------------------------------------
+_KEYWORD_CATS: list[tuple[str, str]] = [
+    # Tracking / analytics — must come before "ads" to avoid overlap
+    ("analytics",   "tracking"),
+    ("telemetry",   "tracking"),
+    ("tracking",    "tracking"),
+    ("tracker",     "tracking"),
+    ("metrics",     "tracking"),
+    ("stat.",        "tracking"),  # stat.domain.com prefix
+    (".stats.",     "tracking"),
+    ("clicktale",   "tracking"),
+    ("heatmap",     "tracking"),
+    ("sessioncam",  "tracking"),
+    # Ads
+    ("adserver",    "ads"),
+    ("adservice",   "ads"),
+    ("adsystem",    "ads"),
+    ("adtech",      "ads"),
+    ("adnxs",       "ads"),
+    ("adsense",     "ads"),
+    ("adclick",     "ads"),
+    ("doubleclick", "ads"),
+    ("pagead",      "ads"),
+    # CDN giveaways
+    ("-cdn.",        "cdn"),
+    (".cdn.",        "cdn"),
+    ("static-cdn",  "cdn"),
+    ("cdnjs",       "cdn"),
+]
+
+
+def categorize_domain(domain: str) -> str:
+    """Return the content category for *domain*.
+
+    1. Tries suffix matches (most-specific → least-specific).
+    2. Falls back to keyword patterns.
+    3. Returns ``"other"`` if nothing matched.
+
+    Examples::
+
+        categorize_domain("www.pornhub.com")         # -> "adult"
+        categorize_domain("something.xxx")           # -> "adult"
+        categorize_domain("ads.doubleclick.net")     # -> "ads"
+        categorize_domain("cloud.google.com")        # -> "cloud"
+        categorize_domain("tuya.com")                # -> "iot"
+        categorize_domain("foo.analytics.io")        # -> "tracking"  (keyword)
+        categorize_domain("example.com")             # -> "other"
+    """
+    if not domain:
+        return "other"
+    parts = domain.lower().rstrip(".").split(".")
+    # Stage 1: suffix map
+    for i in range(len(parts)):
+        candidate = ".".join(parts[i:])
+        cat = _SUFFIX_MAP.get(candidate)
+        if cat is not None:
+            return cat
+    # Stage 2: keyword patterns
+    lower = domain.lower()
+    for keyword, cat in _KEYWORD_CATS:
+        if keyword in lower:
+            return cat
+    return "other"
 
 # ---------------------------------------------------------------------------
 # Suffix → category map

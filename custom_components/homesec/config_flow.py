@@ -102,7 +102,7 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
             vol.Optional(CONF_DNS_LOG_RETENTION_HOURS, default=defaults.get(CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)): vol.All(int, vol.Range(min=0, max=8760)),
             vol.Optional(CONF_DNS_PROXY_CHECK_SOURCES, default=defaults.get(CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES)): str,
             vol.Optional(CONF_DNS_BLOCKED_CATEGORIES, default=defaults.get(CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES)): str,
-            vol.Optional(CONF_DNS_OVERRIDES, default=defaults.get(CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
+            vol.Optional(CONF_DNS_OVERRIDES, default=defaults.get(CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=False)),
             vol.Optional(CONF_VIRUSTOTAL_API_KEY, default=defaults.get(CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY)): str,
             vol.Optional(CONF_ABUSEIPDB_API_KEY, default=defaults.get(CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY)): str,
             vol.Optional(CONF_EXTERNAL_IP_RETENTION, default=defaults.get(CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)): int,

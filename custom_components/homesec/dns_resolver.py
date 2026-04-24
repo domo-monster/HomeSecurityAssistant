@@ -13,6 +13,84 @@ _REFRESH_HOURS = 6
 _LOOKUP_TIMEOUT = 3.0
 _FETCH_TIMEOUT = 120
 
+# IPs used as the redirect target in hosts-file format blocklists
+_HOSTS_REDIRECTS: frozenset[str] = frozenset({"0.0.0.0", "127.0.0.1", "::", "::1"})
+
+
+def _parse_blocklist_text(
+    text: str, source: str
+) -> tuple[set[str], set[str], dict[str, str]]:
+    """Parse a raw blocklist text file.
+
+    Supports:
+      - Hosts-file format:   ``0.0.0.0 domain.com``
+      - Plain IP/domain list (one entry per line)
+      - ABP / AdBlock-Plus format: ``||domain.com^`` or ``||domain.com^$flags``
+
+    Returns (domains, ips, source_map).  Runs synchronously so it can be
+    offloaded to a thread-pool executor without blocking the event loop.
+    """
+    domains: set[str] = set()
+    ips: set[str] = set()
+    source_map: dict[str, str] = {}
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line[0] in ("#", "!", ";", "/", "["):
+            continue
+        # ABP whitelist entry — must NOT be added to blocklist
+        if line.startswith("@@"):
+            continue
+        # ABP domain rule: ||domain.com^ or ||domain.com^$flags
+        if line.startswith("||"):
+            # Strip leading || and anything from ^ onward (flags, anchors)
+            inner = line[2:].split("^")[0].split("$")[0].strip().lower()
+            # Skip wildcards, pure TLDs, and non-domain entries
+            if inner and "." in inner and "*" not in inner and len(inner) < 255:
+                try:
+                    ipaddress.ip_address(inner)
+                    ips.add(inner)
+                    source_map.setdefault(inner, source)
+                except ValueError:
+                    domains.add(inner)
+                    source_map.setdefault(inner, source)
+            continue
+        parts = line.split("#")[0].split(";")[0].split()
+        if not parts:
+            continue
+        # Hosts-file format: "0.0.0.0 domain.com" or "127.0.0.1 domain.com"
+        if parts[0] in _HOSTS_REDIRECTS and len(parts) >= 2:
+            for domain_part in parts[1:]:
+                d = domain_part.strip().rstrip(",").lower()
+                if d and "." in d and len(d) < 255:
+                    domains.add(d)
+                    source_map.setdefault(d, source)
+            continue
+        token = parts[0].strip().rstrip(",")
+        if not token:
+            continue
+        if "/" in token:
+            try:
+                net = ipaddress.ip_network(token, strict=False)
+                if net.num_addresses == 1:
+                    s = str(net.network_address)
+                    ips.add(s)
+                    source_map.setdefault(s, source)
+            except ValueError:
+                pass
+            continue
+        try:
+            ipaddress.ip_address(token)
+            ips.add(token)
+            source_map.setdefault(token, source)
+            continue
+        except ValueError:
+            pass
+        if "." in token and len(token) < 255 and " " not in token:
+            d = token.lower()
+            domains.add(d)
+            source_map.setdefault(d, source)
+    return domains, ips, source_map
+
 
 class DNSBlacklistChecker:
     """Background reverse-DNS resolver with configurable IP/domain blacklist checking."""
@@ -38,13 +116,39 @@ class DNSBlacklistChecker:
     # Lifecycle
 
     async def async_start(self) -> None:
+        if not self._urls:
+            _LOGGER.error(
+                "HSA: no blocklist URLs configured — threat-intel checking is DISABLED. "
+                "Add URL(s) to the 'Blacklist URLs' option in the integration settings."
+            )
+        else:
+            _LOGGER.warning(
+                "HSA: starting threat-intel fetch for %d URL(s): %s",
+                len(self._urls),
+                ", ".join(self._urls),
+            )
         # Fetch blocklists in a background task so HA setup is not blocked by
         # potentially slow or large downloads (multi-MB hosts files take >15 s).
+        fetch_task = asyncio.create_task(self._fetch_all())
+        fetch_task.add_done_callback(self._on_fetch_done)
         self._tasks = [
             asyncio.create_task(self._refresh_loop()),
             asyncio.create_task(self._resolve_worker()),
-            asyncio.create_task(self._fetch_all()),
+            fetch_task,
         ]
+
+    @staticmethod
+    def _on_fetch_done(task: asyncio.Task) -> None:
+        if task.cancelled():
+            # Normal during integration reload — not an error.
+            _LOGGER.debug("HSA: blocklist fetch task cancelled (integration reload?)")
+            return
+        exc = task.exception()
+        if exc is not None:
+            _LOGGER.error(
+                "HSA: threat-intel fetch task raised an unexpected exception: %s",
+                exc, exc_info=exc,
+            )
 
     async def async_stop(self) -> None:
         for task in self._tasks:
@@ -139,21 +243,41 @@ class DNSBlacklistChecker:
             self._bad_ips.clear()
             self._bad_domains.clear()
             self._source_map.clear()
+            # Keep _last_refresh at the old timestamp so the UI never
+            # regresses to "Downloading…" during a periodic re-fetch.
             await self._fetch_all()
 
     async def _fetch_all(self) -> None:
         for url in self._urls:
+            before_d = len(self._bad_domains)
+            before_i = len(self._bad_ips)
             try:
                 await self._fetch_one(url)
             except Exception as exc:
-                _LOGGER.warning("HSA: blacklist %s failed: %s", url, exc)
-        self._last_refresh = datetime.now(UTC)
-        _LOGGER.info(
-            "HSA: threat intel loaded — %d blocked IPs, %d blocked domains from %d sources",
+                _LOGGER.error("HSA: blocklist download FAILED for %s: %s", url, exc)
+                # Update timestamp even on failure so UI leaves "Downloading…" state
+                self._last_refresh = datetime.now(UTC)
+                continue
+            added_d = len(self._bad_domains) - before_d
+            added_i = len(self._bad_ips) - before_i
+            # Update after every URL so partial results are visible immediately
+            self._last_refresh = datetime.now(UTC)
+            _LOGGER.warning(
+                "HSA: loaded %d new domains + %d new IPs from %s",
+                added_d, added_i,
+                url.split("/")[2] if url.count("/") >= 2 else url,
+            )
+        _LOGGER.warning(
+            "HSA: threat intel ready — %d blocked IPs, %d blocked domains from %d source(s)",
             len(self._bad_ips),
             len(self._bad_domains),
             len(self._urls),
         )
+        if self._urls and not self._bad_domains and not self._bad_ips:
+            _LOGGER.error(
+                "HSA: threat intel loaded ZERO entries — check blocklist URLs and HA "
+                "network connectivity (Settings \u2192 System \u2192 Logs for details)"
+            )
 
     async def _fetch_one(self, url: str) -> None:
         import aiohttp as _aiohttp  # imported here to avoid circular init issues
@@ -165,54 +289,17 @@ class DNSBlacklistChecker:
             allow_redirects=True,
         ) as resp:
             if resp.status != 200:
+                _LOGGER.warning("HSA: blocklist %s returned HTTP %d", url, resp.status)
                 return
             text = await resp.text(encoding="utf-8", errors="replace")
 
-        for raw in text.splitlines():
-            line = raw.strip()
-            if not line or line[0] in ("#", ";", "/"):
-                continue
-            # Strip trailing comments, split into tokens
-            parts = line.split("#")[0].split(";")[0].split()
-            if not parts:
-                continue
-            # Hosts-file format: "0.0.0.0 domain.com" or "127.0.0.1 domain.com"
-            # The first token is a redirect address — the domain(s) follow it.
-            _HOSTS_REDIRECTS = {"0.0.0.0", "127.0.0.1", "::", "::1"}
-            if parts[0] in _HOSTS_REDIRECTS and len(parts) >= 2:
-                for domain_part in parts[1:]:
-                    d = domain_part.strip().rstrip(",").lower()
-                    if d and "." in d and len(d) < 255:
-                        self._bad_domains.add(d)
-                        self._source_map.setdefault(d, source)
-                continue
-            token = parts[0].strip().rstrip(",")
-            if not token:
-                continue
-            # Handle CIDR — only /32 treated as single IP
-            if "/" in token:
-                try:
-                    net = ipaddress.ip_network(token, strict=False)
-                    # num_addresses == 1 correctly identifies /32 (IPv4) and
-                    # /128 (IPv6) as single-host entries; larger prefixes are
-                    # network ranges and are skipped to avoid false positives.
-                    if net.num_addresses == 1:
-                        s = str(net.network_address)
-                        self._bad_ips.add(s)
-                        self._source_map.setdefault(s, source)
-                except ValueError:
-                    pass
-                continue
-            # Try as IP address
-            try:
-                ipaddress.ip_address(token)
-                self._bad_ips.add(token)
-                self._source_map.setdefault(token, source)
-                continue
-            except ValueError:
-                pass
-            # Treat as domain
-            if "." in token and len(token) < 255 and " " not in token:
-                d = token.lower()
-                self._bad_domains.add(d)
-                self._source_map.setdefault(d, source)
+        # Parse in a thread-pool executor so large files (100k+ lines) do not
+        # block the asyncio event loop and cause DNS query timeouts.
+        loop = asyncio.get_running_loop()
+        new_domains, new_ips, new_sources = await loop.run_in_executor(
+            None, _parse_blocklist_text, text, source
+        )
+        self._bad_domains.update(new_domains)
+        self._bad_ips.update(new_ips)
+        for k, v in new_sources.items():
+            self._source_map.setdefault(k, v)

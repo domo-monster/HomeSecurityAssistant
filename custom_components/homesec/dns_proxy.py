@@ -63,6 +63,41 @@ _RCODES: dict[int, str] = {
     3: "NXDOMAIN", 4: "NOTIMP", 5: "REFUSED",
 }
 
+# Minimal EDNS0 OPT resource record appended to synthetic responses when the
+# client query included an OPT record (RFC 6891 §7: responses MUST include OPT
+# when the query did).  Format: root name (1B) + TYPE=OPT (2B) +
+# CLASS=UDP-payload-4096 (2B) + TTL=0 (4B) + RDLENGTH=0 (2B) = 11 bytes.
+_OPT_RR = b"\x00\x00\x29\x10\x00\x00\x00\x00\x00\x00\x00"
+
+
+def _question_end(data: bytes) -> int:
+    """Return the byte offset just past the question section.
+
+    Skips *qdcount* question entries (name + qtype + qclass each).  On any
+    parse error returns ``len(data)`` so callers safely include everything.
+    This is used to strip EDNS0 OPT records (and any other additional-section
+    records) that the client attached to the query before building a synthetic
+    response — otherwise those extra bytes end up in the answer section and
+    confuse client-side DNS parsers.
+    """
+    try:
+        qdcount = struct.unpack_from("!H", data, 4)[0]
+        pos = 12
+        for _ in range(qdcount):
+            while pos < len(data):
+                length = data[pos]
+                if length == 0:
+                    pos += 1
+                    break
+                if (length & 0xC0) == 0xC0:
+                    pos += 2
+                    break
+                pos += 1 + length
+            pos += 4  # QTYPE + QCLASS
+        return pos
+    except Exception:
+        return len(data)
+
 
 def _parse_dns_question(data: bytes) -> tuple[str, str] | None:
     """Extract (qname, qtype_str) from the first question in a DNS message.
@@ -135,19 +170,27 @@ def _build_override_response(query: bytes, ip: str, qtype: str) -> bytes:
         )
 
         resp = bytearray(query[:12])
-        resp[2] = 0x80 | (query[2] & 0x01)  # QR=1, RD copied from query
+        resp[2] = 0x84 | (query[2] & 0x01)  # QR=1, AA=1, RD copied from query
         resp[3] = 0x80                       # RA=1, RCODE=0 (NOERROR)
         # QDCOUNT stays as-is (bytes 4-5 already copied)
         resp[6] = 0; resp[7] = 1 if qtype_matches else 0  # ANCOUNT
         resp[8] = 0; resp[9] = 0    # NSCOUNT
-        resp[10] = 0; resp[11] = 0  # ARCOUNT
-        resp += query[12:]  # append question section unchanged
+        # Echo EDNS0 OPT record when the query included one (RFC 6891 §7)
+        has_edns = struct.unpack_from("!H", query, 10)[0] > 0
+        resp[10] = 0; resp[11] = 1 if has_edns else 0  # ARCOUNT
+        # Append only the question section — strip EDNS0 OPT records and any
+        # other additional-section data the client included in the query.
+        q_end = _question_end(query)
+        resp += query[12:q_end]
 
         if qtype_matches:
             # Answer RR: name-ptr 0xC00C → TYPE → CLASS → TTL → RDLENGTH → RDATA
             resp += b"\xc0\x0c"
             resp += struct.pack("!HHIH", override_rtype, 1, 300, len(packed))
             resp += packed
+
+        if has_edns:
+            resp += _OPT_RR
 
         return bytes(resp)
     except Exception:
@@ -163,15 +206,25 @@ def _build_block_response(query: bytes) -> bytes:
     """
     if len(query) < 12:
         return b""
-    resp = bytearray(query)
-    # Byte 2: QR=1, OPCODE=0 (standard query), AA=0, TC=0, RD = copy from query
-    resp[2] = 0x80 | (query[2] & 0x01)
+    resp = bytearray(query[:12])
+    # Byte 2: QR=1, AA=1 (authoritative — stops resolvers treating NXDOMAIN as
+    # provisional and retrying with a secondary DNS), RD copied from query.
+    resp[2] = 0x84 | (query[2] & 0x01)
     # Byte 3: RA=1, Z=0, AD=0, CD=0, RCODE=3 (NXDOMAIN)
     resp[3] = 0x83
-    # Zero ANCOUNT, NSCOUNT, ARCOUNT (the question section is kept as-is)
     resp[6] = resp[7] = 0    # ANCOUNT
     resp[8] = resp[9] = 0    # NSCOUNT
-    resp[10] = resp[11] = 0  # ARCOUNT
+    # Echo EDNS0 OPT record when the query included one (RFC 6891 §7).
+    # Without this, RFC-strict resolvers (systemd-resolved, macOS) discard our
+    # NXDOMAIN and fall back to the next DNS server, resolving the blocked domain.
+    has_edns = struct.unpack_from("!H", query, 10)[0] > 0
+    resp[10] = 0; resp[11] = 1 if has_edns else 0  # ARCOUNT
+    # Append only the question section — strip EDNS0 OPT records and any
+    # other additional-section data the client included in the query.
+    q_end = _question_end(query)
+    resp += query[12:q_end]
+    if has_edns:
+        resp += _OPT_RR
     return bytes(resp)
 
 
@@ -290,12 +343,24 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._overrides: dict[str, str] = overrides or {}  # domain → IP
         self._transport: asyncio.DatagramTransport | None = None
         self._total_queries: int = 0
+        self._warned_empty: bool = False  # log at most once when blocklist is not yet loaded
 
     def connection_made(self, transport: asyncio.DatagramTransport) -> None:
         self._transport = transport
 
     def datagram_received(self, data: bytes, addr: tuple) -> None:
-        asyncio.ensure_future(self._handle(data, addr))
+        task = asyncio.ensure_future(self._handle(data, addr))
+        task.add_done_callback(self._on_handle_done)
+
+    @staticmethod
+    def _on_handle_done(task: asyncio.Task) -> None:
+        exc = task.exception() if not task.cancelled() else None
+        if exc is not None:
+            _LOGGER.error(
+                "HSA DNS proxy: unhandled exception in _handle — "
+                "query may have been forwarded to upstream instead of blocked: %s",
+                exc, exc_info=exc,
+            )
 
     async def _handle(self, data: bytes, addr: tuple) -> None:
         src_ip = str(addr[0])
@@ -328,13 +393,36 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
             return
 
         if qname and not qname.endswith(".in-addr.arpa") and not qname.endswith(".ip6.arpa"):
+            checker_stats = self._checker.stats()
+            if not checker_stats["bad_domains"] and not checker_stats["bad_ips"]:
+                if not self._warned_empty:
+                    self._warned_empty = True
+                    _LOGGER.warning(
+                        "HSA DNS proxy: threat intel blocklist not yet loaded — "
+                        "domain queries will NOT be checked until download completes. "
+                        "Check HA logs for 'HSA: threat intel ready'."
+                    )
+            else:
+                # List is now populated — reset so we log once when it was empty and once when ready
+                if self._warned_empty:
+                    self._warned_empty = False
+                    _LOGGER.warning(
+                        "HSA DNS proxy: threat intel blocklist is now active — "
+                        "%d domains + %d IPs loaded, blocking is live.",
+                        checker_stats["bad_domains"], checker_stats["bad_ips"],
+                    )
             raw_hit = self._checker.check(qname)
             if raw_hit:
                 # Filter by allowed sources if configured
                 if self._check_sources is None or raw_hit.get("source", "") in self._check_sources:
                     hit = raw_hit
                     is_malicious = True
-                    self._on_malicious(src_ip, qname, qtype, hit)
+                else:
+                    _LOGGER.warning(
+                        "HSA DNS proxy: %s matched blocklist (source: %s) but was NOT blocked — "
+                        "source excluded by the 'check_sources' filter (active filter: %s)",
+                        qname, raw_hit.get("source", "?"), self._check_sources,
+                    )
 
         # Content category and filtering decision
         category = "malware" if is_malicious else (categorize_domain(qname) if qname else "other")
@@ -355,12 +443,24 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._dns_log.append(entry)
 
         if blocked:
-            # Send NXDOMAIN directly; do not forward to upstream
+            # Send NXDOMAIN FIRST, before any callbacks that could raise and
+            # prevent the block from taking effect.
             if self._transport and not self._transport.is_closing():
                 block_resp = _build_block_response(data)
                 if block_resp:
                     self._transport.sendto(block_resp, addr)
             entry["rcode"] = "NXDOMAIN"
+            _LOGGER.warning(
+                "HSA DNS proxy: BLOCKED %s [%s] from %s (reason: %s / source: %s)",
+                qname, qtype, src_ip,
+                "threat_intel" if is_malicious else category,
+                hit.get("source", "n/a") if hit else category,
+            )
+            if is_malicious and hit:
+                try:
+                    self._on_malicious(src_ip, qname, qtype, hit)
+                except Exception as exc:  # noqa: BLE001
+                    _LOGGER.error("HSA DNS proxy: on_malicious callback error: %s", exc)
             return
 
         # Forward to upstream (round-robin across configured upstreams)

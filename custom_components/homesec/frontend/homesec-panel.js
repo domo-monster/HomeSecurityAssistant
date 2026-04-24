@@ -576,15 +576,26 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       (function() {
         var dnsStats = (self._data && self._data.dns_proxy_stats) || {};
         var dnsLog   = (self._data && self._data.dns_log) || [];
+        var bs       = (self._data && self._data.blacklist_stats) || {};
         var dnsRunning = dnsStats.running || false;
         var dnsMal  = dnsLog.filter(function(e) { return e.malicious; }).length;
         var dnsTotal = dnsStats.total_queries != null ? dnsStats.total_queries : dnsLog.length;
-        var dnsStatusColor = dnsRunning ? 'var(--success)' : 'var(--muted)';
+        var blDomains = bs.bad_domains || 0;
+        var blIPs     = bs.bad_ips || 0;
+        var blTotal   = blDomains + blIPs;
+        var blLoaded  = blTotal > 0;
+        var blParts   = [];
+        if (blDomains > 0) blParts.push(blDomains.toLocaleString() + ' domains');
+        if (blIPs > 0)     blParts.push(blIPs.toLocaleString() + ' IPs');
+        var blLabel   = blLoaded ? blParts.join(' + ') + ' blocked' : (bs.last_refresh ? '0 entries — check URLs' : 'Downloading…');
+        var blStatus  = blLoaded ? 'good' : (bs.last_refresh ? 'bad' : '');
         return '<div class="card" style="margin-top:12px">' +
           '<div class="card-title">DNS Proxy</div>' +
           self._hrow('Status', dnsRunning ? 'Running' : 'Stopped', dnsRunning ? 'good' : '') +
           (dnsRunning ? self._hrow('Port', String(dnsStats.port || '\u2014'), '') : '') +
           (dnsRunning ? self._hrow('Upstream', String(dnsStats.upstream || '\u2014'), '') : '') +
+          self._hrow('Blocklist', blLabel, blStatus) +
+          (bs.last_refresh ? self._hrow('Last refreshed', self._ago(bs.last_refresh), '') : '') +
           self._hrow('Queries in log', dnsLog.length.toLocaleString(), '') +
           self._hrow('Malicious queries', dnsMal.toLocaleString(), dnsMal > 0 ? 'bad' : 'good') +
           (function() {
@@ -1175,7 +1186,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var DNS_CAT_COLORS_STAT = {
         malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
         ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
-        gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
+        gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)',
+        cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
+        override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
       };
       dnsTopMalHtml = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
         '<th>#</th><th>Domain</th><th>Category</th><th style="text-align:right">Queries</th>' +
@@ -2569,15 +2582,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var log     = (this._data && this._data.dns_log) || [];
 
     // Filter controls
-    var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','override','other'];
+    var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','cdn','cloud','iot','tech','override','other'];
     var CAT_COLORS = {
       malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
       ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
-      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
+      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)',
+      cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
+      override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
     };
     var CAT_LABELS = {
       malware:'Malware', adult:'Adult', gambling:'Gambling', ads:'Ads',
-      tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News', override:'Override', other:'Other'
+      tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News',
+      cdn:'CDN', cloud:'Cloud', iot:'IoT', tech:'Tech',
+      override:'Override', other:'Other'
     };
 
     var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +

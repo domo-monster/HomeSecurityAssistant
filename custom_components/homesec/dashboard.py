@@ -485,6 +485,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         "timeseries": timeseries,
         "dns_log": _build_dns_log(entries),
         "dns_proxy_stats": _build_dns_proxy_stats(entries),
+        "blacklist_stats": _build_blacklist_stats(entries),
     }
 
 
@@ -495,6 +496,15 @@ def _build_dns_log(entries: dict) -> list[dict[str, Any]]:
         merged.extend(runtime["collector"].dns_log_snapshot())
     merged.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
     return merged[:500]
+
+
+def _build_blacklist_stats(entries: dict) -> dict[str, Any]:
+    """Return live threat-intel stats from the resolver (always fresh, never stale)."""
+    for runtime in entries.values():
+        resolver = getattr(runtime["collector"], "_resolver", None)
+        if resolver is not None:
+            return resolver.stats()
+    return {"bad_ips": 0, "bad_domains": 0, "last_refresh": None, "sources": 0}
 
 
 def _build_dns_proxy_stats(entries: dict) -> dict[str, Any]:
