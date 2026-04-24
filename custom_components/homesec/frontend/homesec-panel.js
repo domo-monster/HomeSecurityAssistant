@@ -856,12 +856,54 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             labels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
           }
           if (!_extIpsList.length) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No public IPs tracked yet</div>';
-          return '<svg width="' + svgW + '" height="' + (CHART_H + LABEL_H) + '" style="display:block;width:100%">' + bars + labels + '</svg>';
+          return '<svg viewBox="0 0 ' + svgW + ' ' + (CHART_H + LABEL_H) + '" width="100%" height="' + (CHART_H + LABEL_H) + '" preserveAspectRatio="none" style="display:block">' + bars + labels + '</svg>';
         })() +
       '</div>' +
-      '<div>' +
-        '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">Hosts</div>' +
-        self._lineChart(filteredPts, [{key:'hosts', label:'Hosts seen', color:'#3ac5c9'}, {key:'scanned', label:'Scanned alive', color:'#6bffc8'}]) +
+      '<div style="margin-top:16px">' +
+        '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
+          '<span style="font-size:10px;color:var(--muted)">Hosts per hour (last 24h)</span>' +
+        '</div>' +
+        (function() {
+          var H_HOURS = 24, H_BAR_W = 18, H_BAR_GAP = 3, H_CHART = 60, H_LABEL = 16;
+          var nowMs2 = Date.now();
+          var hostBkts = [], scannedBkts = [];
+          for (var hbi = 0; hbi < H_HOURS; hbi++) {
+            var hbEnd = nowMs2 - hbi * 3600000, hbStart = hbEnd - 3600000;
+            var mxH = 0, mxS = 0;
+            for (var hpi = 0; hpi < allPoints.length; hpi++) {
+              var hpt = new Date(allPoints[hpi].ts).getTime();
+              if (hpt >= hbStart && hpt < hbEnd) {
+                var hv = Number(allPoints[hpi].hosts || 0), sv = Number(allPoints[hpi].scanned || 0);
+                if (hv > mxH) mxH = hv;
+                if (sv > mxS) mxS = sv;
+              }
+            }
+            hostBkts.unshift(mxH);
+            scannedBkts.unshift(mxS);
+          }
+          if (!allPoints.length) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No host data yet</div>';
+          var mxAll = Math.max.apply(null, hostBkts) || 1;
+          var hSvgW = H_HOURS * (H_BAR_W + H_BAR_GAP);
+          var hBars = hostBkts.map(function(h, i) {
+            var s = scannedBkts[i];
+            var x = i * (H_BAR_W + H_BAR_GAP);
+            var bh = h > 0 ? Math.max(2, Math.round((h / mxAll) * H_CHART)) : 0;
+            var sh = (s > 0 && h > 0) ? Math.max(2, Math.round((s / mxAll) * H_CHART)) : 0;
+            return (bh > 0 ? '<rect x="' + x + '" y="' + (H_CHART - bh) + '" width="' + H_BAR_W + '" height="' + bh + '" fill="rgba(58,197,201,.45)" rx="2"/>' : '') +
+              (sh > 0 ? '<rect x="' + x + '" y="' + (H_CHART - sh) + '" width="' + H_BAR_W + '" height="' + sh + '" fill="rgba(107,255,200,.75)" rx="2"/>' : '');
+          }).join('');
+          var hLabels = '';
+          for (var hl = 0; hl < H_HOURS; hl += 4) {
+            var hlx = hl * (H_BAR_W + H_BAR_GAP) + H_BAR_W / 2;
+            var hlHour = new Date(nowMs2 - (H_HOURS - 1 - hl) * 3600000).getHours();
+            hLabels += '<text x="' + hlx + '" y="' + (H_CHART + H_LABEL - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + hlHour + 'h</text>';
+          }
+          return '<svg viewBox="0 0 ' + hSvgW + ' ' + (H_CHART + H_LABEL) + '" width="100%" height="' + (H_CHART + H_LABEL) + '" preserveAspectRatio="none" style="display:block">' + hBars + hLabels + '</svg>' +
+            '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(58,197,201,.45);display:inline-block;border-radius:2px"></span>Hosts seen</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(107,255,200,.75);display:inline-block;border-radius:2px"></span>Scanned alive</span>' +
+            '</div>';
+        })() +
       '</div>' +
     '</div>';
 
@@ -1100,7 +1142,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         dnsHourLabels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
       }
       dnsChartHtml = '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">DNS queries per hour (last 24h)</div>' +
-        '<svg width="' + svgW + '" height="' + (CHART_H + LABEL_H) + '" style="display:block">' + bars + dnsHourLabels + '</svg>' +
+        '<svg viewBox="0 0 ' + svgW + ' ' + (CHART_H + LABEL_H) + '" width="100%" height="' + (CHART_H + LABEL_H) + '" preserveAspectRatio="none" style="display:block">' + bars + dnsHourLabels + '</svg>' +
         '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
           '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.5);display:inline-block;border-radius:2px"></span>Clean</span>' +
           '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
