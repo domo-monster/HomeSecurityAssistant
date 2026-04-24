@@ -195,8 +195,14 @@ class HomeSecCollector:
         )
         dns_proxy_enabled = bool(get_entry_value(entry, CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED))
         check_sources_raw = str(get_entry_value(entry, CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES))
+        def _to_hostname(s: str) -> str:
+            """Accept either a bare hostname or a full URL and return just the hostname."""
+            s = s.strip()
+            if s.startswith("http://") or s.startswith("https://"):
+                return s.split("/")[2]
+            return s
         check_sources: set[str] | None = (
-            {s.strip() for s in check_sources_raw.split(",") if s.strip()} or None
+            {_to_hostname(s) for s in check_sources_raw.split(",") if s.strip()} or None
         )
         blocked_cats_raw = str(get_entry_value(entry, CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES))
         blocked_categories: set[str] = {

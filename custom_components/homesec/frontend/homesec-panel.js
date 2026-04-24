@@ -122,6 +122,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._lookupResult = null;
     this._lookupIP     = null;
     if (this._view === 'vulnerabilities') this._vulnData = null;
+    this._dnsPage = 0;
     this._view = v;
     this._render();
   }
@@ -204,6 +205,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (vs) { this._setVulnSort(vs.dataset.vulnsort); return; }
     var vp = e.target.closest('[data-vuln-page]');
     if (vp) { this._vulnPage = parseInt(vp.dataset.vulnPage, 10) || 1; this._render(); return; }
+    var dnsPager = e.target.closest('[data-dns-page]');
+    if (dnsPager) { var pg = parseInt(dnsPager.dataset.dnsPage, 10); if (!isNaN(pg)) { this._dnsPage = pg; this._render(); } return; }
     var vr = e.target.closest('[data-vuln-refresh]');
     if (vr) { this._vulnData = null; this._vulnLoading = false; this._render(); return; }
     var vc = e.target.closest('[data-vuln-close]');
@@ -571,8 +574,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           self._hrow('Catalog size', kevTotal.toLocaleString(), kevTotal > 0 ? '' : 'warn') +
         '</div>';
       })() +
-      '<button class="btn" style="margin-top:6px" data-view="vulnerabilities">Browse all vulnerabilities \u2192</button>' +
-      '<button class="btn" style="margin-top:6px;margin-left:6px" data-view="statistics">View Statistics \u2192</button>' +
       (function() {
         var dnsStats = (self._data && self._data.dns_proxy_stats) || {};
         var dnsLog   = (self._data && self._data.dns_log) || [];
@@ -602,9 +603,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             var dnsBlocked = dnsLog.filter(function(e) { return e.status === 'blocked'; }).length;
             return dnsBlocked > 0 ? self._hrow('Blocked queries', dnsBlocked.toLocaleString(), 'bad') : '';
           })() +
-          '<button class="btn" style="margin-top:8px" data-view="dns">View DNS Queries \u2192</button>' +
         '</div>';
       })() +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
+        '<button class="btn" data-view="vulnerabilities">Browse all vulnerabilities \u2192</button>' +
+        '<button class="btn" data-view="statistics">View Statistics \u2192</button>' +
+        '<button class="btn" data-view="dns">View DNS Queries \u2192</button>' +
+      '</div>' +
     '</div>';
   }
 
@@ -2578,10 +2583,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewDns() {
+    var self    = this;
     var stats   = (this._data && this._data.dns_proxy_stats) || {};
     var log     = (this._data && this._data.dns_log) || [];
 
-    // Filter controls
     var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','cdn','cloud','iot','tech','override','other'];
     var CAT_COLORS = {
       malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
@@ -2596,6 +2601,37 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       cdn:'CDN', cloud:'Cloud', iot:'IoT', tech:'Tech',
       override:'Override', other:'Other'
     };
+
+    // --- Blocked by category pie chart ---
+    var blockedByCat = {};
+    log.forEach(function(e) {
+      if (e.status === 'blocked' || e.malicious) {
+        var c = (e.category || 'other').toLowerCase();
+        blockedByCat[c] = (blockedByCat[c] || 0) + 1;
+      }
+    });
+    var blockedCatItems = Object.keys(blockedByCat)
+      .map(function(c) { return { cat: c, count: blockedByCat[c] }; })
+      .sort(function(a, b) { return b.count - a.count; });
+    var blockedTotal = blockedCatItems.reduce(function(s, x) { return s + x.count; }, 0);
+    var catPieHtml;
+    if (!blockedTotal) {
+      catPieHtml = '<div class="empty-state" style="min-height:80px"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:6px 0">No blocked or malicious queries</p></div>';
+    } else {
+      var pieColors = blockedCatItems.map(function(x) { return CAT_COLORS[x.cat] || CAT_COLORS['other']; });
+      var pieSvg = self._pieSvg(blockedCatItems, function(x) { return x.count; }, function(x) { return (CAT_LABELS[x.cat] || x.cat) + ': ' + x.count; }, pieColors);
+      var pieLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
+        blockedCatItems.map(function(x) {
+          var col = CAT_COLORS[x.cat] || CAT_COLORS['other'];
+          var pct = Math.round((x.count / blockedTotal) * 100);
+          return '<div style="display:flex;align-items:center;gap:6px">' +
+            '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + col + '"></span>' +
+            '<span style="flex:1;color:var(--text)">' + (CAT_LABELS[x.cat] || x.cat) + '</span>' +
+            '<span style="color:var(--muted);font-variant-numeric:tabular-nums">' + x.count + ' (' + pct + '%)</span></div>';
+        }).join('') +
+      '</div>';
+      catPieHtml = '<div style="display:flex;gap:24px;align-items:center">' + pieSvg + pieLegend + '</div>';
+    }
 
     var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
       '<input class="search-bar" id="dns-search" placeholder="Filter by IP or domain…" style="width:220px" ' +
@@ -2618,6 +2654,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     '</div>';
 
     // Table
+    var DNS_PAGE_SIZE = 50;
+    var dnsPage = this._dnsPage || 0;
+    var totalDnsPages = Math.max(1, Math.ceil(log.length / DNS_PAGE_SIZE));
+    if (dnsPage >= totalDnsPages) dnsPage = totalDnsPages - 1;
+    var pageLog = log.slice(dnsPage * DNS_PAGE_SIZE, (dnsPage + 1) * DNS_PAGE_SIZE);
     var maliciousCount = log.filter(function(e) { return e.malicious; }).length;
     var summaryBadge = maliciousCount > 0
       ? '<span class="badge badge-malicious" style="margin-left:8px">' + maliciousCount + ' malicious</span>'
@@ -2628,8 +2669,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<th>Time</th><th>Client IP</th><th>Domain</th><th>Type</th><th>Category</th><th>Response</th><th>Answer</th><th>Status</th>' +
       '</tr></thead><tbody>';
 
-    var self = this;
-    var tableRows = log.slice(0, 500).map(function(e) {
+    var tableRows = pageLog.map(function(e) {
       var ts    = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
       var ip    = self._esc(e.src_ip || '—');
       var dom   = self._esc(e.domain || '—');
@@ -2676,11 +2716,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var tableEnd = '</tbody></table>';
 
+    var paginationHtml = totalDnsPages > 1
+      ? '<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-top:1px solid var(--border)">' +
+          (dnsPage > 0 ? '<button class="btn" data-dns-page="' + (dnsPage - 1) + '">\u2190 Prev</button>' : '<button class="btn" disabled>\u2190 Prev</button>') +
+          '<span style="font-size:12px;color:var(--muted)">Page ' + (dnsPage + 1) + ' of ' + totalDnsPages + ' \u00B7 ' + log.length.toLocaleString() + ' total entries</span>' +
+          (dnsPage < totalDnsPages - 1 ? '<button class="btn" data-dns-page="' + (dnsPage + 1) + '">Next \u2192</button>' : '<button class="btn" disabled>Next \u2192</button>') +
+        '</div>'
+      : '';
+
     return '<div>' +
       '<div class="view-header"><h1>DNS Queries ' + summaryBadge + '</h1></div>' +
+      '<div class="card" style="margin-bottom:14px">' +
+        '<div class="card-title">Blocked / Malicious by Category</div>' +
+        catPieHtml +
+      '</div>' +
       '<div class="card table-card">' +
         '<div style="padding:14px 14px 8px">' + filterBar + '</div>' +
         '<div style="overflow-x:auto">' + tableHead + tableRows + tableEnd + '</div>' +
+        paginationHtml +
       '</div>' +
     '</div>';
   }
