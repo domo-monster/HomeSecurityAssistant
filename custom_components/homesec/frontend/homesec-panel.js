@@ -433,8 +433,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var findings   = (this._data && this._data.findings && this._data.findings.length) || 0;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
     var dns_malicious = (this._data && this._data.dns_log || []).filter(function(e) { return e.malicious; }).length;
+    var dnsEnabled = (this._data && this._data.dns_proxy_stats && this._data.dns_proxy_stats.running) || false;
     var self = this;
-    var items = _VIEWS.map(function(v) {
+    var views = dnsEnabled ? _VIEWS : _VIEWS.filter(function(v) { return v !== 'dns'; });
+    var items = views.map(function(v) {
       var badge = '';
       if (v === 'findings' && findings > 0)       badge = '<span class="nav-badge">' + findings + '</span>';
       if (v === 'external' && ext_threat > 0)     badge = '<span class="nav-badge danger">' + ext_threat + '</span>';
@@ -579,6 +581,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var dnsLog   = (self._data && self._data.dns_log) || [];
         var bs       = (self._data && self._data.blacklist_stats) || {};
         var dnsRunning = dnsStats.running || false;
+        if (!dnsRunning) return '';
         var dnsMal  = dnsLog.filter(function(e) { return e.malicious; }).length;
         var dnsTotal = dnsStats.total_queries != null ? dnsStats.total_queries : dnsLog.length;
         var blDomains = bs.bad_domains || 0;
@@ -592,9 +595,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var blStatus  = blLoaded ? 'good' : (bs.last_refresh ? 'bad' : '');
         return '<div class="card" style="margin-top:12px">' +
           '<div class="card-title">DNS Proxy</div>' +
-          self._hrow('Status', dnsRunning ? 'Running' : 'Stopped', dnsRunning ? 'good' : '') +
-          (dnsRunning ? self._hrow('Port', String(dnsStats.port || '\u2014'), '') : '') +
-          (dnsRunning ? self._hrow('Upstream', String(dnsStats.upstream || '\u2014'), '') : '') +
+          self._hrow('Status', 'Running', 'good') +
+          self._hrow('Port', String(dnsStats.port || '\u2014'), '') +
+          self._hrow('Upstream', String(dnsStats.upstream || '\u2014'), '') +
           self._hrow('Blocklist', blLabel, blStatus) +
           (bs.last_refresh ? self._hrow('Last refreshed', self._ago(bs.last_refresh), '') : '') +
           self._hrow('Queries in log', dnsLog.length.toLocaleString(), '') +
@@ -608,7 +611,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
         '<button class="btn" data-view="vulnerabilities">Browse all vulnerabilities \u2192</button>' +
         '<button class="btn" data-view="statistics">View Statistics \u2192</button>' +
-        '<button class="btn" data-view="dns">View DNS Queries \u2192</button>' +
+        ((function() { var dnsStats = (self._data && self._data.dns_proxy_stats) || {}; return dnsStats.running ? '<button class="btn" data-view="dns">View DNS Queries \u2192</button>' : ''; })()) +
       '</div>' +
     '</div>';
   }
@@ -2651,6 +2654,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()"> Malicious only' +
       '</label>' +
       '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto"></span>' +
+      '<button class="btn" style="margin-left:8px;border-color:rgba(255,77,109,.4);color:#ff4d6d;background:rgba(255,77,109,.08)" onclick="this.getRootNode().host._clearBlockedDns(this)">\u{1F6AB} Clear blocked</button>' +
     '</div>';
 
     // Table
@@ -2761,6 +2765,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     });
     var cnt = root.getElementById('dns-count');
     if (cnt) cnt.textContent = visible + ' / ' + rows.length + ' entries';
+  }
+
+  _clearBlockedDns(btn) {
+    if (btn) { btn.disabled = true; btn.textContent = 'Clearing\u2026'; }
+    var self = this;
+    this._hass.callApi('POST', 'homesec/dns/log/clear_blocked')
+      .then(function() {
+        if (self._data && self._data.dns_log) {
+          self._data.dns_log = self._data.dns_log.filter(function(e) { return !e.malicious && e.status !== 'blocked'; });
+          self._dnsPage = 0;
+          self._render();
+        }
+      })
+      .catch(function() { if (btn) { btn.disabled = false; btn.textContent = '\u{1F6AB} Clear blocked'; } });
   }
 
   _viewRecs() {

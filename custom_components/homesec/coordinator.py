@@ -391,6 +391,10 @@ class HomeSecCollector:
         """Run an immediate active scan cycle outside the normal schedule."""
         await self._scanner.async_trigger_scan()
 
+    async def async_refresh_blacklist(self) -> None:
+        """Force-clear and re-download all threat-intel blocklist URLs immediately."""
+        await self._resolver.async_force_refresh()
+
     async def async_nvd_refresh(self) -> None:
         """Flush the NVD CVE cache and restart the background fetch loop immediately."""
         self._nvd_client.invalidate_cache()
@@ -649,6 +653,15 @@ class HomeSecCollector:
     def dns_log_snapshot(self) -> list[dict]:
         """Return a snapshot of the DNS query ring buffer."""
         return list(self._dns_log)
+
+    def clear_blocked_dns_log(self) -> int:
+        """Remove all blocked/malicious entries from the DNS log. Returns count removed."""
+        before = len(self._dns_log)
+        keep = [e for e in self._dns_log if not (e.get("malicious") or e.get("status") == "blocked")]
+        self._dns_log.clear()
+        for e in keep:
+            self._dns_log.append(e)
+        return before - len(self._dns_log)
 
     def _purge_dns_log(self) -> None:
         """Remove DNS log entries older than the configured retention window."""

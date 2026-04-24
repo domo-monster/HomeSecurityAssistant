@@ -25,6 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SERVICE_TRIGGER_SCAN = "trigger_scan"
 SERVICE_NVD_REFRESH = "nvd_refresh"
+SERVICE_BLACKLIST_REFRESH = "blacklist_refresh"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -91,6 +92,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             DOMAIN, SERVICE_NVD_REFRESH, _handle_nvd_refresh, schema=vol.Schema({})
         )
         _LOGGER.info("Registered %s.%s service", DOMAIN, SERVICE_NVD_REFRESH)
+
+    if not hass.services.has_service(DOMAIN, SERVICE_BLACKLIST_REFRESH):
+        async def _handle_blacklist_refresh(call: ServiceCall) -> None:
+            for runtime in hass.data[DOMAIN]["entries"].values():
+                await runtime["collector"].async_refresh_blacklist()
+
+        hass.services.async_register(
+            DOMAIN, SERVICE_BLACKLIST_REFRESH, _handle_blacklist_refresh, schema=vol.Schema({})
+        )
+        _LOGGER.info("Registered %s.%s service", DOMAIN, SERVICE_BLACKLIST_REFRESH)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True

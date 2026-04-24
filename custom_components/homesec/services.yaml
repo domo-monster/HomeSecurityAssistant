@@ -5,6 +5,14 @@ trigger_scan:
     and observed IPs, without waiting for the next scheduled interval. The
     updated results are available in the dashboard within seconds of completion.
 
+blacklist_refresh:
+  name: Force refresh threat intel blocklists
+  description: >
+    Immediately clear all loaded threat-intel entries and re-download every
+    configured blocklist URL. Useful after adding or changing URLs in the
+    integration options, or when you need up-to-date intel without waiting
+    for the next scheduled refresh.
+
 nvd_refresh:
   name: Refresh NVD vulnerability database
   description: >

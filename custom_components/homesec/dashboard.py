@@ -129,6 +129,7 @@ async def async_setup_dashboard(hass: HomeAssistant) -> None:
     hass.http.register_view(HomeSecNameOverrideView())
     hass.http.register_view(HomeSecVulnBrowserView())
     hass.http.register_view(HomeSecDnsLogView())
+    hass.http.register_view(HomeSecClearBlockedDnsView())
     await panel_custom.async_register_panel(
         hass,
         webcomponent_name=PANEL_COMPONENT,
@@ -1010,3 +1011,27 @@ class HomeSecDnsLogView(HomeAssistantView):
         merged = merged[:limit]
 
         return self.json({"entries": merged, "total": len(merged)})
+
+
+class HomeSecClearBlockedDnsView(HomeAssistantView):
+    """Clear all blocked/malicious entries from the DNS log.
+
+    POST /api/homesec/dns/log/clear_blocked
+    """
+
+    url = "/api/homesec/dns/log/clear_blocked"
+    name = "api:homesec:dns:log:clear_blocked"
+    requires_auth = True
+
+    async def post(self, request: web.Request) -> web.Response:
+        hass: HomeAssistant = request.app["hass"]
+        domain_data = hass.data.get(DOMAIN, {})
+        entries = domain_data.get("entries", {})
+        if not entries:
+            return self.json({"removed": 0})
+        total_removed = 0
+        for runtime in entries.values():
+            collector = runtime.get("collector")
+            if collector is not None:
+                total_removed += collector.clear_blocked_dns_log()
+        return self.json({"removed": total_removed})

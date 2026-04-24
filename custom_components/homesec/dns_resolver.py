@@ -159,6 +159,28 @@ class DNSBlacklistChecker:
                 pass
         self._tasks = []
 
+    async def async_force_refresh(self) -> None:
+        """Cancel any in-flight fetch, clear all loaded entries, and re-download all URLs."""
+        # Cancel the current fetch task if it is still running
+        for task in list(self._tasks):
+            if task is not None and not task.done() and task.get_name().startswith("Task"):
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+        self._bad_ips.clear()
+        self._bad_domains.clear()
+        self._source_map.clear()
+        _LOGGER.warning("HSA: force-refreshing threat intel from %d URL(s)", len(self._urls))
+        fetch_task = asyncio.create_task(self._fetch_all())
+        fetch_task.add_done_callback(self._on_fetch_done)
+        # Replace the old fetch task slot; keep refresh loop and resolve worker alive
+        self._tasks = [
+            t for t in self._tasks
+            if not t.done() and t is not fetch_task
+        ] + [fetch_task]
+
     # ------------------------------------------------------------------ #
     # Public API (sync, safe to call from snapshot())
 
