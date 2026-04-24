@@ -829,10 +829,35 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>' +
       '<div style="margin-bottom:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
-          '<span style="font-size:10px;color:var(--muted)">Public IPs tracked</span>' +
+          '<span style="font-size:10px;color:var(--muted)">Public IPs seen per hour (last 24h)</span>' +
           extIpsBadges +
         '</div>' +
-        self._hourlyBarChart(filteredPts, 'ext_ips', '#8f86ff') +
+        (function() {
+          var EXT_H = 24, BAR_W = 18, BAR_GAP = 3, CHART_H = 60, LABEL_H = 16;
+          var nowMs = Date.now();
+          var extBuckets = new Array(EXT_H).fill(0);
+          for (var ei = 0; ei < _extIpsList.length; ei++) {
+            var fs = _extIpsList[ei].first_seen;
+            if (!fs) continue;
+            var ago = Math.floor((nowMs - new Date(fs).getTime()) / 3600000);
+            if (ago >= 0 && ago < EXT_H) extBuckets[EXT_H - 1 - ago]++;
+          }
+          var maxExt = Math.max.apply(null, extBuckets) || 1;
+          var svgW = EXT_H * (BAR_W + BAR_GAP);
+          var bars = extBuckets.map(function(cnt, i) {
+            var x = i * (BAR_W + BAR_GAP);
+            var bh = cnt > 0 ? Math.max(2, Math.round((cnt / maxExt) * CHART_H)) : 0;
+            return bh > 0 ? '<rect x="' + x + '" y="' + (CHART_H - bh) + '" width="' + BAR_W + '" height="' + bh + '" fill="#8f86ff" opacity="0.75" rx="2"/>' : '';
+          }).join('');
+          var labels = '';
+          for (var li = 0; li < EXT_H; li += 4) {
+            var lx = li * (BAR_W + BAR_GAP) + BAR_W / 2;
+            var lhour = new Date(nowMs - (EXT_H - 1 - li) * 3600000).getHours();
+            labels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
+          }
+          if (!_extIpsList.length) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No public IPs tracked yet</div>';
+          return '<svg width="' + svgW + '" height="' + (CHART_H + LABEL_H) + '" style="display:block;width:100%">' + bars + labels + '</svg>';
+        })() +
       '</div>' +
       '<div>' +
         '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">Hosts</div>' +
@@ -1056,7 +1081,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         dnsBuckets.unshift({ total: total_q, mal: mal_q, blocked: blocked_q });
       }
       var maxDns = Math.max.apply(null, dnsBuckets.map(function(b) { return b.total; })) || 1;
-      var BAR_W = 18, BAR_GAP = 3, CHART_H = 60;
+      var BAR_W = 18, BAR_GAP = 3, CHART_H = 60, LABEL_H = 16;
       var svgW = DNS_HOURS * (BAR_W + BAR_GAP);
       var bars = dnsBuckets.map(function(b, i) {
         var x = i * (BAR_W + BAR_GAP);
@@ -1068,8 +1093,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"/>' : '') +
           (blkH > 0 && blkH > malH ? '<rect x="' + x + '" y="' + (CHART_H - blkH) + '" width="' + BAR_W + '" height="' + (blkH - malH) + '" fill="rgba(191,111,255,.7)" rx="2"/>' : '');
       }).join('');
+      var dnsHourLabels = '';
+      for (var li = 0; li < DNS_HOURS; li += 4) {
+        var lx = li * (BAR_W + BAR_GAP) + BAR_W / 2;
+        var lhour = new Date(now - (DNS_HOURS - 1 - li) * 3600000).getHours();
+        dnsHourLabels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
+      }
       dnsChartHtml = '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">DNS queries per hour (last 24h)</div>' +
-        '<svg width="' + svgW + '" height="' + CHART_H + '" style="display:block">' + bars + '</svg>' +
+        '<svg width="' + svgW + '" height="' + (CHART_H + LABEL_H) + '" style="display:block">' + bars + dnsHourLabels + '</svg>' +
         '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
           '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.5);display:inline-block;border-radius:2px"></span>Clean</span>' +
           '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
@@ -2497,28 +2528,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _viewDns() {
     var stats   = (this._data && this._data.dns_proxy_stats) || {};
     var log     = (this._data && this._data.dns_log) || [];
-    var running = stats.running || false;
-
-    // Status card
-    var statusColor = running ? 'var(--success)' : 'var(--muted)';
-    var statusText  = running ? 'Running' : 'Stopped';
-    var port        = stats.port || '—';
-    var upstream    = stats.upstream || '—';
-    var total       = stats.total_queries != null ? stats.total_queries : log.length;
-
-    var statusCard = '<div class="card" style="margin-bottom:14px">' +
-      '<div class="card-title">DNS Proxy Status</div>' +
-      '<div style="display:flex;gap:24px;flex-wrap:wrap;font-size:12px">' +
-        '<div><span style="color:var(--muted)">Status</span> &nbsp;<strong style="color:' + statusColor + '">' + statusText + '</strong></div>' +
-        '<div><span style="color:var(--muted)">Port</span> &nbsp;<span class="mono">' + this._esc(String(port)) + '</span></div>' +
-        '<div><span style="color:var(--muted)">Upstream</span> &nbsp;<span class="mono">' + this._esc(String(upstream)) + '</span></div>' +
-        '<div><span style="color:var(--muted)">Total queries (session)</span> &nbsp;<strong>' + total + '</strong></div>' +
-      '</div>' +
-      (!running ? '<div style="margin-top:10px;padding:8px 12px;background:rgba(255,179,71,.08);border:1px solid rgba(255,179,71,.25);border-radius:6px;font-size:11px;color:var(--warn)">' +
-        'DNS proxy is not running. Enable it in the integration options (<em>dns_proxy_enabled</em>). ' +
-        'Port 53 requires HA to run as root or with <code>CAP_NET_BIND_SERVICE</code>.' +
-        '</div>' : '') +
-    '</div>';
 
     // Filter controls
     var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','other'];
@@ -2613,7 +2622,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     return '<div>' +
       '<div class="view-header"><h1>DNS Queries ' + summaryBadge + '</h1></div>' +
-      statusCard +
       '<div class="card table-card">' +
         '<div style="padding:14px 14px 8px">' + filterBar + '</div>' +
         '<div style="overflow-x:auto">' + tableHead + tableRows + tableEnd + '</div>' +
