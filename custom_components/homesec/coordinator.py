@@ -91,6 +91,8 @@ from .storage import (
     load_discovered_hosts, save_discovered_hosts,
     load_dismissed_findings, save_dismissed_findings,
     load_timeseries, save_timeseries, TIMESERIES_INTERVAL_SECONDS,
+    load_dns_log, save_dns_log,
+    load_ext_ips, save_ext_ips,
 )
 from .vulnerabilities import match_vulnerabilities
 
@@ -167,6 +169,7 @@ class HomeSecCollector:
         self._dismissed_findings: dict[str, str] = {}  # key -> note
         self._started_at: datetime | None = None
         self._ext_ip_last_seen: dict[str, datetime] = {}
+        self._ext_ip_first_seen: dict[str, datetime] = {}
         self._ext_ip_sources: dict[str, set[str]] = {}
         self._ext_ip_ports: dict[str, set[int]] = {}
         self._ext_ip_ratings: dict[str, str] = {}  # ip -> "clean" | "suspicious" | "malicious"
@@ -249,6 +252,45 @@ class HomeSecCollector:
                 pass
             _LOGGER.info("Restored %d timeseries points", len(ts_data))
 
+        # Restore persistent DNS log (filtered to configured retention window)
+        dns_data = await self.hass.async_add_executor_job(load_dns_log, self._config_dir)
+        if dns_data:
+            if self._dns_log_retention_hours > 0:
+                cutoff = (datetime.now(timezone.utc) - timedelta(hours=self._dns_log_retention_hours)).isoformat()
+                dns_data = [e for e in dns_data if e.get("timestamp", "") >= cutoff]
+            for entry in dns_data:
+                self._dns_log.append(entry)
+            _LOGGER.info("Restored %d DNS log entries", len(dns_data))
+
+        # Restore persistent external IP tracking state
+        ext_ip_data = await self.hass.async_add_executor_job(load_ext_ips, self._config_dir)
+        if ext_ip_data:
+            now_ext = datetime.now(timezone.utc)
+            for rec in ext_ip_data:
+                ip = rec.get("ip", "")
+                if not ip:
+                    continue
+                ls = rec.get("last_seen")
+                try:
+                    self._ext_ip_last_seen[ip] = datetime.fromisoformat(str(ls)) if ls else now_ext
+                except (ValueError, TypeError):
+                    self._ext_ip_last_seen[ip] = now_ext
+                fs = rec.get("first_seen")
+                try:
+                    self._ext_ip_first_seen[ip] = datetime.fromisoformat(str(fs)) if fs else self._ext_ip_last_seen[ip]
+                except (ValueError, TypeError):
+                    self._ext_ip_first_seen[ip] = self._ext_ip_last_seen[ip]
+                sources = rec.get("sources")
+                if isinstance(sources, list):
+                    self._ext_ip_sources[ip] = set(sources)
+                ports = rec.get("ports")
+                if isinstance(ports, list):
+                    self._ext_ip_ports[ip] = {int(p) for p in ports if p is not None}
+                rating = rec.get("rating")
+                if rating:
+                    self._ext_ip_ratings[ip] = str(rating)
+            _LOGGER.info("Restored %d external IP tracking entries", len(ext_ip_data))
+
         if self._scanner_enabled:
             await self._scanner.async_start()
             _LOGGER.info("Home Security Assistant active network scanner started")
@@ -288,6 +330,26 @@ class HomeSecCollector:
         )
 
     async def async_stop(self) -> None:
+        # Persist DNS log and external IP state before tearing down services
+        dns_snapshot = list(self._dns_log)
+        await self.hass.async_add_executor_job(save_dns_log, self._config_dir, dns_snapshot)
+        ext_snapshot = [
+            {
+                "ip": ip,
+                "last_seen": ts.isoformat() if isinstance(ts, datetime) else str(ts),
+                "first_seen": (
+                    self._ext_ip_first_seen[ip].isoformat()
+                    if ip in self._ext_ip_first_seen and isinstance(self._ext_ip_first_seen[ip], datetime)
+                    else None
+                ),
+                "sources": sorted(self._ext_ip_sources.get(ip, set())),
+                "ports": sorted(int(p) for p in self._ext_ip_ports.get(ip, set())),
+                "rating": self._ext_ip_ratings.get(ip, "clean"),
+            }
+            for ip, ts in self._ext_ip_last_seen.items()
+        ]
+        await self.hass.async_add_executor_job(save_ext_ips, self._config_dir, ext_snapshot)
+
         if self._nvd_task is not None:
             self._nvd_task.cancel()
             self._nvd_task = None
@@ -407,8 +469,9 @@ class HomeSecCollector:
                     self._enricher.queue_ip(ext_ip)
                     self._resolver.queue_resolve(ext_ip)
                     external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
-                    # Only initialise last_seen if not already recorded by _handle_records
+                    # Only initialise last_seen / first_seen if not already recorded by _handle_records
                     self._ext_ip_last_seen.setdefault(ext_ip, now)
+                    self._ext_ip_first_seen.setdefault(ext_ip, now)
                 if device_ip:
                     self._ext_ip_sources.setdefault(ext_ip, set()).add(device_ip)
         for conn in payload.get("connections", []):
@@ -431,6 +494,7 @@ class HomeSecCollector:
                     self._resolver.queue_resolve(ext_ip)
                     external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
                     self._ext_ip_last_seen.setdefault(ext_ip, now)
+                    self._ext_ip_first_seen.setdefault(ext_ip, now)
                 if source_ip:
                     self._ext_ip_sources.setdefault(ext_ip, set()).add(source_ip)
                 if dst_port:
@@ -461,6 +525,7 @@ class HomeSecCollector:
                 stale.append(ip)
         for ip in stale:
             self._ext_ip_last_seen.pop(ip, None)
+            self._ext_ip_first_seen.pop(ip, None)
             self._ext_ip_sources.pop(ip, None)
             self._ext_ip_ports.pop(ip, None)
             self._ext_ip_ratings.pop(ip, None)
@@ -470,10 +535,12 @@ class HomeSecCollector:
             if ip not in external_ips:
                 external_ips[ip] = self._build_ext_ip_entry(ip)
 
-        # Attach last_seen and internal_sources to each entry
+        # Attach last_seen, first_seen, and internal_sources to each entry
         for ip, entry_data in external_ips.items():
             ts = self._ext_ip_last_seen.get(ip)
+            first_ts = self._ext_ip_first_seen.get(ip)
             entry_data["last_seen"] = ts.isoformat() if ts else None
+            entry_data["first_seen"] = first_ts.isoformat() if first_ts else None
             entry_data["internal_sources"] = sorted(self._ext_ip_sources.get(ip, set()))
             entry_data["dst_ports"] = sorted(self._ext_ip_ports.get(ip, set()))
 
@@ -712,8 +779,10 @@ class HomeSecCollector:
             src_internal = is_internal(rec.src_ip)
             dst_internal = is_internal(rec.dst_ip)
             if not src_internal and dst_internal and not is_multicast(rec.src_ip):
+                self._ext_ip_first_seen.setdefault(str(rec.src_ip), now)
                 self._ext_ip_last_seen[str(rec.src_ip)] = now
             elif src_internal and not dst_internal and not is_multicast(rec.dst_ip):
+                self._ext_ip_first_seen.setdefault(str(rec.dst_ip), now)
                 self._ext_ip_last_seen[str(rec.dst_ip)] = now
 
 
