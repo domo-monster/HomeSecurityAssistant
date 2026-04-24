@@ -819,7 +819,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>' +
       '<div style="margin-bottom:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
-          '<span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Public IPs seen per hour (last 24h)</span>' +
+          '<span style="font-size:10px;color:var(--muted)">Public IPs seen per hour (last 24h)</span>' +
           extIpsBadges +
         '</div>' +
         (function() {
@@ -837,7 +837,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var bars = extBuckets.map(function(cnt, i) {
             var x = i * (BAR_W + BAR_GAP);
             var bh = Math.max(2, Math.round((cnt / maxExt) * CHART_H));
-            return '<rect x="' + x + '" y="' + (CHART_H - bh) + '" width="' + BAR_W + '" height="' + bh + '" fill="#8f86ff" opacity="0.75" rx="2"/>';
+            var lhour = new Date(nowMs - (EXT_H - 1 - i) * 3600000).getHours();
+            var tip = lhour + 'h \u2014 ' + cnt + ' IP' + (cnt !== 1 ? 's' : '');
+            return '<rect x="' + x + '" y="' + (CHART_H - bh) + '" width="' + BAR_W + '" height="' + bh + '" fill="#8f86ff" opacity="0.75" rx="2"><title>' + tip + '</title></rect>';
           }).join('');
           var labels = '';
           for (var li = 0; li < EXT_H; li += 4) {
@@ -851,7 +853,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>' +
       '<div style="margin-top:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
-          '<span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Hosts per hour (last 24h)</span>' +
+          '<span style="font-size:10px;color:var(--muted)">Hosts per hour (last 24h)</span>' +
         '</div>' +
         (function() {
           var H_HOURS = 24, H_BAR_W = 18, H_BAR_GAP = 3, H_CHART = 60, H_LABEL = 16;
@@ -879,8 +881,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             var x = i * (H_BAR_W + H_BAR_GAP);
             var bh = Math.max(2, Math.round((h / mxAll) * H_CHART));
             var sh = s > 0 ? Math.max(2, Math.round((s / mxAll) * H_CHART)) : 0;
-            return '<rect x="' + x + '" y="' + (H_CHART - bh) + '" width="' + H_BAR_W + '" height="' + bh + '" fill="rgba(58,197,201,.45)" rx="2"/>' +
-              (sh > 0 ? '<rect x="' + x + '" y="' + (H_CHART - sh) + '" width="' + H_BAR_W + '" height="' + sh + '" fill="rgba(107,255,200,.75)" rx="2"/>' : '');
+            var lhour = new Date(nowMs2 - (H_HOURS - 1 - i) * 3600000).getHours();
+            var tip = lhour + 'h \u2014 ' + h + ' host' + (h !== 1 ? 's' : '') + (s > 0 ? ' (' + s + ' scanned)' : '');
+            return '<rect x="' + x + '" y="' + (H_CHART - bh) + '" width="' + H_BAR_W + '" height="' + bh + '" fill="rgba(58,197,201,.45)" rx="2"><title>' + tip + '</title></rect>' +
+              (sh > 0 ? '<rect x="' + x + '" y="' + (H_CHART - sh) + '" width="' + H_BAR_W + '" height="' + sh + '" fill="rgba(107,255,200,.75)" rx="2"><title>' + tip + '</title></rect>' : '');
           }).join('');
           var hLabels = '';
           for (var hl = 0; hl < H_HOURS; hl += 4) {
@@ -1121,9 +1125,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var malH = b.total > 0 ? Math.round((b.mal / b.total) * barH) : 0;
         var blkH = b.total > 0 ? Math.round((b.blocked / b.total) * barH) : 0;
         var y = CHART_H - barH;
-        return '<rect x="' + x + '" y="' + y + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"/>' +
-          (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"/>' : '') +
-          (blkH > 0 && blkH > malH ? '<rect x="' + x + '" y="' + (CHART_H - blkH) + '" width="' + BAR_W + '" height="' + (blkH - malH) + '" fill="rgba(191,111,255,.7)" rx="2"/>' : '');
+        var lhour = new Date(now - (DNS_HOURS - 1 - i) * 3600000).getHours();
+        var tip = lhour + 'h \u2014 ' + b.total + ' quer' + (b.total !== 1 ? 'ies' : 'y') +
+          (b.mal > 0 || b.blocked > 0 ? ' (' + (b.mal > 0 ? b.mal + ' malicious' : '') + (b.mal > 0 && b.blocked > 0 ? ', ' : '') + (b.blocked > 0 ? b.blocked + ' blocked' : '') + ')' : '');
+        return '<rect x="' + x + '" y="' + y + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"><title>' + tip + '</title></rect>' +
+          (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"><title>' + tip + '</title></rect>' : '') +
+          (blkH > 0 && blkH > malH ? '<rect x="' + x + '" y="' + (CHART_H - blkH) + '" width="' + BAR_W + '" height="' + (blkH - malH) + '" fill="rgba(191,111,255,.7)" rx="2"><title>' + tip + '</title></rect>' : '');
       }).join('');
       var dnsHourLabels = '';
       for (var li = 0; li < DNS_HOURS; li += 4) {
@@ -1168,7 +1175,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var DNS_CAT_COLORS_STAT = {
         malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
         ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
-        gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', other:'rgba(90,106,128,1)'
+        gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
       };
       dnsTopMalHtml = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
         '<th>#</th><th>Domain</th><th>Category</th><th style="text-align:right">Queries</th>' +
@@ -2562,15 +2569,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var log     = (this._data && this._data.dns_log) || [];
 
     // Filter controls
-    var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','other'];
+    var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','override','other'];
     var CAT_COLORS = {
       malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
       ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
-      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', other:'rgba(90,106,128,1)'
+      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
     };
     var CAT_LABELS = {
       malware:'Malware', adult:'Adult', gambling:'Gambling', ads:'Ads',
-      tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News', other:'Other'
+      tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News', override:'Override', other:'Other'
     };
 
     var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +

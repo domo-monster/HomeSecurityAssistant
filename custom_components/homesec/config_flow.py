@@ -199,6 +199,7 @@ class HomeSecOptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_DNS_LOG_RETENTION_HOURS: get_entry_value(self.config_entry, CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS),
                 CONF_DNS_PROXY_CHECK_SOURCES: get_entry_value(self.config_entry, CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES),
                 CONF_DNS_BLOCKED_CATEGORIES: get_entry_value(self.config_entry, CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES),
+                CONF_DNS_OVERRIDES: get_entry_value(self.config_entry, CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES),
                 CONF_VIRUSTOTAL_API_KEY: get_entry_value(self.config_entry, CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY),
                 CONF_ABUSEIPDB_API_KEY: get_entry_value(self.config_entry, CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY),
                 CONF_EXTERNAL_IP_RETENTION: get_entry_value(self.config_entry, CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION),

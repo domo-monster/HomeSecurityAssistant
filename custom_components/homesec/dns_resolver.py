@@ -11,7 +11,7 @@ _LOGGER = logging.getLogger(__name__)
 
 _REFRESH_HOURS = 6
 _LOOKUP_TIMEOUT = 3.0
-_FETCH_TIMEOUT = 15
+_FETCH_TIMEOUT = 120
 
 
 class DNSBlacklistChecker:
@@ -38,10 +38,12 @@ class DNSBlacklistChecker:
     # Lifecycle
 
     async def async_start(self) -> None:
-        await self._fetch_all()
+        # Fetch blocklists in a background task so HA setup is not blocked by
+        # potentially slow or large downloads (multi-MB hosts files take >15 s).
         self._tasks = [
             asyncio.create_task(self._refresh_loop()),
             asyncio.create_task(self._resolve_worker()),
+            asyncio.create_task(self._fetch_all()),
         ]
 
     async def async_stop(self) -> None:
@@ -159,7 +161,7 @@ class DNSBlacklistChecker:
         source = url.split("/")[2] if url.count("/") >= 2 else url
         async with self._session.get(
             url,
-            timeout=_aiohttp.ClientTimeout(total=_FETCH_TIMEOUT),
+            timeout=_aiohttp.ClientTimeout(sock_connect=10, sock_read=_FETCH_TIMEOUT),
             allow_redirects=True,
         ) as resp:
             if resp.status != 200:
