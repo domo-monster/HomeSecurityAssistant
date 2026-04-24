@@ -310,16 +310,21 @@ class ExternalIPEnricher:
         }
 
         # Each provider: check budget → throttle → call
+        # Order matters: AbuseIPDB runs before VirusTotal so the score is available
+        # to gate the VT call (VT only runs when abuse_confidence >= 50).
         providers: list[tuple[str, str | None, object]] = [
             ("ipwho",      "_always_",      self._ipwho),
-            ("virustotal", self._vt_key,    self._virustotal),
             ("abuseipdb",  self._abuse_key, self._abuseipdb),
+            ("virustotal", self._vt_key,    self._virustotal),
         ]
         for name, gate, method in providers:
             if gate is None:
                 continue
             # fast_only: ipwho.is-only path for on-demand lookups (avoids VT 15 s throttle)
             if fast_only and name != "ipwho":
+                continue
+            # VT is expensive (quota): only query when AbuseIPDB already scored ≥ 50 %
+            if name == "virustotal" and int(result.get("abuse_confidence") or 0) < 50:
                 continue
             if not self._budget_ok(name):
                 _LOGGER.debug("HSA: %s daily budget exhausted (%d), skipping %s",
