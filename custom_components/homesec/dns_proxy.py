@@ -37,6 +37,8 @@ from collections import deque
 from datetime import datetime, UTC
 from typing import Callable
 
+from .dns_categories import categorize_domain
+
 _LOGGER = logging.getLogger(__name__)
 
 DNS_LOG_MAX = 10_000  # ring-buffer capacity
@@ -105,6 +107,27 @@ def _parse_rcode(data: bytes) -> str:
     if len(data) < 4:
         return "?"
     return _RCODES.get(data[3] & 0x0F, str(data[3] & 0x0F))
+
+
+def _build_block_response(query: bytes) -> bytes:
+    """Synthesise a minimal NXDOMAIN DNS response to block a query.
+
+    Copies the transaction ID and question section from *query* and sets
+    the response flags to QR=1, RCODE=3 (NXDOMAIN) so the client treats
+    the domain as non-existent.
+    """
+    if len(query) < 12:
+        return b""
+    resp = bytearray(query)
+    # Byte 2: QR=1, OPCODE=0 (standard query), AA=0, TC=0, RD = copy from query
+    resp[2] = 0x80 | (query[2] & 0x01)
+    # Byte 3: RA=1, Z=0, AD=0, CD=0, RCODE=3 (NXDOMAIN)
+    resp[3] = 0x83
+    # Zero ANCOUNT, NSCOUNT, ARCOUNT (the question section is kept as-is)
+    resp[6] = resp[7] = 0    # ANCOUNT
+    resp[8] = resp[9] = 0    # NSCOUNT
+    resp[10] = resp[11] = 0  # ARCOUNT
+    return bytes(resp)
 
 
 def _parse_first_answer(data: bytes) -> str | None:
@@ -210,6 +233,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         dns_log: deque,
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
+        blocked_categories: set[str] | None = None,
     ) -> None:
         self._upstream_host = upstream_host
         self._upstream_port = upstream_port
@@ -217,6 +241,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._dns_log = dns_log
         self._on_malicious = on_malicious
         self._check_sources = check_sources  # None = all sources allowed
+        self._blocked_categories: set[str] = blocked_categories or set()
         self._transport: asyncio.DatagramTransport | None = None
         self._total_queries: int = 0
 
@@ -244,16 +269,31 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                     is_malicious = True
                     self._on_malicious(src_ip, qname, qtype, hit)
 
+        # Content category and filtering decision
+        category = "malware" if is_malicious else (categorize_domain(qname) if qname else "other")
+        blocked = bool(self._blocked_categories) and category in self._blocked_categories
+
         entry: dict = {
             "timestamp": datetime.now(UTC).isoformat(),
             "src_ip": src_ip,
             "domain": qname,
             "qtype": qtype,
             "malicious": is_malicious,
+            "category": category,
+            "status": "blocked" if blocked else "allowed",
             "rcode": None,
             "answer": None,
         }
         self._dns_log.append(entry)
+
+        if blocked:
+            # Send NXDOMAIN directly; do not forward to upstream
+            if self._transport and not self._transport.is_closing():
+                block_resp = _build_block_response(data)
+                if block_resp:
+                    self._transport.sendto(block_resp, addr)
+            entry["rcode"] = "NXDOMAIN"
+            return
 
         # Forward to upstream
         if self._transport is None or self._transport.is_closing():
@@ -286,6 +326,7 @@ class DNSProxyServer:
         dns_log: deque,
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
+        blocked_categories: set[str] | None = None,
     ) -> None:
         self._host = host
         self._port = port
@@ -294,6 +335,7 @@ class DNSProxyServer:
         self._dns_log = dns_log
         self._on_malicious = on_malicious
         self._check_sources = check_sources
+        self._blocked_categories = blocked_categories
         self._transport: asyncio.DatagramTransport | None = None
         self._protocol: DNSProxyProtocol | None = None
         self._running = False
@@ -324,6 +366,7 @@ class DNSProxyServer:
                 self._dns_log,
                 self._on_malicious,
                 self._check_sources,
+                self._blocked_categories,
             )
             transport, _ = await loop.create_datagram_endpoint(
                 lambda: proto,

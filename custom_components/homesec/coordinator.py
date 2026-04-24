@@ -23,6 +23,7 @@ from .const import (
     CONF_DNS_PROXY_UPSTREAM,
     CONF_DNS_LOG_RETENTION_HOURS,
     CONF_DNS_PROXY_CHECK_SOURCES,
+    CONF_DNS_BLOCKED_CATEGORIES,
     CONF_ENABLE_DNS_RESOLUTION,
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
@@ -54,6 +55,7 @@ from .const import (
     DEFAULT_DNS_PROXY_UPSTREAM,
     DEFAULT_DNS_LOG_RETENTION_HOURS,
     DEFAULT_DNS_PROXY_CHECK_SOURCES,
+    DEFAULT_DNS_BLOCKED_CATEGORIES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENRICHMENT_TTL_MINUTES,
@@ -192,6 +194,10 @@ class HomeSecCollector:
         check_sources: set[str] | None = (
             {s.strip() for s in check_sources_raw.split(",") if s.strip()} or None
         )
+        blocked_cats_raw = str(get_entry_value(entry, CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES))
+        blocked_categories: set[str] = {
+            s.strip().lower() for s in blocked_cats_raw.split(",") if s.strip()
+        }
         if dns_proxy_enabled:
             self._dns_proxy: DNSProxyServer | None = DNSProxyServer(
                 host=str(get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST)),
@@ -201,6 +207,7 @@ class HomeSecCollector:
                 dns_log=self._dns_log,
                 on_malicious=self._on_malicious_dns,
                 check_sources=check_sources,
+                blocked_categories=blocked_categories or None,
             )
         else:
             self._dns_proxy = None

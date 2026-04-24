@@ -590,6 +590,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           (dnsRunning ? self._hrow('Upstream', String(dnsStats.upstream || '\u2014'), '') : '') +
           self._hrow('Queries in log', dnsLog.length.toLocaleString(), '') +
           self._hrow('Malicious queries', dnsMal.toLocaleString(), dnsMal > 0 ? 'bad' : 'good') +
+          (function() {
+            var dnsBlocked = dnsLog.filter(function(e) { return e.status === 'blocked'; }).length;
+            return dnsBlocked > 0 ? self._hrow('Blocked queries', dnsBlocked.toLocaleString(), 'bad') : '';
+          })() +
           '<button class="btn" style="margin-top:8px" data-view="dns">View DNS Queries \u2192</button>' +
         '</div>';
       })() +
@@ -1040,15 +1044,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       for (var hi = 0; hi < DNS_HOURS; hi++) {
         var bucketEnd = now - hi * 3600000;
         var bucketStart = bucketEnd - 3600000;
-        var total_q = 0, mal_q = 0;
+        var total_q = 0, mal_q = 0, blocked_q = 0;
         for (var di = 0; di < dnsLog.length; di++) {
           var et = dnsLog[di].timestamp ? new Date(dnsLog[di].timestamp).getTime() : 0;
           if (et >= bucketStart && et < bucketEnd) {
             total_q++;
             if (dnsLog[di].malicious) mal_q++;
+            if (dnsLog[di].status === 'blocked') blocked_q++;
           }
         }
-        dnsBuckets.unshift({ total: total_q, mal: mal_q });
+        dnsBuckets.unshift({ total: total_q, mal: mal_q, blocked: blocked_q });
       }
       var maxDns = Math.max.apply(null, dnsBuckets.map(function(b) { return b.total; })) || 1;
       var BAR_W = 18, BAR_GAP = 3, CHART_H = 60;
@@ -1057,42 +1062,62 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var x = i * (BAR_W + BAR_GAP);
         var barH = Math.max(2, Math.round((b.total / maxDns) * CHART_H));
         var malH = b.total > 0 ? Math.round((b.mal / b.total) * barH) : 0;
+        var blkH = b.total > 0 ? Math.round((b.blocked / b.total) * barH) : 0;
         var y = CHART_H - barH;
         return '<rect x="' + x + '" y="' + y + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"/>' +
-          (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"/>' : '');
+          (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"/>' : '') +
+          (blkH > 0 && blkH > malH ? '<rect x="' + x + '" y="' + (CHART_H - blkH) + '" width="' + BAR_W + '" height="' + (blkH - malH) + '" fill="rgba(191,111,255,.7)" rx="2"/>' : '');
       }).join('');
       dnsChartHtml = '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">DNS queries per hour (last 24h)</div>' +
         '<svg width="' + svgW + '" height="' + CHART_H + '" style="display:block">' + bars + '</svg>' +
         '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
           '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.5);display:inline-block;border-radius:2px"></span>Clean</span>' +
           '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>Blocked</span>' +
         '</div>';
     }
 
-    // Top 5 malicious domains
+    // Top 5 malicious/blocked domains
     var topMalDomains = [];
     (function() {
       var counts = {};
       for (var i = 0; i < dnsLog.length; i++) {
-        if (dnsLog[i].malicious && dnsLog[i].domain) {
-          counts[dnsLog[i].domain] = (counts[dnsLog[i].domain] || 0) + 1;
+        var e = dnsLog[i];
+        if ((e.malicious || e.status === 'blocked') && e.domain) {
+          counts[e.domain] = (counts[e.domain] || 0) + 1;
         }
       }
-      topMalDomains = Object.keys(counts).map(function(d) { return { domain: d, count: counts[d] }; });
+      topMalDomains = Object.keys(counts).map(function(d) {
+        var cat = 'other';
+        for (var i = 0; i < dnsLog.length; i++) {
+          if (dnsLog[i].domain === d) { cat = dnsLog[i].category || 'other'; break; }
+        }
+        return { domain: d, count: counts[d], category: cat };
+      });
       topMalDomains.sort(function(a, b) { return b.count - a.count; });
       topMalDomains = topMalDomains.slice(0, 5);
     })();
 
     var dnsTopMalHtml;
     if (!topMalDomains.length) {
-      dnsTopMalHtml = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No malicious DNS queries detected</p></div>';
+      dnsTopMalHtml = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No malicious or blocked DNS queries detected</p></div>';
     } else {
+      var DNS_CAT_COLORS_STAT = {
+        malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
+        ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
+        gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', other:'rgba(90,106,128,1)'
+      };
       dnsTopMalHtml = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
-        '<th>#</th><th>Domain</th><th style="text-align:right">Queries</th>' +
+        '<th>#</th><th>Domain</th><th>Category</th><th style="text-align:right">Queries</th>' +
         '</tr></thead><tbody>' +
         topMalDomains.map(function(d, i) {
+          var cc = DNS_CAT_COLORS_STAT[d.category] || DNS_CAT_COLORS_STAT['other'];
+          var catPill = '<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:' +
+            cc.replace(',1)', ',.15)') + ';color:' + cc + ';border:1px solid ' + cc.replace(',1)', ',.35)') + '">' +
+            (d.category || 'other') + '</span>';
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
-            '<td class="mono" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(d.domain) + '</td>' +
+            '<td class="mono" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(d.domain) + '</td>' +
+            '<td>' + catPill + '</td>' +
             '<td style="text-align:right"><span class="badge badge-malicious">' + d.count + '</span></td></tr>';
         }).join('') +
         '</tbody></table>' +
@@ -1131,7 +1156,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</div>' +
         '<div class="card">' +
           '<div class="card-title">' +
-          (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top 5 Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top 5 Malicious Domains') +
+          (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top 5 Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top 5 Blocked / Malicious Domains') +
           '</div>' +
           dnsTopMalHtml +
         '</div>' +
@@ -2496,9 +2521,31 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     '</div>';
 
     // Filter controls
+    var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','other'];
+    var CAT_COLORS = {
+      malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
+      ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
+      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)', other:'rgba(90,106,128,1)'
+    };
+    var CAT_LABELS = {
+      malware:'Malware', adult:'Adult', gambling:'Gambling', ads:'Ads',
+      tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News', other:'Other'
+    };
+
     var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
       '<input class="search-bar" id="dns-search" placeholder="Filter by IP or domain…" style="width:220px" ' +
         'oninput="this.getRootNode().host._dnsFilter()" />' +
+      '<select id="dns-cat-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
+        'onchange="this.getRootNode().host._dnsFilter()">' +
+        '<option value="">All categories</option>' +
+        CATEGORIES.map(function(c) { return '<option value="' + c + '">' + CAT_LABELS[c] + '</option>'; }).join('') +
+      '</select>' +
+      '<select id="dns-status-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
+        'onchange="this.getRootNode().host._dnsFilter()">' +
+        '<option value="">All status</option>' +
+        '<option value="allowed">Allowed</option>' +
+        '<option value="blocked">Blocked</option>' +
+      '</select>' +
       '<label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer">' +
         '<input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()"> Malicious only' +
       '</label>' +
@@ -2511,9 +2558,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       ? '<span class="badge badge-malicious" style="margin-left:8px">' + maliciousCount + ' malicious</span>'
       : '';
 
-    var tableHead = '<table class="data-table" id="dns-table" style="min-width:780px">' +
+    var tableHead = '<table class="data-table" id="dns-table" style="min-width:900px">' +
       '<thead><tr>' +
-        '<th>Time</th><th>Client IP</th><th>Domain</th><th>Type</th><th>Response</th><th>Answer</th><th>Status</th>' +
+        '<th>Time</th><th>Client IP</th><th>Domain</th><th>Type</th><th>Category</th><th>Response</th><th>Answer</th><th>Status</th>' +
       '</tr></thead><tbody>';
 
     var self = this;
@@ -2525,19 +2572,40 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var rcode = e.rcode || '…';
       var ans   = e.answer ? self._esc(e.answer) : '<span style="color:var(--muted)">—</span>';
       var mal   = e.malicious;
+      var cat   = (e.category || 'other').toLowerCase();
+      var status = (e.status || 'allowed').toLowerCase();
+
+      var catColor = CAT_COLORS[cat] || CAT_COLORS['other'];
+      var catLabel = CAT_LABELS[cat] || cat;
+      var catBadge = '<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:' +
+        catColor.replace(',1)', ',.18)').replace('rgba(','rgba(') + ';color:' + catColor + ';border:1px solid ' +
+        catColor.replace(',1)', ',.4)') + '">' + catLabel + '</span>';
+
       var rcodeColor = rcode === 'NOERROR' ? 'var(--success)' : rcode === 'NXDOMAIN' ? 'var(--warn)' : rcode === '…' ? 'var(--muted)' : 'var(--danger)';
-      var badge = mal
-        ? '<span class="badge badge-malicious">malicious</span>'
-        : '<span class="badge badge-clean">clean</span>';
-      var rowStyle = mal ? ' style="background:rgba(255,77,109,.05)"' : '';
-      return '<tr' + rowStyle + ' data-malicious="' + (mal ? '1' : '0') + '" data-ip="' + ip.toLowerCase() + '" data-domain="' + dom.toLowerCase() + '">' +
+
+      var statusBadge;
+      if (status === 'blocked') {
+        statusBadge = '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">\uD83D\uDEAB Blocked</span>';
+      } else {
+        statusBadge = '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">\u2713 Allowed</span>';
+      }
+
+      var rowBg = status === 'blocked' ? 'rgba(255,77,109,.06)' : mal ? 'rgba(255,77,109,.03)' : '';
+      var rowStyle = rowBg ? ' style="background:' + rowBg + '"' : '';
+      return '<tr' + rowStyle +
+        ' data-malicious="' + (mal ? '1' : '0') +
+        '" data-cat="' + cat +
+        '" data-status="' + status +
+        '" data-ip="' + ip.toLowerCase() +
+        '" data-domain="' + dom.toLowerCase() + '">' +
         '<td class="mono" style="white-space:nowrap;font-size:11px">' + ts + '</td>' +
         '<td class="mono ip">' + ip + '</td>' +
-        '<td class="mono" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + dom + '">' + dom + '</td>' +
+        '<td class="mono" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + dom + '">' + dom + '</td>' +
         '<td><span class="chip">' + qtype + '</span></td>' +
+        '<td>' + catBadge + '</td>' +
         '<td class="mono" style="font-size:11px;color:' + rcodeColor + '">' + self._esc(rcode) + '</td>' +
         '<td class="mono" style="font-size:11px">' + ans + '</td>' +
-        '<td>' + badge + '</td>' +
+        '<td>' + statusBadge + '</td>' +
       '</tr>';
     }).join('');
 
@@ -2554,16 +2622,23 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _dnsFilter() {
-    var root   = this.shadowRoot;
-    var search = (root.getElementById('dns-search') || {value: ''}).value.toLowerCase().trim();
+    var root    = this.shadowRoot;
+    var search  = (root.getElementById('dns-search') || {value: ''}).value.toLowerCase().trim();
     var malOnly = (root.getElementById('dns-malicious-only') || {checked: false}).checked;
-    var rows   = root.querySelectorAll('#dns-table tbody tr');
+    var catFilter = (root.getElementById('dns-cat-filter') || {value: ''}).value;
+    var statusFilter = (root.getElementById('dns-status-filter') || {value: ''}).value;
+    var rows    = root.querySelectorAll('#dns-table tbody tr');
     var visible = 0;
     rows.forEach(function(row) {
       var ip     = row.dataset.ip || '';
       var domain = row.dataset.domain || '';
       var mal    = row.dataset.malicious === '1';
-      var show   = (!malOnly || mal) && (!search || ip.includes(search) || domain.includes(search));
+      var cat    = row.dataset.cat || '';
+      var status = row.dataset.status || '';
+      var show   = (!malOnly || mal) &&
+                   (!search || ip.includes(search) || domain.includes(search)) &&
+                   (!catFilter || cat === catFilter) &&
+                   (!statusFilter || status === statusFilter);
       row.style.display = show ? '' : 'none';
       if (show) visible++;
     });
