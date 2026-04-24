@@ -25,6 +25,7 @@ from .const import (
     CONF_DNS_LOG_RETENTION_HOURS,
     CONF_DNS_PROXY_CHECK_SOURCES,
     CONF_DNS_BLOCKED_CATEGORIES,
+    CONF_DNS_OVERRIDES,
     CONF_ENABLE_DNS_RESOLUTION,
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
@@ -38,7 +39,6 @@ from .const import (
     CONF_SCAN_PORT_THRESHOLD,
     CONF_SCAN_PORTS,
     CONF_SCAN_WINDOW_SECONDS,
-    CONF_NVD_API_KEY,
     CONF_NVD_API_URL,
     CONF_NVD_TTL_HOURS,
     CONF_NVD_MIN_YEAR,
@@ -57,6 +57,7 @@ from .const import (
     DEFAULT_DNS_LOG_RETENTION_HOURS,
     DEFAULT_DNS_PROXY_CHECK_SOURCES,
     DEFAULT_DNS_BLOCKED_CATEGORIES,
+    DEFAULT_DNS_OVERRIDES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENRICHMENT_TTL_MINUTES,
@@ -70,7 +71,6 @@ from .const import (
     DEFAULT_SCAN_PORT_THRESHOLD,
     DEFAULT_SCAN_PORTS,
     DEFAULT_SCAN_WINDOW_SECONDS,
-    DEFAULT_NVD_API_KEY,
     DEFAULT_NVD_API_URL,
     DEFAULT_NVD_TTL_HOURS,
     DEFAULT_NVD_MIN_YEAR,
@@ -148,7 +148,6 @@ class HomeSecCollector:
                 "abuseipdb": int(get_entry_value(entry, CONF_ABUSEIPDB_DAILY_BUDGET, DEFAULT_ABUSEIPDB_DAILY_BUDGET)),
             },
         )
-        nvd_api_key = str(get_entry_value(entry, CONF_NVD_API_KEY, DEFAULT_NVD_API_KEY)) or None
         nvd_api_url = str(get_entry_value(entry, CONF_NVD_API_URL, DEFAULT_NVD_API_URL)) or DEFAULT_NVD_API_URL
         nvd_ttl_hours = int(get_entry_value(entry, CONF_NVD_TTL_HOURS, DEFAULT_NVD_TTL_HOURS))
         nvd_min_year = int(get_entry_value(entry, CONF_NVD_MIN_YEAR, DEFAULT_NVD_MIN_YEAR))
@@ -157,7 +156,7 @@ class HomeSecCollector:
         self._nvd_client = NVDClient(
             session=session,
             api_url=nvd_api_url,
-            api_key=nvd_api_key,
+            api_key=None,
             ttl_hours=nvd_ttl_hours,
             min_year=nvd_min_year,
             custom_keywords=nvd_custom_keywords,
@@ -213,6 +212,7 @@ class HomeSecCollector:
                 on_malicious=self._on_malicious_dns,
                 check_sources=check_sources,
                 blocked_categories=blocked_categories or None,
+                overrides_raw=str(get_entry_value(entry, CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)),
             )
         else:
             self._dns_proxy = None

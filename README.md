@@ -54,7 +54,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - **HTTP technology validation** — CVEs for web applications (WordPress, WooCommerce, Drupal, etc.) are only reported if the technology was actually **confirmed via HTTP fingerprinting**, eliminating false positives
 - **CISA KEV integration** — cross-references findings against the CISA Known Exploited Vulnerabilities catalog, flagging CVEs under active exploitation
 - **Version-range matching** — uses CPE configuration data to check if the exact detected version falls within a vulnerable range
-- Configurable NVD API key (increases rate limit), cache TTL, minimum CVE year, and **customizable search keywords**
+
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_nvdbrowser.png" alt="Vulnerability Detection Example" width="600">
@@ -173,8 +173,6 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | Enrichment cache TTL | `300` min | Minutes before re-querying external enrichment providers |
 | VirusTotal daily budget | `500` | Max daily VirusTotal queries |
 | AbuseIPDB daily budget | `1000` | Max daily AbuseIPDB queries |
-| NVD API key | _(empty)_ | Optional, increases NVD rate limit to 50 req / 30 s |
-| NVD API URL | `services.nvd.nist.gov/…` | NVD REST API 2.0 endpoint |
 | NVD cache TTL | `12` h | Hours before re-fetching CVE data from NVD |
 | NVD minimum CVE year | `2020` | Oldest CVE year to include (0 = all years) |
 | NVD search keywords | _(16 defaults)_ | Comma-separated product names to query NVD for (e.g. OpenSSH, nginx, WordPress) |

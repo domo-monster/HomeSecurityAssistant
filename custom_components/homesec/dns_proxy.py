@@ -109,6 +109,51 @@ def _parse_rcode(data: bytes) -> str:
     return _RCODES.get(data[3] & 0x0F, str(data[3] & 0x0F))
 
 
+def _build_override_response(query: bytes, ip: str, qtype: str) -> bytes:
+    """Synthesise a DNS A or AAAA answer for a local DNS override entry.
+
+    Returns a correctly-formed response packet when *qtype* matches the
+    address family of *ip* (A↔IPv4, AAAA↔IPv6).  When the types do not
+    match (e.g. client asks for AAAA but the override is an IPv4 address)
+    a NODATA response (NOERROR, zero answers) is returned so the client
+    does not stall waiting for an upstream reply that will never match.
+    """
+    try:
+        try:
+            packed = socket.inet_pton(socket.AF_INET, ip)
+            override_rtype = 1   # A
+        except OSError:
+            packed = socket.inet_pton(socket.AF_INET6, ip)
+            override_rtype = 28  # AAAA
+
+        if len(query) < 12:
+            return b""
+
+        qtype_matches = (
+            (qtype == "A" and override_rtype == 1)
+            or (qtype == "AAAA" and override_rtype == 28)
+        )
+
+        resp = bytearray(query[:12])
+        resp[2] = 0x80 | (query[2] & 0x01)  # QR=1, RD copied from query
+        resp[3] = 0x80                       # RA=1, RCODE=0 (NOERROR)
+        # QDCOUNT stays as-is (bytes 4-5 already copied)
+        resp[6] = 0; resp[7] = 1 if qtype_matches else 0  # ANCOUNT
+        resp[8] = 0; resp[9] = 0    # NSCOUNT
+        resp[10] = 0; resp[11] = 0  # ARCOUNT
+        resp += query[12:]  # append question section unchanged
+
+        if qtype_matches:
+            # Answer RR: name-ptr 0xC00C → TYPE → CLASS → TTL → RDLENGTH → RDATA
+            resp += b"\xc0\x0c"
+            resp += struct.pack("!HHIH", override_rtype, 1, 300, len(packed))
+            resp += packed
+
+        return bytes(resp)
+    except Exception:
+        return b""
+
+
 def _build_block_response(query: bytes) -> bytes:
     """Synthesise a minimal NXDOMAIN DNS response to block a query.
 
@@ -233,6 +278,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
         blocked_categories: set[str] | None = None,
+        overrides: dict[str, str] | None = None,
     ) -> None:
         self._upstreams = upstreams  # list of (host, port)
         self._upstream_idx: int = 0  # round-robin cursor
@@ -241,6 +287,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._on_malicious = on_malicious
         self._check_sources = check_sources  # None = all sources allowed
         self._blocked_categories: set[str] = blocked_categories or set()
+        self._overrides: dict[str, str] = overrides or {}  # domain → IP
         self._transport: asyncio.DatagramTransport | None = None
         self._total_queries: int = 0
 
@@ -258,6 +305,27 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         qtype = question[1] if question else "?"
         is_malicious = False
         hit: dict | None = None
+
+        # Local DNS overrides — answer immediately without hitting upstream
+        if qname and qname in self._overrides:
+            override_ip = self._overrides[qname]
+            entry: dict = {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "src_ip": src_ip,
+                "domain": qname,
+                "qtype": qtype,
+                "malicious": False,
+                "category": "override",
+                "status": "overridden",
+                "rcode": "NOERROR",
+                "answer": override_ip,
+            }
+            self._dns_log.append(entry)
+            if self._transport and not self._transport.is_closing():
+                resp = _build_override_response(data, override_ip, qtype)
+                if resp:
+                    self._transport.sendto(resp, addr)
+            return
 
         if qname and not qname.endswith(".in-addr.arpa") and not qname.endswith(".ip6.arpa"):
             raw_hit = self._checker.check(qname)
@@ -328,6 +396,7 @@ class DNSProxyServer:
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
         blocked_categories: set[str] | None = None,
+        overrides_raw: str = "",
     ) -> None:
         self._host = host
         self._port = port
@@ -339,9 +408,26 @@ class DNSProxyServer:
         self._on_malicious = on_malicious
         self._check_sources = check_sources
         self._blocked_categories = blocked_categories
+        self._overrides: dict[str, str] = self._parse_overrides(overrides_raw)
         self._transport: asyncio.DatagramTransport | None = None
         self._protocol: DNSProxyProtocol | None = None
         self._running = False
+
+    @staticmethod
+    def _parse_overrides(raw: str) -> dict[str, str]:
+        """Parse 'domain=ip' override lines (one per line or comma-separated)."""
+        result: dict[str, str] = {}
+        for line in raw.replace(",", "\n").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                domain, _, ip = line.partition("=")
+                domain = domain.strip().lower()
+                ip = ip.strip()
+                if domain and ip:
+                    result[domain] = ip
+        return result
 
     @staticmethod
     def _parse_upstream(upstream: str) -> tuple[str, int]:
@@ -369,6 +455,7 @@ class DNSProxyServer:
                 self._on_malicious,
                 self._check_sources,
                 self._blocked_categories,
+                self._overrides,
             )
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

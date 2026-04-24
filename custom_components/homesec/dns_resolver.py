@@ -170,8 +170,21 @@ class DNSBlacklistChecker:
             line = raw.strip()
             if not line or line[0] in ("#", ";", "/"):
                 continue
-            # Strip trailing comments
-            token = line.split("#")[0].split(";")[0].split()[0].strip().rstrip(",")
+            # Strip trailing comments, split into tokens
+            parts = line.split("#")[0].split(";")[0].split()
+            if not parts:
+                continue
+            # Hosts-file format: "0.0.0.0 domain.com" or "127.0.0.1 domain.com"
+            # The first token is a redirect address — the domain(s) follow it.
+            _HOSTS_REDIRECTS = {"0.0.0.0", "127.0.0.1", "::", "::1"}
+            if parts[0] in _HOSTS_REDIRECTS and len(parts) >= 2:
+                for domain_part in parts[1:]:
+                    d = domain_part.strip().rstrip(",").lower()
+                    if d and "." in d and len(d) < 255:
+                        self._bad_domains.add(d)
+                        self._source_map.setdefault(d, source)
+                continue
+            token = parts[0].strip().rstrip(",")
             if not token:
                 continue
             # Handle CIDR — only /32 treated as single IP

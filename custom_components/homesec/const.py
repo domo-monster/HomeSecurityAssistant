@@ -41,6 +41,7 @@ CONF_DNS_PROXY_UPSTREAM = "dns_proxy_upstream"
 CONF_DNS_LOG_RETENTION_HOURS = "dns_log_retention_hours"
 CONF_DNS_PROXY_CHECK_SOURCES = "dns_proxy_check_sources"
 CONF_DNS_BLOCKED_CATEGORIES = "dns_blocked_categories"
+CONF_DNS_OVERRIDES = "dns_overrides"
 
 # NVD CVE enrichment
 CONF_NVD_API_KEY = "nvd_api_key"
@@ -105,6 +106,7 @@ DEFAULT_DNS_PROXY_UPSTREAM = "1.1.1.1"
 DEFAULT_DNS_LOG_RETENTION_HOURS = 24
 DEFAULT_DNS_PROXY_CHECK_SOURCES = ""  # empty = check all sources
 DEFAULT_DNS_BLOCKED_CATEGORIES = ""  # empty = block nothing
+DEFAULT_DNS_OVERRIDES = ""  # empty = no local overrides
 
 COORDINATOR_INTERVAL_SECONDS = 30
 
