@@ -819,7 +819,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>' +
       '<div style="margin-bottom:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
-          '<span style="font-size:10px;color:var(--muted)">Public IPs seen per hour (last 24h)</span>' +
+          '<span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Public IPs seen per hour (last 24h)</span>' +
           extIpsBadges +
         '</div>' +
         (function() {
@@ -836,8 +836,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var svgW = EXT_H * (BAR_W + BAR_GAP);
           var bars = extBuckets.map(function(cnt, i) {
             var x = i * (BAR_W + BAR_GAP);
-            var bh = cnt > 0 ? Math.max(2, Math.round((cnt / maxExt) * CHART_H)) : 0;
-            return bh > 0 ? '<rect x="' + x + '" y="' + (CHART_H - bh) + '" width="' + BAR_W + '" height="' + bh + '" fill="#8f86ff" opacity="0.75" rx="2"/>' : '';
+            var bh = Math.max(2, Math.round((cnt / maxExt) * CHART_H));
+            return '<rect x="' + x + '" y="' + (CHART_H - bh) + '" width="' + BAR_W + '" height="' + bh + '" fill="#8f86ff" opacity="0.75" rx="2"/>';
           }).join('');
           var labels = '';
           for (var li = 0; li < EXT_H; li += 4) {
@@ -851,7 +851,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>' +
       '<div style="margin-top:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
-          '<span style="font-size:10px;color:var(--muted)">Hosts per hour (last 24h)</span>' +
+          '<span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em">Hosts per hour (last 24h)</span>' +
         '</div>' +
         (function() {
           var H_HOURS = 24, H_BAR_W = 18, H_BAR_GAP = 3, H_CHART = 60, H_LABEL = 16;
@@ -877,9 +877,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var hBars = hostBkts.map(function(h, i) {
             var s = scannedBkts[i];
             var x = i * (H_BAR_W + H_BAR_GAP);
-            var bh = h > 0 ? Math.max(2, Math.round((h / mxAll) * H_CHART)) : 0;
-            var sh = (s > 0 && h > 0) ? Math.max(2, Math.round((s / mxAll) * H_CHART)) : 0;
-            return (bh > 0 ? '<rect x="' + x + '" y="' + (H_CHART - bh) + '" width="' + H_BAR_W + '" height="' + bh + '" fill="rgba(58,197,201,.45)" rx="2"/>' : '') +
+            var bh = Math.max(2, Math.round((h / mxAll) * H_CHART));
+            var sh = s > 0 ? Math.max(2, Math.round((s / mxAll) * H_CHART)) : 0;
+            return '<rect x="' + x + '" y="' + (H_CHART - bh) + '" width="' + H_BAR_W + '" height="' + bh + '" fill="rgba(58,197,201,.45)" rx="2"/>' +
               (sh > 0 ? '<rect x="' + x + '" y="' + (H_CHART - sh) + '" width="' + H_BAR_W + '" height="' + sh + '" fill="rgba(107,255,200,.75)" rx="2"/>' : '');
           }).join('');
           var hLabels = '';
