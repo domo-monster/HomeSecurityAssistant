@@ -129,7 +129,8 @@ class HomeSecCollector:
 
         session = async_get_clientsession(hass)
         blacklist_raw = str(get_entry_value(entry, CONF_BLACKLIST_URLS, DEFAULT_BLACKLIST_URLS))
-        blacklist_urls = [u.strip() for u in blacklist_raw.split(",") if u.strip()]
+        import re as _re
+        blacklist_urls = [u.strip() for u in _re.split(r"[\n\r,]+", blacklist_raw) if u.strip()]
         enable_dns = bool(get_entry_value(entry, CONF_ENABLE_DNS_RESOLUTION, DEFAULT_ENABLE_DNS_RESOLUTION))
         self._resolver = DNSBlacklistChecker(
             session=session,

@@ -227,16 +227,15 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
 
     def __init__(
         self,
-        upstream_host: str,
-        upstream_port: int,
+        upstreams: list[tuple[str, int]],
         checker,  # DNSBlacklistChecker
         dns_log: deque,
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
         blocked_categories: set[str] | None = None,
     ) -> None:
-        self._upstream_host = upstream_host
-        self._upstream_port = upstream_port
+        self._upstreams = upstreams  # list of (host, port)
+        self._upstream_idx: int = 0  # round-robin cursor
         self._checker = checker
         self._dns_log = dns_log
         self._on_malicious = on_malicious
@@ -295,14 +294,16 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
             entry["rcode"] = "NXDOMAIN"
             return
 
-        # Forward to upstream
+        # Forward to upstream (round-robin across configured upstreams)
         if self._transport is None or self._transport.is_closing():
             return
+        upstream_host, upstream_port = self._upstreams[self._upstream_idx % len(self._upstreams)]
+        self._upstream_idx += 1
         try:
             loop = asyncio.get_running_loop()
             await loop.create_datagram_endpoint(
                 lambda: _UpstreamProtocol(data, self._transport, addr, entry),
-                remote_addr=(self._upstream_host, self._upstream_port),
+                remote_addr=(upstream_host, upstream_port),
             )
         except Exception as exc:
             _LOGGER.debug("DNS proxy forward error for %s: %s", qname, exc)
@@ -330,7 +331,9 @@ class DNSProxyServer:
     ) -> None:
         self._host = host
         self._port = port
-        self._upstream_host, self._upstream_port = self._parse_upstream(upstream)
+        self._upstreams: list[tuple[str, int]] = [
+            self._parse_upstream(u) for u in upstream.split(",") if u.strip()
+        ] or [("1.1.1.1", 53)]
         self._checker = checker
         self._dns_log = dns_log
         self._on_malicious = on_malicious
@@ -360,8 +363,7 @@ class DNSProxyServer:
         loop = asyncio.get_running_loop()
         try:
             proto = DNSProxyProtocol(
-                self._upstream_host,
-                self._upstream_port,
+                self._upstreams,
                 self._checker,
                 self._dns_log,
                 self._on_malicious,
@@ -376,9 +378,9 @@ class DNSProxyServer:
             self._protocol = proto
             self._running = True
             _LOGGER.info(
-                "HomeSec DNS proxy listening on %s:%d → upstream %s:%d",
+                "HomeSec DNS proxy listening on %s:%d → upstream(s) %s",
                 self._host, self._port,
-                self._upstream_host, self._upstream_port,
+                ", ".join(f"{h}:{p}" for h, p in self._upstreams),
             )
         except OSError as exc:
             _LOGGER.error(

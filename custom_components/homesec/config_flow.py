@@ -6,6 +6,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
+from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
 
 from .const import (
     CONF_ABUSEIPDB_API_KEY,
@@ -94,7 +95,7 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
             vol.Optional(CONF_SCAN_PORTS, default=defaults.get(CONF_SCAN_PORTS, DEFAULT_SCAN_PORTS)): str,
             vol.Optional(CONF_SCAN_EXCEPTIONS, default=defaults.get(CONF_SCAN_EXCEPTIONS, DEFAULT_SCAN_EXCEPTIONS)): str,
             vol.Required(CONF_ENABLE_DNS_RESOLUTION, default=defaults[CONF_ENABLE_DNS_RESOLUTION]): bool,
-            vol.Optional(CONF_BLACKLIST_URLS, default=defaults.get(CONF_BLACKLIST_URLS, DEFAULT_BLACKLIST_URLS)): str,
+            vol.Optional(CONF_BLACKLIST_URLS, default=defaults.get(CONF_BLACKLIST_URLS, DEFAULT_BLACKLIST_URLS)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
             vol.Required(CONF_DNS_PROXY_ENABLED, default=defaults.get(CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED)): bool,
             vol.Optional(CONF_DNS_PROXY_PORT, default=defaults.get(CONF_DNS_PROXY_PORT, DEFAULT_DNS_PROXY_PORT)): vol.All(int, vol.Range(min=1, max=65535)),
             vol.Optional(CONF_DNS_PROXY_UPSTREAM, default=defaults.get(CONF_DNS_PROXY_UPSTREAM, DEFAULT_DNS_PROXY_UPSTREAM)): str,
