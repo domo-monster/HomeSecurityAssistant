@@ -87,16 +87,27 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
   <em>Example: Security Findings & Recommendations</em>
 </p>
 
+### DNS Proxy
+- Built-in **DNS proxy server** that intercepts all DNS queries on a configurable port and upstream resolver
+- Checks every queried **domain** against the loaded threat-intel blacklists and blocks known-malicious lookups
+- **Per-category blocking** — optionally restrict entire categories (e.g. `malware`, `phishing`, `ads`) from configured blocklist feeds
+- **Source filtering** (`check_sources`) — optionally limit blocking to queries forwarded from specific upstream resolvers
+- **DNS overrides** — define custom `domain=ip` rules to resolve specific hostnames to fixed IPs, useful for local split-DNS or ad-hoc redirects
+- Maintains a rolling **DNS query log** (configurable retention; up to 10 000 entries in memory) showing timestamp, client IP, queried domain, query type, verdict (allowed / blocked), and matched source feed
+- Fires a `homesec_malicious_dns` HA event whenever a blocked domain is queried, with src IP, domain, query type, and source feed
+- **Automatic hiding** — the DNS Queries sidebar nav item and the Overview DNS Proxy card are hidden when the proxy is not running, keeping the UI uncluttered
+
 ### Sidebar Dashboard
 A dedicated multi-view single-page application registered in the HA sidebar:
 
-- **Overview** — summary stats, **Active Scan** card (last scan time, duration, hosts found, scan interval), NetFlow listener health, recent alerts, and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived)
+- **Overview** — summary stats, **Active Scan** card (last scan time, duration, hosts found, scan interval), NetFlow listener health, recent alerts, **DNS Proxy** card (running/stopped, total queries, blocked count, blocked %), and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived). Quick-access navigation links at the bottom of the overview jump directly to the Vulnerabilities, Statistics, and DNS Queries views. The DNS Proxy card and DNS Queries link are hidden when the proxy is disabled.
 - **Network Map** — live force-directed graph with zoom/pan, showing scanned hosts, flow-active hosts, at-risk devices, gateways, and top external peers. Filter toggles: All / Scanned / Flow only / External
 - **Hosts** — searchable device inventory with inferred roles, scan results, and tracker-enriched names (alive hosts only)
 - **Findings** — actionable security findings with dismiss buttons, CVE details, and remediation hints
 - **External IPs** — enriched external IP table with threat ratings, VirusTotal hits, AbuseIPDB scores, last-seen timestamps, and on-demand lookup
 - **Vulnerabilities** — sortable vulnerability browser listing **all cached NVD CVEs** (not just network-detected) with CVSS scores, severity, affected service/technology, published date, CISA KEV flags, detected-on-network count, and a **CVE detail modal** showing full description and CPE criteria. CVEs not matching any host on the network are shown with a dimmed "not detected" indicator
 - **Statistics** — at-a-glance operational dashboard showing top external IP talkers and contacted countries (configurable N), plus an **Enrichment Budget** card with per-provider usage, daily budget (∞ for unlimited tiers), usage bar, status badge, detected account tier/plan (e.g. ipwho.is free, VirusTotal community/premium, AbuseIPDB basic/premium), and any recent API errors
+- **DNS Queries** — paginated DNS query log (50 entries per page) with filters for domain, verdict, and category. Includes a **Blocked / Malicious by Category** pie chart and a **🚫 Clear blocked** button to remove all blocked entries from the log in one click. Hidden when the DNS proxy is disabled.
 - **Recommendations** — prioritized hardening suggestions based on current network state
 
 The dashboard auto-refreshes every 30 seconds. The network map updates live without resetting the physics simulation.
@@ -121,10 +132,13 @@ Each sensor exposes diagnostic attributes including device inventory, listener h
 
 ## Services
 
+All services are callable from **Developer Tools → Actions** in Home Assistant.
+
 | Service | Description |
 |---|---|
 | `homesec.trigger_scan` | Immediately run a full active network scan without waiting for the next scheduled interval |
 | `homesec.nvd_refresh` | Flush the local NVD CVE cache and re-fetch fresh vulnerability data from NVD |
+| `homesec.blacklist_refresh` | Clear all loaded threat-intel entries and immediately re-download every configured blocklist URL. Useful after adding or changing URLs, or when you need up-to-date coverage without waiting for the next scheduled refresh |
 
 ## Installation
 
@@ -177,6 +191,13 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | NVD minimum CVE year | `2020` | Oldest CVE year to include (0 = all years) |
 | NVD search keywords | _(16 defaults)_ | Comma-separated product names to query NVD for (e.g. OpenSSH, nginx, WordPress) |
 | Statistics top N | `10` | Number of top entries shown in the Statistics view (3–25) |
+| Enable DNS proxy | `false` | Run a local DNS proxy that filters queries against threat-intel blacklists |
+| DNS proxy port | `5335` | UDP port the DNS proxy listens on |
+| DNS proxy upstream | `8.8.8.8:53` | Upstream resolver for non-blocked queries |
+| DNS proxy check sources | _(empty)_ | Comma-separated upstream hostnames/IPs to restrict blocking to (empty = all clients) |
+| DNS blocked categories | _(empty)_ | Comma-separated feed categories to block (e.g. `malware,phishing,ads`) |
+| DNS overrides | _(empty)_ | Newline-separated `domain=ip` static override rules |
+| DNS log retention | `24` h | Hours to keep DNS query log entries (0 = keep until restart) |
 
 All options can be changed after setup via **Configure** on the integration card. Changes trigger an automatic reload.
 
@@ -243,6 +264,9 @@ All user-facing configuration options are mirrored here on every reload. At star
 | `enable_scanner` / `scan_interval` / `scan_exceptions` / `scan_ports` | Active scanner settings |
 | `external_ip_retention_hours` | Retention window for external IP history |
 | `enable_dns_resolution` / `blacklist_urls` | DNS resolution and threat-feed URLs |
+| `dns_proxy_enabled` / `dns_proxy_port` / `dns_proxy_upstream` | DNS proxy enable flag, port, and upstream resolver |
+| `dns_proxy_check_sources` / `dns_blocked_categories` / `dns_overrides` | DNS proxy source filter, category blocklist, and static overrides |
+| `dns_log_retention_hours` | DNS query log retention window |
 | `virustotal_api_key` / `abuseipdb_api_key` | External enrichment API credentials |
 | `enrichment_ttl_minutes` | Enrichment provider cache TTL |
 | `virustotal_daily_budget` / `abuseipdb_daily_budget` | Per-provider daily query budgets |
@@ -281,6 +305,10 @@ Written every time a finding is dismissed via the Findings dashboard view; read 
 - "vuln:192.168.1.50:80:CVE-2021-1234"
 - "suspicious_port:192.168.1.20"
 ```
+
+### `homesec_dns.yaml` — DNS query log
+
+Written on integration shutdown and reloaded at startup (filtered to the configured retention window). Stores the rolling DNS proxy query log so that history survives restarts. Entries contain `timestamp`, `src_ip`, `domain`, `qtype`, `verdict`, and matched `source`. This file is auto-managed — do not edit it manually.
 
 These files don't exist yet — they are created at runtime by a running Home Assistant instance, not in this development workspace. They are written to hass.config.config_dir, which is wherever your HA configuration lives (the directory containing configuration.yaml).
 
