@@ -338,7 +338,8 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
 
         # Content category and filtering decision
         category = "malware" if is_malicious else (categorize_domain(qname) if qname else "other")
-        blocked = bool(self._blocked_categories) and category in self._blocked_categories
+        # Threat-intel hits are always blocked; category-based blocking is additive.
+        blocked = is_malicious or (bool(self._blocked_categories) and category in self._blocked_categories)
 
         entry: dict = {
             "timestamp": datetime.now(UTC).isoformat(),
