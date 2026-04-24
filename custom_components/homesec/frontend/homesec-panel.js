@@ -79,7 +79,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._mapFilter    = 'all';
     this._mapParticles = [];
     this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie' };
-    this._timelinePeriod = '24h';
   }
 
   set hass(v) {
@@ -218,8 +217,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (vd) { this._openVulnDetail(vd.dataset.vulnDetail); return; }
     var st = e.target.closest('[data-statstoggle]');
     if (st) { var _sp = st.dataset.statstoggle.split(':'); this._statsViewModes[_sp[0]] = _sp[1]; this._render(); return; }
-    var tlp = e.target.closest('[data-timelineperiod]');
-    if (tlp) { this._timelinePeriod = tlp.dataset.timelineperiod; this._render(); return; }
   }
 
   _onInput(e) {
@@ -796,13 +793,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // ── Timeline ─────────────────────────────────────────────────────
     var allPoints = (this._data && this._data.timeseries) || [];
-    var periodMs = {'1h': 3600000, '6h': 21600000, '24h': 86400000, '7d': 604800000, '30d': 2592000000};
-    var activePeriod = this._timelinePeriod || '24h';
-    var cutoff = Date.now() - (periodMs[activePeriod] || periodMs['24h']);
-    var filteredPts = allPoints.filter(function(p) { return new Date(p.ts).getTime() >= cutoff; });
-    var periodBtns = ['1h','6h','24h','7d','30d'].map(function(p) {
-      return '<button class="btn' + (activePeriod === p ? ' active' : '') + '" style="padding:3px 8px;font-size:10px" data-timelineperiod="' + p + '">' + p + '</button>';
-    }).join('');
+
 
     // Public IPs per period — derived from last_seen on each external IP entry
     var _extIpsList = (this._data && this._data.external_ips) || [];
@@ -825,7 +816,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var timelineHtml = '<div class="stat-card" style="grid-column:1/-1">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
         '<span class="card-title" style="margin-bottom:0">ACTIVITY TIMELINE</span>' +
-        '<span style="display:flex;gap:4px">' + periodBtns + '</span>' +
       '</div>' +
       '<div style="margin-bottom:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
