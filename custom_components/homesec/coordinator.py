@@ -45,6 +45,7 @@ from .const import (
     CONF_NVD_KEYWORDS,
     CONF_VIRUSTOTAL_API_KEY,
     CONF_VIRUSTOTAL_DAILY_BUDGET,
+    CONF_VT_ABUSEIPDB_THRESHOLD,
     COORDINATOR_INTERVAL_SECONDS,
     DEFAULT_ABUSEIPDB_API_KEY,
     DEFAULT_ABUSEIPDB_DAILY_BUDGET,
@@ -77,6 +78,7 @@ from .const import (
     DEFAULT_NVD_KEYWORDS,
     DEFAULT_VIRUSTOTAL_API_KEY,
     DEFAULT_VIRUSTOTAL_DAILY_BUDGET,
+    DEFAULT_VT_ABUSEIPDB_THRESHOLD,
     DOMAIN,
     get_entry_value,
 )
@@ -144,6 +146,7 @@ class HomeSecCollector:
             virustotal_key=str(get_entry_value(entry, CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY)) or None,
             abuseipdb_key=str(get_entry_value(entry, CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY)) or None,
             enrichment_ttl_minutes=int(get_entry_value(entry, CONF_ENRICHMENT_TTL_MINUTES, DEFAULT_ENRICHMENT_TTL_MINUTES)),
+            vt_abuseipdb_threshold=int(get_entry_value(entry, CONF_VT_ABUSEIPDB_THRESHOLD, DEFAULT_VT_ABUSEIPDB_THRESHOLD)),
             daily_budgets={
                 "virustotal": int(get_entry_value(entry, CONF_VIRUSTOTAL_DAILY_BUDGET, DEFAULT_VIRUSTOTAL_DAILY_BUDGET)),
                 "abuseipdb": int(get_entry_value(entry, CONF_ABUSEIPDB_DAILY_BUDGET, DEFAULT_ABUSEIPDB_DAILY_BUDGET)),

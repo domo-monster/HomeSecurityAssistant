@@ -107,7 +107,7 @@ A dedicated multi-view single-page application registered in the HA sidebar:
 - **External IPs** — enriched external IP table with threat ratings, VirusTotal hits, AbuseIPDB scores, last-seen timestamps, and on-demand lookup
 - **Vulnerabilities** — sortable vulnerability browser listing **all cached NVD CVEs** (not just network-detected) with CVSS scores, severity, affected service/technology, published date, CISA KEV flags, detected-on-network count, and a **CVE detail modal** showing full description and CPE criteria. CVEs not matching any host on the network are shown with a dimmed "not detected" indicator
 - **Statistics** — at-a-glance operational dashboard showing top external IP talkers and contacted countries (configurable N), plus an **Enrichment Budget** card with per-provider usage, daily budget (∞ for unlimited tiers), usage bar, status badge, detected account tier/plan (e.g. ipwho.is free, VirusTotal community/premium, AbuseIPDB basic/premium), and any recent API errors
-- **DNS Queries** — paginated DNS query log (50 entries per page) with filters for domain, verdict, and category. Includes a **Blocked / Malicious by Category** pie chart and a **🚫 Clear blocked** button to remove all blocked entries from the log in one click. Hidden when the DNS proxy is disabled.
+- **DNS Queries** — paginated DNS query log (default 25 rows per page, adjustable to 10/25/50/100) with global filters for domain/client IP, verdict, category, and malicious-only. Includes a **Blocked / Malicious by Category** pie chart and a **🚫 Clear blocked** button to remove all blocked entries from the log in one click. Hidden when the DNS proxy is disabled.
 - **Recommendations** — prioritized hardening suggestions based on current network state
 
 The dashboard auto-refreshes every 30 seconds. The network map updates live without resetting the physics simulation.
@@ -168,23 +168,25 @@ Device tracker enrichment is automatic — if you have router or presence integr
 |---|---|---|
 | Bind host | `0.0.0.0` | UDP listen address |
 | Bind port | `2055` | UDP listen port |
-| Internal networks | `192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12` | Comma-separated CIDRs |
-| Port-scan detection window | `300` s | Time window for port-scan heuristic |
-| Unique ports before scan alert | `20` | Threshold for port-scan finding |
+| Internal networks | `192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, fd00::/8, fe80::/10` | Comma-separated CIDRs |
+| Port-scan detection window | `600` s | Time window for port-scan heuristic |
+| Unique ports before scan alert | `100` | Threshold for port-scan finding |
 | High egress threshold | `50 MB` | Octets per interval to trigger alert |
 | Enable sidebar panel | `true` | Register the Web UI panel |
+| Sidebar panel requires admin | `true` | Restrict sidebar panel visibility to Home Assistant admin users |
 | Enable active scanner | `true` | Ping + port scan internal hosts |
-| Scan interval | `300` s | Seconds between active scans |
+| Scan interval | `3000` s | Seconds between active scans |
 | Scan exceptions | _(empty)_ | Comma-separated IPs to skip during active scanning |
 | Scan ports | _(47 default ports)_ | Comma-separated ports or ranges to probe (e.g. `22,80,443,8000-9000`) |
-| External IP retention (clean) | `24` h | How long to keep clean external IPs (0 = forever) |
+| External IP retention (clean) | `5` h | How long to keep clean external IPs (0 = forever) |
 | Suspicious IP retention | `48` h | How long to keep external IPs rated as suspicious |
 | Malicious IP retention | `168` h | How long to keep external IPs rated as malicious (default 7 days) |
 | Enable reverse DNS | `true` | Resolve external IP hostnames |
 | Blacklist URLs | abuse.ch feeds | Comma-separated threat intel feed URLs |
 | VirusTotal API key | _(empty)_ | Optional, enables VT lookups |
 | AbuseIPDB API key | _(empty)_ | Optional, enables abuse score lookups |
-| Enrichment cache TTL | `300` min | Minutes before re-querying external enrichment providers |
+| Enrichment cache TTL | `1440` min | Minutes before re-querying external enrichment providers |
+| AbuseIPDB confidence required before querying VirusTotal | `30` | VirusTotal is queried only when AbuseIPDB confidence meets/exceeds this threshold (0–100) |
 | VirusTotal daily budget | `500` | Max daily VirusTotal queries |
 | AbuseIPDB daily budget | `1000` | Max daily AbuseIPDB queries |
 | NVD cache TTL | `12` h | Hours before re-fetching CVE data from NVD |
@@ -192,12 +194,12 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | NVD search keywords | _(16 defaults)_ | Comma-separated product names to query NVD for (e.g. OpenSSH, nginx, WordPress) |
 | Statistics top N | `10` | Number of top entries shown in the Statistics view (3–25) |
 | Enable DNS proxy | `false` | Run a local DNS proxy that filters queries against threat-intel blacklists |
-| DNS proxy port | `5335` | UDP port the DNS proxy listens on |
-| DNS proxy upstream | `8.8.8.8:53` | Upstream resolver for non-blocked queries |
-| DNS proxy check sources | _(empty)_ | Comma-separated upstream hostnames/IPs to restrict blocking to (empty = all clients) |
+| DNS proxy port | `53` | UDP port the DNS proxy listens on |
+| DNS proxy upstream | `1.1.1.1` | Upstream resolver for non-blocked queries |
+| DNS proxy check sources | _(empty)_ | Comma-separated threat-feed source names to use for blocking decisions (empty = all sources). If set, matches from other feed sources are logged but not blocked. |
 | DNS blocked categories | _(empty)_ | Comma-separated feed categories to block (e.g. `malware,phishing,ads`) |
-| DNS overrides | _(empty)_ | Newline-separated `domain=ip` static override rules |
-| DNS log retention | `24` h | Hours to keep DNS query log entries (0 = keep until restart) |
+| DNS overrides | _(empty)_ | Static `domain=ip` override rules (one per line or comma-separated). Persisted in `homesec.yaml` and restored on startup. |
+| DNS log retention | `24` h | Hours to keep DNS query log entries (0 = keep all) |
 
 All options can be changed after setup via **Configure** on the integration card. Changes trigger an automatic reload.
 
@@ -248,7 +250,7 @@ softflowd -i br-lan -n 192.168.1.10:2055 -v 5
 
 ## Persistent Storage
 
-Home Security Assistant writes four plain YAML files to the Home Assistant config directory (alongside `configuration.yaml`). They survive integration updates, HA restarts, and config-entry reloads. Do not place them under version control if they contain API keys.
+Home Security Assistant writes multiple plain YAML files to the Home Assistant config directory (alongside `configuration.yaml`). They survive integration updates, HA restarts, and config-entry reloads. Do not place them under version control if they contain API keys.
 
 ### `homesec.yaml` — integration settings
 
@@ -268,6 +270,7 @@ All user-facing configuration options are mirrored here on every reload. At star
 | `dns_proxy_check_sources` / `dns_blocked_categories` / `dns_overrides` | DNS proxy source filter, category blocklist, and static overrides |
 | `dns_log_retention_hours` | DNS query log retention window |
 | `virustotal_api_key` / `abuseipdb_api_key` | External enrichment API credentials |
+| `vt_abuseipdb_threshold` | AbuseIPDB confidence threshold required before querying VirusTotal |
 | `enrichment_ttl_minutes` | Enrichment provider cache TTL |
 | `virustotal_daily_budget` / `abuseipdb_daily_budget` | Per-provider daily query budgets |
 | `retention_suspicious_hours` / `retention_malicious_hours` | Severity-based retention windows for external IPs |
@@ -296,6 +299,10 @@ Written after each active-scanner cycle and reloaded at startup. Ensures the Hos
 
 This file is auto-managed — editing it manually is not recommended as it will be overwritten after the next scan.
 
+### `homesec_names.yaml` — device name overrides
+
+Stores manual host display-name overrides made in the Hosts view. Structure is a flat `ip: name` mapping.
+
 ### `homesec_dismissed.yaml` — dismissed findings
 
 Written every time a finding is dismissed via the Findings dashboard view; read at startup so dismissals survive restarts and component updates. Structure is a flat YAML list of finding-key strings. You can manually remove a key from this file to restore a previously dismissed finding — it will reappear after the next coordinator refresh.
@@ -306,9 +313,16 @@ Written every time a finding is dismissed via the Findings dashboard view; read 
 - "suspicious_port:192.168.1.20"
 ```
 
-### `homesec_dns.yaml` — DNS query log
+### `homesec_dns_log.yaml` — DNS query log
 
 Written on integration shutdown and reloaded at startup (filtered to the configured retention window). Stores the rolling DNS proxy query log so that history survives restarts. Entries contain `timestamp`, `src_ip`, `domain`, `qtype`, `verdict`, and matched `source`. This file is auto-managed — do not edit it manually.
+
+Additional runtime state files used by recent versions:
+
+- `homesec_ext_ips.yaml` — persisted external IP state (first/last seen, sources, ports, severity)
+- `homesec_timeseries.yaml` — persisted statistics timeline points
+- `homesec_enrichment_state.yaml` — per-provider daily enrichment usage counters
+- `homesec_chart_state.yaml` — persisted top statistics chart snapshots (restart fallback)
 
 These files don't exist yet — they are created at runtime by a running Home Assistant instance, not in this development workspace. They are written to hass.config.config_dir, which is wherever your HA configuration lives (the directory containing configuration.yaml).
 
@@ -322,15 +336,23 @@ Home Assistant Core (venv)	~/.homeassistant/
 So the files will appear as:
 /config/homesec.yaml
 /config/homesec_roles.yaml
+/config/homesec_names.yaml
 /config/homesec_hosts.yaml
 /config/homesec_dismissed.yaml
+/config/homesec_dns_log.yaml
+/config/homesec_ext_ips.yaml
+/config/homesec_timeseries.yaml
+/config/homesec_enrichment_state.yaml
+/config/homesec_chart_state.yaml
 
 They are created:
 
 homesec.yaml — the first time the integration loads after setup
 homesec_roles.yaml — the first time you save a role override in the Hosts view
+homesec_names.yaml — the first time you save a custom host name in the Hosts view
 homesec_hosts.yaml — after the first active scanner cycle completes
 homesec_dismissed.yaml — the first time you dismiss a finding in the Findings view
+homesec_dns_log.yaml / homesec_ext_ips.yaml / homesec_timeseries.yaml — after corresponding runtime data is produced
 
 ## FAQ
 

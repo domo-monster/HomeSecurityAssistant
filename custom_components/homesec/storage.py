@@ -66,6 +66,7 @@ PERSISTED_KEYS = (
     "scan_port_threshold",
     "high_egress_threshold",
     "enable_webui",
+    "webui_require_admin",
     "enable_scanner",
     "scan_interval",
     "scan_exceptions",
@@ -83,6 +84,7 @@ PERSISTED_KEYS = (
     "dns_overrides",
     "virustotal_api_key",
     "abuseipdb_api_key",
+    "vt_abuseipdb_threshold",
 )
 
 
@@ -429,5 +431,43 @@ def save_enrichment_state(hass_config_dir: str, state: dict[str, Any]) -> None:
             fh.write("# Auto-managed. Do not edit manually.\n\n")
             yaml.safe_dump(state, fh, default_flow_style=False, sort_keys=False, allow_unicode=True)
         _LOGGER.debug("Saved enrichment usage state to %s", path)
+    except Exception:
+        _LOGGER.warning("Failed to write %s", path, exc_info=True)
+
+
+# ── Dashboard chart state ────────────────────────────────────────────────────
+
+CHART_STATE_FILENAME = "homesec_chart_state.yaml"
+
+
+def _chart_state_path(hass_config_dir: str) -> Path:
+    return Path(hass_config_dir) / CHART_STATE_FILENAME
+
+
+def load_chart_state(hass_config_dir: str) -> dict[str, Any]:
+    """Load persisted dashboard chart state from YAML."""
+    path = _chart_state_path(hass_config_dir)
+    if not path.is_file():
+        return {}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+        if isinstance(data, dict):
+            return data
+        return {}
+    except Exception:
+        _LOGGER.warning("Failed to read %s", path, exc_info=True)
+        return {}
+
+
+def save_chart_state(hass_config_dir: str, state: dict[str, Any]) -> None:
+    """Persist dashboard chart state to YAML."""
+    path = _chart_state_path(hass_config_dir)
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("# Home Security Assistant — dashboard chart state\n")
+            fh.write("# Auto-managed. Do not edit manually.\n\n")
+            yaml.safe_dump(state, fh, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        _LOGGER.debug("Saved dashboard chart state to %s", path)
     except Exception:
         _LOGGER.warning("Failed to write %s", path, exc_info=True)

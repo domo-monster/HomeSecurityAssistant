@@ -12,7 +12,9 @@ from .const import (
     CONF_BIND_HOST,
     CONF_BIND_PORT,
     CONF_ENABLE_WEBUI,
+    CONF_WEBUI_REQUIRE_ADMIN,
     DEFAULT_ENABLE_WEBUI,
+    DEFAULT_WEBUI_REQUIRE_ADMIN,
     DOMAIN,
     PLATFORMS,
     get_entry_value,
@@ -46,7 +48,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     enable_webui = bool(get_entry_value(entry, CONF_ENABLE_WEBUI, DEFAULT_ENABLE_WEBUI))
     if enable_webui:
-        await async_setup_dashboard(hass)
+        await async_setup_dashboard(
+            hass,
+            require_admin=bool(
+                get_entry_value(entry, CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
+            ),
+        )
         _LOGGER.info("HomeSec Web UI is enabled for entry %s", entry.entry_id)
     else:
         _LOGGER.info("HomeSec Web UI is disabled for entry %s", entry.entry_id)

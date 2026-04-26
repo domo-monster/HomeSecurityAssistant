@@ -72,11 +72,13 @@ class ExternalIPEnricher:
         abuseipdb_key: str | None = None,
         enrichment_ttl_minutes: int = 60,
         daily_budgets: dict[str, int] | None = None,
+        vt_abuseipdb_threshold: int = 30,
     ) -> None:
         self._session = session
         self._vt_key = virustotal_key
         self._abuse_key = abuseipdb_key
         self._ttl = timedelta(minutes=max(1, enrichment_ttl_minutes))
+        self._vt_abuseipdb_threshold = max(0, min(100, int(vt_abuseipdb_threshold)))
         self._cache: dict[str, dict[str, object]] = {}
         self._enriched_at: dict[str, datetime] = {}
         self._pending: asyncio.Queue[str] = asyncio.Queue(maxsize=_QUEUE_MAX)
@@ -315,7 +317,7 @@ class ExternalIPEnricher:
 
         # Each provider: check budget → throttle → call
         # Order matters: AbuseIPDB runs before VirusTotal so the score is available
-        # to gate the VT call (VT only runs when abuse_confidence >= 50).
+        # to gate the VT call.
         providers: list[tuple[str, str | None, object]] = [
             ("ipwho",      "_always_",      self._ipwho),
             ("abuseipdb",  self._abuse_key, self._abuseipdb),
@@ -327,8 +329,9 @@ class ExternalIPEnricher:
             # fast_only: ipwho.is-only path for on-demand lookups (avoids VT 15 s throttle)
             if fast_only and name != "ipwho":
                 continue
-            # VT is expensive (quota): only query when AbuseIPDB already scored ≥ 50 %
-            if name == "virustotal" and int(result.get("abuse_confidence") or 0) < 50:
+            # VT is expensive (quota): only query when AbuseIPDB already scored above
+            # the configured confidence threshold.
+            if name == "virustotal" and int(result.get("abuse_confidence") or 0) < self._vt_abuseipdb_threshold:
                 continue
             if not self._budget_ok(name):
                 _LOGGER.debug("HSA: %s daily budget exhausted (%d), skipping %s",

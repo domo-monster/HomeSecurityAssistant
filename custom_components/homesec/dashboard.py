@@ -23,14 +23,18 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CONF_SCAN_INTERVAL,
     CONF_STATS_TOP_N,
+    CONF_WEBUI_REQUIRE_ADMIN,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STATS_TOP_N,
+    DEFAULT_WEBUI_REQUIRE_ADMIN,
     DOMAIN,
     get_entry_value,
 )
 from .storage import (
+    load_chart_state,
     load_name_overrides,
     load_role_overrides,
+    save_chart_state,
     save_name_overrides,
     save_role_overrides,
 )
@@ -82,7 +86,7 @@ def _register_brand_route(hass: HomeAssistant, fname: str, fpath: Path) -> None:
         _LOGGER.debug("Could not register brand route for %s", fname)
 
 
-async def async_setup_dashboard(hass: HomeAssistant) -> None:
+async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True) -> None:
     domain_data = hass.data.setdefault(DOMAIN, {})
     domain_data.setdefault("entries", {})
     domain_data.setdefault("panel_registered", False)
@@ -137,16 +141,22 @@ async def async_setup_dashboard(hass: HomeAssistant) -> None:
         module_url=STATIC_PANEL_URL,
         sidebar_title="Home Security Assistant",
         sidebar_icon="mdi:shield-search",
-        require_admin=False,
+        require_admin=require_admin,
         config={"domain": DOMAIN},
     )
     _LOGGER.info("Home Security Assistant panel registered at /%s and fallback at /api/homesec/panel", PANEL_URL_PATH)
     domain_data["panel_registered"] = True
 
 
-def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
+def build_dashboard_payload(
+    hass: HomeAssistant,
+    persisted_chart_state: dict[str, Any] | None = None,
+    dns_offset: int = 0,
+    dns_limit: int = 500,
+) -> dict[str, Any]:
     domain_data = hass.data.get(DOMAIN, {})
     entries = domain_data.get("entries", {})
+    persisted_chart_state = persisted_chart_state or {}
 
     entry_payloads: list[dict[str, Any]] = []
     all_devices: list[dict[str, Any]] = []
@@ -428,7 +438,19 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         threat_candidates,
         key=lambda e: (_THREAT_RATINGS.get(e["rating"], 2), -e["flows"]),
     )[:TOP_N]
+
+    if not all_connections:
+        top_public_ips = list(persisted_chart_state.get("top_public_ips", []))[:TOP_N]
+        top_countries = list(persisted_chart_state.get("top_countries", []))[:TOP_N]
+        top_threat_ips = list(persisted_chart_state.get("top_threat_ips", []))[:TOP_N]
+    if not any(int(device.get("total_octets", 0) or 0) > 0 for device in all_devices):
+        top_internal_talkers = list(persisted_chart_state.get("top_internal_talkers", []))[:TOP_N]
     # ─────────────────────────────────────────────────────────────────────
+
+    full_dns_log = _build_dns_log(entries)
+    dns_offset = max(0, int(dns_offset))
+    dns_limit = max(1, min(5000, int(dns_limit)))
+    dns_log = full_dns_log[dns_offset:dns_offset + dns_limit]
 
     return {
         "summary": {
@@ -484,19 +506,22 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         "top_threat_ips": top_threat_ips,
         "enrichment_stats": enrichment_stats,
         "timeseries": timeseries,
-        "dns_log": _build_dns_log(entries),
+        "dns_log": dns_log,
+        "dns_log_total": len(full_dns_log),
+        "dns_log_offset": dns_offset,
+        "dns_log_limit": dns_limit,
         "dns_proxy_stats": _build_dns_proxy_stats(entries),
         "blacklist_stats": _build_blacklist_stats(entries),
     }
 
 
 def _build_dns_log(entries: dict) -> list[dict[str, Any]]:
-    """Merge and sort DNS log entries from all collectors (newest first, max 500)."""
+    """Merge and sort DNS log entries from all collectors (newest first)."""
     merged: list[dict[str, Any]] = []
     for runtime in entries.values():
         merged.extend(runtime["collector"].dns_log_snapshot())
     merged.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
-    return merged[:500]
+    return merged
 
 
 def _build_blacklist_stats(entries: dict) -> dict[str, Any]:
@@ -633,7 +658,43 @@ class HomeSecDashboardView(HomeAssistantView):
     requires_auth = True
 
     async def get(self, request):
-        return self.json(build_dashboard_payload(request.app["hass"]))
+        hass = request.app["hass"]
+        entries = hass.data.get(DOMAIN, {}).get("entries", {})
+        entry = list(entries.values())[0]["entry"] if entries else None
+
+        try:
+            dns_offset = max(0, int(request.query.get("dns_offset", 0)))
+        except (TypeError, ValueError):
+            dns_offset = 0
+        try:
+            dns_limit = int(request.query.get("dns_limit", 500))
+        except (TypeError, ValueError):
+            dns_limit = 500
+        dns_limit = max(1, min(dns_limit, 5000))
+
+        persisted_chart_state = await hass.async_add_executor_job(
+            load_chart_state, hass.config.config_dir
+        )
+        payload = build_dashboard_payload(
+            hass,
+            persisted_chart_state,
+            dns_offset=dns_offset,
+            dns_limit=dns_limit,
+        )
+        payload["panel_require_admin"] = bool(
+            get_entry_value(entry, CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
+        ) if entry is not None else DEFAULT_WEBUI_REQUIRE_ADMIN
+        await hass.async_add_executor_job(
+            save_chart_state,
+            hass.config.config_dir,
+            {
+                "top_public_ips": payload.get("top_public_ips", []),
+                "top_countries": payload.get("top_countries", []),
+                "top_internal_talkers": payload.get("top_internal_talkers", []),
+                "top_threat_ips": payload.get("top_threat_ips", []),
+            },
+        )
+        return self.json(payload)
 
 
 class HomeSecPanelFallbackView(HomeAssistantView):
