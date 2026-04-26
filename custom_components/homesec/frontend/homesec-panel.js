@@ -83,6 +83,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._dnsCategoryFilter = '';
     this._dnsStatusFilter = '';
     this._dnsMaliciousOnly = false;
+    this._mobileMenuOpen = false;
   }
 
   set hass(v) {
@@ -123,6 +124,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _setView(v) {
     if (v === this._view) return;
     this._stopMap();
+    this._mobileMenuOpen = false;
     this._lookupResult = null;
     this._lookupIP     = null;
     if (this._view === 'vulnerabilities') this._vulnData = null;
@@ -135,11 +137,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _render() {
     const root = this.shadowRoot;
     if (!root.querySelector('.app')) {
-      root.innerHTML = '<style>' + _CSS + '</style><div class="app"><nav class="sidebar" id="hsa-sidebar"></nav><main class="content" id="hsa-content"></main></div>';
+      root.innerHTML = '<style>' + _CSS + '</style><div class="app"><header class="mobile-topbar"><button class="mobile-menu-btn" data-mobile-menu-toggle aria-label="Open menu">☰</button><div class="mobile-topbar-title" id="hsa-mobile-title">Home Security</div></header><div class="mobile-backdrop" data-mobile-menu-close></div><nav class="sidebar" id="hsa-sidebar"></nav><main class="content" id="hsa-content"></main></div>';
       root.querySelector('.app').addEventListener('click', e => this._onClick(e));
       root.querySelector('.app').addEventListener('input', e => this._onInput(e));
       root.querySelector('.app').addEventListener('change', e => this._onChange(e));
     }
+    var app = root.querySelector('.app');
+    app.classList.toggle('mobile-menu-open', !!this._mobileMenuOpen);
+    var mobileTitle = root.getElementById('hsa-mobile-title');
+    if (mobileTitle) mobileTitle.textContent = _VIEW_LABELS[this._view] || 'Home Security';
     root.getElementById('hsa-sidebar').innerHTML = this._sidebar();
     const content = root.getElementById('hsa-content');
     if (this._error && !this._data) {
@@ -175,6 +181,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _onClick(e) {
+    var mToggle = e.target.closest('[data-mobile-menu-toggle]');
+    if (mToggle) { this._mobileMenuOpen = !this._mobileMenuOpen; this._render(); return; }
+    var mClose = e.target.closest('[data-mobile-menu-close]');
+    if (mClose) { this._mobileMenuOpen = false; this._render(); return; }
     var editorClose = e.target.closest('[data-editor-close]');
     if (editorClose) { this._closeEditor(); return; }
     var editorSave = e.target.closest('[data-editor-save]');
@@ -939,8 +949,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
 
     function chartSection(svgHtml, legendHtml) {
-      return '<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding-top:10px">' +
-        svgHtml + '<div style="flex:1;min-width:160px">' + legendHtml + '</div>' +
+      return '<div class="stats-chart-row">' +
+        svgHtml + '<div class="stats-chart-legend">' + legendHtml + '</div>' +
       '</div>';
     }
 
@@ -1045,8 +1055,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (!eStats.length) {
       enrichSection = '<div class="empty-state"><p style="margin:12px 0">No enrichment data</p></div>';
     } else {
-      enrichSection = '<table class="data-table" style="width:100%"><thead><tr>' +
-        '<th>Provider</th><th style="text-align:right">Used today</th><th style="text-align:right">Daily budget</th><th>Usage</th><th>Status</th><th>Errors / Notes</th>' +
+      enrichSection = '<div style="overflow-x:auto"><table class="data-table" style="width:100%;min-width:480px"><thead><tr>' +
+        '<th>Provider</th><th style="width:80px;text-align:right">Used today</th><th style="width:90px;text-align:right">Daily budget</th><th style="width:110px">Usage</th><th style="width:80px">Status</th><th>Errors / Notes</th>' +
         '</tr></thead><tbody>' +
         eStats.map(function(s) {
           var PROV_LABELS = { ipwho: 'ipwho.is', virustotal: 'VirusTotal', abuseipdb: 'AbuseIPDB' };
@@ -1073,7 +1083,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '<td>' + badge + '</td>' +
             '<td>' + errCell + '</td></tr>';
         }).join('') +
-        '</tbody></table>';
+        '</tbody></table></div>';
     }
 
     // ── Top suspicious / malicious IPs ────────────────────────────────
@@ -1230,8 +1240,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
         override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
       };
-      dnsTopMalHtml = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
-        '<th>#</th><th>Domain</th><th>Category</th><th style="text-align:right">Queries</th>' +
+      dnsTopMalHtml = '<table class="data-table" style="width:100%;margin-top:8px;table-layout:fixed"><thead><tr>' +
+        '<th style="width:26px">#</th><th>Domain</th><th style="width:88px">Category</th><th style="width:64px;text-align:right">Queries</th>' +
         '</tr></thead><tbody>' +
         topMalDomains.map(function(d, i) {
           var cc = DNS_CAT_COLORS_STAT[d.category] || DNS_CAT_COLORS_STAT['other'];
@@ -1239,7 +1249,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             cc.replace(',1)', ',.15)') + ';color:' + cc + ';border:1px solid ' + cc.replace(',1)', ',.35)') + '">' +
             (d.category || 'other') + '</span>';
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
-            '<td class="mono" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(d.domain) + '</td>' +
+            '<td class="mono" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(d.domain) + '</td>' +
             '<td>' + catPill + '</td>' +
             '<td style="text-align:right"><span class="badge badge-malicious">' + d.count + '</span></td></tr>';
         }).join('') +
@@ -1289,7 +1299,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '</div>';
         }).join('') +
       '</div>';
-      dnsCatPieHtml = '<div style="display:flex;gap:24px;align-items:center">' + _dnsCatPieSvg + _dnsCatLegend + '</div>';
+      dnsCatPieHtml = '<div class="stats-chart-row">' + _dnsCatPieSvg + '<div class="stats-chart-legend">' + _dnsCatLegend + '</div></div>';
     }
 
     // ── Top blocked/malicious DNS queries by client (pie) ───────────
@@ -1329,51 +1339,51 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '</div>';
         }).join('') +
       '</div>';
-      dnsClientPieHtml = '<div style="display:flex;gap:24px;align-items:center">' + _dnsClientPieSvg + _dnsClientLegend + '</div>';
+      dnsClientPieHtml = '<div class="stats-chart-row">' + _dnsClientPieSvg + '<div class="stats-chart-legend">' + _dnsClientLegend + '</div></div>';
     }
 
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
       timelineHtml +
-      '<div class="two-col" style="margin-top:12px">' +
-        '<div class="card">' +
+      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+        '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
           ipsSection +
         '</div>' +
-        '<div class="card">' +
+        '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Countries' + toggleBtns('countries', modes.countries) + '</div>' +
           countriesSection +
         '</div>' +
       '</div>' +
-      '<div class="two-col" style="margin-top:12px">' +
-        '<div class="card">' +
+      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+        '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Internal Talkers' + toggleBtns('talkers', modes.talkers) + '</div>' +
           talkersSection +
         '</div>' +
-        '<div class="card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
           (topThr.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Threat IPs <span class="badge badge-critical" style="font-size:9px">' + topThr.length + '</span></span>' : 'Top\u00a0' + topN + ' Threat IPs') +
           toggleBtns('threat_ips', modes.threat_ips) + '</div>' +
           threatSection +
         '</div>' +
       '</div>' +
-      '<div class="two-col" style="margin-top:12px">' +
-        '<div class="card">' +
+      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+        '<div class="card stats-panel-card">' +
           '<div class="card-title">Blocked DNS Queries by Category</div>' +
           dnsCatPieHtml +
         '</div>' +
-        '<div class="card">' +
+        '<div class="card stats-panel-card">' +
           '<div class="card-title">Top\u00a0' + topN + ' Blocked Queries by Client</div>' +
           dnsClientPieHtml +
         '</div>' +
       '</div>' +
-      '<div class="two-col" style="margin-top:12px">' +
-        '<div class="card">' +
+      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+        '<div class="card stats-panel-card">' +
           '<div class="card-title">DNS Activity</div>' +
           dnsChartHtml +
         '</div>' +
-        '<div class="card">' +
-          '<div class="card-title">' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
           (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
           '</div>' +
           dnsTopMalHtml +
@@ -2976,5 +2986,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
 // ─── CSS ─────────────────────────────────────────────────────────────────────
 var _CSS = ':host{--bg:#070b12;--card:rgba(14,23,40,.92);--border:rgba(98,232,255,.14);--text:#eef7ff;--muted:#8a9dbf;--accent:#62e8ff;--success:#6bffc8;--danger:#ff4d6d;--warn:#ffb347;--violet:#9e96ff;--glow:0 0 28px rgba(98,232,255,.08);display:block;height:100vh;overflow:hidden;font-family:"IBM Plex Sans","Segoe UI",sans-serif;color:var(--text);background:var(--bg)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:210px;min-width:210px;background:rgba(6,11,24,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}.brand{padding:18px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}.brand-shield{font-size:26px;filter:drop-shadow(0 0 8px rgba(98,232,255,.5))}.brand-text{display:flex;flex-direction:column}.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.06em}.brand-tagline{font-size:9px;color:var(--muted);opacity:.7;margin-top:4px;line-height:1.3}.nav-list{list-style:none;padding:6px 0;flex:1}.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border-left:3px solid transparent;transition:all .12s ease;user-select:none}.nav-item:hover{background:rgba(98,232,255,.05);color:var(--text)}.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(98,232,255,.07)}.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.65}.nav-item.active svg{opacity:1}.nav-label{flex:1}.nav-badge{background:var(--danger);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}.sidebar-status{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}.sidebar-status.online .status-dot{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}.content{flex:1;overflow-y:auto;padding:22px 24px;position:relative;background:var(--bg)}.content::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;background-image:linear-gradient(rgba(98,232,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(98,232,255,.07) 1px,transparent 1px);background-size:40px 40px}.content>*{position:relative;z-index:1}.page-header{margin-bottom:20px}.page-title{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin-bottom:3px}.page-subtitle{font-size:12px;color:var(--muted);letter-spacing:.02em}.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--glow)}.stat-card.danger{border-color:rgba(255,77,109,.3)}.stat-card.warn{border-color:rgba(255,179,71,.28)}.stat-card.success{border-color:rgba(107,255,200,.2)}.stat-value{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--glow);margin-bottom:14px}.table-card{padding:0;overflow:hidden}.card-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.health-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(98,232,255,.05);font-size:12px}.health-row:last-child{border-bottom:none}.health-label{color:var(--muted)}.health-value{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}.health-value.good{color:var(--success)}.health-value.warn{color:var(--warn)}.health-value.bad{color:var(--danger)}.alert-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(98,232,255,.05)}.alert-row:last-child{border-bottom:none}.alert-body{flex:1;min-width:0}.alert-sum{font-size:12px;font-weight:600}.alert-meta{font-size:10px;color:var(--muted);margin-top:2px}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.view-header h1{font-size:18px;font-weight:700}.dim{color:var(--muted);font-weight:400;font-size:13px}.row-gap{display:flex;gap:8px;align-items:center}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}.data-table td{padding:7px 10px;border-bottom:1px solid rgba(98,232,255,.04);vertical-align:middle}.data-table tr.expandable{cursor:pointer}.data-table tr.expandable:hover td{background:rgba(98,232,255,.03)}.mono{font-family:"IBM Plex Mono",monospace}.ip{font-family:"IBM Plex Mono",monospace;font-size:11px}.host-detail-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 16px;background:rgba(0,0,0,.25)}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600}.detail-row{background:rgba(0,0,0,.2)}.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.badge-critical{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-high{background:rgba(255,140,66,.18);color:#ff8c42;border:1px solid rgba(255,140,66,.35)}.badge-medium{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-low{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-clean{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-suspicious{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-malicious{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-ok{background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)}.badge-warn{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.chip{display:inline-block;background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.15);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--accent);margin:1px}.ip-chip{display:inline-block;background:rgba(107,255,200,.08);border:1px solid rgba(107,255,200,.2);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--success);margin:1px 2px 1px 0}.finding-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}.finding-card.sev-critical{border-left-color:var(--danger)}.finding-card.sev-high{border-left-color:#ff8c42}.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}.finding-title{flex:1;font-size:12px;font-weight:600}.finding-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);flex-wrap:wrap}.finding-body{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.finding-detail{margin-top:8px;background:rgba(0,0,0,.2);border-radius:5px;padding:8px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:#b0c8e0}.finding-detail dt{color:var(--muted);font-weight:600}.finding-detail dd{margin-left:4px;color:var(--text);margin-right:12px}.fix-hint{font-size:11px;color:var(--success);margin-top:5px}.map-wrap{position:relative;height:calc(100vh - 120px);background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}#hsa-map-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}#hsa-map-canvas:active{cursor:grabbing}.map-tooltip{position:absolute;background:rgba(6,11,24,.96);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:10px;pointer-events:none;z-index:10;min-width:130px;box-shadow:0 4px 18px rgba(0,0,0,.5)}.map-legend{position:absolute;bottom:10px;left:10px;background:rgba(6,11,24,.82);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:10px;display:flex;gap:12px}.legend-item{display:flex;align-items:center;gap:4px;color:var(--muted)}.ldot{width:9px;height:9px;border-radius:50%}.map-filter-bar{display:flex;gap:6px;margin-bottom:10px}.map-fbtn{padding:4px 12px}.map-fbtn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.tldr-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.tldr-bar strong{color:var(--accent)}.ip-detail-panel{background:rgba(6,11,24,.98);border:1px solid rgba(98,232,255,.3);border-radius:10px;padding:14px;font-size:12px}.ip-detail-panel h3{color:var(--accent);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.detail-pair{display:flex;flex-direction:column;gap:2px}.detail-key{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}.detail-val{font-size:12px;color:var(--text);word-break:break-all}.ext-report-link{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;border:1px solid rgba(98,232,255,.25);background:rgba(98,232,255,.08);color:var(--accent);text-decoration:none;font-size:11px;font-weight:600}.ext-report-link:hover{background:rgba(98,232,255,.16);border-color:rgba(98,232,255,.45)}.rec-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}.rec-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}.rec-title{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}.rec-detail{font-size:11px;color:var(--muted);line-height:1.55}.btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(98,232,255,.05);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}.btn:hover{background:rgba(98,232,255,.12);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:default}.search-bar{padding:5px 11px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:210px}.search-bar:focus{outline:none;border-color:var(--accent)}.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;color:var(--muted)}.state-icon{font-size:32px}.loader{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--muted);text-align:center}.empty-icon{font-size:28px}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--success)}50%{opacity:.6;box-shadow:0 0 2px var(--success)}}@keyframes spin{to{transform:rotate(360deg)}}.role-select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit}.role-select:focus{outline:none;border-color:var(--accent)}.role-select:hover{border-color:var(--accent);background:rgba(98,232,255,.08)}.sortable-th{cursor:pointer;user-select:none;white-space:nowrap}.sortable-th:hover{color:var(--accent)}.sort-arrow{font-size:8px;margin-left:3px;color:var(--accent)}@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--border);align-items:center;gap:0}.brand{display:none}.brand-tagline{display:none}.nav-list{display:flex;flex-direction:row;padding:0;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch}.nav-item{flex-direction:column;gap:2px;padding:8px 12px;font-size:10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;min-width:0}.nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent)}.nav-item svg{width:14px;height:14px}.nav-label{font-size:9px}.sidebar-status{display:none}.content{padding:12px 10px;height:calc(100vh - 52px)}.content::before{display:none}.page-title{font-size:18px}.stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{padding:10px}.stat-value{font-size:20px}.stat-label{font-size:9px}.two-col{grid-template-columns:1fr}.host-detail-wrap{grid-template-columns:1fr}.table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.data-table{min-width:680px}.search-bar{width:100%}.view-header{flex-direction:column;align-items:flex-start;gap:8px}.view-header h1{font-size:16px}.map-wrap{height:calc(100vh - 160px)}.map-legend{flex-wrap:wrap;gap:6px;font-size:9px}.map-filter-bar{flex-wrap:wrap}.finding-meta{flex-direction:column;gap:4px}.detail-grid{grid-template-columns:1fr}.ip-detail-panel{font-size:11px}.rec-card{flex-direction:column;gap:6px}.tldr-bar{flex-direction:column;gap:6px}.card{padding:12px;border-radius:10px}.finding-card{padding:10px}.btn{font-size:10px;padding:4px 8px}}@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.data-table{min-width:560px;font-size:11px}.content{padding:8px 6px}}';
+
+_CSS += '.mobile-topbar{display:none}.mobile-backdrop{display:none}.stats-two-col>.card{min-width:0;width:100%;overflow:hidden}.stats-panel-card .data-table{min-width:0}.stats-chart-row{display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding-top:10px;width:100%;min-width:0}.stats-chart-legend{flex:1;min-width:0}.stats-chart-legend>div{max-width:100%}@media(max-width:768px){.mobile-topbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);background:rgba(6,11,24,.98);position:sticky;top:0;z-index:35}.mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:rgba(98,232,255,.1);color:var(--text);font-size:18px;cursor:pointer}.mobile-topbar-title{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.sidebar{position:fixed;top:0;left:0;bottom:0;width:min(82vw,300px);min-width:0;max-width:300px;transform:translateX(-102%);transition:transform .2s ease;z-index:45;border-right:1px solid var(--border);border-bottom:none;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}.app.mobile-menu-open .sidebar{transform:translateX(0)}.mobile-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}.app.mobile-menu-open .mobile-backdrop{display:block}.sidebar .brand{display:flex}.sidebar .brand-tagline{display:block}.sidebar .nav-list{display:block;overflow:visible;padding:6px 0}.sidebar .nav-item{display:flex;flex-direction:row;gap:9px;padding:9px 14px;font-size:12px;border-bottom:none;border-left:3px solid transparent;white-space:normal}.sidebar .nav-item.active{border-bottom-color:transparent;border-left-color:var(--accent)}.sidebar .nav-label{font-size:12px}.sidebar .sidebar-status{display:flex}.content{height:auto;min-height:0;flex:1}.stats-chart-row{gap:12px}.stats-chart-row svg{max-width:100%}.stats-chart-legend{width:100%;max-height:none}.stats-two-col>.card{margin-bottom:0}.stats-panel-card .data-table{min-width:0}}';  
+
+_CSS += '@media(max-width:420px){.mobile-topbar{padding:8px 10px;gap:8px}.mobile-menu-btn{width:30px;height:30px;font-size:16px;border-radius:7px}.mobile-topbar-title{font-size:12px;letter-spacing:.02em}.sidebar{width:min(90vw,280px);max-width:280px}.sidebar .brand{padding:14px 12px 10px}.sidebar .nav-item{padding:8px 12px;font-size:11px;gap:8px}.sidebar .nav-label{font-size:11px}.content{padding:8px 8px}.page-title{font-size:16px}.card{padding:10px;border-radius:9px}.card-title{font-size:10px;line-height:1.35;word-break:break-word}.stats-two-col{gap:10px!important}.stats-panel-card .data-table{font-size:10px}.stats-panel-card .data-table th,.stats-panel-card .data-table td{padding:6px 7px}.stats-chart-row{gap:10px}.stats-chart-legend{font-size:10px;line-height:1.4}.stats-chart-legend .row-gap{gap:6px;flex-wrap:wrap}.stats-chart-row svg{width:112px;height:112px}}@media(max-width:360px){.mobile-topbar{padding:7px 8px}.mobile-topbar-title{font-size:11px}.sidebar{width:min(92vw,260px);max-width:260px}.content{padding:7px 6px}.card{padding:9px}.stats-panel-card .data-table{font-size:9px}.stats-panel-card .data-table th,.stats-panel-card .data-table td{padding:5px 6px}}';
 
 customElements.define('homesec-panel', HomeSecurityAssistantPanel);

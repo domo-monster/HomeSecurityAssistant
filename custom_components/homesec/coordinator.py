@@ -208,11 +208,11 @@ class HomeSecCollector:
                 return s.split("/")[2]
             return s
         check_sources: set[str] | None = (
-            {_to_hostname(s) for s in check_sources_raw.split(",") if s.strip()} or None
+            {_to_hostname(s) for s in _re.split(r"[\n\r,]+", check_sources_raw) if s.strip()} or None
         )
         blocked_cats_raw = str(get_entry_value(entry, CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES))
         blocked_categories: set[str] = {
-            s.strip().lower() for s in blocked_cats_raw.split(",") if s.strip()
+            s.strip().lower() for s in _re.split(r"[\n\r,]+", blocked_cats_raw) if s.strip()
         }
         if dns_proxy_enabled:
             self._dns_proxy: DNSProxyServer | None = DNSProxyServer(

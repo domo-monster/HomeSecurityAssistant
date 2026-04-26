@@ -152,7 +152,7 @@ def build_dashboard_payload(
     hass: HomeAssistant,
     persisted_chart_state: dict[str, Any] | None = None,
     dns_offset: int = 0,
-    dns_limit: int = 500,
+    dns_limit: int | None = None,
 ) -> dict[str, Any]:
     domain_data = hass.data.get(DOMAIN, {})
     entries = domain_data.get("entries", {})
@@ -449,8 +449,11 @@ def build_dashboard_payload(
 
     full_dns_log = _build_dns_log(entries)
     dns_offset = max(0, int(dns_offset))
-    dns_limit = max(1, min(5000, int(dns_limit)))
-    dns_log = full_dns_log[dns_offset:dns_offset + dns_limit]
+    if dns_limit is None:
+        dns_limit = 0
+    else:
+        dns_limit = max(0, int(dns_limit))
+    dns_log = full_dns_log[dns_offset:] if dns_limit == 0 else full_dns_log[dns_offset:dns_offset + dns_limit]
 
     return {
         "summary": {
@@ -666,11 +669,14 @@ class HomeSecDashboardView(HomeAssistantView):
             dns_offset = max(0, int(request.query.get("dns_offset", 0)))
         except (TypeError, ValueError):
             dns_offset = 0
-        try:
-            dns_limit = int(request.query.get("dns_limit", 500))
-        except (TypeError, ValueError):
-            dns_limit = 500
-        dns_limit = max(1, min(dns_limit, 5000))
+        raw_dns_limit = request.query.get("dns_limit")
+        if raw_dns_limit is None or raw_dns_limit == "":
+            dns_limit = 0
+        else:
+            try:
+                dns_limit = max(0, int(raw_dns_limit))
+            except (TypeError, ValueError):
+                dns_limit = 0
 
         persisted_chart_state = await hass.async_add_executor_job(
             load_chart_state, hass.config.config_dir
@@ -1044,6 +1050,7 @@ class HomeSecDnsLogView(HomeAssistantView):
     """Return recent DNS proxy query log entries.
 
     GET /api/homesec/dns/log?limit=200&malicious_only=true
+    limit is optional; omit or set to 0 to return all entries.
     """
 
     url = "/api/homesec/dns/log"
@@ -1057,10 +1064,14 @@ class HomeSecDnsLogView(HomeAssistantView):
         if not entries:
             return self.json({"entries": [], "total": 0})
 
-        try:
-            limit = min(int(request.query.get("limit", 500)), 5000)
-        except (ValueError, TypeError):
-            limit = 500
+        raw_limit = request.query.get("limit")
+        if raw_limit is None or raw_limit == "":
+            limit = 0
+        else:
+            try:
+                limit = max(0, int(raw_limit))
+            except (ValueError, TypeError):
+                limit = 0
         malicious_only = request.query.get("malicious_only", "").lower() in ("1", "true", "yes")
 
         merged: list[dict] = []
@@ -1069,7 +1080,8 @@ class HomeSecDnsLogView(HomeAssistantView):
         merged.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
         if malicious_only:
             merged = [e for e in merged if e.get("malicious")]
-        merged = merged[:limit]
+        if limit > 0:
+            merged = merged[:limit]
 
         return self.json({"entries": merged, "total": len(merged)})
 
