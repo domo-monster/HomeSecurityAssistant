@@ -393,3 +393,41 @@ def save_ext_ips(hass_config_dir: str, data: list[dict[str, Any]]) -> None:
         _LOGGER.debug("Saved external IPs (%d entries) to %s", len(data), path)
     except Exception:
         _LOGGER.warning("Failed to write %s", path, exc_info=True)
+
+
+# ── External enrichment usage state ──────────────────────────────────────────
+
+ENRICHMENT_STATE_FILENAME = "homesec_enrichment_state.yaml"
+
+
+def _enrichment_state_path(hass_config_dir: str) -> Path:
+    return Path(hass_config_dir) / ENRICHMENT_STATE_FILENAME
+
+
+def load_enrichment_state(hass_config_dir: str) -> dict[str, Any]:
+    """Load persisted external enrichment usage counters from YAML."""
+    path = _enrichment_state_path(hass_config_dir)
+    if not path.is_file():
+        return {}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+        if isinstance(data, dict):
+            return data
+        return {}
+    except Exception:
+        _LOGGER.warning("Failed to read %s", path, exc_info=True)
+        return {}
+
+
+def save_enrichment_state(hass_config_dir: str, state: dict[str, Any]) -> None:
+    """Persist external enrichment usage counters to YAML."""
+    path = _enrichment_state_path(hass_config_dir)
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("# Home Security Assistant — external enrichment usage state\n")
+            fh.write("# Auto-managed. Do not edit manually.\n\n")
+            yaml.safe_dump(state, fh, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        _LOGGER.debug("Saved enrichment usage state to %s", path)
+    except Exception:
+        _LOGGER.warning("Failed to write %s", path, exc_info=True)

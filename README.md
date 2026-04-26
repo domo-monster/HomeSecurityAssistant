@@ -272,7 +272,7 @@ All user-facing configuration options are mirrored here on every reload. At star
 | `virustotal_daily_budget` / `abuseipdb_daily_budget` | Per-provider daily query budgets |
 | `retention_suspicious_hours` / `retention_malicious_hours` | Severity-based retention windows for external IPs |
 | `stats_top_n` | Number of top entries shown in the Statistics view |
-| `nvd_api_key` / `nvd_api_url` / `nvd_ttl_hours` / `nvd_min_year` | NVD CVE enrichment settings |
+| `nvd_api_url` / `nvd_ttl_hours` / `nvd_min_year` | NVD CVE enrichment settings |
 | `nvd_keywords` | Comma-separated NVD search keywords |
 
 **Merge behaviour:** file values fill in keys that are absent or empty in the config entry — the UI always wins for keys that have a value in both places. This allows pre-seeding settings by writing the file before the integration is installed.

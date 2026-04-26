@@ -94,6 +94,7 @@ from .storage import (
     load_timeseries, save_timeseries, TIMESERIES_INTERVAL_SECONDS,
     load_dns_log, save_dns_log,
     load_ext_ips, save_ext_ips,
+    load_enrichment_state, save_enrichment_state,
 )
 from .vulnerabilities import match_vulnerabilities
 
@@ -187,6 +188,8 @@ class HomeSecCollector:
         self._timeseries: list[dict] = []
         self._ts_last_point: datetime | None = None
         self._timeseries_dirty: bool = False
+        self._ext_state_dirty: bool = False
+        self._runtime_state_last_save: datetime | None = None
 
         # DNS proxy
         self._dns_log: deque = deque(maxlen=DNS_LOG_MAX)
@@ -315,6 +318,12 @@ class HomeSecCollector:
                     self._ext_ip_ratings[ip] = str(rating)
             _LOGGER.info("Restored %d external IP tracking entries", len(ext_ip_data))
 
+        # Restore enrichment usage counters (daily provider budgets)
+        enr_state = await self.hass.async_add_executor_job(load_enrichment_state, self._config_dir)
+        if enr_state:
+            self._enricher.import_usage_state(enr_state)
+            _LOGGER.info("Restored external enrichment usage state")
+
         if self._scanner_enabled:
             await self._scanner.async_start()
             _LOGGER.info("Home Security Assistant active network scanner started")
@@ -357,22 +366,7 @@ class HomeSecCollector:
         # Persist DNS log and external IP state before tearing down services
         dns_snapshot = list(self._dns_log)
         await self.hass.async_add_executor_job(save_dns_log, self._config_dir, dns_snapshot)
-        ext_snapshot = [
-            {
-                "ip": ip,
-                "last_seen": ts.isoformat() if isinstance(ts, datetime) else str(ts),
-                "first_seen": (
-                    self._ext_ip_first_seen[ip].isoformat()
-                    if ip in self._ext_ip_first_seen and isinstance(self._ext_ip_first_seen[ip], datetime)
-                    else None
-                ),
-                "sources": sorted(self._ext_ip_sources.get(ip, set())),
-                "ports": sorted(int(p) for p in self._ext_ip_ports.get(ip, set())),
-                "rating": self._ext_ip_ratings.get(ip, "clean"),
-            }
-            for ip, ts in self._ext_ip_last_seen.items()
-        ]
-        await self.hass.async_add_executor_job(save_ext_ips, self._config_dir, ext_snapshot)
+        await self.async_persist_runtime_state(force=True)
 
         if self._nvd_task is not None:
             self._nvd_task.cancel()
@@ -488,6 +482,7 @@ class HomeSecCollector:
 
         # Collect unique external IPs from device peers + connections
         now = datetime.now(timezone.utc)
+        ext_state_changed = False
         external_ips: dict[str, dict[str, object]] = {}
         multicast_ips: dict[str, dict[str, object]] = {}
         for device in payload.get("devices", []):
@@ -498,10 +493,18 @@ class HomeSecCollector:
                     self._resolver.queue_resolve(ext_ip)
                     external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
                     # Only initialise last_seen / first_seen if not already recorded by _handle_records
-                    self._ext_ip_last_seen.setdefault(ext_ip, now)
-                    self._ext_ip_first_seen.setdefault(ext_ip, now)
+                    if ext_ip not in self._ext_ip_last_seen:
+                        self._ext_ip_last_seen[ext_ip] = now
+                        ext_state_changed = True
+                    if ext_ip not in self._ext_ip_first_seen:
+                        self._ext_ip_first_seen[ext_ip] = now
+                        ext_state_changed = True
                 if device_ip:
-                    self._ext_ip_sources.setdefault(ext_ip, set()).add(device_ip)
+                    srcs = self._ext_ip_sources.setdefault(ext_ip, set())
+                    before = len(srcs)
+                    srcs.add(device_ip)
+                    if len(srcs) != before:
+                        ext_state_changed = True
         for conn in payload.get("connections", []):
             target_kind = conn.get("target_kind", "")
             if target_kind == "multicast":
@@ -521,12 +524,24 @@ class HomeSecCollector:
                     self._enricher.queue_ip(ext_ip)
                     self._resolver.queue_resolve(ext_ip)
                     external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
-                    self._ext_ip_last_seen.setdefault(ext_ip, now)
-                    self._ext_ip_first_seen.setdefault(ext_ip, now)
+                    if ext_ip not in self._ext_ip_last_seen:
+                        self._ext_ip_last_seen[ext_ip] = now
+                        ext_state_changed = True
+                    if ext_ip not in self._ext_ip_first_seen:
+                        self._ext_ip_first_seen[ext_ip] = now
+                        ext_state_changed = True
                 if source_ip:
-                    self._ext_ip_sources.setdefault(ext_ip, set()).add(source_ip)
+                    srcs = self._ext_ip_sources.setdefault(ext_ip, set())
+                    before = len(srcs)
+                    srcs.add(source_ip)
+                    if len(srcs) != before:
+                        ext_state_changed = True
                 if dst_port:
-                    self._ext_ip_ports.setdefault(ext_ip, set()).add(int(dst_port))
+                    ports = self._ext_ip_ports.setdefault(ext_ip, set())
+                    before = len(ports)
+                    ports.add(int(dst_port))
+                    if len(ports) != before:
+                        ext_state_changed = True
 
         # Include previously-seen external IPs that are still within the retention window.
         # Update severity tracking from freshly built entries so pruning uses current ratings.
@@ -534,10 +549,16 @@ class HomeSecCollector:
             blacklisted = bool(entry.get("blacklisted", False))
             rating = str(entry.get("rating") or "")
             if blacklisted or rating == "malicious":
+                if self._ext_ip_ratings.get(ip) != "malicious":
+                    ext_state_changed = True
                 self._ext_ip_ratings[ip] = "malicious"
             elif rating == "suspicious":
+                if self._ext_ip_ratings.get(ip) != "suspicious":
+                    ext_state_changed = True
                 self._ext_ip_ratings[ip] = "suspicious"
             else:
+                if self._ext_ip_ratings.get(ip) != "clean":
+                    ext_state_changed = True
                 self._ext_ip_ratings[ip] = "clean"
 
         stale = []
@@ -558,6 +579,7 @@ class HomeSecCollector:
             self._ext_ip_ports.pop(ip, None)
             self._ext_ip_ratings.pop(ip, None)
             external_ips.pop(ip, None)
+            ext_state_changed = True
         # Add retained IPs not in current snapshot
         for ip, ts in self._ext_ip_last_seen.items():
             if ip not in external_ips:
@@ -595,6 +617,9 @@ class HomeSecCollector:
         payload["kev_ttl_hours"] = self._kev_client.ttl_hours
         kev_ts = self._kev_client.fetched_at
         payload["kev_last_updated"] = kev_ts.isoformat() if kev_ts else None
+
+        if ext_state_changed:
+            self._ext_state_dirty = True
 
         # Record timeseries point every TIMESERIES_INTERVAL_SECONDS
         _ts_now = datetime.now(timezone.utc)
@@ -816,11 +841,66 @@ class HomeSecCollector:
             src_internal = is_internal(rec.src_ip)
             dst_internal = is_internal(rec.dst_ip)
             if not src_internal and dst_internal and not is_multicast(rec.src_ip):
-                self._ext_ip_first_seen.setdefault(str(rec.src_ip), now)
-                self._ext_ip_last_seen[str(rec.src_ip)] = now
+                ip = str(rec.src_ip)
+                if ip not in self._ext_ip_first_seen:
+                    self._ext_ip_first_seen[ip] = now
+                    self._ext_state_dirty = True
+                prev = self._ext_ip_last_seen.get(ip)
+                self._ext_ip_last_seen[ip] = now
+                if prev != now:
+                    self._ext_state_dirty = True
             elif src_internal and not dst_internal and not is_multicast(rec.dst_ip):
-                self._ext_ip_first_seen.setdefault(str(rec.dst_ip), now)
-                self._ext_ip_last_seen[str(rec.dst_ip)] = now
+                ip = str(rec.dst_ip)
+                if ip not in self._ext_ip_first_seen:
+                    self._ext_ip_first_seen[ip] = now
+                    self._ext_state_dirty = True
+                prev = self._ext_ip_last_seen.get(ip)
+                self._ext_ip_last_seen[ip] = now
+                if prev != now:
+                    self._ext_state_dirty = True
+
+    def _external_state_snapshot(self) -> list[dict[str, object]]:
+        return [
+            {
+                "ip": ip,
+                "last_seen": ts.isoformat() if isinstance(ts, datetime) else str(ts),
+                "first_seen": (
+                    self._ext_ip_first_seen[ip].isoformat()
+                    if ip in self._ext_ip_first_seen and isinstance(self._ext_ip_first_seen[ip], datetime)
+                    else None
+                ),
+                "sources": sorted(self._ext_ip_sources.get(ip, set())),
+                "ports": sorted(int(p) for p in self._ext_ip_ports.get(ip, set())),
+                "rating": self._ext_ip_ratings.get(ip, "clean"),
+            }
+            for ip, ts in self._ext_ip_last_seen.items()
+        ]
+
+    async def async_persist_runtime_state(self, force: bool = False) -> None:
+        """Persist runtime state that should survive restarts/crashes."""
+        now = datetime.now(timezone.utc)
+        if not force and self._runtime_state_last_save is not None:
+            if (now - self._runtime_state_last_save).total_seconds() < 60:
+                return
+
+        should_save_ext = force or self._ext_state_dirty
+        should_save_enr = force or self._enricher.is_usage_state_dirty()
+        if not should_save_ext and not should_save_enr:
+            return
+
+        if should_save_ext:
+            await self.hass.async_add_executor_job(
+                save_ext_ips, self._config_dir, self._external_state_snapshot()
+            )
+            self._ext_state_dirty = False
+
+        if should_save_enr:
+            await self.hass.async_add_executor_job(
+                save_enrichment_state, self._config_dir, self._enricher.export_usage_state()
+            )
+            self._enricher.mark_usage_state_clean()
+
+        self._runtime_state_last_save = now
 
 
 class HomeSecCoordinator(DataUpdateCoordinator[dict[str, object]]):
@@ -844,6 +924,7 @@ class HomeSecCoordinator(DataUpdateCoordinator[dict[str, object]]):
                 self.hass.async_add_executor_job(
                     save_timeseries, self.collector._config_dir, ts_copy
                 )
+            await self.collector.async_persist_runtime_state()
             return result
         except Exception as err:
             raise UpdateFailed(f"Snapshot failed: {err}") from err

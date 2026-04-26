@@ -90,6 +90,10 @@
       "name": "Lancer un scan actif des hôtes",
       "description": "Exécute immédiatement un scan réseau complet (ping + scan de ports) pour toutes les IPs connues et observées, sans attendre le prochain intervalle planifié."
     },
+    "blacklist_refresh": {
+      "name": "Forcer l'actualisation des listes de blocage de renseignements sur les menaces",
+      "description": "Efface immédiatement toutes les entrées de threat-intel chargées et retélécharge chaque URL de blocklist configurée."
+    },
     "nvd_refresh": {
       "name": "Actualiser la base de vulnérabilités NVD",
       "description": "Vide le cache local des CVE NVD et récupère les données de vulnérabilités à jour depuis la National Vulnerability Database."

@@ -89,6 +89,10 @@
       "name": "Trigger active host scan",
       "description": "Immediately run a full active network scan (ping + port scan) for all known and observed IPs, without waiting for the next scheduled interval."
     },
+    "blacklist_refresh": {
+      "name": "Force refresh threat intel blocklists",
+      "description": "Immediately clear all loaded threat-intel entries and re-download every configured blocklist URL."
+    },
     "nvd_refresh": {
       "name": "Refresh NVD vulnerability database",
       "description": "Flush the local NVD CVE cache and re-fetch fresh vulnerability data from the National Vulnerability Database."

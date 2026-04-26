@@ -94,6 +94,7 @@ class ExternalIPEnricher:
         self._prov_daily_count: dict[str, int] = {}   # provider → count today
         self._prov_day: str = ""                       # YYYY-MM-DD to reset
         self._prov_last_error: dict[str, str] = {}    # provider → last error note
+        self._usage_state_dirty: bool = False
         # Pre-populate sensible tier defaults; detection at startup may refine these.
         self._prov_tier: dict[str, str] = {}
         self._prov_tier["ipwho"] = "free"  # ipwho.is is always active (no auth required)
@@ -190,6 +191,7 @@ class ExternalIPEnricher:
         if today != self._prov_day:
             self._prov_day = today
             self._prov_daily_count.clear()
+            self._usage_state_dirty = True
         stats: list[dict[str, object]] = []
         for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
             budget = self._limits.get(prov, (interval, default_budget))[1]
@@ -256,6 +258,7 @@ class ExternalIPEnricher:
         if today != self._prov_day:
             self._prov_day = today
             self._prov_daily_count.clear()
+            self._usage_state_dirty = True
         limit = self._limits.get(provider, (1.0, 9999))
         return self._prov_daily_count.get(provider, 0) < limit[1]
 
@@ -276,6 +279,7 @@ class ExternalIPEnricher:
             next_slot = max(now, last + min_interval)
             self._prov_last_call[provider] = next_slot
             self._prov_daily_count[provider] = self._prov_daily_count.get(provider, 0) + 1
+            self._usage_state_dirty = True
             sleep_for = next_slot - now
         # Sleep outside the lock so the next caller can reserve its slot immediately
         if sleep_for > 0:
@@ -364,6 +368,43 @@ class ExternalIPEnricher:
 
         result["rating"], result["rating_source"] = self._compute_rating(result)
         return result
+
+    def export_usage_state(self) -> dict[str, object]:
+        """Return serializable usage counters used for persistence."""
+        return {
+            "day": self._prov_day,
+            "daily_count": dict(self._prov_daily_count),
+        }
+
+    def import_usage_state(self, state: dict[str, object]) -> None:
+        """Restore persisted usage counters if they are valid for today."""
+        if not isinstance(state, dict):
+            return
+        day = state.get("day")
+        counts = state.get("daily_count")
+        today = datetime.now(UTC).strftime("%Y-%m-%d")
+        if not isinstance(day, str) or day != today:
+            self._prov_day = today
+            self._prov_daily_count.clear()
+            self._usage_state_dirty = False
+            return
+        restored: dict[str, int] = {}
+        if isinstance(counts, dict):
+            for prov, value in counts.items():
+                if isinstance(prov, str):
+                    try:
+                        restored[prov] = max(0, int(value))
+                    except (TypeError, ValueError):
+                        continue
+        self._prov_day = day
+        self._prov_daily_count = restored
+        self._usage_state_dirty = False
+
+    def is_usage_state_dirty(self) -> bool:
+        return self._usage_state_dirty
+
+    def mark_usage_state_clean(self) -> None:
+        self._usage_state_dirty = False
 
     async def _ipwho(self, ip: str, aiohttp) -> dict[str, object] | None:
         """Query ipwho.is for country and ASN data (free, no auth, 1 req/s)."""
