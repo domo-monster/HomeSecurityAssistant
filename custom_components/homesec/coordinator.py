@@ -16,6 +16,10 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .const import (
     CONF_ABUSEIPDB_API_KEY,
     CONF_ABUSEIPDB_DAILY_BUDGET,
+    CONF_BASELINE_EGRESS_MULTIPLIER,
+    CONF_BASELINE_ENABLED,
+    CONF_BASELINE_MIN_OBSERVATIONS,
+    CONF_BASELINE_TRAINING_HOURS,
     CONF_BIND_HOST,
     CONF_BIND_PORT,
     CONF_BLACKLIST_URLS,
@@ -49,6 +53,10 @@ from .const import (
     COORDINATOR_INTERVAL_SECONDS,
     DEFAULT_ABUSEIPDB_API_KEY,
     DEFAULT_ABUSEIPDB_DAILY_BUDGET,
+    DEFAULT_BASELINE_EGRESS_MULTIPLIER,
+    DEFAULT_BASELINE_ENABLED,
+    DEFAULT_BASELINE_MIN_OBSERVATIONS,
+    DEFAULT_BASELINE_TRAINING_HOURS,
     DEFAULT_BIND_HOST,
     DEFAULT_BIND_PORT,
     DEFAULT_BLACKLIST_URLS,
@@ -82,6 +90,7 @@ from .const import (
     DOMAIN,
     get_entry_value,
 )
+from .baseline import BaselineManager
 from .dns_resolver import DNSBlacklistChecker
 from .dns_proxy import DNSProxyServer, DNS_LOG_MAX
 from .enrichment import collect_tracker_enrichment
@@ -91,12 +100,15 @@ from .netflow import FlowRecord, NetFlowDatagramProtocol
 from .nvd_enrichment import NVDClient, CISAKEVClient
 from .scanner import NetworkScanner, parse_scan_ports
 from .storage import (
+    delete_baseline,
+    load_baseline,
     load_discovered_hosts, save_discovered_hosts,
     load_dismissed_findings, save_dismissed_findings,
     load_timeseries, save_timeseries, TIMESERIES_INTERVAL_SECONDS,
     load_dns_log, save_dns_log,
     load_ext_ips, save_ext_ips,
     load_enrichment_state, save_enrichment_state,
+    save_baseline,
 )
 from .vulnerabilities import match_vulnerabilities
 
@@ -193,6 +205,12 @@ class HomeSecCollector:
         self._timeseries_dirty: bool = False
         self._ext_state_dirty: bool = False
         self._runtime_state_last_save: datetime | None = None
+        self._baseline_manager = BaselineManager(
+            training_hours=int(get_entry_value(entry, CONF_BASELINE_TRAINING_HOURS, DEFAULT_BASELINE_TRAINING_HOURS)),
+            min_observations=int(get_entry_value(entry, CONF_BASELINE_MIN_OBSERVATIONS, DEFAULT_BASELINE_MIN_OBSERVATIONS)),
+            egress_multiplier=float(get_entry_value(entry, CONF_BASELINE_EGRESS_MULTIPLIER, DEFAULT_BASELINE_EGRESS_MULTIPLIER)),
+        )
+        self._baseline_enabled = bool(get_entry_value(entry, CONF_BASELINE_ENABLED, DEFAULT_BASELINE_ENABLED))
 
         # DNS proxy
         self._dns_log: deque = deque(maxlen=DNS_LOG_MAX)
@@ -327,6 +345,11 @@ class HomeSecCollector:
             self._enricher.import_usage_state(enr_state)
             _LOGGER.info("Restored external enrichment usage state")
 
+        baseline_state = await self.hass.async_add_executor_job(load_baseline, self._config_dir)
+        if baseline_state:
+            self._baseline_manager.load_state(baseline_state)
+            _LOGGER.info("Restored baseline training state")
+
         if self._scanner_enabled:
             await self._scanner.async_start()
             _LOGGER.info("Home Security Assistant active network scanner started")
@@ -404,6 +427,28 @@ class HomeSecCollector:
         self._nvd_task.add_done_callback(self._nvd_task_done)
         _LOGGER.info("NVD cache cleared — background re-fetch started")
 
+    async def async_start_baseline_training(self) -> None:
+        if not self._baseline_enabled:
+            _LOGGER.info("Baseline feature is disabled in options; training request ignored")
+            return
+        self._baseline_manager.start_training()
+        await self.async_persist_runtime_state(force=True)
+
+    async def async_stop_baseline_training(self) -> None:
+        self._baseline_manager.stop_training()
+        await self.async_persist_runtime_state(force=True)
+
+    async def async_clear_baseline(self) -> None:
+        self._baseline_manager.clear()
+        await self.hass.async_add_executor_job(delete_baseline, self._config_dir)
+
+    async def async_retrain_baseline(self) -> None:
+        if not self._baseline_enabled:
+            _LOGGER.info("Baseline feature is disabled in options; retrain request ignored")
+            return
+        self._baseline_manager.retrain()
+        await self.async_persist_runtime_state(force=True)
+
     async def _nvd_background_loop(self) -> None:
         """Background task: re-fetch NVD CVEs for all known services periodically."""
         retry_delay = 60  # seconds between retries while waiting for scan data
@@ -471,6 +516,14 @@ class HomeSecCollector:
             alive_hosts=self._scanner.get_alive_hosts(),
             dismissed_findings=self._dismissed_findings,
         )
+
+        if self._baseline_enabled:
+            self._baseline_manager.observe_snapshot(
+                devices=list(payload.get("devices", [])),
+                dns_log=list(self._dns_log),
+                scan_results=scan_results,
+            )
+        payload["baseline"] = self._baseline_manager.status_snapshot()
 
         # Filter out dismissed findings, keep them separately (with notes)
         findings = payload.get("findings", [])
@@ -888,7 +941,8 @@ class HomeSecCollector:
 
         should_save_ext = force or self._ext_state_dirty
         should_save_enr = force or self._enricher.is_usage_state_dirty()
-        if not should_save_ext and not should_save_enr:
+        should_save_baseline = force or self._baseline_manager.is_dirty
+        if not should_save_ext and not should_save_enr and not should_save_baseline:
             return
 
         if should_save_ext:
@@ -902,6 +956,12 @@ class HomeSecCollector:
                 save_enrichment_state, self._config_dir, self._enricher.export_usage_state()
             )
             self._enricher.mark_usage_state_clean()
+
+        if should_save_baseline:
+            await self.hass.async_add_executor_job(
+                save_baseline, self._config_dir, self._baseline_manager.export_state()
+            )
+            self._baseline_manager.mark_clean()
 
         self._runtime_state_last_save = now
 

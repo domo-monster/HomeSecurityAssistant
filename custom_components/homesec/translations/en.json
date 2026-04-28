@@ -29,6 +29,10 @@
           "virustotal_api_key": "VirusTotal API key (optional)",
           "abuseipdb_api_key": "AbuseIPDB API key (optional)",
           "vt_abuseipdb_threshold": "AbuseIPDB confidence required before querying VirusTotal (0-100)",
+          "baseline_enabled": "Enable baseline learning mode",
+          "baseline_training_hours": "Baseline training duration (hours)",
+          "baseline_min_observations": "Baseline minimum observations before learning",
+          "baseline_egress_multiplier": "Baseline egress anomaly multiplier",
           "external_ip_retention_hours": "Clean IP retention (hours, 0 = forever)",
           "retention_suspicious_hours": "Suspicious IP retention (hours, 0 = forever)",
           "retention_malicious_hours": "Malicious IP retention (hours, 0 = forever)",
@@ -73,6 +77,10 @@
           "virustotal_api_key": "VirusTotal API key (optional)",
           "abuseipdb_api_key": "AbuseIPDB API key (optional)",
           "vt_abuseipdb_threshold": "AbuseIPDB confidence required before querying VirusTotal (0-100)",
+          "baseline_enabled": "Enable baseline learning mode",
+          "baseline_training_hours": "Baseline training duration (hours)",
+          "baseline_min_observations": "Baseline minimum observations before learning",
+          "baseline_egress_multiplier": "Baseline egress anomaly multiplier",
           "external_ip_retention_hours": "Clean IP retention (hours, 0 = forever)",
           "retention_suspicious_hours": "Suspicious IP retention (hours, 0 = forever)",
           "retention_malicious_hours": "Malicious IP retention (hours, 0 = forever)",
@@ -100,6 +108,22 @@
     "nvd_refresh": {
       "name": "Refresh NVD vulnerability database",
       "description": "Flush the local NVD CVE cache and re-fetch fresh vulnerability data from the National Vulnerability Database."
+    },
+    "start_baseline_training": {
+      "name": "Start baseline training",
+      "description": "Start baseline training mode and learn a normal activity profile for the configured training duration."
+    },
+    "stop_baseline_training": {
+      "name": "Stop baseline training",
+      "description": "Stop baseline training mode immediately and promote the learned state to the active baseline if any hosts were observed."
+    },
+    "clear_baseline": {
+      "name": "Clear baseline",
+      "description": "Remove the current baseline state and training progress from persistent storage."
+    },
+    "retrain_baseline": {
+      "name": "Retrain baseline",
+      "description": "Clear the current baseline state and immediately restart training mode."
     }
   }
 }

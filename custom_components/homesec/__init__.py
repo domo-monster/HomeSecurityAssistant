@@ -28,6 +28,10 @@ _LOGGER = logging.getLogger(__name__)
 SERVICE_TRIGGER_SCAN = "trigger_scan"
 SERVICE_NVD_REFRESH = "nvd_refresh"
 SERVICE_BLACKLIST_REFRESH = "blacklist_refresh"
+SERVICE_START_BASELINE_TRAINING = "start_baseline_training"
+SERVICE_STOP_BASELINE_TRAINING = "stop_baseline_training"
+SERVICE_CLEAR_BASELINE = "clear_baseline"
+SERVICE_RETRAIN_BASELINE = "retrain_baseline"
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -110,6 +114,50 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
         _LOGGER.info("Registered %s.%s service", DOMAIN, SERVICE_BLACKLIST_REFRESH)
 
+    if not hass.services.has_service(DOMAIN, SERVICE_START_BASELINE_TRAINING):
+        async def _handle_start_baseline_training(call: ServiceCall) -> None:
+            for runtime in hass.data[DOMAIN]["entries"].values():
+                await runtime["collector"].async_start_baseline_training()
+                await runtime["coordinator"].async_request_refresh()
+
+        hass.services.async_register(
+            DOMAIN, SERVICE_START_BASELINE_TRAINING, _handle_start_baseline_training, schema=vol.Schema({})
+        )
+        _LOGGER.info("Registered %s.%s service", DOMAIN, SERVICE_START_BASELINE_TRAINING)
+
+    if not hass.services.has_service(DOMAIN, SERVICE_STOP_BASELINE_TRAINING):
+        async def _handle_stop_baseline_training(call: ServiceCall) -> None:
+            for runtime in hass.data[DOMAIN]["entries"].values():
+                await runtime["collector"].async_stop_baseline_training()
+                await runtime["coordinator"].async_request_refresh()
+
+        hass.services.async_register(
+            DOMAIN, SERVICE_STOP_BASELINE_TRAINING, _handle_stop_baseline_training, schema=vol.Schema({})
+        )
+        _LOGGER.info("Registered %s.%s service", DOMAIN, SERVICE_STOP_BASELINE_TRAINING)
+
+    if not hass.services.has_service(DOMAIN, SERVICE_CLEAR_BASELINE):
+        async def _handle_clear_baseline(call: ServiceCall) -> None:
+            for runtime in hass.data[DOMAIN]["entries"].values():
+                await runtime["collector"].async_clear_baseline()
+                await runtime["coordinator"].async_request_refresh()
+
+        hass.services.async_register(
+            DOMAIN, SERVICE_CLEAR_BASELINE, _handle_clear_baseline, schema=vol.Schema({})
+        )
+        _LOGGER.info("Registered %s.%s service", DOMAIN, SERVICE_CLEAR_BASELINE)
+
+    if not hass.services.has_service(DOMAIN, SERVICE_RETRAIN_BASELINE):
+        async def _handle_retrain_baseline(call: ServiceCall) -> None:
+            for runtime in hass.data[DOMAIN]["entries"].values():
+                await runtime["collector"].async_retrain_baseline()
+                await runtime["coordinator"].async_request_refresh()
+
+        hass.services.async_register(
+            DOMAIN, SERVICE_RETRAIN_BASELINE, _handle_retrain_baseline, schema=vol.Schema({})
+        )
+        _LOGGER.info("Registered %s.%s service", DOMAIN, SERVICE_RETRAIN_BASELINE)
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -138,6 +186,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 domain_data["panel_registered"] = False
             hass.services.async_remove(DOMAIN, SERVICE_TRIGGER_SCAN)
             hass.services.async_remove(DOMAIN, SERVICE_NVD_REFRESH)
+            hass.services.async_remove(DOMAIN, SERVICE_BLACKLIST_REFRESH)
+            hass.services.async_remove(DOMAIN, SERVICE_START_BASELINE_TRAINING)
+            hass.services.async_remove(DOMAIN, SERVICE_STOP_BASELINE_TRAINING)
+            hass.services.async_remove(DOMAIN, SERVICE_CLEAR_BASELINE)
+            hass.services.async_remove(DOMAIN, SERVICE_RETRAIN_BASELINE)
         finally:
             hass.data.pop(DOMAIN)
 
