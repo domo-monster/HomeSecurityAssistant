@@ -456,7 +456,9 @@ class HomeSecCollector:
             save_discovered_hosts, self._config_dir, hosts
         )
         if self._post_scan_refresh is not None:
-            self._post_scan_refresh()
+            result = self._post_scan_refresh()
+            if asyncio.iscoroutine(result):
+                await result
 
     def dismiss_finding(self, key: str, note: str = "") -> None:
         self._dismissed_findings[key] = note
