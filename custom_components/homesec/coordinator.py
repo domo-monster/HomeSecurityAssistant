@@ -202,7 +202,9 @@ class HomeSecCollector:
 
         await self._resolver.async_start()
         await self._enricher.async_start()
-        self._nvd_task = self.hass.async_create_task(self._nvd_background_loop())
+        self._nvd_task = self.hass.async_create_background_task(
+            self._nvd_background_loop(), name="homesec_nvd_loop"
+        )
         self._nvd_task.add_done_callback(self._nvd_task_done)
 
     def _nvd_task_done(self, task: asyncio.Task) -> None:
@@ -251,7 +253,9 @@ class HomeSecCollector:
         self._nvd_results.clear()
         if self._nvd_task is not None:
             self._nvd_task.cancel()
-        self._nvd_task = self.hass.async_create_task(self._nvd_background_loop())
+        self._nvd_task = self.hass.async_create_background_task(
+            self._nvd_background_loop(), name="homesec_nvd_loop"
+        )
         self._nvd_task.add_done_callback(self._nvd_task_done)
         _LOGGER.info("NVD cache cleared — background re-fetch started")
 
