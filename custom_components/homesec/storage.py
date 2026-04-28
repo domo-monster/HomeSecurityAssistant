@@ -56,6 +56,7 @@ _LOGGER = logging.getLogger(__name__)
 STORAGE_FILENAME = "homesec.yaml"
 ROLE_OVERRIDES_FILENAME = "homesec_roles.yaml"
 NAME_OVERRIDES_FILENAME = "homesec_names.yaml"
+HOST_SETTINGS_FILENAME = "homesec_host_settings.yaml"
 
 # Keys that are persisted to file
 PERSISTED_KEYS = (
@@ -186,6 +187,55 @@ def save_name_overrides(hass_config_dir: str, overrides: dict[str, str]) -> None
             fh.write("# IP: custom display name (auto-managed, edit via the dashboard)\n\n")
             yaml.safe_dump(dict(overrides), fh, default_flow_style=False, sort_keys=True)
         _LOGGER.debug("Saved name overrides to %s", path)
+    except Exception:
+        _LOGGER.warning("Failed to write %s", path, exc_info=True)
+
+
+def _host_settings_path(hass_config_dir: str) -> Path:
+    return Path(hass_config_dir) / HOST_SETTINGS_FILENAME
+
+
+def load_host_settings(hass_config_dir: str) -> dict[str, dict[str, Any]]:
+    """Load IP -> per-host scan overrides from YAML.
+
+    Each entry may carry ``enabled`` (bool) and/or ``interval`` (int seconds).
+    Malformed entries are dropped silently. Returns ``{}`` when the file is
+    missing or unreadable.
+    """
+    path = _host_settings_path(hass_config_dir)
+    if not path.is_file():
+        return {}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+        if not isinstance(data, dict):
+            return {}
+        cleaned: dict[str, dict[str, Any]] = {}
+        for key, val in data.items():
+            if not isinstance(val, dict):
+                continue
+            entry: dict[str, Any] = {}
+            if "enabled" in val and isinstance(val["enabled"], bool):
+                entry["enabled"] = val["enabled"]
+            if "interval" in val and isinstance(val["interval"], int) and val["interval"] > 0:
+                entry["interval"] = val["interval"]
+            if entry:
+                cleaned[str(key)] = entry
+        return cleaned
+    except Exception:
+        _LOGGER.warning("Failed to read %s", path, exc_info=True)
+        return {}
+
+
+def save_host_settings(hass_config_dir: str, settings: dict[str, dict[str, Any]]) -> None:
+    """Persist IP -> per-host scan overrides to YAML."""
+    path = _host_settings_path(hass_config_dir)
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("# Home Security Assistant — per-host scan overrides\n")
+            fh.write("# IP: { enabled: bool?, interval: int? } (auto-managed, edit via the dashboard)\n\n")
+            yaml.safe_dump(dict(settings), fh, default_flow_style=False, sort_keys=True)
+        _LOGGER.debug("Saved %d host settings to %s", len(settings), path)
     except Exception:
         _LOGGER.warning("Failed to write %s", path, exc_info=True)
 

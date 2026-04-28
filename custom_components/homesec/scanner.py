@@ -11,9 +11,11 @@ import sys
 from collections.abc import Callable, Coroutine, Iterable
 from typing import Any
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 _LOGGER = logging.getLogger(__name__)
+
+_EPOCH = datetime.fromtimestamp(0, tz=UTC)
 
 # Well-known ports to probe during a scan sweep.
 SCAN_PORTS: tuple[int, ...] = (
@@ -723,6 +725,11 @@ async def scan_network(
 class NetworkScanner:
     """Manages periodic network scanning for HomeSec."""
 
+    # How often the scheduler wakes up to check for due hosts. Per-host
+    # intervals shorter than this are effectively clamped to this value;
+    # validation upstream rejects anything below 60 s anyway.
+    _TICK_INTERVAL_SECONDS = 30
+
     def __init__(
         self,
         internal_networks: list[str],
@@ -731,6 +738,7 @@ class NetworkScanner:
         excluded_ips: list[str] | None = None,
         ports: tuple[int, ...] = SCAN_PORTS,
         on_scan_complete: Callable[[dict[str, dict]], Coroutine[Any, Any, None]] | None = None,
+        host_settings: dict[str, dict[str, Any]] | None = None,
     ) -> None:
         self._internal_networks = []
         for raw in internal_networks:
@@ -753,6 +761,10 @@ class NetworkScanner:
         self._last_scan_at: datetime | None = None
         self._last_scan_duration: float | None = None
         self._last_scan_hosts: int | None = None
+        # Shared reference with the coordinator/dashboard layer so live
+        # mutations via the HTTP API are visible without an extra setter call.
+        self._host_settings: dict[str, dict[str, Any]] = host_settings if host_settings is not None else {}
+        self._next_due: dict[str, datetime] = {}
 
     def add_observed_ips(self, ips: Iterable[str]) -> None:
         """Register IPs seen from netflow so the scanner knows what to probe."""
@@ -798,17 +810,75 @@ class NetworkScanner:
             self._task = None
 
     async def async_trigger_scan(self) -> None:
-        """Run an immediate scan cycle outside the normal schedule."""
-        await self._run_scan()
+        """Run an immediate scan cycle outside the normal schedule.
+
+        Scans all eligible (non-disabled) targets regardless of due-time, then
+        resets each scanned host's next-due based on its current interval.
+        """
+        await self._run_scan(force_all=True)
 
     async def _scan_loop(self) -> None:
-        """Repeatedly scan the network."""
+        """Tick-based scheduler — wakes up every TICK_INTERVAL and scans only
+        hosts whose per-host due-time has elapsed."""
         while self._running:
             try:
-                await self._run_scan()
+                await self._run_scan(force_all=False)
             except Exception:
                 _LOGGER.exception("Network scan cycle failed")
-            await asyncio.sleep(self._scan_interval)
+            await asyncio.sleep(self._TICK_INTERVAL_SECONDS)
+
+    def _interval_for(self, ip: str) -> int:
+        """Return the effective scan interval (seconds) for a host."""
+        override = self._host_settings.get(ip, {}).get("interval")
+        if isinstance(override, int) and override > 0:
+            return override
+        return self._scan_interval
+
+    def _is_disabled(self, ip: str) -> bool:
+        """Whether the user has explicitly disabled scanning for this host."""
+        return self._host_settings.get(ip, {}).get("enabled") is False
+
+    def update_host_setting(
+        self,
+        ip: str,
+        *,
+        enabled: bool | None = None,
+        interval: int | None = None,
+        clear_interval: bool = False,
+    ) -> None:
+        """Apply a per-host setting change live to the schedule.
+
+        ``clear_interval=True`` means "remove the interval override (inherit
+        global)"; ``interval=None`` without ``clear_interval`` means "leave
+        the existing interval alone".
+        """
+        entry = dict(self._host_settings.get(ip, {}))
+        if enabled is not None:
+            if enabled:
+                entry.pop("enabled", None)
+            else:
+                entry["enabled"] = False
+        if clear_interval:
+            entry.pop("interval", None)
+        elif interval is not None:
+            entry["interval"] = int(interval)
+
+        if entry:
+            self._host_settings[ip] = entry
+        else:
+            self._host_settings.pop(ip, None)
+
+        if self._is_disabled(ip):
+            # No point keeping a schedule entry for a host we won't scan.
+            self._next_due.pop(ip, None)
+            return
+        # On re-enable, leave _next_due unset so the next tick picks the host
+        # up immediately. For an interval change, never delay a scheduled host
+        # beyond its new interval window.
+        if ip in self._next_due:
+            cap = datetime.now(UTC) + timedelta(seconds=self._interval_for(ip))
+            if self._next_due[ip] > cap:
+                self._next_due[ip] = cap
 
     @property
     def last_scan_at(self) -> datetime | None:
@@ -822,22 +892,40 @@ class NetworkScanner:
     def last_scan_hosts(self) -> int | None:
         return self._last_scan_hosts
 
-    async def _run_scan(self) -> None:
-        """Execute one full scan cycle."""
+    async def _run_scan(self, *, force_all: bool) -> None:
+        """Execute one scan tick.
+
+        ``force_all=True`` (manual trigger) scans every eligible target
+        regardless of its next-due time. ``force_all=False`` (regular tick)
+        scans only hosts whose due-time has elapsed.
+        """
         targets = self.get_scan_targets()
         if not targets:
             return
-        _LOGGER.info("Starting network scan of %d hosts", len(targets))
+        now = datetime.now(UTC)
+        if force_all:
+            due = [ip for ip in targets if not self._is_disabled(ip)]
+        else:
+            due = [
+                ip for ip in targets
+                if not self._is_disabled(ip) and self._next_due.get(ip, _EPOCH) <= now
+            ]
+        if not due:
+            return
+        _LOGGER.info("Starting network scan of %d hosts (of %d targets)", len(due), len(targets))
         t0 = datetime.now(UTC)
         results = await scan_network(
-            targets,
+            due,
             ports=self._ports,
             max_concurrent=self._max_concurrent,
         )
         for host in results:
             self._hosts[host.ip] = host
-        self._last_scan_at = datetime.now(UTC)
-        self._last_scan_duration = (self._last_scan_at - t0).total_seconds()
+        finish = datetime.now(UTC)
+        for ip in due:
+            self._next_due[ip] = finish + timedelta(seconds=self._interval_for(ip))
+        self._last_scan_at = finish
+        self._last_scan_duration = (finish - t0).total_seconds()
         self._last_scan_hosts = sum(1 for h in results if h.alive)
         _LOGGER.info(
             "Scan complete: %d alive, %d total tracked (%.1fs)",

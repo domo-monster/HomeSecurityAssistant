@@ -208,6 +208,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     var vd = e.target.closest('[data-vuln-detail]');
     if (vd) { this._openVulnDetail(vd.dataset.vulnDetail); return; }
+    var sca = e.target.closest('[data-scan-custom-apply]');
+    if (sca) { this._applyCustomScanInterval(sca.dataset.scanCustomApply); return; }
   }
 
   _onInput(e) {
@@ -293,6 +295,26 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       } else {
         this._saveRole(ip, role);
       }
+      return;
+    }
+    var scanEnabled = e.target.closest('[data-scan-enabled-ip]');
+    if (scanEnabled) {
+      this._postScanSetting(scanEnabled.dataset.scanEnabledIp, { enabled: e.target.checked });
+      return;
+    }
+    var scanFreq = e.target.closest('[data-scan-freq-ip]');
+    if (scanFreq) {
+      var freqIp = scanFreq.dataset.scanFreqIp;
+      var v = scanFreq.value;
+      if (v === 'inherit') {
+        this._postScanSetting(freqIp, { interval: null });
+      } else if (v === '__custom__') {
+        this._injectCustomRow(scanFreq, freqIp);
+      } else {
+        var parsed = parseInt(v, 10);
+        if (parsed) this._postScanSetting(freqIp, { interval: parsed });
+      }
+      return;
     }
   }
 
@@ -1311,10 +1333,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var knownCustomRoles = Array.from(new Set(customRoleValues));
     var overrides = (this._data && this._data.role_overrides) || {};
     var nameOverrides = (this._data && this._data.name_overrides) || {};
+    var hostSettings = (this._data && this._data.host_settings) || {};
     return devices.map(function(d) {
       var name  = d.display_name || d.hostname || '';
       var vulns = (d.vulnerabilities || []).length;
+      var hs = hostSettings[d.ip] || {};
+      var scanDisabled = hs.enabled === false;
       var alive = d.at_risk ? '#ff4d6d' : (d.alive ? '#6bffc8' : '#4a5a72');
+      var statusDot = scanDisabled
+        ? '<span title="Scan disabled" style="color:#7a8094;font-size:10px">⏸</span>'
+        : '<span style="color:' + alive + ';font-size:8px">●</span>';
       var ports = (d.scanned_services || []).map(function(s) { return s.port; }).join(', ') ||
                   (d.exposed_ports || []).slice(0, 6).join(', ') || '\u2014';
       var id = 'hsa-dr-' + d.ip.replace(/\./g, '-');
@@ -1333,7 +1361,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         ' <button class="btn" data-editname="' + d.ip + '">Rename</button>' +
         (isNameOverride ? ' <span class="dim" style="font-size:9px">(manual)</span>' : '');
       return '<tr class="expandable" data-ip="' + d.ip + '">' +
-        '<td><span style="color:' + alive + ';font-size:8px">\u25CF</span> <span class="ip">' + d.ip + '</span></td>' +
+        '<td>' + statusDot + ' <span class="ip">' + d.ip + '</span></td>' +
         '<td>' + nameCell + '</td>' +
         '<td><span style="font-size:11px">' + self._esc(d.os_guess || '\u2014') + '</span></td>' +
         '<td>' + roleSelect + '</td>' +
@@ -1395,6 +1423,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         this._kv('Traffic', this._bytes(d.total_octets)) +
         this._kv('External peers', (d.external_peers || []).length) +
         this._kv('Last seen', this._ago(d.last_seen)) +
+        this._scanSection(d) +
         (svcs.length ? '<div style="margin-top:12px"><div class="section-label">Open Ports</div>' +
           '<table class="data-table" style="font-size:11px"><thead><tr><th>Port</th><th>Service</th><th>Banner</th><th>Version</th><th>Technologies</th></tr></thead>' +
           '<tbody>' + svcRows + '</tbody></table></div>' : '') +
@@ -1409,6 +1438,86 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _toggleRow(ip) {
     var row = this.shadowRoot.getElementById('hsa-dr-' + ip.replace(/\./g, '-'));
     if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
+  }
+
+  _scanSection(d) {
+    var settings = (this._data && this._data.host_settings) || {};
+    var hs = settings[d.ip] || {};
+    var enabled = hs.enabled !== false;
+    var interval = (typeof hs.interval === 'number') ? hs.interval : null;
+    var globalSec = (this._data && this._data.scan_interval) || 300;
+    var presets = [300, 900, 3600, 21600, 86400];
+    var presetLabels = { 300: '5 min', 900: '15 min', 3600: '1 hour', 21600: '6 hours', 86400: '24 hours' };
+    var isCustom = interval != null && presets.indexOf(interval) === -1;
+    var inheritLabel = 'Inherit (' + (globalSec < 60 ? globalSec + ' s' : Math.round(globalSec / 60) + ' min') + ')';
+    var selectVal = interval == null ? 'inherit' : (isCustom ? '__custom__' : String(interval));
+    var dis = enabled ? '' : ' disabled';
+
+    var opts = '<option value="inherit"' + (selectVal === 'inherit' ? ' selected' : '') + '>' + inheritLabel + '</option>';
+    presets.forEach(function(s) {
+      opts += '<option value="' + s + '"' + (selectVal === String(s) ? ' selected' : '') + '>' + presetLabels[s] + '</option>';
+    });
+    opts += '<option value="__custom__"' + (selectVal === '__custom__' ? ' selected' : '') + '>Custom…</option>';
+
+    var customRow = '';
+    if (isCustom) {
+      customRow = '<div style="margin-top:6px;display:flex;gap:6px;align-items:center;font-size:11px">' +
+        '<span class="dim">Custom (s):</span>' +
+        '<input type="number" min="60" max="604800" step="60" value="' + interval + '"' +
+        ' class="scan-custom-input" data-scan-custom-ip="' + d.ip + '"' +
+        ' style="width:90px;padding:3px 6px;background:#0c121d;border:1px solid #2a3344;color:#cdd5e3;border-radius:4px"' + dis + '>' +
+        '<button class="btn" data-scan-custom-apply="' + d.ip + '"' + dis + '>Apply</button>' +
+        '</div>';
+    }
+
+    return '<div style="margin-top:14px"><div class="section-label">Active scan</div>' +
+      '<label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:4px 0">' +
+        '<input type="checkbox" data-scan-enabled-ip="' + d.ip + '"' + (enabled ? ' checked' : '') + '> ' +
+        'Scan this host' +
+      '</label>' +
+      '<div style="display:flex;gap:8px;align-items:center;font-size:11px">' +
+        '<span class="dim">Frequency:</span>' +
+        '<select class="scan-freq-select" data-scan-freq-ip="' + d.ip + '"' + dis + '>' + opts + '</select>' +
+      '</div>' +
+      customRow +
+      '</div>';
+  }
+
+  async _postScanSetting(ip, body) {
+    body.ip = ip;
+    try {
+      await this._hass.callApi('POST', 'homesec/device/scan', body);
+      await this._fetch();
+    } catch (err) {
+      alert('Failed to update scan settings: ' + (err.message || String(err)));
+    }
+  }
+
+  _injectCustomRow(selectEl, ip) {
+    var existing = this.shadowRoot.querySelector('input[data-scan-custom-ip="' + ip + '"]');
+    if (existing) { existing.focus(); return; }
+    var row = document.createElement('div');
+    row.style.cssText = 'margin-top:6px;display:flex;gap:6px;align-items:center;font-size:11px';
+    row.innerHTML =
+      '<span class="dim">Custom (s):</span>' +
+      '<input type="number" min="60" max="604800" step="60" value=""' +
+      ' class="scan-custom-input" data-scan-custom-ip="' + ip + '"' +
+      ' style="width:90px;padding:3px 6px;background:#0c121d;border:1px solid #2a3344;color:#cdd5e3;border-radius:4px">' +
+      '<button class="btn" data-scan-custom-apply="' + ip + '">Apply</button>';
+    selectEl.parentNode.parentNode.appendChild(row);
+    var input = row.querySelector('input');
+    if (input) input.focus();
+  }
+
+  _applyCustomScanInterval(ip) {
+    var input = this.shadowRoot.querySelector('input[data-scan-custom-ip="' + ip + '"]');
+    if (!input) return;
+    var val = parseInt(input.value, 10);
+    if (!val || val < 60 || val > 604800) {
+      alert('Interval must be between 60 and 604800 seconds.');
+      return;
+    }
+    this._postScanSetting(ip, { interval: val });
   }
 
   _viewFindings() {

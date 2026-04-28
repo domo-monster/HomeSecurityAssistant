@@ -19,7 +19,7 @@ from .const import (
 )
 from .coordinator import HomeSecCollector, HomeSecCoordinator
 from .dashboard import async_setup_dashboard
-from .storage import load_config, save_config
+from .storage import load_config, load_host_settings, save_config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,6 +43,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     all_config = {**entry.data, **entry.options}
     await hass.async_add_executor_job(save_config, hass.config.config_dir, all_config)
 
+    # Per-host scan overrides are loaded unconditionally so the scanner
+    # honors them even when the Web UI is disabled.
+    domain_data = hass.data.setdefault(DOMAIN, {"entries": {}, "panel_registered": False})
+    if "host_settings" not in domain_data:
+        domain_data["host_settings"] = await hass.async_add_executor_job(
+            load_host_settings, hass.config.config_dir
+        )
+
     enable_webui = bool(get_entry_value(entry, CONF_ENABLE_WEBUI, DEFAULT_ENABLE_WEBUI))
     if enable_webui:
         await async_setup_dashboard(hass)
@@ -61,7 +69,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = HomeSecCoordinator(hass, collector, entry)
     await coordinator.async_config_entry_first_refresh()
 
-    domain_data = hass.data.setdefault(DOMAIN, {"entries": {}, "panel_registered": False})
     domain_data["entries"][entry.entry_id] = {
         "collector": collector,
         "coordinator": coordinator,

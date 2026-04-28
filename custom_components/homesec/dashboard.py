@@ -20,11 +20,17 @@ from .const import (
     get_entry_value,
 )
 from .storage import (
+    load_host_settings,
     load_name_overrides,
     load_role_overrides,
+    save_host_settings,
     save_name_overrides,
     save_role_overrides,
 )
+
+# Per-host scan override bounds (seconds): 1 minute to 7 days.
+_HOST_INTERVAL_MIN = 60
+_HOST_INTERVAL_MAX = 7 * 24 * 3600
 
 BUILT_IN_ROLES = (
     "unknown", "camera", "printer", "media_device", "mobile_device",
@@ -120,6 +126,7 @@ async def async_setup_dashboard(hass: HomeAssistant) -> None:
     hass.http.register_view(HomeSecUndismissFindingView())
     hass.http.register_view(HomeSecRoleOverrideView())
     hass.http.register_view(HomeSecNameOverrideView())
+    hass.http.register_view(HomeSecHostScanSettingsView())
     hass.http.register_view(HomeSecVulnBrowserView())
     await panel_custom.async_register_panel(
         hass,
@@ -340,6 +347,7 @@ def build_dashboard_payload(hass: HomeAssistant) -> dict[str, Any]:
         },
         "role_overrides": domain_data.get("role_overrides", {}),
         "name_overrides": domain_data.get("name_overrides", {}),
+        "host_settings": domain_data.get("host_settings", {}),
         "devices": sorted(all_devices, key=lambda device: device.get("total_octets", 0), reverse=True),
         "findings": sorted(all_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "dismissed_findings": sorted(all_dismissed_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
@@ -660,6 +668,73 @@ class HomeSecNameOverrideView(HomeAssistantView):
         domain_data["name_overrides"] = overrides
         await hass.async_add_executor_job(
             save_name_overrides, hass.config.config_dir, overrides
+        )
+        return self.json({"result": "ok"})
+
+
+class HomeSecHostScanSettingsView(HomeAssistantView):
+    """Set or clear per-host scan overrides (enable/disable + interval)."""
+
+    url = "/api/homesec/device/scan"
+    name = "api:homesec:device:scan"
+    requires_auth = True
+
+    async def post(self, request):
+        try:
+            data = await request.json()
+        except ValueError:
+            return self.json({"error": "Invalid JSON"}, status_code=400)
+        ip = str(data.get("ip", "")).strip()
+        if not ip:
+            return self.json({"error": "Missing ip"}, status_code=400)
+        try:
+            ipaddress.ip_address(ip)
+        except ValueError:
+            return self.json({"error": "Invalid IP address"}, status_code=400)
+
+        enabled_provided = "enabled" in data
+        interval_provided = "interval" in data
+        enabled: bool | None = None
+        interval: int | None = None
+        clear_interval = False
+
+        if enabled_provided:
+            raw = data.get("enabled")
+            if not isinstance(raw, bool):
+                return self.json({"error": "'enabled' must be boolean"}, status_code=400)
+            enabled = raw
+        if interval_provided:
+            raw = data.get("interval")
+            if raw is None:
+                clear_interval = True
+            elif isinstance(raw, bool) or not isinstance(raw, int):
+                return self.json({"error": "'interval' must be an integer or null"}, status_code=400)
+            elif raw < _HOST_INTERVAL_MIN or raw > _HOST_INTERVAL_MAX:
+                return self.json(
+                    {"error": f"'interval' must be between {_HOST_INTERVAL_MIN} and {_HOST_INTERVAL_MAX} seconds"},
+                    status_code=400,
+                )
+            else:
+                interval = raw
+
+        hass = request.app["hass"]
+        domain_data = hass.data.get(DOMAIN, {})
+        settings = domain_data.setdefault("host_settings", {})
+
+        for runtime in domain_data.get("entries", {}).values():
+            collector = getattr(runtime.get("coordinator"), "collector", None)
+            if collector is not None:
+                collector.set_host_setting(
+                    ip,
+                    enabled=enabled,
+                    interval=interval,
+                    clear_interval=clear_interval,
+                )
+
+        # The scanner mutated the shared dict in-place via update_host_setting;
+        # persist the canonical copy.
+        await hass.async_add_executor_job(
+            save_host_settings, hass.config.config_dir, settings
         )
         return self.json({"result": "ok"})
 

@@ -102,12 +102,16 @@ class HomeSecCollector:
         excluded_ips = [ip.strip() for ip in exceptions_raw.split(",") if ip.strip()]
         scan_ports_raw = str(get_entry_value(entry, CONF_SCAN_PORTS, DEFAULT_SCAN_PORTS))
         scan_ports = parse_scan_ports(scan_ports_raw)
+        # Share the per-host settings dict with the dashboard layer so HTTP
+        # mutations are visible without an explicit setter call.
+        host_settings = hass.data.setdefault(DOMAIN, {}).setdefault("host_settings", {})
         self._scanner = NetworkScanner(
             internal_networks=internal_nets,
             scan_interval_seconds=scan_interval,
             excluded_ips=excluded_ips,
             ports=scan_ports,
             on_scan_complete=self._persist_hosts,
+            host_settings=host_settings,
         )
         self._scanner_enabled = bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER))
 
@@ -224,6 +228,22 @@ class HomeSecCollector:
     async def async_trigger_scan(self) -> None:
         """Run an immediate active scan cycle outside the normal schedule."""
         await self._scanner.async_trigger_scan()
+
+    def set_host_setting(
+        self,
+        ip: str,
+        *,
+        enabled: bool | None = None,
+        interval: int | None = None,
+        clear_interval: bool = False,
+    ) -> None:
+        """Apply a per-host scan override and update the scanner schedule."""
+        self._scanner.update_host_setting(
+            ip,
+            enabled=enabled,
+            interval=interval,
+            clear_interval=clear_interval,
+        )
 
     async def async_nvd_refresh(self) -> None:
         """Flush the NVD CVE cache and restart the background fetch loop immediately."""
