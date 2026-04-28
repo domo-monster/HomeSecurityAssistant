@@ -17,6 +17,32 @@ _LOGGER = logging.getLogger(__name__)
 
 _EPOCH = datetime.fromtimestamp(0, tz=UTC)
 
+_TLS_CTX: ssl.SSLContext | None = None
+_TLS_CTX_LOCK: asyncio.Lock | None = None
+
+
+async def _get_tls_ctx() -> ssl.SSLContext:
+    """Return a process-wide permissive TLS context, built off-loop on first use.
+
+    ``ssl.create_default_context()`` loads CA roots via blocking I/O, which
+    trips Home Assistant's event-loop blocking-call detector when invoked
+    from async code. Build the context once in an executor and cache it.
+    """
+    global _TLS_CTX, _TLS_CTX_LOCK
+    if _TLS_CTX is not None:
+        return _TLS_CTX
+    if _TLS_CTX_LOCK is None:
+        _TLS_CTX_LOCK = asyncio.Lock()
+    async with _TLS_CTX_LOCK:
+        if _TLS_CTX is None:
+            def _build() -> ssl.SSLContext:
+                c = ssl.create_default_context()
+                c.check_hostname = False
+                c.verify_mode = ssl.CERT_NONE
+                return c
+            _TLS_CTX = await asyncio.get_running_loop().run_in_executor(None, _build)
+    return _TLS_CTX
+
 # Well-known ports to probe during a scan sweep.
 SCAN_PORTS: tuple[int, ...] = (
     21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445, 465, 515,
@@ -473,9 +499,7 @@ async def _http_get(
             # Fingerprinting probes target raw LAN IPs, so certificate verification
             # and SNI hostname validation would reject self-signed and LAN-only
             # services that we explicitly want to identify.
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
+            ctx = await _get_tls_ctx()
             reader, writer = await asyncio.wait_for(
                 asyncio.open_connection(ip, port, ssl=ctx),
                 timeout=timeout,
