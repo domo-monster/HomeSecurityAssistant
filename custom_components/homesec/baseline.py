@@ -137,6 +137,7 @@ class BaselineManager:
         scan_results: list[dict[str, Any]],
         vulnerabilities: list[dict[str, Any]] = None,
         now: datetime | None = None,
+        **kwargs,
     ) -> None:
         now = now or datetime.now(timezone.utc)
         if self._mode != BASELINE_MODE_TRAINING:
