@@ -305,48 +305,7 @@ class BaselineManager:
     def retrain(self, now: datetime | None = None) -> None:
         self.start_training(now=now)
 
-    def observe_snapshot(
-        self,
-        devices: list[dict[str, Any]],
-        dns_log: list[dict[str, Any]],
-        scan_results: list[dict[str, Any]],
-        now: datetime | None = None,
-    ) -> None:
-        now = now or datetime.now(timezone.utc)
-        if self._mode != BASELINE_MODE_TRAINING:
-            return
-        self._training_stats["snapshots_seen"] += 1
-        self._training_stats["devices_seen"] += len(devices)
-        self._training_stats["dns_queries_seen"] += len(dns_log)
-        if scan_results:
-            self._training_stats["scan_cycles_seen"] += 1
-        for device in devices:
-            ip = str(device.get("ip") or "")
-            if not ip:
-                continue
-            host = self._hosts.setdefault(
-                ip,
-                {
-                    "ip": ip,
-                    "display_name": device.get("display_name"),
-                    "hostname": device.get("hostname"),
-                    "manufacturer": device.get("manufacturer"),
-                    "probable_role": device.get("probable_role"),
-                    "first_seen": self._iso(now),
-                    "last_seen": self._iso(now),
-                    "observation_count": 0,
-                },
-            )
-            host["display_name"] = device.get("display_name") or host.get("display_name")
-            host["hostname"] = device.get("hostname") or host.get("hostname")
-            host["manufacturer"] = device.get("manufacturer") or host.get("manufacturer")
-            host["probable_role"] = device.get("probable_role") or host.get("probable_role")
-            host["last_seen"] = self._iso(now)
-            host["observation_count"] = int(host.get("observation_count", 0) or 0) + 1
-        if self._training_ends_at is not None and now >= self._training_ends_at:
-            self.stop_training(now=now)
-        else:
-            self._dirty = True
+    # Duplicate observe_snapshot removed (see above for correct definition)
 
     def status_snapshot(self, now: datetime | None = None) -> dict[str, Any]:
         now = now or datetime.now(timezone.utc)

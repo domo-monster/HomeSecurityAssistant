@@ -93,57 +93,79 @@ from .const import (
 
 
 def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
-    return vol.Schema(
-        {
-            vol.Required(CONF_BIND_HOST, default=defaults[CONF_BIND_HOST]): str,
-            vol.Required(CONF_BIND_PORT, default=defaults[CONF_BIND_PORT]): int,
-            vol.Required(CONF_INTERNAL_NETWORKS, default=defaults[CONF_INTERNAL_NETWORKS]): str,
-            vol.Required(CONF_SCAN_WINDOW_SECONDS, default=defaults[CONF_SCAN_WINDOW_SECONDS]): int,
-            vol.Required(CONF_SCAN_PORT_THRESHOLD, default=defaults[CONF_SCAN_PORT_THRESHOLD]): int,
-            vol.Required(CONF_HIGH_EGRESS_THRESHOLD, default=defaults[CONF_HIGH_EGRESS_THRESHOLD]): int,
-            vol.Required(CONF_ENABLE_WEBUI, default=defaults[CONF_ENABLE_WEBUI]): bool,
-            vol.Required(CONF_WEBUI_REQUIRE_ADMIN, default=defaults.get(CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)): bool,
-            vol.Required(CONF_ENABLE_SCANNER, default=defaults[CONF_ENABLE_SCANNER]): bool,
-            vol.Required(CONF_SCAN_INTERVAL, default=defaults[CONF_SCAN_INTERVAL]): int,
-            vol.Optional(CONF_SCAN_PORTS, default=defaults.get(CONF_SCAN_PORTS, DEFAULT_SCAN_PORTS)): str,
-            vol.Optional(CONF_SCAN_EXCEPTIONS, default=defaults.get(CONF_SCAN_EXCEPTIONS, DEFAULT_SCAN_EXCEPTIONS)): str,
-            vol.Required(CONF_ENABLE_DNS_RESOLUTION, default=defaults[CONF_ENABLE_DNS_RESOLUTION]): bool,
-            vol.Optional(CONF_BLACKLIST_URLS, default=defaults.get(CONF_BLACKLIST_URLS, DEFAULT_BLACKLIST_URLS)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
-            vol.Required(CONF_DNS_PROXY_ENABLED, default=defaults.get(CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED)): bool,
-            vol.Optional(CONF_DNS_PROXY_PORT, default=defaults.get(CONF_DNS_PROXY_PORT, DEFAULT_DNS_PROXY_PORT)): vol.All(int, vol.Range(min=1, max=65535)),
-            vol.Optional(CONF_DNS_PROXY_UPSTREAM, default=defaults.get(CONF_DNS_PROXY_UPSTREAM, DEFAULT_DNS_PROXY_UPSTREAM)): str,
-            vol.Optional(CONF_DNS_LOG_RETENTION_HOURS, default=defaults.get(CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)): vol.All(int, vol.Range(min=0, max=8760)),
-            vol.Optional(CONF_DNS_PROXY_CHECK_SOURCES, default=defaults.get(CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
-            vol.Optional(CONF_DNS_BLOCKED_CATEGORIES, default=defaults.get(CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
-            vol.Optional(CONF_DNS_OVERRIDES, default=defaults.get(CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
-            vol.Optional(CONF_VIRUSTOTAL_API_KEY, default=defaults.get(CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY)): str,
-            vol.Optional(CONF_ABUSEIPDB_API_KEY, default=defaults.get(CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY)): str,
-            vol.Required(CONF_VT_ABUSEIPDB_THRESHOLD, default=defaults.get(CONF_VT_ABUSEIPDB_THRESHOLD, DEFAULT_VT_ABUSEIPDB_THRESHOLD)): vol.All(int, vol.Range(min=0, max=100)),
-            vol.Required(CONF_BASELINE_ENABLED, default=defaults.get(CONF_BASELINE_ENABLED, DEFAULT_BASELINE_ENABLED)): bool,
-            vol.Optional(CONF_BASELINE_TRAINING_HOURS, default=defaults.get(CONF_BASELINE_TRAINING_HOURS, DEFAULT_BASELINE_TRAINING_HOURS)): vol.All(int, vol.Range(min=1, max=168)),
-            vol.Optional(CONF_BASELINE_MIN_OBSERVATIONS, default=defaults.get(CONF_BASELINE_MIN_OBSERVATIONS, DEFAULT_BASELINE_MIN_OBSERVATIONS)): vol.All(int, vol.Range(min=1, max=50)),
-            vol.Optional(CONF_BASELINE_EGRESS_MULTIPLIER, default=defaults.get(CONF_BASELINE_EGRESS_MULTIPLIER, DEFAULT_BASELINE_EGRESS_MULTIPLIER)): vol.All(vol.Coerce(float), vol.Range(min=1.0, max=20.0)),
-            vol.Optional(CONF_EXTERNAL_IP_RETENTION, default=defaults.get(CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)): int,
-            vol.Optional(CONF_RETENTION_SUSPICIOUS_HOURS, default=defaults.get(CONF_RETENTION_SUSPICIOUS_HOURS, DEFAULT_RETENTION_SUSPICIOUS_HOURS)): int,
-            vol.Optional(CONF_RETENTION_MALICIOUS_HOURS, default=defaults.get(CONF_RETENTION_MALICIOUS_HOURS, DEFAULT_RETENTION_MALICIOUS_HOURS)): int,
-            vol.Optional(CONF_ENRICHMENT_TTL_MINUTES, default=defaults.get(CONF_ENRICHMENT_TTL_MINUTES, DEFAULT_ENRICHMENT_TTL_MINUTES)): int,
-            vol.Optional(CONF_VIRUSTOTAL_DAILY_BUDGET, default=defaults.get(CONF_VIRUSTOTAL_DAILY_BUDGET, DEFAULT_VIRUSTOTAL_DAILY_BUDGET)): int,
-            vol.Optional(CONF_ABUSEIPDB_DAILY_BUDGET, default=defaults.get(CONF_ABUSEIPDB_DAILY_BUDGET, DEFAULT_ABUSEIPDB_DAILY_BUDGET)): int,
-            vol.Optional(CONF_NVD_API_URL, default=defaults.get(CONF_NVD_API_URL, DEFAULT_NVD_API_URL)): str,
-            vol.Optional(CONF_NVD_TTL_HOURS, default=defaults.get(CONF_NVD_TTL_HOURS, DEFAULT_NVD_TTL_HOURS)): int,
-            vol.Optional(CONF_NVD_MIN_YEAR, default=defaults.get(CONF_NVD_MIN_YEAR, DEFAULT_NVD_MIN_YEAR)): int,
-            vol.Optional(CONF_NVD_KEYWORDS, default=defaults.get(CONF_NVD_KEYWORDS, DEFAULT_NVD_KEYWORDS)): str,
-            vol.Required(CONF_STATS_TOP_N, default=defaults.get(CONF_STATS_TOP_N, DEFAULT_STATS_TOP_N)): vol.All(int, vol.Range(min=3, max=25)),
-        }
-    )
+    # Use .get(key, DEFAULT) everywhere to avoid KeyError
+    return vol.Schema({
+        vol.Required(CONF_BIND_HOST, default=defaults.get(CONF_BIND_HOST, DEFAULT_BIND_HOST)): str,
+        vol.Required(CONF_BIND_PORT, default=defaults.get(CONF_BIND_PORT, DEFAULT_BIND_PORT)): int,
+        vol.Required(CONF_INTERNAL_NETWORKS, default=defaults.get(CONF_INTERNAL_NETWORKS, DEFAULT_INTERNAL_NETWORKS)): str,
+        vol.Required(CONF_SCAN_WINDOW_SECONDS, default=defaults.get(CONF_SCAN_WINDOW_SECONDS, DEFAULT_SCAN_WINDOW_SECONDS)): int,
+        vol.Required(CONF_SCAN_PORT_THRESHOLD, default=defaults.get(CONF_SCAN_PORT_THRESHOLD, DEFAULT_SCAN_PORT_THRESHOLD)): int,
+        vol.Required(CONF_HIGH_EGRESS_THRESHOLD, default=defaults.get(CONF_HIGH_EGRESS_THRESHOLD, DEFAULT_HIGH_EGRESS_THRESHOLD)): int,
+        vol.Required(CONF_ENABLE_WEBUI, default=defaults.get(CONF_ENABLE_WEBUI, DEFAULT_ENABLE_WEBUI)): bool,
+        vol.Required(CONF_WEBUI_REQUIRE_ADMIN, default=defaults.get(CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)): bool,
+        vol.Required(CONF_ENABLE_SCANNER, default=defaults.get(CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER)): bool,
+        vol.Required(CONF_SCAN_INTERVAL, default=defaults.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)): int,
+        vol.Optional(CONF_SCAN_PORTS, default=defaults.get(CONF_SCAN_PORTS, DEFAULT_SCAN_PORTS)): str,
+        vol.Optional(CONF_SCAN_EXCEPTIONS, default=defaults.get(CONF_SCAN_EXCEPTIONS, DEFAULT_SCAN_EXCEPTIONS)): str,
+        vol.Required(CONF_ENABLE_DNS_RESOLUTION, default=defaults.get(CONF_ENABLE_DNS_RESOLUTION, DEFAULT_ENABLE_DNS_RESOLUTION)): bool,
+        vol.Optional(CONF_BLACKLIST_URLS, default=defaults.get(CONF_BLACKLIST_URLS, DEFAULT_BLACKLIST_URLS)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
+        vol.Required(CONF_DNS_PROXY_ENABLED, default=defaults.get(CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED)): bool,
+        vol.Optional(CONF_DNS_PROXY_PORT, default=defaults.get(CONF_DNS_PROXY_PORT, DEFAULT_DNS_PROXY_PORT)): vol.All(int, vol.Range(min=1, max=65535)),
+        vol.Optional(CONF_DNS_PROXY_UPSTREAM, default=defaults.get(CONF_DNS_PROXY_UPSTREAM, DEFAULT_DNS_PROXY_UPSTREAM)): str,
+        vol.Optional(CONF_DNS_LOG_RETENTION_HOURS, default=defaults.get(CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)): vol.All(int, vol.Range(min=0, max=8760)),
+        vol.Optional(CONF_DNS_PROXY_CHECK_SOURCES, default=defaults.get(CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
+        vol.Optional(CONF_DNS_BLOCKED_CATEGORIES, default=defaults.get(CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
+        vol.Optional(CONF_DNS_OVERRIDES, default=defaults.get(CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT, multiline=True)),
+        vol.Optional(CONF_VIRUSTOTAL_API_KEY, default=defaults.get(CONF_VIRUSTOTAL_API_KEY, DEFAULT_VIRUSTOTAL_API_KEY)): str,
+        vol.Optional(CONF_ABUSEIPDB_API_KEY, default=defaults.get(CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY)): str,
+        vol.Required(CONF_VT_ABUSEIPDB_THRESHOLD, default=defaults.get(CONF_VT_ABUSEIPDB_THRESHOLD, DEFAULT_VT_ABUSEIPDB_THRESHOLD)): vol.All(int, vol.Range(min=0, max=100)),
+        vol.Required(CONF_BASELINE_ENABLED, default=defaults.get(CONF_BASELINE_ENABLED, DEFAULT_BASELINE_ENABLED)): bool,
+        vol.Optional(
+            CONF_BASELINE_TRAINING_HOURS,
+            default=defaults.get(CONF_BASELINE_TRAINING_HOURS, DEFAULT_BASELINE_TRAINING_HOURS)
+        ): config_entries.selector({
+            "number": {
+                "min": 1,
+                "max": 168,
+                "step": 1,
+                "mode": "slider",
+                "unit_of_measurement": "h"
+            }
+        }),
+        vol.Optional(
+            CONF_BASELINE_MIN_OBSERVATIONS,
+            default=defaults.get(CONF_BASELINE_MIN_OBSERVATIONS, DEFAULT_BASELINE_MIN_OBSERVATIONS)
+        ): config_entries.selector({
+            "number": {
+                "min": 1,
+                "max": 50,
+                "step": 1,
+                "mode": "slider",
+                "unit_of_measurement": "obs"
+            }
+        }),
+        vol.Optional(CONF_BASELINE_EGRESS_MULTIPLIER, default=defaults.get(CONF_BASELINE_EGRESS_MULTIPLIER, DEFAULT_BASELINE_EGRESS_MULTIPLIER)): vol.All(vol.Coerce(float), vol.Range(min=1.0, max=20.0)),
+        vol.Optional(CONF_EXTERNAL_IP_RETENTION, default=defaults.get(CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)): int,
+        vol.Optional(CONF_RETENTION_SUSPICIOUS_HOURS, default=defaults.get(CONF_RETENTION_SUSPICIOUS_HOURS, DEFAULT_RETENTION_SUSPICIOUS_HOURS)): int,
+        vol.Optional(CONF_RETENTION_MALICIOUS_HOURS, default=defaults.get(CONF_RETENTION_MALICIOUS_HOURS, DEFAULT_RETENTION_MALICIOUS_HOURS)): int,
+        vol.Optional(CONF_ENRICHMENT_TTL_MINUTES, default=defaults.get(CONF_ENRICHMENT_TTL_MINUTES, DEFAULT_ENRICHMENT_TTL_MINUTES)): int,
+        vol.Optional(CONF_VIRUSTOTAL_DAILY_BUDGET, default=defaults.get(CONF_VIRUSTOTAL_DAILY_BUDGET, DEFAULT_VIRUSTOTAL_DAILY_BUDGET)): int,
+        vol.Optional(CONF_ABUSEIPDB_DAILY_BUDGET, default=defaults.get(CONF_ABUSEIPDB_DAILY_BUDGET, DEFAULT_ABUSEIPDB_DAILY_BUDGET)): int,
+        vol.Optional(CONF_NVD_API_URL, default=defaults.get(CONF_NVD_API_URL, DEFAULT_NVD_API_URL)): str,
+        vol.Optional(CONF_NVD_TTL_HOURS, default=defaults.get(CONF_NVD_TTL_HOURS, DEFAULT_NVD_TTL_HOURS)): int,
+        vol.Optional(CONF_NVD_MIN_YEAR, default=defaults.get(CONF_NVD_MIN_YEAR, DEFAULT_NVD_MIN_YEAR)): int,
+        vol.Optional(CONF_NVD_KEYWORDS, default=defaults.get(CONF_NVD_KEYWORDS, DEFAULT_NVD_KEYWORDS)): str,
+        vol.Required(CONF_STATS_TOP_N, default=defaults.get(CONF_STATS_TOP_N, DEFAULT_STATS_TOP_N)): vol.All(int, vol.Range(min=3, max=25)),
+    })
 
 
-class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class HomeSecConfigFlow(config_entries.ConfigFlow):
+    DOMAIN = "homesec"
     VERSION = 1
 
     @staticmethod
     def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> "HomeSecOptionsFlowHandler":
-        return HomeSecOptionsFlowHandler()
+        return HomeSecOptionsFlowHandler(config_entry)
 
     async def async_step_user(self, user_input: dict[str, object] | None = None) -> ConfigFlowResult:
         if user_input is not None:
@@ -178,7 +200,6 @@ class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_VT_ABUSEIPDB_THRESHOLD: DEFAULT_VT_ABUSEIPDB_THRESHOLD,
                 CONF_BASELINE_ENABLED: DEFAULT_BASELINE_ENABLED,
                 CONF_BASELINE_TRAINING_HOURS: DEFAULT_BASELINE_TRAINING_HOURS,
-                CONF_BASELINE_MIN_OBSERVATIONS: DEFAULT_BASELINE_MIN_OBSERVATIONS,
                 CONF_BASELINE_EGRESS_MULTIPLIER: DEFAULT_BASELINE_EGRESS_MULTIPLIER,
                 CONF_EXTERNAL_IP_RETENTION: DEFAULT_EXTERNAL_IP_RETENTION,
                 CONF_RETENTION_SUSPICIOUS_HOURS: DEFAULT_RETENTION_SUSPICIOUS_HOURS,
@@ -196,7 +217,11 @@ class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="user", data_schema=schema)
 
 
+
 class HomeSecOptionsFlowHandler(config_entries.OptionsFlow):
+    def __init__(self, config_entry):
+        self.config_entry = config_entry
+
 
     async def async_step_init(self, user_input: dict[str, object] | None = None) -> ConfigFlowResult:
         if user_input is not None:

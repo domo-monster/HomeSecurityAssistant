@@ -98,6 +98,30 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   connectedCallback()    { this._startRefresh(); }
+
+  _baselineActionHandler() {
+    const root = this.shadowRoot;
+    const card = root && root.querySelector('#baseline-card');
+    if (!card) return;
+    card.querySelectorAll('[data-baseline-action]').forEach(btn => {
+      btn.onclick = (e) => {
+        const action = btn.getAttribute('data-baseline-action');
+        if (!action || !this._hass) return;
+        let service = null;
+        if (action === 'start') service = 'start_baseline_training';
+        else if (action === 'stop') service = 'stop_baseline_training';
+        else if (action === 'retrain') service = 'retrain_baseline';
+        else if (action === 'clear') service = 'clear_baseline';
+        if (service) {
+          // Add visible feedback and log
+          alert('Calling service: ' + service);
+          console.log('[HomeSec] Calling service:', service);
+          this._hass.callService('homesec', service, {});
+          setTimeout(() => this._fetch(), 1200);
+        }
+      };
+    });
+  }
   disconnectedCallback() { this._stopRefresh(); this._stopMap(); }
 
   _startRefresh() {
@@ -164,7 +188,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     try {
       switch (this._view) {
-        case 'overview':        content.innerHTML = this._viewOverview();  break;
+        case 'overview':
+          content.innerHTML = this._viewOverview();
+          this._baselineActionHandler();
+          break;
         case 'map':             this._viewMap(content);                    break;
         case 'hosts':           content.innerHTML = this._viewHosts();     break;
         case 'findings':        content.innerHTML = this._viewFindings();  break;
@@ -634,7 +661,45 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var nvdMinYear = (this._data && this._data.nvd_min_year != null) ? this._data.nvd_min_year : null;
     var nvdAge = nvdTs ? this._ago(nvdTs) : 'never fetched';
     var nvdStatus = nvdTs ? ((Date.now() - new Date(nvdTs).getTime()) < 26 * 3600 * 1000 ? 'good' : 'warn') : 'warn';
+
+    // Baseline card
+    var baseline = (this._data && this._data.baseline) || {};
+    var baselineMode = baseline.mode || 'disabled';
+    var baselineModeLabel = baselineMode === 'training' ? 'Learning' : (baselineMode === 'active' ? 'Active' : 'Disabled');
+    var baselineIcon = baselineMode === 'training' ? '🧠' : (baselineMode === 'active' ? '✅' : '⏸');
+    var sinceStr = baseline.baseline_completed_at ? self._ago(baseline.baseline_completed_at) : '';
+    var trainingElapsed = '';
+    if (baselineMode === 'training') {
+      var started = baseline.training_started_at;
+      var ends = baseline.training_ends_at;
+      var now = Date.now();
+      var startMs = started ? new Date(started).getTime() : null;
+      var endMs = ends ? new Date(ends).getTime() : null;
+      var elapsed = startMs ? Math.max(0, Math.min(now, endMs || now) - startMs) : 0;
+      var total = (endMs && startMs) ? endMs - startMs : null;
+      var pct = total ? Math.round((elapsed / total) * 100) : 0;
+      trainingElapsed = '<div>' +
+        '<span style="font-size:13px">Elapsed: <b>' + self._ago(started) + '</b></span>' +
+        (total ? ' &nbsp; <span style="font-size:13px">Progress: <b>' + pct + '%</b></span>' : '') +
+        '</div>';
+    }
+    // Action buttons
+    var btns = '';
+    btns += '<button class="btn" data-baseline-action="start">Start Training</button>';
+    btns += '<button class="btn" data-baseline-action="stop">Stop Training</button>';
+    btns += '<button class="btn" data-baseline-action="retrain">Retrain</button>';
+    btns += '<button class="btn" data-baseline-action="clear">Clear</button>';
+
+    var baselineCard = '<div class="card" id="baseline-card" style="margin-bottom:12px">' +
+      '<div class="card-title">Baseline <span style="font-size:18px;margin-left:6px">' + baselineIcon + '</span></div>' +
+      '<div style="margin-bottom:6px"><b>Mode:</b> ' + baselineModeLabel + '</div>' +
+      (baselineMode === 'training' ? trainingElapsed : '') +
+      (baselineMode === 'active' && sinceStr ? '<div><b>Baseline created:</b> ' + sinceStr + ' ago</div>' : '') +
+      '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' + btns + '</div>' +
+      '</div>';
+
     return '<div>' +
+      baselineCard +
       '<div class="page-header"><h1 class="page-title">Overview</h1></div>' +
       '<div class="stat-grid">' +
         this._stat(s.devices || 0, 'Devices', 'success') +
@@ -1322,30 +1387,32 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var svgW = DNS_HOURS * (BAR_W + BAR_GAP);
       var bars = dnsBuckets.map(function(b, i) {
         var x = i * (BAR_W + BAR_GAP);
-        var barH = b.total > 0 ? Math.max(2, Math.round((b.total / maxDns) * CHART_H)) : 0;
-        var malH = b.total > 0 ? Math.round((b.mal / b.total) * barH) : 0;
-        var blkH = b.total > 0 ? Math.round((b.blocked / b.total) * barH) : 0;
-        var y = CHART_H - barH;
+        var barH = Math.round((b.total / maxDns) * CHART_H);
+        var malH = b.mal > 0 ? Math.round((b.mal / maxDns) * CHART_H) : 0;
+        var blkH = b.blocked > 0 ? Math.round((b.blocked / maxDns) * CHART_H) : 0;
         var lhour = new Date(windowStart + i * HOUR_MS).getHours();
         var tip = lhour + 'h \u2014 ' + b.total + ' quer' + (b.total !== 1 ? 'ies' : 'y') +
           (b.mal > 0 || b.blocked > 0 ? ' (' + (b.mal > 0 ? b.mal + ' malicious' : '') + (b.mal > 0 && b.blocked > 0 ? ', ' : '') + (b.blocked > 0 ? b.blocked + ' blocked' : '') + ')' : '');
-        return (barH > 0 ? '<rect x="' + x + '" y="' + y + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"><title>' + tip + '</title></rect>' : '') +
+        return (barH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - barH) + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"><title>' + tip + '</title></rect>' : '') +
           (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"><title>' + tip + '</title></rect>' : '') +
           (blkH > 0 && blkH > malH ? '<rect x="' + x + '" y="' + (CHART_H - blkH) + '" width="' + BAR_W + '" height="' + (blkH - malH) + '" fill="rgba(191,111,255,.7)" rx="2"><title>' + tip + '</title></rect>' : '');
       }).join('');
+
       var dnsHourLabels = '';
       for (var li = 0; li < DNS_HOURS; li += 4) {
         var lx = li * (BAR_W + BAR_GAP) + BAR_W / 2;
         var lhour = new Date(windowStart + li * HOUR_MS).getHours();
         dnsHourLabels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
       }
-      dnsChartHtml = '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">DNS queries per hour (last 24h)</div>' +
-        '<svg viewBox="0 0 ' + svgW + ' ' + (CHART_H + LABEL_H) + '" width="100%" height="' + (CHART_H + LABEL_H) + '" preserveAspectRatio="none" style="display:block">' + bars + dnsHourLabels + '</svg>' +
-        '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.5);display:inline-block;border-radius:2px"></span>Clean</span>' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>Blocked</span>' +
-        '</div>';
+
+    // Compose the Overview page HTML at the end
+    var overviewHtml = '<div>' +
+      '<div class="page-header"><h1 class="page-title">Overview</h1></div>' +
+      dnsChartHtml +
+      // ...add other dashboard sections here as needed...
+      baselineCard +
+      '</div>';
+    return overviewHtml;
     }
 
     // Top N malicious/blocked domains (uses configured statistics topN)
