@@ -2423,6 +2423,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _viewFindings() {
     var findings = (this._data && this._data.findings) || [];
+    var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
     var dismissed = (this._data && this._data.dismissed_findings) || [];
     var grouped = this._findingsGrouped;
     var self = this;
@@ -2437,7 +2438,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var SEV_ORDER = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
 
     // ── individual card (used in flat mode and for dismissed section) ──
-    var renderCard = function(f, isDismissed) {
+    var renderCard = function(f, isDismissed, isBaseline) {
       var det = f.details || {};
       var cve = det.cve_id ? '<span class="chip">' + det.cve_id + '</span>' : '';
       var portChip = det.port ? '<span class="chip">port ' + det.port + '</span>' : '';
@@ -2446,9 +2447,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var noteHtml = (isDismissed && f.dismiss_note)
         ? '<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>Note:</strong> ' + self._esc(f.dismiss_note) + '</div>'
         : '';
+      var baselineBadge = isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">Baseline anomaly</span>' : '';
       return '<div class="finding-card sev-' + f.severity + '"' + (isDismissed ? ' style="opacity:.55"' : '') + '>' +
         '<div class="finding-header">' + self._sev(f.severity) + cve + portChip +
-        '<span class="finding-title">' + self._esc(f.summary) + '</span>' +
+        '<span class="finding-title">' + self._esc(f.summary) + baselineBadge + '</span>' +
         (isDismissed
           ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore finding">Restore</button>'
           : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss finding">Dismiss</button>') +
@@ -2457,7 +2459,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<span>Source: <span class="ip">' + f.source_ip + '</span></span>' +
           (det.port ? '<span>Port: <strong>' + det.port + '</strong></span>' : '') +
           '<span>Category: ' + f.category + '</span>' +
-          '<span>' + f.count + '\u00D7 seen</span>' +
+          (f.count ? '<span>' + f.count + '\u00D7 seen</span>' : '') +
           '<span>' + self._ago(f.last_seen) + '</span>' +
         '</div>' +
         (detRows ? '<div class="finding-detail"><dl>' + detRows + '</dl></div>' : '') +
@@ -2530,12 +2532,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }).join('');
     };
 
+    var baselineSection = '';
+    if (baselineAnomalies.length) {
+      baselineSection = '<div style="margin-bottom:32px"><div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' +
+        baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('') + '</div>';
+    }
+
     var cards;
     if (grouped) {
       cards = renderGrouped(findings);
     } else {
-      cards = findings.map(function(f) { return renderCard(f, false); }).join('');
+      cards = findings.map(function(f) { return renderCard(f, false, false); }).join('');
     }
+
 
     var activeSection = findings.length
       ? '<div><div class="view-header" style="align-items:flex-start;flex-wrap:wrap;gap:10px">' +
@@ -2550,10 +2559,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var dismissedSection = dismissed.length
       ? '<div style="margin-top:28px"><div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
-          dismissed.map(function(f) { return renderCard(f, true); }).join('') + '</div>'
+          dismissed.map(function(f) { return renderCard(f, true, false); }).join('') + '</div>'
       : '';
 
-    return activeSection + dismissedSection;
+    return baselineSection + activeSection + dismissedSection;
   }
 
   _extThead() {

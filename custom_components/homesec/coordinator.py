@@ -522,8 +522,23 @@ class HomeSecCollector:
                 devices=list(payload.get("devices", [])),
                 dns_log=list(self._dns_log),
                 scan_results=scan_results,
+                vulnerabilities=vuln_findings,
             )
-        payload["baseline"] = self._baseline_manager.status_snapshot()
+            # Anomaly findings
+            anomalies = self._baseline_manager.get_anomalies(
+                devices=list(payload.get("devices", [])),
+                dns_log=list(self._dns_log),
+                scan_results=scan_results,
+                vulnerabilities=vuln_findings,
+            )
+            payload["baseline"] = self._baseline_manager.status_snapshot()
+            payload["baseline_anomalies"] = anomalies
+            # Merge anomalies into findings
+            if anomalies:
+                payload["findings"].extend(anomalies)
+        else:
+            payload["baseline"] = self._baseline_manager.status_snapshot()
+            payload["baseline_anomalies"] = []
 
         # Filter out dismissed findings, keep them separately (with notes)
         findings = payload.get("findings", [])

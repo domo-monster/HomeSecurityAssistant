@@ -10,6 +10,7 @@ BASELINE_MODE_TRAINING = "training"
 BASELINE_MODE_ACTIVE = "active"
 
 
+
 class BaselineManager:
     def __init__(self, training_hours: int, min_observations: int, egress_multiplier: float) -> None:
         self._training_hours = max(1, int(training_hours))
@@ -29,6 +30,181 @@ class BaselineManager:
             "scan_cycles_seen": 0,
         }
         self._dirty = False
+        # For anomaly detection
+        self._last_anomalies: list[dict[str, Any]] = []
+
+    def get_anomalies(self, devices, dns_log, scan_results, vulnerabilities, now=None):
+        """
+        Compare current snapshot to baseline and return anomaly findings.
+        """
+        if self._mode != BASELINE_MODE_ACTIVE or not self._hosts:
+            self._last_anomalies = []
+            return []
+        now = now or datetime.now(timezone.utc)
+        anomalies = []
+        # Build lookup tables for baseline
+        baseline_hosts = self._hosts
+        baseline_ips = set(baseline_hosts.keys())
+        # --- New host anomaly ---
+        for device in devices:
+            ip = str(device.get("ip") or "")
+            if ip and ip not in baseline_ips:
+                anomalies.append({
+                    "key": f"baseline:new_host:{ip}",
+                    "category": "anomaly_new_host",
+                    "severity": "high",
+                    "summary": f"New internal host {ip} not seen during baseline training",
+                    "source_ip": ip,
+                    "details": {"ip": ip},
+                    "last_seen": now.isoformat(),
+                })
+        # --- New peer, port, DNS domain/category anomalies ---
+        for device in devices:
+            ip = str(device.get("ip") or "")
+            if not ip or ip not in baseline_hosts:
+                continue
+            bhost = baseline_hosts[ip]
+            # External peers
+            peers_now = set(device.get("external_peers", []))
+            peers_baseline = set(bhost.get("external_peers", []))
+            for peer in peers_now:
+                if peer not in peers_baseline:
+                    anomalies.append({
+                        "key": f"baseline:new_peer:{ip}:{peer}",
+                        "category": "anomaly_new_peer",
+                        "severity": "medium",
+                        "summary": f"Host {ip} communicated with new external peer {peer}",
+                        "source_ip": ip,
+                        "details": {"peer": peer},
+                        "last_seen": now.isoformat(),
+                    })
+            # Destination ports
+            ports_now = set(device.get("exposed_ports", []))
+            ports_baseline = set(bhost.get("exposed_ports", []))
+            for port in ports_now:
+                if port not in ports_baseline:
+                    anomalies.append({
+                        "key": f"baseline:new_port:{ip}:{port}",
+                        "category": "anomaly_new_port",
+                        "severity": "medium",
+                        "summary": f"Host {ip} exposed new port {port}",
+                        "source_ip": ip,
+                        "details": {"port": port},
+                        "last_seen": now.isoformat(),
+                    })
+            # DNS domains
+            domains_now = set()
+            categories_now = set()
+            for entry in dns_log:
+                if str(entry.get("src_ip", entry.get("source_ip", ""))) == ip:
+                    domain = entry.get("domain") or entry.get("qname")
+                    if domain:
+                        domains_now.add(domain)
+                    cat = entry.get("category")
+                    if cat:
+                        categories_now.add(cat)
+            domains_baseline = set(bhost.get("dns_domains", []))
+            for domain in domains_now:
+                if domain not in domains_baseline:
+                    anomalies.append({
+                        "key": f"baseline:new_dns_domain:{ip}:{domain}",
+                        "category": "anomaly_new_dns_domain",
+                        "severity": "low",
+                        "summary": f"Host {ip} queried new DNS domain {domain}",
+                        "source_ip": ip,
+                        "details": {"domain": domain},
+                        "last_seen": now.isoformat(),
+                    })
+            categories_baseline = set(bhost.get("dns_categories", []))
+            for cat in categories_now:
+                if cat not in categories_baseline:
+                    anomalies.append({
+                        "key": f"baseline:new_dns_category:{ip}:{cat}",
+                        "category": "anomaly_new_dns_category",
+                        "severity": "low",
+                        "summary": f"Host {ip} queried new DNS category {cat}",
+                        "source_ip": ip,
+                        "details": {"category": cat},
+                        "last_seen": now.isoformat(),
+                    })
+        self._last_anomalies = anomalies
+        return anomalies
+
+    def observe_snapshot(
+        self,
+        devices: list[dict[str, Any]],
+        dns_log: list[dict[str, Any]],
+        scan_results: list[dict[str, Any]],
+        vulnerabilities: list[dict[str, Any]] = None,
+        now: datetime | None = None,
+    ) -> None:
+        now = now or datetime.now(timezone.utc)
+        if self._mode != BASELINE_MODE_TRAINING:
+            return
+        self._training_stats["snapshots_seen"] += 1
+        self._training_stats["devices_seen"] += len(devices)
+        self._training_stats["dns_queries_seen"] += len(dns_log)
+        if scan_results:
+            self._training_stats["scan_cycles_seen"] += 1
+        for device in devices:
+            ip = str(device.get("ip") or "")
+            if not ip:
+                continue
+            host = self._hosts.setdefault(
+                ip,
+                {
+                    "ip": ip,
+                    "display_name": device.get("display_name"),
+                    "hostname": device.get("hostname"),
+                    "manufacturer": device.get("manufacturer"),
+                    "probable_role": device.get("probable_role"),
+                    "first_seen": self._iso(now),
+                    "last_seen": self._iso(now),
+                    "observation_count": 0,
+                    "external_peers": [],
+                    "exposed_ports": [],
+                    "dns_domains": [],
+                    "dns_categories": [],
+                },
+            )
+            host["display_name"] = device.get("display_name") or host.get("display_name")
+            host["hostname"] = device.get("hostname") or host.get("hostname")
+            host["manufacturer"] = device.get("manufacturer") or host.get("manufacturer")
+            host["probable_role"] = device.get("probable_role") or host.get("probable_role")
+            host["last_seen"] = self._iso(now)
+            host["observation_count"] = int(host.get("observation_count", 0) or 0) + 1
+            # Learn external peers
+            peers = set(host.get("external_peers", []))
+            for peer in device.get("external_peers", []):
+                peers.add(peer)
+            host["external_peers"] = sorted(peers)
+            # Learn exposed ports
+            ports = set(host.get("exposed_ports", []))
+            for port in device.get("exposed_ports", []):
+                ports.add(port)
+            host["exposed_ports"] = sorted(ports)
+        # Learn DNS domains and categories
+        for entry in dns_log:
+            ip = str(entry.get("src_ip", entry.get("source_ip", "")))
+            if not ip or ip not in self._hosts:
+                continue
+            host = self._hosts[ip]
+            domains = set(host.get("dns_domains", []))
+            domain = entry.get("domain") or entry.get("qname")
+            if domain:
+                domains.add(domain)
+            host["dns_domains"] = sorted(domains)
+            categories = set(host.get("dns_categories", []))
+            cat = entry.get("category")
+            if cat:
+                categories.add(cat)
+            host["dns_categories"] = sorted(categories)
+        # Learn vulnerabilities (future: for vuln delta anomalies)
+        # Not implemented in V1
+        if self._training_ends_at is not None and now >= self._training_ends_at:
+            self.stop_training(now=now)
+        else:
+            self._dirty = True
 
     @property
     def is_dirty(self) -> bool:

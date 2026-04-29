@@ -159,6 +159,7 @@ def build_dashboard_payload(
     scan_duration: float | None = None
     scan_hosts_found: int | None = None
 
+    baseline_anomalies: list[dict[str, Any]] = []
     for entry_id, runtime in entries.items():
         coordinator = runtime["coordinator"]
         snapshot = coordinator.data or {}
@@ -222,6 +223,9 @@ def build_dashboard_payload(
         scanned_devices += int(snapshot.get("scanned_devices", 0) or 0)
         vulnerability_count += int(snapshot.get("vulnerability_count", 0) or 0)
         total_flows += int(snapshot.get("total_flows", 0) or 0)
+
+        # Collect baseline anomalies if present
+        baseline_anomalies.extend(snapshot.get("baseline_anomalies", []))
 
         entry_last_flow = snapshot.get("last_flow_at")
         if isinstance(entry_last_flow, str) and (last_flow_at is None or entry_last_flow > last_flow_at):
@@ -462,6 +466,7 @@ def build_dashboard_payload(
         "name_overrides": domain_data.get("name_overrides", {}),
         "devices": sorted(all_devices, key=lambda device: device.get("total_octets", 0), reverse=True),
         "findings": sorted(all_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
+        "baseline_anomalies": sorted(baseline_anomalies, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "dismissed_findings": sorted(all_dismissed_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "recommendations": recommendations,
         "connections": connections,
