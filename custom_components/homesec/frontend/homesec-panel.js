@@ -1404,15 +1404,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         dnsHourLabels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
       }
 
-    // Compose the Overview page HTML at the end
-    var overviewHtml = '<div>' +
-      '<div class="page-header"><h1 class="page-title">Overview</h1></div>' +
-      dnsChartHtml +
-      // ...add other dashboard sections here as needed...
-      baselineCard +
-      '</div>';
-    return overviewHtml;
-    }
+    } // end else (dnsLog.length)
 
     // Top N malicious/blocked domains (uses configured statistics topN)
     var topMalDomains = [];
