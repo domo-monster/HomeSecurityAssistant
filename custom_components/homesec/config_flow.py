@@ -6,7 +6,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
-from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
+from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType, selector
 
 from .const import (
     CONF_ABUSEIPDB_API_KEY,
@@ -123,7 +123,7 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
         vol.Optional(
             CONF_BASELINE_TRAINING_HOURS,
             default=defaults.get(CONF_BASELINE_TRAINING_HOURS, DEFAULT_BASELINE_TRAINING_HOURS)
-        ): config_entries.selector({
+        ): selector({
             "number": {
                 "min": 1,
                 "max": 168,
@@ -135,7 +135,7 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
         vol.Optional(
             CONF_BASELINE_MIN_OBSERVATIONS,
             default=defaults.get(CONF_BASELINE_MIN_OBSERVATIONS, DEFAULT_BASELINE_MIN_OBSERVATIONS)
-        ): config_entries.selector({
+        ): selector({
             "number": {
                 "min": 1,
                 "max": 50,
@@ -165,7 +165,7 @@ class HomeSecConfigFlow(config_entries.ConfigFlow):
 
     @staticmethod
     def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> "HomeSecOptionsFlowHandler":
-        return HomeSecOptionsFlowHandler(config_entry)
+        return HomeSecOptionsFlowHandler()
 
     async def async_step_user(self, user_input: dict[str, object] | None = None) -> ConfigFlowResult:
         if user_input is not None:
@@ -219,9 +219,6 @@ class HomeSecConfigFlow(config_entries.ConfigFlow):
 
 
 class HomeSecOptionsFlowHandler(config_entries.OptionsFlow):
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
-
 
     async def async_step_init(self, user_input: dict[str, object] | None = None) -> ConfigFlowResult:
         if user_input is not None:
