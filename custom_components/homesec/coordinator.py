@@ -90,7 +90,7 @@ from .const import (
     DOMAIN,
     get_entry_value,
 )
-from .baseline import BaselineManager
+from .baseline import BaselineManager, BASELINE_MODE_DISABLED
 from .dns_resolver import DNSBlacklistChecker
 from .dns_proxy import DNSProxyServer, DNS_LOG_MAX
 from .enrichment import collect_tracker_enrichment
@@ -428,10 +428,8 @@ class HomeSecCollector:
         _LOGGER.info("NVD cache cleared — background re-fetch started")
 
     async def async_start_baseline_training(self) -> None:
-        if not self._baseline_enabled:
-            _LOGGER.info("Baseline feature is disabled in options; training request ignored")
-            return
         self._baseline_manager.start_training()
+        self._baseline_enabled = True
         await self.async_persist_runtime_state(force=True)
 
     async def async_stop_baseline_training(self) -> None:
@@ -443,10 +441,8 @@ class HomeSecCollector:
         await self.hass.async_add_executor_job(delete_baseline, self._config_dir)
 
     async def async_retrain_baseline(self) -> None:
-        if not self._baseline_enabled:
-            _LOGGER.info("Baseline feature is disabled in options; retrain request ignored")
-            return
         self._baseline_manager.retrain()
+        self._baseline_enabled = True
         await self.async_persist_runtime_state(force=True)
 
     async def _nvd_background_loop(self) -> None:
@@ -517,7 +513,7 @@ class HomeSecCollector:
             dismissed_findings=self._dismissed_findings,
         )
 
-        if self._baseline_enabled:
+        if self._baseline_enabled or self._baseline_manager._mode != BASELINE_MODE_DISABLED:
             self._baseline_manager.observe_snapshot(
                 devices=list(payload.get("devices", [])),
                 dns_log=list(self._dns_log),

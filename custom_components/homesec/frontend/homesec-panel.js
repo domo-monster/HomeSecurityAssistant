@@ -99,29 +99,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   connectedCallback()    { this._startRefresh(); }
 
-  _baselineActionHandler() {
-    const root = this.shadowRoot;
-    const card = root && root.querySelector('#baseline-card');
-    if (!card) return;
-    card.querySelectorAll('[data-baseline-action]').forEach(btn => {
-      btn.onclick = (e) => {
-        const action = btn.getAttribute('data-baseline-action');
-        if (!action || !this._hass) return;
-        let service = null;
-        if (action === 'start') service = 'start_baseline_training';
-        else if (action === 'stop') service = 'stop_baseline_training';
-        else if (action === 'retrain') service = 'retrain_baseline';
-        else if (action === 'clear') service = 'clear_baseline';
-        if (service) {
-          // Add visible feedback and log
-          alert('Calling service: ' + service);
-          console.log('[HomeSec] Calling service:', service);
-          this._hass.callService('homesec', service, {});
-          setTimeout(() => this._fetch(), 1200);
-        }
-      };
-    });
-  }
   disconnectedCallback() { this._stopRefresh(); this._stopMap(); }
 
   _startRefresh() {
@@ -190,7 +167,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       switch (this._view) {
         case 'overview':
           content.innerHTML = this._viewOverview();
-          this._baselineActionHandler();
           break;
         case 'map':             this._viewMap(content);                    break;
         case 'hosts':           content.innerHTML = this._viewHosts();     break;
@@ -313,6 +289,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var idx = parseInt(ri.dataset.recIdx, 10);
       this._expandedRec = (this._expandedRec === idx) ? null : idx;
       this._render();
+      return;
+    }
+    var ba = e.target.closest('[data-baseline-action]');
+    if (ba) {
+      var action = ba.getAttribute('data-baseline-action');
+      var svc = null;
+      if (action === 'start') svc = 'start_baseline_training';
+      else if (action === 'stop') svc = 'stop_baseline_training';
+      else if (action === 'retrain') svc = 'retrain_baseline';
+      else if (action === 'clear') svc = 'clear_baseline';
+      if (svc && this._hass) {
+        console.log('[HomeSec] Calling service:', svc);
+        this._hass.callService('homesec', svc, {});
+        setTimeout(() => this._fetch(), 1200);
+      }
       return;
     }
   }
@@ -699,7 +690,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>';
 
     return '<div>' +
-      baselineCard +
       '<div class="page-header"><h1 class="page-title">Overview</h1></div>' +
       '<div class="stat-grid">' +
         this._stat(s.devices || 0, 'Devices', 'success') +
@@ -837,6 +827,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<button class="btn" data-view="statistics">View Statistics \u2192</button>' +
         ((function() { var dnsStats = (self._data && self._data.dns_proxy_stats) || {}; return dnsStats.running ? '<button class="btn" data-view="dns">View DNS Queries \u2192</button>' : ''; })()) +
       '</div>' +
+      baselineCard +
     '</div>';
   }
 

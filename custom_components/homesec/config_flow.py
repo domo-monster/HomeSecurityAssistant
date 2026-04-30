@@ -6,7 +6,14 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
-from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType, selector
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from .const import (
     CONF_ABUSEIPDB_API_KEY,
@@ -123,27 +130,19 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
         vol.Optional(
             CONF_BASELINE_TRAINING_HOURS,
             default=defaults.get(CONF_BASELINE_TRAINING_HOURS, DEFAULT_BASELINE_TRAINING_HOURS)
-        ): selector({
-            "number": {
-                "min": 1,
-                "max": 168,
-                "step": 1,
-                "mode": "slider",
-                "unit_of_measurement": "h"
-            }
-        }),
+        ): NumberSelector(NumberSelectorConfig(
+            min=1, max=168, step=1,
+            mode=NumberSelectorMode.SLIDER,
+            unit_of_measurement="h",
+        )),
         vol.Optional(
             CONF_BASELINE_MIN_OBSERVATIONS,
             default=defaults.get(CONF_BASELINE_MIN_OBSERVATIONS, DEFAULT_BASELINE_MIN_OBSERVATIONS)
-        ): selector({
-            "number": {
-                "min": 1,
-                "max": 50,
-                "step": 1,
-                "mode": "slider",
-                "unit_of_measurement": "obs"
-            }
-        }),
+        ): NumberSelector(NumberSelectorConfig(
+            min=1, max=50, step=1,
+            mode=NumberSelectorMode.SLIDER,
+            unit_of_measurement="obs",
+        )),
         vol.Optional(CONF_BASELINE_EGRESS_MULTIPLIER, default=defaults.get(CONF_BASELINE_EGRESS_MULTIPLIER, DEFAULT_BASELINE_EGRESS_MULTIPLIER)): vol.All(vol.Coerce(float), vol.Range(min=1.0, max=20.0)),
         vol.Optional(CONF_EXTERNAL_IP_RETENTION, default=defaults.get(CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)): int,
         vol.Optional(CONF_RETENTION_SUSPICIOUS_HOURS, default=defaults.get(CONF_RETENTION_SUSPICIOUS_HOURS, DEFAULT_RETENTION_SUSPICIOUS_HOURS)): int,
@@ -159,8 +158,7 @@ def _build_schema(defaults: Mapping[str, object]) -> vol.Schema:
     })
 
 
-class HomeSecConfigFlow(config_entries.ConfigFlow):
-    DOMAIN = "homesec"
+class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     @staticmethod
