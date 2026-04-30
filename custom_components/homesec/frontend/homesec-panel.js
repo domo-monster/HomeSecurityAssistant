@@ -306,6 +306,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }
       return;
     }
+    var sa = e.target.closest('[data-service-action]');
+    if (sa && this._hass) {
+      var svc = sa.getAttribute('data-service-action');
+      console.log('[HomeSec] Calling service:', svc);
+      this._hass.callService('homesec', svc, {});
+      setTimeout(() => this._fetch(), 1500);
+      return;
+    }
   }
 
   _onInput(e) {
@@ -713,6 +721,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           this._hrow('Dropped', dropped.toLocaleString(), dropped > 0 ? 'warn' : 'good') +
           this._hrow('Last flow', this._ago(s.last_flow_at), '') +
           (s.last_parser_error ? this._hrow('Last error', s.last_parser_error, 'bad') : '') +
+          '<div style="margin-top:10px"><button class="btn" data-view="statistics">View Statistics →</button></div>' +
         '</div>' +
         '<div class="card">' +
           '<div class="card-title">Recent Alerts</div>' +
@@ -743,6 +752,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           self._hrow('Duration', durStr, '') +
           self._hrow('Hosts found', hostsStr, scanHosts > 0 ? '' : 'warn') +
           self._hrow('Scan interval', intervalStr, '') +
+          '<div style="margin-top:10px"><button class="btn" data-service-action="trigger_scan">Force hosts scan ↻</button></div>' +
         '</div>';
       })() +
       '<div class="card" style="margin-top:12px">' +
@@ -776,6 +786,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           html += '</div>';
           return html;
         })() +
+        '<div style="margin-top:10px"><button class="btn" data-view="vulnerabilities">Browse all vulnerabilities →</button>' +
+        ' <button class="btn" data-service-action="nvd_refresh">Force intelligence refresh ↻</button></div>' +
       '</div>' +
       (function() {
         var kevTotal = (self._data && self._data.kev_total != null) ? self._data.kev_total : 0;
@@ -820,13 +832,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             var dnsBlocked = dnsLog.filter(function(e) { return e.status === 'blocked'; }).length;
             return dnsBlocked > 0 ? self._hrow('Blocked queries', dnsBlocked.toLocaleString(), 'bad') : '';
           })() +
+          '<div style="margin-top:10px"><button class="btn" data-view="dns">View DNS Queries →</button></div>' +
         '</div>';
       })() +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
-        '<button class="btn" data-view="vulnerabilities">Browse all vulnerabilities \u2192</button>' +
-        '<button class="btn" data-view="statistics">View Statistics \u2192</button>' +
-        ((function() { var dnsStats = (self._data && self._data.dns_proxy_stats) || {}; return dnsStats.running ? '<button class="btn" data-view="dns">View DNS Queries \u2192</button>' : ''; })()) +
-      '</div>' +
       baselineCard +
     '</div>';
   }
