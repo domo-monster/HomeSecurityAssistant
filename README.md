@@ -78,8 +78,12 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 ### Security Findings
 - Actionable findings for high/critical issues with severity, source IP, category, and occurrence count
 - Categories: suspicious ports, port scanning, high egress, vulnerabilities
-- **Dismissible findings** — dismiss individual findings from the UI
-- Hardening recommendations derived from observed behavior and telemetry gaps
+- **Grouped findings view** (default) — findings with the same title are collapsed into a single card showing a severity badge, host count, aggregated occurrence count, and latest timestamp. Expand any group with ▶ to see per-host rows with individual dismiss buttons
+- **Dismiss all** — one-click button on each group dismisses every finding in that group simultaneously
+- **Regex dismiss** — "🗑 Pattern…" button opens a modal with a regex input, a live preview of all matched findings, and an optional note field; matching findings across all groups are dismissed in one action
+- **Flat view** toggle switches back to the original per-finding card layout
+- **Dismissible findings** — dismiss individual findings from the UI; a `POST /api/homesec/findings/dismiss_by_pattern` endpoint is also available for scripting
+- **Hardening recommendations** with expand panels — click any recommendation card to reveal affected hosts (IP, tracker name, role badge, CVE links) and related findings (severity badge, source IP, summary); cards without structured data remain static
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_reco.png" alt="Security Findings Example" width="600">
@@ -97,18 +101,46 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - Fires a `homesec_malicious_dns` HA event whenever a blocked domain is queried, with src IP, domain, query type, and source feed
 - **Automatic hiding** — the DNS Queries sidebar nav item and the Overview DNS Proxy card are hidden when the proxy is not running, keeping the UI uncluttered
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/ha_dns.png" alt="DNS Proxy Example" width="600">
+  <br>
+  <em>Example: DNS Proxy Query Log</em>
+</p>
+
+### Statistics Dashboard
+
+A dedicated statistics view consolidates all operational metrics in one place:
+
+- **Activity Timeline** (full-width) — three stacked bar charts covering the last 24 hours: Public IPs seen per hour, internal Hosts per hour, and DNS queries per hour (colour-coded: clean / blocked / malicious)
+- **Top N Public IPs** — most-contacted external IPs ranked by flow count, with Pie / List toggle
+- **Top N Countries** — contacted countries ranked by flow count, with Pie / List toggle
+- **Top N Internal Talkers** — highest-traffic internal devices ranked by total bytes, with Pie / List toggle
+- **Top N Threat IPs** — external IPs rated suspicious or malicious, with Pie / List toggle
+- **Blocked DNS Queries by Category** — breakdown of blocked/malicious DNS queries by threat category, with Pie / List toggle
+- **Top N Blocked Queries by Client** — internal hosts generating the most blocked/malicious DNS queries, with Pie / List toggle
+- **Top N Blocked / Malicious Domains** (full-width) — table of most-queried blocked or malicious domains with category pills and query counts
+- **Enrichment Budget** (full-width) — per-provider daily usage, budget, usage bar, status badge, detected tier/plan, and recent API errors
+
+The configurable **Statistics top N** option (3–25, default 10) controls the depth of all ranked lists.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/ha_stats.png" alt="Statistics Dashboard Example" width="600">
+  <br>
+  <em>Example: Statistics Dashboard</em>
+</p>
+
 ### Sidebar Dashboard
 A dedicated multi-view single-page application registered in the HA sidebar:
 
 - **Overview** — summary stats, **Active Scan** card (last scan time, duration, hosts found, scan interval), NetFlow listener health, recent alerts, **DNS Proxy** card (running/stopped, total queries, blocked count, blocked %), and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived). Quick-access navigation links at the bottom of the overview jump directly to the Vulnerabilities, Statistics, and DNS Queries views. The DNS Proxy card and DNS Queries link are hidden when the proxy is disabled.
 - **Network Map** — live force-directed graph with zoom/pan, showing scanned hosts, flow-active hosts, at-risk devices, gateways, and top external peers. Filter toggles: All / Scanned / Flow only / External
 - **Hosts** — searchable device inventory with inferred roles, scan results, and tracker-enriched names (alive hosts only)
-- **Findings** — actionable security findings with dismiss buttons, CVE details, and remediation hints
-- **External IPs** — enriched external IP table with threat ratings, VirusTotal hits, AbuseIPDB scores, last-seen timestamps, and on-demand lookup
+- **Findings** — actionable security findings with grouped view (default), regex dismiss, CVE details, and remediation hints
+- **External IPs** — enriched external IP table with threat ratings, VirusTotal hits, AbuseIPDB scores, **traffic volume (KB)** column (sortable), last-seen timestamps, and on-demand lookup
 - **Vulnerabilities** — sortable vulnerability browser listing **all cached NVD CVEs** (not just network-detected) with CVSS scores, severity, affected service/technology, published date, CISA KEV flags, detected-on-network count, and a **CVE detail modal** showing full description and CPE criteria. CVEs not matching any host on the network are shown with a dimmed "not detected" indicator
-- **Statistics** — at-a-glance operational dashboard showing top external IP talkers and contacted countries (configurable N), plus an **Enrichment Budget** card with per-provider usage, daily budget (∞ for unlimited tiers), usage bar, status badge, detected account tier/plan (e.g. ipwho.is free, VirusTotal community/premium, AbuseIPDB basic/premium), and any recent API errors
+- **Statistics** — at-a-glance operational dashboard. The **Activity Timeline** card (full-width) now contains three bar charts side-by-side: Public IPs per hour, Hosts per hour, and DNS queries per hour (stacked: clean/blocked/malicious). Below it: Top N Public IPs, Top N Countries, Top N Internal Talkers, and Top N Threat IPs (each with Pie/List toggle). Next row: **Blocked DNS Queries by Category** and **Top N Blocked Queries by Client** — both styled with the same Pie/List toggle as the other stat cards. Then a full-width **Top N Blocked/Malicious Domains** table, and finally the **Enrichment Budget** card with per-provider usage, daily budget (∞ for unlimited tiers), usage bar, status badge, detected account tier/plan, and recent API errors
 - **DNS Queries** — paginated DNS query log (default 25 rows per page, adjustable to 10/25/50/100) with global filters for domain/client IP, verdict, category, and malicious-only. Includes a **Blocked / Malicious by Category** pie chart and a **🚫 Clear blocked** button to remove all blocked entries from the log in one click. Hidden when the DNS proxy is disabled.
-- **Recommendations** — prioritized hardening suggestions based on current network state
+- **Recommendations** — prioritized hardening suggestions based on current network state; expandable cards show affected hosts and related findings
 
 The dashboard auto-refreshes every 30 seconds. The network map updates live without resetting the physics simulation.
 
@@ -361,6 +393,21 @@ homesec_dns_log.yaml / homesec_ext_ips.yaml / homesec_timeseries.yaml — after 
 The Vulnerability Browser only shows CVEs that are relevant to services actually detected on your network. The CISA Known Exploited Vulnerabilities (KEV) catalog contains ~1,100 CVEs across hundreds of products (Microsoft Windows, Adobe, Cisco, Apple, etc.), but the NVD cache only holds CVEs for the specific services running on your hosts — for example OpenSSH, nginx, or PostgreSQL. The KEV match count reflects the real overlap between those two sets, which is typically small (single digits to low tens) for a home network.
 
 This is expected behavior, not a bug: a low KEV count means few of the actively-exploited vulnerabilities in the CISA catalog apply to the software versions found on your network.
+
+## Changelog
+
+### 0.6.2
+
+- **Recommendation count fix** — "Unknown roles" and "Tracker enrichment" recommendation thresholds now count only *alive* devices, matching the filter used in the Hosts view. Previously offline devices could inflate counts and trigger recommendations unnecessarily.
+- **Clickable recommendation cards** — each recommendation now exposes structured `hosts` and `findings_refs` metadata. In the UI, cards with data show a ▶ chevron and expand on click to reveal: affected hosts (IP, tracker name, role badge, CVE links) and related findings (severity badge, source IP, summary).
+- **Traffic (KB) in External IPs** — each external IP entry now aggregates total byte volume from flow records. A sortable **Traffic (KB)** column appears in the External IPs table.
+- **Grouped findings view** — the Findings view defaults to grouped mode: findings sharing the same summary are collapsed into one card. Expanding a group shows per-host rows. A "Dismiss all N" button dismisses the entire group at once. A header toggle switches to the original flat layout.
+- **Regex dismiss** — a "🗑 Pattern…" button opens a dismiss-by-regex modal with live preview. The backend also exposes `POST /api/homesec/findings/dismiss_by_pattern` for scripting.
+- **Statistics view DNS reorganisation** — the DNS Activity bar chart moved into the Activity Timeline card (alongside Public IPs/hr and Hosts/hr). "Blocked DNS Queries by Category" and "Top N Blocked Queries by Client" are now styled stat-cards with Pie/List toggle buttons. "Top N Blocked/Malicious Domains" is promoted to a full-width card.
+
+### 0.6.1
+
+See [GitHub releases](https://github.com/domo-monster/HomeSecurityAssistant/releases) for earlier history.
 
 ## Development
 
