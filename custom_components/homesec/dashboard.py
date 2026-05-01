@@ -558,8 +558,11 @@ def _build_recommendations(
 ) -> list[dict[str, str]]:
     recommendations: list[dict[str, str]] = []
     finding_categories = {finding.get("category") for finding in findings}
-    unknown_devices = sum(1 for device in devices if device.get("probable_role") == "unknown")
-    tracker_enriched = sum(1 for device in devices if device.get("enriched"))
+    # Use only alive devices for role/enrichment counts so the numbers match
+    # the Hosts table, which also filters to alive=True only.
+    alive_devices = [d for d in devices if d.get("alive")]
+    unknown_devices = sum(1 for device in alive_devices if device.get("probable_role") == "unknown")
+    tracker_enriched = sum(1 for device in alive_devices if device.get("enriched"))
     at_risk_count = sum(1 for device in devices if device.get("at_risk"))
 
     if at_risk_count > 0:
@@ -635,7 +638,7 @@ def _build_recommendations(
                 "detail": f"{unknown_devices} devices still have unknown roles. Add router, DHCP, or tracker integrations so HomeSec can correlate names, MAC addresses, and hostnames.",
             }
         )
-    if devices and tracker_enriched == 0:
+    if alive_devices and tracker_enriched == 0:
         recommendations.append(
             {
                 "title": "Enable device tracker enrichment",
