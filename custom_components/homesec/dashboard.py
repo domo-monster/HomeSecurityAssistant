@@ -128,6 +128,7 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
     hass.http.register_view(HomeSecPanelFallbackView())
     hass.http.register_view(HomeSecLookupView())
     hass.http.register_view(HomeSecDismissFindingView())
+    hass.http.register_view(HomeSecDismissByPatternView())
     hass.http.register_view(HomeSecUndismissFindingView())
     hass.http.register_view(HomeSecRoleOverrideView())
     hass.http.register_view(HomeSecNameOverrideView())
@@ -870,6 +871,52 @@ class HomeSecDismissFindingView(HomeAssistantView):
             if collector:
                 collector.dismiss_finding(key, note)
         return self.json({"result": "ok"})
+
+
+class HomeSecDismissByPatternView(HomeAssistantView):
+    """Dismiss all active findings whose summary or key matches a regex pattern."""
+
+    url = "/api/homesec/findings/dismiss_by_pattern"
+    name = "api:homesec:findings:dismiss_by_pattern"
+    requires_auth = True
+
+    async def post(self, request):
+        import re as _re
+
+        try:
+            data = await request.json()
+        except ValueError:
+            return self.json({"error": "Invalid JSON"}, status_code=400)
+        pattern = str(data.get("pattern") or "").strip()
+        if not pattern:
+            return self.json({"error": "Missing pattern"}, status_code=400)
+        if len(pattern) > 200:
+            return self.json({"error": "Pattern too long (max 200 chars)"}, status_code=400)
+        note = str(data.get("note") or "")[:500]
+        try:
+            rx = _re.compile(pattern, _re.IGNORECASE)
+        except _re.error as exc:
+            return self.json({"error": f"Invalid regex: {exc}"}, status_code=400)
+        hass = request.app["hass"]
+        domain_data = hass.data.get(DOMAIN, {})
+        entries = domain_data.get("entries", {})
+        seen_keys: set[str] = set()
+        dismissed_count = 0
+        for runtime in entries.values():
+            coordinator = runtime.get("coordinator")
+            collector = getattr(coordinator, "collector", None)
+            if not collector or not coordinator:
+                continue
+            for f in (coordinator.data or {}).get("findings", []):
+                key = str(f.get("key") or "")
+                summary = str(f.get("summary") or "")
+                if not key or key in seen_keys:
+                    continue
+                if rx.search(key) or rx.search(summary):
+                    seen_keys.add(key)
+                    collector.dismiss_finding(key, note or f"Regex dismiss: {pattern}")
+                    dismissed_count += 1
+        return self.json({"result": "ok", "dismissed": dismissed_count})
 
 
 class HomeSecUndismissFindingView(HomeAssistantView):
