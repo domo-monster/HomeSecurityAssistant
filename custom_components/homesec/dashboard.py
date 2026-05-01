@@ -343,17 +343,20 @@ def build_dashboard_payload(
 
     # Top public IPs by number of distinct internal sources contacting them
     ext_ip_connection_count: dict[str, int] = {}
+    ext_ip_octets: dict[str, int] = {}
     for conn in all_connections:
         if conn.get("target_kind") == "external":
             ip = str(conn.get("target", ""))
             if ip:
                 ext_ip_connection_count[ip] = ext_ip_connection_count.get(ip, 0) + int(conn.get("flows", 1))
+                ext_ip_octets[ip] = ext_ip_octets.get(ip, 0) + int(conn.get("octets", 0) or 0)
     top_public_ips: list[dict[str, Any]] = []
     for ip, flow_count in sorted(ext_ip_connection_count.items(), key=lambda kv: kv[1], reverse=True)[:TOP_N]:
         ext_info = all_external_ips.get(ip, {})
         top_public_ips.append({
             "ip": ip,
             "flows": flow_count,
+            "total_octets": ext_ip_octets.get(ip, 0),
             "hostname": ext_info.get("hostname") or "",
             "org": ext_info.get("org") or "",
             "country": ext_info.get("country") or "",
@@ -423,6 +426,7 @@ def build_dashboard_payload(
         threat_candidates.append({
             "ip": ip,
             "flows": ext_ip_connection_count.get(ip, 0),
+            "total_octets": ext_ip_octets.get(ip, 0),
             "hostname": ext_entry.get("hostname") or "",
             "org": ext_entry.get("org") or "",
             "country": ext_entry.get("country") or "",
@@ -445,6 +449,16 @@ def build_dashboard_payload(
         top_threat_ips = list(persisted_chart_state.get("top_threat_ips", []))[:TOP_N]
     if not any(int(device.get("total_octets", 0) or 0) > 0 for device in all_devices):
         top_internal_talkers = list(persisted_chart_state.get("top_internal_talkers", []))[:TOP_N]
+
+    external_ips_payload: list[dict[str, Any]] = []
+    for ext_entry in sorted(all_external_ips.values(), key=lambda e: e.get("ip", "")):
+        ip = str(ext_entry.get("ip", ""))
+        octets = ext_ip_octets.get(ip, 0)
+        external_ips_payload.append({
+            **ext_entry,
+            "total_octets": octets,
+            "total_kb": round(octets / 1024.0, 1),
+        })
     # ─────────────────────────────────────────────────────────────────────
 
     full_dns_log = _build_dns_log(entries)
@@ -484,7 +498,7 @@ def build_dashboard_payload(
         "dismissed_findings": sorted(all_dismissed_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "recommendations": recommendations,
         "connections": connections,
-        "external_ips": sorted(all_external_ips.values(), key=lambda e: e.get("ip", "")),
+        "external_ips": external_ips_payload,
         "multicast_ips": sorted(all_multicast_ips.values(), key=lambda e: e.get("ip", "")),
         "alive_hosts": sorted(set(all_alive_hosts)),
         "nvd_last_updated": nvd_last_updated,

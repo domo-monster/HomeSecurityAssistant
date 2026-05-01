@@ -2315,6 +2315,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var cols = [
       { key: 'ip',       label: 'IP' },
       { key: 'hostname', label: 'Hostname' },
+      { key: 'traffic_kb', label: 'Traffic (KB)' },
       { key: 'country',  label: 'Country' },
       { key: 'org',      label: 'ASN / Org' },
       { key: 'rating',   label: 'Rating' },
@@ -2356,6 +2357,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       } else if (sortKey === 'hostname') {
         va = (a.hostname || '').toLowerCase();
         vb = (b.hostname || '').toLowerCase();
+      } else if (sortKey === 'traffic_kb') {
+        va = (a.total_octets || 0);
+        vb = (b.total_octets || 0);
+        return (va - vb) * sortDir;
       } else if (sortKey === 'country') {
         va = (a.country_name || a.country || '').toLowerCase();
         vb = (b.country_name || b.country || '').toLowerCase();
@@ -2414,7 +2419,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._extPage = Math.min(Math.max(1, this._extPage), totalPages);
     var start = (this._extPage - 1) * this._extPageSize;
     extIPs = extIPs.slice(start, start + this._extPageSize);
-    if (!extIPs.length) return '<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No external IPs match the filter</p></div></td></tr>';
+    if (!extIPs.length) return '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No external IPs match the filter</p></div></td></tr>';
     var self = this;
     return extIPs.map(function(e) {
       var rating = e.rating || (e.blacklisted ? 'malicious' : '');
@@ -2422,6 +2427,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         ? (e.vt_malicious + '/' + ((e.vt_malicious||0)+(e.vt_suspicious||0)+(e.vt_harmless||0)))
         : '\u2014';
       var abuse = e.abuse_confidence != null ? e.abuse_confidence + '%' : '\u2014';
+      var trafficKb = ((e.total_octets || 0) / 1024).toFixed(1);
       var host  = e.hostname || '';
       var isLooking = self._lookupIP === e.ip && self._lookingUp;
       var dstPorts = (e.dst_ports || []).slice(0, 8);
@@ -2429,7 +2435,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         ? dstPorts.map(function(p) { return '<span class="chip">' + p + '</span>'; }).join(' ') + (e.dst_ports.length > 8 ? ' <span class="dim">+' + (e.dst_ports.length - 8) + '</span>' : '')
         : '<span class="dim">\u2014</span>';
       var detail = (self._lookupResult && self._lookupIP === e.ip)
-        ? '<tr class="detail-row"><td colspan="11">' + self._ipDetail(self._lookupResult, e.internal_sources) + '</td></tr>' : '';
+        ? '<tr class="detail-row"><td colspan="12">' + self._ipDetail(self._lookupResult, e.internal_sources) + '</td></tr>' : '';
       var sources = e.internal_sources || [];
       var sourcesHtml = sources.length
         ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
@@ -2438,6 +2444,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return '<tr>' +
         '<td>' + (e.blacklisted ? '<span style="color:#ff4d6d;margin-right:3px">\u26A0</span>' : '') + '<span class="ip">' + e.ip + '</span></td>' +
         '<td style="font-size:11px">' + (host ? self._esc(host) : '<span class="dim">\u2014</span>') + '</td>' +
+        '<td style="font-family:monospace;font-size:11px;text-align:right">' + trafficKb + '</td>' +
         '<td style="font-size:11px">' + (e.country ? '<span title="' + self._esc(e.country_name||e.country) + '">' + e.country + '</span>' : '<span class="dim">\u2014</span>') + '</td>' +
         '<td style="font-size:11px">' + self._esc(((e.org||'').substring(0,30))||e.asn||'\u2014') + '</td>' +
         '<td>' + ratingHtml + '</td>' +
