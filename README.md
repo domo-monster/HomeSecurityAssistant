@@ -102,7 +102,7 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
 - **Automatic hiding** — the DNS Queries sidebar nav item and the Overview DNS Proxy card are hidden when the proxy is not running, keeping the UI uncluttered
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/ha_dns.png" alt="DNS Proxy Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_dns.png" alt="DNS Proxy Example" width="600">
   <br>
   <em>Example: DNS Proxy Query Log</em>
 </p>
@@ -124,7 +124,7 @@ A dedicated statistics view consolidates all operational metrics in one place:
 The configurable **Statistics top N** option (3–25, default 10) controls the depth of all ranked lists.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/ha_stats.png" alt="Statistics Dashboard Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_stats.png" alt="Statistics Dashboard Example" width="600">
   <br>
   <em>Example: Statistics Dashboard</em>
 </p>
