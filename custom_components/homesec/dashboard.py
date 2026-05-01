@@ -565,20 +565,54 @@ def _build_recommendations(
     tracker_enriched = sum(1 for device in alive_devices if device.get("enriched"))
     at_risk_count = sum(1 for device in devices if device.get("at_risk"))
 
+    # ── helpers ──────────────────────────────────────────────────────────
+    def _device_ref(d: dict[str, Any]) -> dict[str, Any]:
+        """Compact device reference for the detail panel."""
+        cves = [
+            v.get("cve_id") for v in d.get("vulnerabilities", [])
+            if v.get("severity") in ("critical", "high") and v.get("cve_id")
+        ]
+        return {
+            "ip": d.get("ip", ""),
+            "name": d.get("display_name") or d.get("hostname") or d.get("ip", ""),
+            "role": d.get("probable_role", "unknown"),
+            "vuln_count": len(d.get("vulnerabilities", [])),
+            "cves": cves[:6],
+        }
+
+    def _finding_ref(f: dict[str, Any]) -> dict[str, Any]:
+        """Compact finding reference for the detail panel."""
+        return {
+            "source_ip": f.get("source_ip", ""),
+            "summary": f.get("summary", ""),
+            "severity": f.get("severity", ""),
+            "count": f.get("count", 1),
+            "last_seen": f.get("last_seen", ""),
+            "detail": f.get("detail") or {},
+        }
+
     if at_risk_count > 0:
+        at_risk_refs = [_device_ref(d) for d in devices if d.get("at_risk")]
         recommendations.append(
             {
                 "title": "Patch vulnerable devices",
                 "priority": "critical",
+                "category": "patch_vulnerable",
                 "detail": f"{at_risk_count} device(s) have known high or critical CVE vulnerabilities. Update firmware/software or restrict network access immediately.",
+                "hosts": at_risk_refs,
+                "findings_refs": [],
             }
         )
     if "vulnerability" in finding_categories:
+        vuln_findings = [_finding_ref(f) for f in findings if f.get("category") == "vulnerability"]
         recommendations.append(
             {
                 "title": "Review vulnerability findings",
                 "priority": "high",
+                "category": "vulnerability",
                 "detail": "Active scanning found services with known security issues. Check the findings tab for CVE details and remediation steps.",
+                "hosts": [],
+                "findings_refs": vuln_findings,
             }
         )
 
@@ -587,7 +621,10 @@ def _build_recommendations(
             {
                 "title": "Connect a flow exporter",
                 "priority": "high",
+                "category": "no_exporter",
                 "detail": "No NetFlow or IPFIX exporters have been observed yet. Configure your gateway, firewall, or switch to export flows to HomeSec.",
+                "hosts": [],
+                "findings_refs": [],
             }
         )
     if exporters and total_datagrams == 0:
@@ -595,7 +632,10 @@ def _build_recommendations(
             {
                 "title": "Verify exporter reachability",
                 "priority": "high",
+                "category": "exporter_unreachable",
                 "detail": "Exporters are configured but HomeSec has not received any datagrams yet. Check exporter target IP/port, firewall rules, and container networking.",
+                "hosts": [],
+                "findings_refs": [],
             }
         )
     if total_datagrams > 0 and parsed_datagrams == 0:
@@ -603,47 +643,73 @@ def _build_recommendations(
             {
                 "title": "Check flow export format",
                 "priority": "high",
+                "category": "bad_flow_format",
                 "detail": "Datagrams are arriving but none produced records. Confirm exporter uses NetFlow v5/v9/IPFIX with IPv4 fields and valid templates.",
+                "hosts": [],
+                "findings_refs": [],
             }
         )
     if "suspicious_port" in finding_categories:
+        sp_findings = [_finding_ref(f) for f in findings if f.get("category") == "suspicious_port"]
+        sp_hosts = [_device_ref(d) for d in alive_devices if d.get("ip") in {f["source_ip"] for f in sp_findings}]
         recommendations.append(
             {
                 "title": "Restrict risky outbound ports",
                 "priority": "high",
+                "category": "suspicious_port",
                 "detail": "At least one device reached a commonly abused external port such as Telnet or RDP. Block or alert on these ports at the gateway and patch the source device.",
+                "hosts": sp_hosts,
+                "findings_refs": sp_findings,
             }
         )
     if "port_scan" in finding_categories:
+        ps_findings = [_finding_ref(f) for f in findings if f.get("category") == "port_scan"]
+        ps_hosts = [_device_ref(d) for d in alive_devices if d.get("ip") in {f["source_ip"] for f in ps_findings}]
         recommendations.append(
             {
                 "title": "Isolate scanning hosts",
                 "priority": "high",
+                "category": "port_scan",
                 "detail": "A device is touching many ports in a short time window. Move it to an isolated VLAN or guest network until you confirm the behavior is expected.",
+                "hosts": ps_hosts,
+                "findings_refs": ps_findings,
             }
         )
     if "high_egress" in finding_categories:
+        he_findings = [_finding_ref(f) for f in findings if f.get("category") == "high_egress"]
+        he_hosts = [_device_ref(d) for d in alive_devices if d.get("ip") in {f["source_ip"] for f in he_findings}]
         recommendations.append(
             {
                 "title": "Review high egress devices",
                 "priority": "medium",
+                "category": "high_egress",
                 "detail": "One or more devices exceeded the outbound data threshold. Confirm whether the traffic matches backups, cameras, or media uploads instead of malware or exfiltration.",
+                "hosts": he_hosts,
+                "findings_refs": he_findings,
             }
         )
     if unknown_devices > 0:
+        unknown_refs = [_device_ref(d) for d in alive_devices if d.get("probable_role") == "unknown"]
         recommendations.append(
             {
                 "title": "Improve device identity coverage",
                 "priority": "medium",
+                "category": "unknown_roles",
                 "detail": f"{unknown_devices} devices still have unknown roles. Add router, DHCP, or tracker integrations so HomeSec can correlate names, MAC addresses, and hostnames.",
+                "hosts": unknown_refs,
+                "findings_refs": [],
             }
         )
     if alive_devices and tracker_enriched == 0:
+        unenriched = [_device_ref(d) for d in alive_devices if not d.get("enriched")]
         recommendations.append(
             {
                 "title": "Enable device tracker enrichment",
                 "priority": "medium",
+                "category": "no_tracker",
                 "detail": "HomeSec is seeing devices but none were enriched from Home Assistant trackers. Adding router or presence integrations will make the dashboard much more readable.",
+                "hosts": unenriched,
+                "findings_refs": [],
             }
         )
     if dropped_datagrams > 0:
@@ -652,6 +718,9 @@ def _build_recommendations(
                 "title": "Stabilize exporter templates",
                 "priority": "medium",
                 "detail": "Some flow datagrams were dropped or arrived before their templates. Reduce exporter restarts or shorten template refresh intervals on the exporter.",
+                "category": "dropped_datagrams",
+                "hosts": [],
+                "findings_refs": [],
             }
         )
 
