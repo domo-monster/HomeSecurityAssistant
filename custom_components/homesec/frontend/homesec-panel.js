@@ -84,7 +84,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._regexDismissNote     = '';
     this._mapFilter    = 'all';
     this._mapParticles = [];
-    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie' };
+    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie' };
     this._dnsSearch = '';
     this._dnsCategoryFilter = '';
     this._dnsStatusFilter = '';
@@ -1076,8 +1076,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
               '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(107,255,200,.75);display:inline-block;border-radius:2px"></span>Scanned alive</span>' +
             '</div>';
         })() +
-      '</div>' +
-    '</div>';
+      '</div>';
+    // stat-card outer </div> is appended in the return after the DNS Activity section
 
     function toggleBtns(id, current) {
       return '<span style="display:flex;gap:4px;flex-shrink:0">' +
@@ -1422,10 +1422,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       .map(function(c) { return { cat: c, count: _dnsCatCounts[c] }; })
       .sort(function(a, b) { return b.count - a.count; });
     var _dnsCatTotal = _dnsCatItems.reduce(function(s, x) { return s + x.count; }, 0);
-    var dnsCatPieHtml;
+    var dnsCatSection;
     if (!_dnsCatTotal) {
-      dnsCatPieHtml = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No blocked or malicious DNS queries yet</p></div>';
-    } else {
+      dnsCatSection = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No blocked or malicious DNS queries yet</p></div>';
+    } else if (modes.dns_categories === 'pie') {
       var _dnsCatPieColors = _dnsCatItems.map(function(x) { return _STAT_CAT_COLORS[x.cat] || _STAT_CAT_COLORS['other']; });
       var _dnsCatPieSvg = self._pieSvg(_dnsCatItems, function(x) { return x.count; }, function(x) { return (_STAT_CAT_LABELS[x.cat] || x.cat) + ': ' + x.count; }, _dnsCatPieColors);
       var _dnsCatLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
@@ -1439,7 +1439,22 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '</div>';
         }).join('') +
       '</div>';
-      dnsCatPieHtml = '<div class="stats-chart-row">' + _dnsCatPieSvg + '<div class="stats-chart-legend">' + _dnsCatLegend + '</div></div>';
+      dnsCatSection = '<div class="stats-chart-row">' + _dnsCatPieSvg + '<div class="stats-chart-legend">' + _dnsCatLegend + '</div></div>';
+    } else {
+      var _dnsCatMax = _dnsCatItems[0] ? _dnsCatItems[0].count : 1;
+      dnsCatSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>Category</th><th style="text-align:right">Queries</th><th>Share</th>' +
+        '</tr></thead><tbody>' +
+        _dnsCatItems.map(function(x, i) {
+          var col = _STAT_CAT_COLORS[x.cat] || _STAT_CAT_COLORS['other'];
+          var pct = _dnsCatMax > 0 ? Math.round((x.count / _dnsCatMax) * 100) : 0;
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span style="font-size:10px;padding:1px 6px;border-radius:8px;background:' + col.replace(',1)', ',.15)') + ';color:' + col + ';border:1px solid ' + col.replace(',1)', ',.35)') + '">' + (_STAT_CAT_LABELS[x.cat] || x.cat) + '</span></td>' +
+            '<td style="text-align:right">' + x.count + '</td>' +
+            '<td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:' + col + ';border-radius:3px;height:8px"></div></div></td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table>';
     }
 
     // ── Top blocked/malicious DNS queries by client (pie) ───────────
@@ -1457,10 +1472,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       .sort(function(a, b) { return b.count - a.count; })
       .slice(0, topN);
     var _dnsClientTotal = _dnsClientItems.reduce(function(s, x) { return s + x.count; }, 0);
-    var dnsClientPieHtml;
+    var dnsClientSection;
     if (!_dnsClientTotal) {
-      dnsClientPieHtml = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No blocked or malicious client queries yet</p></div>';
-    } else {
+      dnsClientSection = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No blocked or malicious client queries yet</p></div>';
+    } else if (modes.dns_clients === 'pie') {
       var _dnsClientColors = ['#ff4d6d','#ff8c42','#ffc107','#f472b6','#fb923c','#ff6b6b','#e879f9','#facc15','#fd8dac','#ffb347','#6bffc8','#5baaec'];
       var _dnsClientPieSvg = self._pieSvg(
         _dnsClientItems,
@@ -1479,12 +1494,26 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '</div>';
         }).join('') +
       '</div>';
-      dnsClientPieHtml = '<div class="stats-chart-row">' + _dnsClientPieSvg + '<div class="stats-chart-legend">' + _dnsClientLegend + '</div></div>';
+      dnsClientSection = '<div class="stats-chart-row">' + _dnsClientPieSvg + '<div class="stats-chart-legend">' + _dnsClientLegend + '</div></div>';
+    } else {
+      var _dnsClientMax = _dnsClientItems[0] ? _dnsClientItems[0].count : 1;
+      dnsClientSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>Client IP</th><th style="text-align:right">Blocked/Malicious</th><th>Share</th>' +
+        '</tr></thead><tbody>' +
+        _dnsClientItems.map(function(x, i) {
+          var pct = _dnsClientMax > 0 ? Math.round((x.count / _dnsClientMax) * 100) : 0;
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span class="ip">' + self._esc(x.ip) + '</span></td>' +
+            '<td style="text-align:right">' + x.count + '</td>' +
+            '<td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:#ff4d6d;border-radius:3px;height:8px"></div></div></td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table>';
     }
 
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
-      timelineHtml +
+      timelineHtml + '<div style="margin-top:16px">' + dnsChartHtml + '</div></div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
@@ -1509,25 +1538,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
-          '<div class="card-title">Blocked DNS Queries by Category</div>' +
-          dnsCatPieHtml +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Blocked DNS Queries by Category' + toggleBtns('dns_categories', modes.dns_categories) + '</div>' +
+          dnsCatSection +
         '</div>' +
         '<div class="card stats-panel-card">' +
-          '<div class="card-title">Top\u00a0' + topN + ' Blocked Queries by Client</div>' +
-          dnsClientPieHtml +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Blocked Queries by Client' + toggleBtns('dns_clients', modes.dns_clients) + '</div>' +
+          dnsClientSection +
         '</div>' +
       '</div>' +
-      '<div class="two-col stats-two-col" style="margin-top:12px">' +
-        '<div class="card stats-panel-card">' +
-          '<div class="card-title">DNS Activity</div>' +
-          dnsChartHtml +
+      '<div class="card" style="margin-top:12px">' +
+        '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+        (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
         '</div>' +
-        '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-          (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
-          '</div>' +
-          dnsTopMalHtml +
-        '</div>' +
+        dnsTopMalHtml +
       '</div>' +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title">Enrichment Budget (Today)</div>' +
