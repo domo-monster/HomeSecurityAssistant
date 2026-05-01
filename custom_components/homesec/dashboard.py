@@ -161,6 +161,7 @@ def build_dashboard_payload(
 
     baseline_anomalies: list[dict[str, Any]] = []
     baseline_status: dict[str, Any] = {}
+    baseline_graph: dict[str, Any] = {}
     for entry_id, runtime in entries.items():
         coordinator = runtime["coordinator"]
         snapshot = coordinator.data or {}
@@ -230,6 +231,9 @@ def build_dashboard_payload(
         # Collect baseline status (last entry wins — single-entry setups)
         if snapshot.get("baseline"):
             baseline_status = snapshot["baseline"]
+        # Collect baseline graph (last entry wins — single-entry setups)
+        if snapshot.get("baseline_graph"):
+            baseline_graph = snapshot["baseline_graph"]
 
         entry_last_flow = snapshot.get("last_flow_at")
         if isinstance(entry_last_flow, str) and (last_flow_at is None or entry_last_flow > last_flow_at):
@@ -472,6 +476,7 @@ def build_dashboard_payload(
         "findings": sorted(all_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "baseline_anomalies": sorted(baseline_anomalies, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "baseline": baseline_status,
+        "baseline_graph": baseline_graph,
         "dismissed_findings": sorted(all_dismissed_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "recommendations": recommendations,
         "connections": connections,

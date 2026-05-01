@@ -83,6 +83,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._regexDismissPattern  = '';
     this._regexDismissNote     = '';
     this._mapFilter    = 'all';
+    this._mapMode      = 'live';
+    this._mapBaselineGraph = null;
     this._mapParticles = [];
     this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie' };
     this._dnsSearch = '';
@@ -261,6 +263,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     var mf = e.target.closest('[data-mapfilter]');
     if (mf) { this._setMapFilter(mf.dataset.mapfilter); return; }
+    var mm = e.target.closest('[data-mapmode]');
+    if (mm) { this._setMapMode(mm.dataset.mapmode); return; }
     var hs = e.target.closest('[data-hostsort]');
     if (hs) { this._setHostSort(hs.dataset.hostsort); return; }
     var es = e.target.closest('[data-extsort]');
@@ -1336,75 +1340,66 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var dnsLog = (this._data && this._data.dns_log) || [];
     var dnsStats = (this._data && this._data.dns_proxy_stats) || {};
 
-    // Hourly bar chart for last 24h DNS queries (normal=blue, malicious=red)
-    var dnsChartHtml;
-    if (!dnsLog.length) {
-      dnsChartHtml = '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>';
-    } else {
-      var now = Date.now();
-      var DNS_HOURS = 24;
-      var HOUR_MS = 3600000;
-      // Align to the current hour so labels and bars map to exact clock hours.
-      var currentHourStart = Math.floor(now / HOUR_MS) * HOUR_MS;
-      var windowStart = currentHourStart - (DNS_HOURS - 1) * HOUR_MS;
-      var dnsBuckets = new Array(DNS_HOURS).fill(null).map(function() {
-        return { total: 0, mal: 0, blocked: 0 };
-      });
-
-      function _dnsTsToMs(rawTs) {
-        if (rawTs == null) return NaN;
-        if (typeof rawTs === 'number') {
-          // Accept both unix seconds and unix milliseconds.
-          return rawTs < 1e12 ? rawTs * 1000 : rawTs;
-        }
-        var txt = String(rawTs).trim();
-        if (!txt) return NaN;
-        var n = Number(txt);
-        if (!isNaN(n)) return n < 1e12 ? n * 1000 : n;
-
-        var ms = new Date(txt).getTime();
-        if (!isNaN(ms)) return ms;
-
-        // Fallback for persisted YAML timestamps like "YYYY-MM-DD HH:MM:SS+00:00".
-        ms = new Date(txt.replace(' ', 'T')).getTime();
-        return ms;
-      }
-
-      for (var di = 0; di < dnsLog.length; di++) {
-        var row = dnsLog[di] || {};
-        var et = _dnsTsToMs(row.timestamp);
-        if (isNaN(et)) continue;
-        var bi = Math.floor((et - windowStart) / HOUR_MS);
-        if (bi < 0 || bi >= DNS_HOURS) continue;
-        dnsBuckets[bi].total++;
-        if (row.malicious) dnsBuckets[bi].mal++;
-        if (row.status === 'blocked') dnsBuckets[bi].blocked++;
-      }
-
-      var maxDns = Math.max.apply(null, dnsBuckets.map(function(b) { return b.total; })) || 1;
-      var BAR_W = 18, BAR_GAP = 3, CHART_H = 60, LABEL_H = 16;
-      var svgW = DNS_HOURS * (BAR_W + BAR_GAP);
-      var bars = dnsBuckets.map(function(b, i) {
-        var x = i * (BAR_W + BAR_GAP);
-        var barH = Math.round((b.total / maxDns) * CHART_H);
-        var malH = b.mal > 0 ? Math.round((b.mal / maxDns) * CHART_H) : 0;
-        var blkH = b.blocked > 0 ? Math.round((b.blocked / maxDns) * CHART_H) : 0;
-        var lhour = new Date(windowStart + i * HOUR_MS).getHours();
-        var tip = lhour + 'h \u2014 ' + b.total + ' quer' + (b.total !== 1 ? 'ies' : 'y') +
-          (b.mal > 0 || b.blocked > 0 ? ' (' + (b.mal > 0 ? b.mal + ' malicious' : '') + (b.mal > 0 && b.blocked > 0 ? ', ' : '') + (b.blocked > 0 ? b.blocked + ' blocked' : '') + ')' : '');
-        return (barH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - barH) + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"><title>' + tip + '</title></rect>' : '') +
-          (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"><title>' + tip + '</title></rect>' : '') +
-          (blkH > 0 && blkH > malH ? '<rect x="' + x + '" y="' + (CHART_H - blkH) + '" width="' + BAR_W + '" height="' + (blkH - malH) + '" fill="rgba(191,111,255,.7)" rx="2"><title>' + tip + '</title></rect>' : '');
-      }).join('');
-
-      var dnsHourLabels = '';
-      for (var li = 0; li < DNS_HOURS; li += 4) {
-        var lx = li * (BAR_W + BAR_GAP) + BAR_W / 2;
-        var lhour = new Date(windowStart + li * HOUR_MS).getHours();
-        dnsHourLabels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
-      }
-
-    } // end else (dnsLog.length)
+    // Hourly stacked bar chart — same style as the first two bar charts above.
+    var dnsChartHtml = !dnsLog.length
+      ? '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>'
+      : (function() {
+          var D_HOURS = 24, D_BAR_W = 18, D_BAR_GAP = 3, D_CHART = 60, D_LABEL = 16;
+          var nowMs = Date.now();
+          var dnsBuckets = new Array(D_HOURS).fill(null).map(function() {
+            return { total: 0, blocked: 0, mal: 0 };
+          });
+          for (var di = 0; di < dnsLog.length; di++) {
+            var row = dnsLog[di] || {};
+            var rawTs = row.timestamp;
+            var et = (rawTs == null) ? NaN
+              : (typeof rawTs === 'number') ? (rawTs < 1e12 ? rawTs * 1000 : rawTs)
+              : (function() {
+                  var txt = String(rawTs).trim();
+                  var n = Number(txt);
+                  if (!isNaN(n)) return n < 1e12 ? n * 1000 : n;
+                  var m = new Date(txt).getTime();
+                  return isNaN(m) ? new Date(txt.replace(' ', 'T')).getTime() : m;
+                })();
+            if (isNaN(et)) continue;
+            var ago = Math.floor((nowMs - et) / 3600000);
+            if (ago < 0 || ago >= D_HOURS) continue;
+            var bi = D_HOURS - 1 - ago;
+            dnsBuckets[bi].total++;
+            if (row.malicious) dnsBuckets[bi].mal++;
+            if (row.status === 'blocked') dnsBuckets[bi].blocked++;
+          }
+          var maxDns = 1;
+          for (var mi = 0; mi < dnsBuckets.length; mi++) {
+            if (dnsBuckets[mi].total > maxDns) maxDns = dnsBuckets[mi].total;
+          }
+          var dSvgW = D_HOURS * (D_BAR_W + D_BAR_GAP);
+          var dBars = dnsBuckets.map(function(b, i) {
+            var x = i * (D_BAR_W + D_BAR_GAP);
+            var th  = Math.max(2, Math.round((b.total   / maxDns) * D_CHART));
+            var bkh = b.blocked > 0 ? Math.max(2, Math.round((b.blocked / maxDns) * D_CHART)) : 0;
+            var mh  = b.mal     > 0 ? Math.max(2, Math.round((b.mal     / maxDns) * D_CHART)) : 0;
+            var lhour = new Date(nowMs - (D_HOURS - 1 - i) * 3600000).getHours();
+            var tip = lhour + 'h \u2014 ' + b.total + ' total' +
+              (b.blocked > 0 ? ', ' + b.blocked + ' blocked' : '') +
+              (b.mal     > 0 ? ', ' + b.mal     + ' malicious' : '');
+            return '<rect x="' + x + '" y="' + (D_CHART - th)  + '" width="' + D_BAR_W + '" height="' + th  + '" fill="rgba(98,232,255,.35)"  rx="2"><title>' + tip + '</title></rect>' +
+              (bkh > 0 ? '<rect x="' + x + '" y="' + (D_CHART - bkh) + '" width="' + D_BAR_W + '" height="' + bkh + '" fill="rgba(191,111,255,.7)"  rx="2"><title>' + tip + '</title></rect>' : '') +
+              (mh  > 0 ? '<rect x="' + x + '" y="' + (D_CHART - mh)  + '" width="' + D_BAR_W + '" height="' + mh  + '" fill="rgba(255,77,109,.7)"   rx="2"><title>' + tip + '</title></rect>' : '');
+          }).join('');
+          var dLabels = '';
+          for (var dl = 0; dl < D_HOURS; dl += 4) {
+            var dlx   = dl * (D_BAR_W + D_BAR_GAP) + D_BAR_W / 2;
+            var dlHour = new Date(nowMs - (D_HOURS - 1 - dl) * 3600000).getHours();
+            dLabels += '<text x="' + dlx + '" y="' + (D_CHART + D_LABEL - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + dlHour + 'h</text>';
+          }
+          return '<svg viewBox="0 0 ' + dSvgW + ' ' + (D_CHART + D_LABEL) + '" width="100%" height="' + (D_CHART + D_LABEL) + '" preserveAspectRatio="none" style="display:block">' + dBars + dLabels + '</svg>' +
+            '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.35);display:inline-block;border-radius:2px"></span>Total</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>Blocked</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
+            '</div>';
+        })();
 
     // Top N malicious/blocked domains (uses configured statistics topN)
     var topMalDomains = [];
@@ -1618,13 +1613,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewMap(container) {
-    var _mapCutoff = Date.now() - 10 * 60 * 1000;
-    var allDevices = ((this._data && this._data.devices) || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var allDevices = this._mapAllDevices();
     var connections = (this._data && this._data.connections) || [];
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    this._mapBaselineGraph = baselineGraph;
     var extIPs     = (this._data && this._data.external_ips) || [];
     var mcIPs      = (this._data && this._data.multicast_ips) || [];
     var flows      = (this._data && this._data.summary && this._data.summary.total_flows) || 0;
     var f = this._mapFilter;
+    var m = this._mapMode;
+    var hasBaselineGraph = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
+    if (m !== 'live' && !hasBaselineGraph) m = 'live';
+    this._mapMode = m;
     var filters = [
       { id: 'all',      label: 'All' },
       { id: 'scanned',  label: 'Scanned' },
@@ -1634,17 +1634,74 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var filterBtns = filters.map(function(b) {
       return '<button class="btn map-fbtn' + (f === b.id ? ' active' : '') + '" data-mapfilter="' + b.id + '">' + b.label + '</button>';
     }).join('');
+    var mapModes = [
+      { id: 'live', label: 'Live' },
+      { id: 'baseline', label: 'Baseline', disabled: !hasBaselineGraph },
+      { id: 'compare', label: 'Compare', disabled: !hasBaselineGraph },
+    ];
+    var modeBtns = mapModes.map(function(mm) {
+      var disabledAttr = mm.disabled ? ' disabled' : '';
+      return '<button class="btn map-mbtn' + (m === mm.id ? ' active' : '') + '" data-mapmode="' + mm.id + '"' + disabledAttr + '>' + mm.label + '</button>';
+    }).join('');
+    var modeLabel = m === 'baseline' ? 'Baseline Snapshot' : (m === 'compare' ? 'Live vs Baseline' : 'Live Network Map');
+    var baselineInfo = '';
+    if (hasBaselineGraph) {
+      var edgeCount = (baselineGraph.edges || []).length;
+      var hostCount = (baselineGraph.hosts || []).length;
+      baselineInfo = '<span class="chip" style="margin-left:6px">Baseline ' + hostCount + ' hosts \u00B7 ' + edgeCount + ' edges</span>';
+    }
+    // ── Compare summary chips ─────────────────────────────────────────
+    var compareSummaryHtml = '';
+    if (m === 'compare' && hasBaselineGraph) {
+      var _compEdges = this._composeMapEdges(connections, baselineGraph);
+      var _cntNew = 0, _cntMissing = 0, _cntBoth = 0;
+      var _topDelta = [], _topDeltaLabel = '';
+      for (var _ci = 0; _ci < _compEdges.length; _ci++) {
+        var _ce = _compEdges[_ci];
+        if (_ce.edge_mode === 'new')     _cntNew++;
+        else if (_ce.edge_mode === 'missing') _cntMissing++;
+        else if (_ce.edge_mode === 'both')    _cntBoth++;
+        if (_ce.edge_mode === 'both' && _ce.delta != null) _topDelta.push(_ce);
+      }
+      _topDelta.sort(function(a, b) { return Math.abs(b.delta) - Math.abs(a.delta); });
+      if (_topDelta.length) {
+        var _td = _topDelta[0];
+        var _sign = _td.delta > 0 ? '+' : '';
+        _topDeltaLabel = _td.source + ' \u2192 ' + _td.target + ' (' + _sign + Math.round(_td.delta * 100) / 100 + ' flows/snap)';
+      }
+      compareSummaryHtml =
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:11px">' +
+          '<span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em">Compare:</span>' +
+          '<span style="background:rgba(50,255,120,.12);border:1px solid rgba(50,255,120,.35);border-radius:100px;padding:2px 10px;color:#32ff78">' +
+            '\u2191 ' + _cntNew + ' new edge' + (_cntNew !== 1 ? 's' : '') +
+          '</span>' +
+          '<span style="background:rgba(255,90,50,.12);border:1px solid rgba(255,90,50,.35);border-radius:100px;padding:2px 10px;color:#ff5a32">' +
+            '\u2193 ' + _cntMissing + ' missing edge' + (_cntMissing !== 1 ? 's' : '') +
+          '</span>' +
+          '<span style="background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.2);border-radius:100px;padding:2px 10px;color:var(--accent)">' +
+            _cntBoth + ' unchanged' +
+          '</span>' +
+          (_topDeltaLabel ? '<span style="background:rgba(255,206,84,.08);border:1px solid rgba(255,206,84,.25);border-radius:100px;padding:2px 10px;color:#ffce54;font-size:10px">\u0394 strongest: ' + _topDeltaLabel + '</span>' : '') +
+        '</div>';
+    }
     container.innerHTML =
-      '<div><div class="view-header"><h1>Live Network Map</h1>' +
+      '<div><div class="view-header"><h1>' + modeLabel + baselineInfo + '</h1>' +
       '<div class="row-gap"><span id="map-stats" style="font-size:11px;color:var(--muted)">' +
       allDevices.length + ' internal \u00B7 ' + extIPs.length + ' external' + (mcIPs.length ? ' \u00B7 ' + mcIPs.length + ' multicast' : '') + ' \u00B7 ' + this._fmtN(flows) + ' flows</span>' +
       '<button class="btn" id="map-reset-btn">\u21BA Reset</button></div></div>' +
-      '<div class="map-filter-bar">' + filterBtns + '</div>' +
+      '<div class="map-filter-bar" style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="display:flex;gap:4px">' + filterBtns + '</div>' +
+        '<div style="display:flex;gap:4px">' + modeBtns + '</div>' +
+      '</div>' +
+      compareSummaryHtml +
       '<div class="map-wrap"><canvas id="hsa-map-canvas"></canvas>' +
       '<div class="map-tooltip" id="hsa-map-tip" style="display:none"></div>' +
       '<div class="map-legend">' +
         '<div class="legend-item"><div class="ldot" style="background:#8f86ff"></div>Scanned</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#3ac5c9"></div>Flow only</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#88a7c7"></div>Baseline edge</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#ff5a32"></div>Missing</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#32ff78"></div>New</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#ff4d6d"></div>At risk</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#6bffc8"></div>Gateway</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#5a6a80"></div>External</div>' +
@@ -1654,10 +1711,142 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     requestAnimationFrame(function() {
       var devices = self._applyMapFilter(allDevices);
       var showExt = (self._mapFilter === 'all' || self._mapFilter === 'external');
-      self._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : []);
+      self._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
       var btn = self.shadowRoot.getElementById('map-reset-btn');
-      if (btn) btn.addEventListener('click', function() { self._stopMap(); self._mapZoom = 1; self._mapPanX = 0; self._mapPanY = 0; var d = self._applyMapFilter(allDevices); self._initMap(d, connections, showExt ? extIPs : [], showExt ? mcIPs : []); });
+      if (btn) btn.addEventListener('click', function() { self._stopMap(); self._mapZoom = 1; self._mapPanX = 0; self._mapPanY = 0; var d = self._applyMapFilter(allDevices); self._initMap(d, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph); });
     });
+  }
+
+  _mapAllDevices() {
+    var _mapCutoff = Date.now() - 10 * 60 * 1000;
+    var allDevices = ((this._data && this._data.devices) || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    var baselineHosts = (baselineGraph && baselineGraph.hosts) || [];
+    var baselineByIp = {};
+    for (var bi = 0; bi < baselineHosts.length; bi++) {
+      var bh = baselineHosts[bi] || {};
+      if (bh.ip) baselineByIp[bh.ip] = bh;
+    }
+    for (var di = 0; di < allDevices.length; di++) {
+      var d = allDevices[di];
+      var b = baselineByIp[d.ip];
+      if (b) d.baseline_observation_count = b.observation_count || 0;
+    }
+    if (this._mapMode !== 'live' && baselineHosts.length) {
+      for (var bh = 0; bh < baselineHosts.length; bh++) {
+        var h = baselineHosts[bh] || {};
+        if (!h.ip) continue;
+        var exists = allDevices.some(function(d) { return d.ip === h.ip; });
+        if (!exists) {
+          allDevices.push({
+            ip: h.ip,
+            display_name: h.display_name || h.hostname || h.ip,
+            hostname: h.hostname || '',
+            probable_role: h.probable_role || 'unknown',
+            alive: false,
+            total_octets: 0,
+            baseline_only: true,
+            baseline_observation_count: h.observation_count || 0,
+          });
+        }
+      }
+    }
+    return allDevices;
+  }
+
+  _mapEdgeKey(source, target) {
+    return source + '|' + target;
+  }
+
+  _buildLiveEdgeIndex(connections) {
+    var idx = {};
+    for (var i = 0; i < connections.length; i++) {
+      var c = connections[i] || {};
+      var source = c.source;
+      var target = c.target;
+      if (!source || !target) continue;
+      var key = this._mapEdgeKey(source, target);
+      var entry = idx[key];
+      if (!entry) {
+        entry = idx[key] = {
+          source: source,
+          target: target,
+          source_kind: c.source_kind || '',
+          target_kind: c.target_kind || '',
+          live_octets: 0,
+          live_flows: 0,
+        };
+      }
+      entry.live_octets += (c.octets || 0);
+      entry.live_flows += (c.flows || 0);
+    }
+    return idx;
+  }
+
+  _buildBaselineEdgeIndex(baselineGraph) {
+    var idx = {};
+    var edges = (baselineGraph && baselineGraph.edges) || [];
+    for (var i = 0; i < edges.length; i++) {
+      var e = edges[i] || {};
+      var source = e.source;
+      var target = e.target;
+      if (!source || !target) continue;
+      var key = this._mapEdgeKey(source, target);
+      idx[key] = {
+        source: source,
+        target: target,
+        source_kind: e.source_kind || '',
+        target_kind: e.target_kind || '',
+        active_probability: e.active_probability || 0,
+        avg_octets: e.avg_octets_per_snapshot || 0,
+        avg_flows: e.avg_flows_per_snapshot || 0,
+      };
+    }
+    return idx;
+  }
+
+  _composeMapEdges(connections, baselineGraph) {
+    var live = this._buildLiveEdgeIndex(connections || []);
+    var base = this._buildBaselineEdgeIndex(baselineGraph);
+    var keys = {};
+    Object.keys(live).forEach(function(k) { keys[k] = true; });
+    Object.keys(base).forEach(function(k) { keys[k] = true; });
+    var list = [];
+    for (var key in keys) {
+      var le = live[key];
+      var be = base[key];
+      if (this._mapMode === 'live' && !le) continue;
+      if (this._mapMode === 'baseline' && !be) continue;
+      var source = (le && le.source) || (be && be.source);
+      var target = (le && le.target) || (be && be.target);
+      var sourceKind = (le && le.source_kind) || (be && be.source_kind) || '';
+      var targetKind = (le && le.target_kind) || (be && be.target_kind) || '';
+      var liveOctets = le ? le.live_octets : 0;
+      var baselineOctets = be ? be.avg_octets : 0;
+      var weight = this._mapMode === 'baseline' ? Math.max(1, baselineOctets) : Math.max(1, liveOctets || baselineOctets);
+      var edgeMode = 'live';
+      if (this._mapMode === 'baseline') edgeMode = 'baseline';
+      else if (this._mapMode === 'compare') edgeMode = (le && be) ? 'both' : (le ? 'new' : 'missing');
+      var liveFlows = le ? le.live_flows : 0;
+      var baselineFlows = be ? be.avg_flows : 0;
+      var deltaFlows = (le && be) ? (liveFlows - baselineFlows) : 0;
+      var deltaRatio = 0;
+      if (be && be.avg_octets > 0) deltaRatio = (liveOctets - be.avg_octets) / be.avg_octets;
+      list.push({
+        source: source,
+        target: target,
+        source_kind: sourceKind,
+        target_kind: targetKind,
+        weight: weight,
+        edge_mode: edgeMode,
+        live_octets: liveOctets,
+        baseline_octets: baselineOctets,
+        baseline_probability: be ? be.active_probability : 0,
+        delta_ratio: deltaRatio,
+        delta: deltaFlows,
+      });
+    }
+    return list;
   }
 
   _applyMapFilter(devices) {
@@ -1666,15 +1855,32 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (f === 'flow')    return devices.filter(function(d) { return (d.total_octets || 0) > 0; });
     if (f === 'external') {
       var connections = (this._data && this._data.connections) || [];
+      var baselineGraph = (this._data && this._data.baseline_graph) || {};
       var extPeers = {};
       for (var i = 0; i < connections.length; i++) {
         var c = connections[i];
         if (c.target_kind === 'external') extPeers[c.source] = true;
         if (c.source_kind === 'external') extPeers[c.target] = true;
       }
+      if (this._mapMode !== 'live') {
+        var bedges = baselineGraph.edges || [];
+        for (var j = 0; j < bedges.length; j++) {
+          var be = bedges[j];
+          if (be.target_kind === 'external') extPeers[be.source] = true;
+        }
+      }
       return devices.filter(function(d) { return extPeers[d.ip]; });
     }
     return devices;
+  }
+
+  _setMapMode(mode) {
+    if (mode === this._mapMode) return;
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    var hasBaseline = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
+    if (mode !== 'live' && !hasBaseline) return;
+    this._mapMode = mode;
+    if (this._view === 'map') this._render();
   }
 
   _setMapFilter(f) {
@@ -1685,18 +1891,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     btns.forEach(function(b) { b.classList.toggle('active', b.dataset.mapfilter === f); });
     // Rebuild map with new filter
     if (!this._data) return;
-    var _mapCutoff = Date.now() - 10 * 60 * 1000;
-    var allDevices = (this._data.devices || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var allDevices = this._mapAllDevices();
     var devices = this._applyMapFilter(allDevices);
     var connections = this._data.connections || [];
     var extIPs = this._data.external_ips || [];
     this._stopMap();
     var showExt = (f === 'all' || f === 'external');
     var mcIPs = this._data.multicast_ips || [];
-    this._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : []);
+    var baselineGraph = this._data.baseline_graph || null;
+    this._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
   }
 
-  _initMap(devices, connections, extIPs, mcIPs) {
+  _initMap(devices, connections, extIPs, mcIPs, baselineGraph) {
     mcIPs = mcIPs || [];
     var canvas = this.shadowRoot.getElementById('hsa-map-canvas');
     if (!canvas) return;
@@ -1721,10 +1927,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       this._mapNodes.set(d.ip, node);
     }
     var extCount = {};
-    if (extIPs.length > 0) {
+    var baselineEdges = (baselineGraph && baselineGraph.edges) || [];
+    if (this._mapMode !== 'baseline') {
       for (var c = 0; c < connections.length; c++) {
         var conn = connections[c];
         if (conn.target_kind === 'external') extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
+      }
+    }
+    if (this._mapMode !== 'live') {
+      for (var bc = 0; bc < baselineEdges.length; bc++) {
+        var bce = baselineEdges[bc];
+        if (bce.target_kind === 'external') extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
       }
     }
     var topExt = Object.keys(extCount).sort(function(a, b) { return extCount[b] - extCount[a]; }).slice(0, 25);
@@ -1754,9 +1967,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     // Add multicast nodes in a dedicated outer ring
     var mcCount = {};
-    for (var mc = 0; mc < connections.length; mc++) {
-      var mconn = connections[mc];
-      if (mconn.target_kind === 'multicast') mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+    if (this._mapMode !== 'baseline') {
+      for (var mc = 0; mc < connections.length; mc++) {
+        var mconn = connections[mc];
+        if (mconn.target_kind === 'multicast') mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+      }
+    }
+    if (this._mapMode !== 'live') {
+      for (var bmc = 0; bmc < baselineEdges.length; bmc++) {
+        var bmce = baselineEdges[bmc];
+        if (bmce.target_kind === 'multicast') mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
+      }
     }
     var topMc = Object.keys(mcCount).sort(function(a, b) { return mcCount[b] - mcCount[a]; }).slice(0, 15);
     for (var mi = 0; mi < topMc.length; mi++) {
@@ -1773,12 +1994,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         internal_sources: minfo.internal_sources || [],
       });
     }
-    var self = this;
-    this._mapEdges = connections.filter(function(c) {
-      return self._mapNodes.has(c.source) && self._mapNodes.has(c.target);
-    }).slice(0, 400).map(function(c) {
-      return { source: c.source, target: c.target, weight: c.octets || 1 };
-    });
+    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c) {
+      return this._mapNodes.has(c.source) && this._mapNodes.has(c.target);
+    }.bind(this)).slice(0, 500);
     this._mapTick = 0;
     this._mapZoom = 1;
     this._mapPanX = 0;
@@ -1911,6 +2129,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _startMap(canvas) {
     this._stopMap();
+    if (this._mapMode === 'baseline') {
+      this._mapTick = 0;
+      this._drawMap(canvas);
+      return;
+    }
     var self = this;
     var loop = function() {
       try {
@@ -1932,8 +2155,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _spawnParticles() {
     this._mapParticles = [];
+    if (this._mapMode === 'baseline') return;
     for (var i = 0; i < this._mapEdges.length; i++) {
       var e = this._mapEdges[i];
+      if (e.edge_mode === 'missing') continue;
       var count = Math.min(3, Math.max(1, Math.ceil(Math.log10(e.weight + 1))));
       for (var p = 0; p < count; p++) {
         this._mapParticles.push({
@@ -1956,10 +2181,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _liveUpdateMap() {
     if (!this._data) return;
-    var _mapCutoff = Date.now() - 10 * 60 * 1000;
-    var allDevices = (this._data.devices || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var allDevices = this._mapAllDevices();
     var devices    = this._applyMapFilter(allDevices);
     var connections = this._data.connections || [];
+    var baselineGraph = this._data.baseline_graph || null;
     var extIPs     = this._data.external_ips || [];
     var mcIPs      = this._data.multicast_ips || [];
     var showExt    = (this._mapFilter === 'all' || this._mapFilter === 'external');
@@ -1994,10 +2219,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // Update / add external nodes from connections
     var extCount = {};
-    if (showExt) {
+    if (showExt && this._mapMode !== 'baseline') {
       for (var c = 0; c < connections.length; c++) {
         var conn = connections[c];
         if (conn.target_kind === 'external') extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
+      }
+    }
+    if (showExt && this._mapMode !== 'live') {
+      var baselineEdges = (baselineGraph && baselineGraph.edges) || [];
+      for (var bc = 0; bc < baselineEdges.length; bc++) {
+        var bce = baselineEdges[bc];
+        if (bce.target_kind === 'external') extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
       }
     }
     var topExt = Object.keys(extCount).sort(function(a, b) { return extCount[b] - extCount[a]; }).slice(0, 25);
@@ -2045,10 +2277,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // Update / add multicast nodes from connections
     var mcCount = {};
-    if (showExt) {
+    if (showExt && this._mapMode !== 'baseline') {
       for (var mc = 0; mc < connections.length; mc++) {
         var mconn = connections[mc];
         if (mconn.target_kind === 'multicast') mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+      }
+    }
+    if (showExt && this._mapMode !== 'live') {
+      var bmcEdges = (baselineGraph && baselineGraph.edges) || [];
+      for (var bmc = 0; bmc < bmcEdges.length; bmc++) {
+        var bmce = bmcEdges[bmc];
+        if (bmce.target_kind === 'multicast') mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
       }
     }
     var topMc = Object.keys(mcCount).sort(function(a, b) { return mcCount[b] - mcCount[a]; }).slice(0, 15);
@@ -2074,13 +2313,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }
     }
 
-    // Rebuild edges from latest connections
-    var self = this;
-    this._mapEdges = connections.filter(function(c) {
-      return self._mapNodes.has(c.source) && self._mapNodes.has(c.target);
-    }).slice(0, 400).map(function(c) {
-      return { source: c.source, target: c.target, weight: c.octets || 1 };
-    });
+    // Rebuild edges from latest data (live / baseline / compare)
+    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c) {
+      return this._mapNodes.has(c.source) && this._mapNodes.has(c.target);
+    }.bind(this)).slice(0, 500);
 
     // Respawn particles for new edges
     this._spawnParticles();
@@ -2162,9 +2398,32 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var cpy = my - dx * curveOff / Math.max(Math.sqrt(dx*dx+dy*dy), 1);
       ctx.beginPath(); ctx.moveTo(s.x, s.y);
       ctx.quadraticCurveTo(cpx, cpy, t.x, t.y);
-      ctx.strokeStyle = 'rgba(98,232,255,' + a + ')';
-      ctx.lineWidth = Math.min(1.8, 0.3 + Math.log10(e.weight + 1) * 0.18);
+      ctx.setLineDash([]);
+      if (this._mapMode === 'baseline') {
+        ctx.strokeStyle = 'rgba(136,167,199,' + Math.min(0.55, a + 0.22) + ')';
+        ctx.lineWidth = Math.min(1.8, 0.6 + Math.log10(e.weight + 1) * 0.18);
+        ctx.setLineDash([6, 4]);
+      } else if (this._mapMode === 'compare') {
+        if (e.edge_mode === 'missing') {
+          // vivid orange-red, thick dashed — clearly "gone"
+          ctx.strokeStyle = 'rgba(255,90,50,' + Math.min(0.82, a + 0.55) + ')';
+          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e.weight + 1) * 0.25);
+          ctx.setLineDash([8, 5]);
+        } else if (e.edge_mode === 'new') {
+          // vivid green, solid — clearly "appeared"
+          ctx.strokeStyle = 'rgba(50,255,120,' + Math.min(0.88, a + 0.58) + ')';
+          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e.weight + 1) * 0.25);
+        } else {
+          // unchanged — cyan, semi-transparent
+          ctx.strokeStyle = 'rgba(98,232,255,' + Math.min(0.45, a + 0.12) + ')';
+          ctx.lineWidth = Math.min(1.6, 0.4 + Math.log10(e.weight + 1) * 0.16);
+        }
+      } else {
+        ctx.strokeStyle = 'rgba(98,232,255,' + a + ')';
+        ctx.lineWidth = Math.min(1.8, 0.3 + Math.log10(e.weight + 1) * 0.18);
+      }
       ctx.stroke();
+      ctx.setLineDash([]);
     }
     // Draw particles flowing along edges
     for (var pi = 0; pi < this._mapParticles.length; pi++) {
@@ -2268,6 +2527,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var lbl  = n.display_name || n.hostname || ip;
         var role = n.probable_role ? '<br><span style="color:#8a9dbf">' + n.probable_role + '</span>' : '';
         var risk = n.at_risk  ? '<br><span style="color:#ff4d6d">\u26A0 At risk</span>' : '';
+        var baselineStats = (this._data && this._data.baseline) || {};
+        var baselineSnapshots = ((baselineStats.training_stats || {}).snapshots_seen || 0);
         var flagEmoji = n.country ? this._countryFlag(n.country) : '';
         var ctryLabel = n.country_name || n.country || '';
         var ctry = ctryLabel  ? '<br><span style="color:#8a9dbf">' + (flagEmoji ? flagEmoji + ' ' : '') + this._esc(ctryLabel) + (n.city ? ', ' + this._esc(n.city) : '') + '</span>' : '';
@@ -2284,6 +2545,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var intelParts = [vtLine, abLine].filter(Boolean).join(' \u00B7 ');
           if (intelParts) extra += '<br><span style="color:#8a9dbf;font-size:9px">' + intelParts + '</span>';
           extra += '<br><span style="color:var(--accent);font-size:9px;opacity:.6">Click for full lookup</span>';
+        } else {
+          if (this._mapMode !== 'live') {
+            var obs = n.baseline_observation_count || 0;
+            var presence = baselineSnapshots > 0 ? Math.min(1, obs / baselineSnapshots) : 0;
+            var presencePct = Math.round(presence * 100);
+            var liveLoad = Math.min(1, Math.log10((n.total_octets || 0) + 1) / 8);
+            var livePct = Math.round(liveLoad * 100);
+            extra += '<br><span style="color:#8a9dbf;font-size:9px">Baseline presence: ' + presencePct + '%</span>';
+            extra += '<div style="margin-top:2px;height:4px;background:rgba(136,167,199,.18);border-radius:3px;overflow:hidden"><div style="height:4px;width:' + presencePct + '%;background:#88a7c7"></div></div>';
+            extra += '<br><span style="color:#8a9dbf;font-size:9px">Live load index: ' + livePct + '%</span>';
+            extra += '<div style="margin-top:2px;height:4px;background:rgba(0,224,255,.15);border-radius:3px;overflow:hidden"><div style="height:4px;width:' + livePct + '%;background:#00e0ff"></div></div>';
+          }
         }
         tip.innerHTML = '<strong style="color:#62e8ff">' + this._esc(lbl) + '</strong><br><span class="ip">' + ip + '</span>' + role + ctry + extra + risk;
         var tipX = n.x * this._mapZoom + this._mapPanX + 14;
@@ -3339,6 +3612,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (n.at_risk || n.blacklisted) return '#ff4d6d';
     if (n.type === 'multicast')             return '#d4a843';
     if (n.type === 'external')              return '#5a6a80';
+    if (n.baseline_only) return '#88a7c7';
     if (n.probable_role === 'dns_or_gateway') return '#6bffc8';
     if (n.probable_role === 'camera')       return '#ffb347';
     if (!n.alive && (n.total_octets || 0) > 0) return '#3ac5c9';
@@ -3385,8 +3659,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 }
 
-// ─── CSS ─────────────────────────────────────────────────────────────────────
-var _CSS = ':host{--bg:#070b12;--card:rgba(14,23,40,.92);--border:rgba(98,232,255,.14);--text:#eef7ff;--muted:#8a9dbf;--accent:#62e8ff;--success:#6bffc8;--danger:#ff4d6d;--warn:#ffb347;--violet:#9e96ff;--glow:0 0 28px rgba(98,232,255,.08);display:block;height:100vh;overflow:hidden;font-family:"IBM Plex Sans","Segoe UI",sans-serif;color:var(--text);background:var(--bg)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:210px;min-width:210px;background:rgba(6,11,24,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}.brand{padding:18px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}.brand-shield{font-size:26px;filter:drop-shadow(0 0 8px rgba(98,232,255,.5))}.brand-text{display:flex;flex-direction:column}.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.06em}.brand-tagline{font-size:9px;color:var(--muted);opacity:.7;margin-top:4px;line-height:1.3}.nav-list{list-style:none;padding:6px 0;flex:1}.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border-left:3px solid transparent;transition:all .12s ease;user-select:none}.nav-item:hover{background:rgba(98,232,255,.05);color:var(--text)}.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(98,232,255,.07)}.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.65}.nav-item.active svg{opacity:1}.nav-label{flex:1}.nav-badge{background:var(--danger);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}.sidebar-status{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}.sidebar-status.online .status-dot{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}.content{flex:1;overflow-y:auto;padding:22px 24px;position:relative;background:var(--bg)}.content::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;background-image:linear-gradient(rgba(98,232,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(98,232,255,.07) 1px,transparent 1px);background-size:40px 40px}.content>*{position:relative;z-index:1}.page-header{margin-bottom:20px}.page-title{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin-bottom:3px}.page-subtitle{font-size:12px;color:var(--muted);letter-spacing:.02em}.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--glow)}.stat-card.danger{border-color:rgba(255,77,109,.3)}.stat-card.warn{border-color:rgba(255,179,71,.28)}.stat-card.success{border-color:rgba(107,255,200,.2)}.stat-value{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--glow);margin-bottom:14px}.table-card{padding:0;overflow:hidden}.card-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.health-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(98,232,255,.05);font-size:12px}.health-row:last-child{border-bottom:none}.health-label{color:var(--muted)}.health-value{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}.health-value.good{color:var(--success)}.health-value.warn{color:var(--warn)}.health-value.bad{color:var(--danger)}.alert-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(98,232,255,.05)}.alert-row:last-child{border-bottom:none}.alert-body{flex:1;min-width:0}.alert-sum{font-size:12px;font-weight:600}.alert-meta{font-size:10px;color:var(--muted);margin-top:2px}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.view-header h1{font-size:18px;font-weight:700}.dim{color:var(--muted);font-weight:400;font-size:13px}.row-gap{display:flex;gap:8px;align-items:center}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}.data-table td{padding:7px 10px;border-bottom:1px solid rgba(98,232,255,.04);vertical-align:middle}.data-table tr.expandable{cursor:pointer}.data-table tr.expandable:hover td{background:rgba(98,232,255,.03)}.mono{font-family:"IBM Plex Mono",monospace}.ip{font-family:"IBM Plex Mono",monospace;font-size:11px}.host-detail-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 16px;background:rgba(0,0,0,.25)}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600}.detail-row{background:rgba(0,0,0,.2)}.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.badge-critical{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-high{background:rgba(255,140,66,.18);color:#ff8c42;border:1px solid rgba(255,140,66,.35)}.badge-medium{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-low{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-clean{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-suspicious{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-malicious{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-ok{background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)}.badge-warn{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.chip{display:inline-block;background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.15);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--accent);margin:1px}.ip-chip{display:inline-block;background:rgba(107,255,200,.08);border:1px solid rgba(107,255,200,.2);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--success);margin:1px 2px 1px 0}.finding-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}.finding-card.sev-critical{border-left-color:var(--danger)}.finding-card.sev-high{border-left-color:#ff8c42}.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}.finding-title{flex:1;font-size:12px;font-weight:600}.finding-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);flex-wrap:wrap}.finding-body{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.finding-detail{margin-top:8px;background:rgba(0,0,0,.2);border-radius:5px;padding:8px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:#b0c8e0}.finding-detail dt{color:var(--muted);font-weight:600}.finding-detail dd{margin-left:4px;color:var(--text);margin-right:12px}.fix-hint{font-size:11px;color:var(--success);margin-top:5px}.finding-group-wrap{margin-bottom:10px}.finding-group-card{cursor:pointer;border-radius:0 10px 10px 0;margin-bottom:0;transition:border-color .12s}.finding-group-card:hover{border-color:rgba(98,232,255,.3)}.finding-group-chevron{font-size:10px;color:var(--muted);transition:transform .15s;display:inline-block;flex-shrink:0}.finding-group-rows{background:rgba(0,0,0,.18);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:4px 0}.finding-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(98,232,255,.05);font-size:11px}.finding-row:last-child{border-bottom:none}.map-wrap{position:relative;height:calc(100vh - 120px);background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}#hsa-map-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}#hsa-map-canvas:active{cursor:grabbing}.map-tooltip{position:absolute;background:rgba(6,11,24,.96);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:10px;pointer-events:none;z-index:10;min-width:130px;box-shadow:0 4px 18px rgba(0,0,0,.5)}.map-legend{position:absolute;bottom:10px;left:10px;background:rgba(6,11,24,.82);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:10px;display:flex;gap:12px}.legend-item{display:flex;align-items:center;gap:4px;color:var(--muted)}.ldot{width:9px;height:9px;border-radius:50%}.map-filter-bar{display:flex;gap:6px;margin-bottom:10px}.map-fbtn{padding:4px 12px}.map-fbtn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.tldr-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.tldr-bar strong{color:var(--accent)}.ip-detail-panel{background:rgba(6,11,24,.98);border:1px solid rgba(98,232,255,.3);border-radius:10px;padding:14px;font-size:12px}.ip-detail-panel h3{color:var(--accent);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.detail-pair{display:flex;flex-direction:column;gap:2px}.detail-key{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}.detail-val{font-size:12px;color:var(--text);word-break:break-all}.ext-report-link{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;border:1px solid rgba(98,232,255,.25);background:rgba(98,232,255,.08);color:var(--accent);text-decoration:none;font-size:11px;font-weight:600}.ext-report-link:hover{background:rgba(98,232,255,.16);border-color:rgba(98,232,255,.45)}.rec-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}.rec-card-clickable{cursor:pointer;transition:border-color .12s}.rec-card-clickable:hover{border-color:rgba(98,232,255,.35);background:rgba(14,23,40,.98)}.rec-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}.rec-title{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}.rec-detail{font-size:11px;color:var(--muted);line-height:1.55}.rec-expand-panel{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.rec-expand-section{margin-bottom:10px}.rec-expand-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:6px}.rec-expand-rows{display:flex;flex-direction:column;gap:5px}.rec-expand-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(98,232,255,.04)}.rec-expand-row:last-child{border-bottom:none}.btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(98,232,255,.05);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}.btn:hover{background:rgba(98,232,255,.12);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:default}.search-bar{padding:5px 11px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:210px}.search-bar:focus{outline:none;border-color:var(--accent)}.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;color:var(--muted)}.state-icon{font-size:32px}.loader{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--muted);text-align:center}.empty-icon{font-size:28px}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--success)}50%{opacity:.6;box-shadow:0 0 2px var(--success)}}@keyframes spin{to{transform:rotate(360deg)}}.role-select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit}.role-select:focus{outline:none;border-color:var(--accent)}.role-select:hover{border-color:var(--accent);background:rgba(98,232,255,.08)}.sortable-th{cursor:pointer;user-select:none;white-space:nowrap}.sortable-th:hover{color:var(--accent)}.sort-arrow{font-size:8px;margin-left:3px;color:var(--accent)}@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--border);align-items:center;gap:0}.brand{display:none}.brand-tagline{display:none}.nav-list{display:flex;flex-direction:row;padding:0;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch}.nav-item{flex-direction:column;gap:2px;padding:8px 12px;font-size:10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;min-width:0}.nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent)}.nav-item svg{width:14px;height:14px}.nav-label{font-size:9px}.sidebar-status{display:none}.content{padding:12px 10px;height:calc(100vh - 52px)}.content::before{display:none}.page-title{font-size:18px}.stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{padding:10px}.stat-value{font-size:20px}.stat-label{font-size:9px}.two-col{grid-template-columns:1fr}.host-detail-wrap{grid-template-columns:1fr}.table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.data-table{min-width:680px}.search-bar{width:100%}.view-header{flex-direction:column;align-items:flex-start;gap:8px}.view-header h1{font-size:16px}.map-wrap{height:calc(100vh - 160px)}.map-legend{flex-wrap:wrap;gap:6px;font-size:9px}.map-filter-bar{flex-wrap:wrap}.finding-meta{flex-direction:column;gap:4px}.detail-grid{grid-template-columns:1fr}.ip-detail-panel{font-size:11px}.rec-card{flex-direction:column;gap:6px}.tldr-bar{flex-direction:column;gap:6px}.card{padding:12px;border-radius:10px}.finding-card{padding:10px}.btn{font-size:10px;padding:4px 8px}}@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.data-table{min-width:560px;font-size:11px}.content{padding:8px 6px}}';
+var _CSS = ':host{--bg:#070b12;--card:rgba(14,23,40,.92);--border:rgba(98,232,255,.14);--text:#eef7ff;--muted:#8a9dbf;--accent:#62e8ff;--success:#6bffc8;--danger:#ff4d6d;--warn:#ffb347;--violet:#9e96ff;--glow:0 0 28px rgba(98,232,255,.08);display:block;height:100vh;overflow:hidden;font-family:"IBM Plex Sans","Segoe UI",sans-serif;color:var(--text);background:var(--bg)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:210px;min-width:210px;background:rgba(6,11,24,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}.brand{padding:18px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}.brand-shield{font-size:26px;filter:drop-shadow(0 0 8px rgba(98,232,255,.5))}.brand-text{display:flex;flex-direction:column}.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.06em}.brand-tagline{font-size:9px;color:var(--muted);opacity:.7;margin-top:4px;line-height:1.3}.nav-list{list-style:none;padding:6px 0;flex:1}.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border-left:3px solid transparent;transition:all .12s ease;user-select:none}.nav-item:hover{background:rgba(98,232,255,.05);color:var(--text)}.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(98,232,255,.07)}.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.65}.nav-item.active svg{opacity:1}.nav-label{flex:1}.nav-badge{background:var(--danger);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}.sidebar-status{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}.sidebar-status.online .status-dot{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}.content{flex:1;overflow-y:auto;padding:22px 24px;position:relative;background:var(--bg)}.content::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;background-image:linear-gradient(rgba(98,232,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(98,232,255,.07) 1px,transparent 1px);background-size:40px 40px}.content>*{position:relative;z-index:1}.page-header{margin-bottom:20px}.page-title{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin-bottom:3px}.page-subtitle{font-size:12px;color:var(--muted);letter-spacing:.02em}.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--glow)}.stat-card.danger{border-color:rgba(255,77,109,.3)}.stat-card.warn{border-color:rgba(255,179,71,.28)}.stat-card.success{border-color:rgba(107,255,200,.2)}.stat-value{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--glow);margin-bottom:14px}.table-card{padding:0;overflow:hidden}.card-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.health-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(98,232,255,.05);font-size:12px}.health-row:last-child{border-bottom:none}.health-label{color:var(--muted)}.health-value{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}.health-value.good{color:var(--success)}.health-value.warn{color:var(--warn)}.health-value.bad{color:var(--danger)}.alert-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(98,232,255,.05)}.alert-row:last-child{border-bottom:none}.alert-body{flex:1;min-width:0}.alert-sum{font-size:12px;font-weight:600}.alert-meta{font-size:10px;color:var(--muted);margin-top:2px}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.view-header h1{font-size:18px;font-weight:700}.dim{color:var(--muted);font-weight:400;font-size:13px}.row-gap{display:flex;gap:8px;align-items:center}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}.data-table td{padding:7px 10px;border-bottom:1px solid rgba(98,232,255,.04);vertical-align:middle}.data-table tr.expandable{cursor:pointer}.data-table tr.expandable:hover td{background:rgba(98,232,255,.03)}.mono{font-family:"IBM Plex Mono",monospace}.ip{font-family:"IBM Plex Mono",monospace;font-size:11px}.host-detail-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 16px;background:rgba(0,0,0,.25)}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600}.detail-row{background:rgba(0,0,0,.2)}.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.badge-critical{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-high{background:rgba(255,140,66,.18);color:#ff8c42;border:1px solid rgba(255,140,66,.35)}.badge-medium{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-low{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-clean{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-suspicious{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-malicious{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-ok{background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)}.badge-warn{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.chip{display:inline-block;background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.15);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--accent);margin:1px}.ip-chip{display:inline-block;background:rgba(107,255,200,.08);border:1px solid rgba(107,255,200,.2);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--success);margin:1px 2px 1px 0}.finding-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}.finding-card.sev-critical{border-left-color:var(--danger)}.finding-card.sev-high{border-left-color:#ff8c42}.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}.finding-title{flex:1;font-size:12px;font-weight:600}.finding-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);flex-wrap:wrap}.finding-body{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.finding-detail{margin-top:8px;background:rgba(0,0,0,.2);border-radius:5px;padding:8px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:#b0c8e0}.finding-detail dt{color:var(--muted);font-weight:600}.finding-detail dd{margin-left:4px;color:var(--text);margin-right:12px}.fix-hint{font-size:11px;color:var(--success);margin-top:5px}.finding-group-wrap{margin-bottom:10px}.finding-group-card{cursor:pointer;border-radius:0 10px 10px 0;margin-bottom:0;transition:border-color .12s}.finding-group-card:hover{border-color:rgba(98,232,255,.3)}.finding-group-chevron{font-size:10px;color:var(--muted);transition:transform .15s;display:inline-block;flex-shrink:0}.finding-group-rows{background:rgba(0,0,0,.18);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:4px 0}.finding-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(98,232,255,.05);font-size:11px}.finding-row:last-child{border-bottom:none}.map-wrap{position:relative;height:calc(100vh - 120px);background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}#hsa-map-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}#hsa-map-canvas:active{cursor:grabbing}.map-tooltip{position:absolute;background:rgba(6,11,24,.96);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:10px;pointer-events:none;z-index:10;min-width:130px;box-shadow:0 4px 18px rgba(0,0,0,.5)}.map-legend{position:absolute;bottom:10px;left:10px;background:rgba(6,11,24,.82);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:10px;display:flex;gap:12px}.legend-item{display:flex;align-items:center;gap:4px;color:var(--muted)}.ldot{width:9px;height:9px;border-radius:50%}.map-mbtn{padding:4px 12px}.map-mbtn.active{background:rgba(136,167,199,.2);border-color:#88a7c7;color:#fff}.map-filter-bar{display:flex;gap:6px;margin-bottom:10px}.map-fbtn{padding:4px 12px}.map-fbtn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.tldr-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.tldr-bar strong{color:var(--accent)}.ip-detail-panel{background:rgba(6,11,24,.98);border:1px solid rgba(98,232,255,.3);border-radius:10px;padding:14px;font-size:12px}.ip-detail-panel h3{color:var(--accent);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.detail-pair{display:flex;flex-direction:column;gap:2px}.detail-key{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}.detail-val{font-size:12px;color:var(--text);word-break:break-all}.ext-report-link{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;border:1px solid rgba(98,232,255,.25);background:rgba(98,232,255,.08);color:var(--accent);text-decoration:none;font-size:11px;font-weight:600}.ext-report-link:hover{background:rgba(98,232,255,.16);border-color:rgba(98,232,255,.45)}.rec-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}.rec-card-clickable{cursor:pointer;transition:border-color .12s}.rec-card-clickable:hover{border-color:rgba(98,232,255,.35);background:rgba(14,23,40,.98)}.rec-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}.rec-title{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}.rec-detail{font-size:11px;color:var(--muted);line-height:1.55}.rec-expand-panel{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.rec-expand-section{margin-bottom:10px}.rec-expand-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:6px}.rec-expand-rows{display:flex;flex-direction:column;gap:5px}.rec-expand-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(98,232,255,.04)}.rec-expand-row:last-child{border-bottom:none}.btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(98,232,255,.05);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}.btn:hover{background:rgba(98,232,255,.12);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:default}.search-bar{padding:5px 11px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:210px}.search-bar:focus{outline:none;border-color:var(--accent)}.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;color:var(--muted)}.state-icon{font-size:32px}.loader{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--muted);text-align:center}.empty-icon{font-size:28px}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--success)}50%{opacity:.6;box-shadow:0 0 2px var(--success)}}@keyframes spin{to{transform:rotate(360deg)}}.role-select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit}.role-select:focus{outline:none;border-color:var(--accent)}.role-select:hover{border-color:var(--accent);background:rgba(98,232,255,.08)}.sortable-th{cursor:pointer;user-select:none;white-space:nowrap}.sortable-th:hover{color:var(--accent)}.sort-arrow{font-size:8px;margin-left:3px;color:var(--accent)}@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--border);align-items:center;gap:0}.brand{display:none}.brand-tagline{display:none}.nav-list{display:flex;flex-direction:row;padding:0;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch}.nav-item{flex-direction:column;gap:2px;padding:8px 12px;font-size:10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;min-width:0}.nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent)}.nav-item svg{width:14px;height:14px}.nav-label{font-size:9px}.sidebar-status{display:none}.content{padding:12px 10px;height:calc(100vh - 52px)}.content::before{display:none}.page-title{font-size:18px}.stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{padding:10px}.stat-value{font-size:20px}.stat-label{font-size:9px}.two-col{grid-template-columns:1fr}.host-detail-wrap{grid-template-columns:1fr}.table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.data-table{min-width:680px}.search-bar{width:100%}.view-header{flex-direction:column;align-items:flex-start;gap:8px}.view-header h1{font-size:16px}.map-wrap{height:calc(100vh - 160px)}.map-legend{flex-wrap:wrap;gap:6px;font-size:9px}.map-filter-bar{flex-wrap:wrap}.finding-meta{flex-direction:column;gap:4px}.detail-grid{grid-template-columns:1fr}.ip-detail-panel{font-size:11px}.rec-card{flex-direction:column;gap:6px}.tldr-bar{flex-direction:column;gap:6px}.card{padding:12px;border-radius:10px}.finding-card{padding:10px}.btn{font-size:10px;padding:4px 8px}}@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.data-table{min-width:560px;font-size:11px}.content{padding:8px 6px}}';
 
 _CSS += '.mobile-topbar{display:none}.mobile-backdrop{display:none}.stats-two-col>.card{min-width:0;width:100%;overflow:hidden}.stats-panel-card .data-table{min-width:0}.stats-chart-row{display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding-top:10px;width:100%;min-width:0}.stats-chart-legend{flex:1;min-width:0}.stats-chart-legend>div{max-width:100%}@media(max-width:768px){.mobile-topbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);background:rgba(6,11,24,.98);position:sticky;top:0;z-index:35}.mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:rgba(98,232,255,.1);color:var(--text);font-size:18px;cursor:pointer}.mobile-topbar-title{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.sidebar{position:fixed;top:0;left:0;bottom:0;width:min(82vw,300px);min-width:0;max-width:300px;transform:translateX(-102%);transition:transform .2s ease;z-index:45;border-right:1px solid var(--border);border-bottom:none;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}.app.mobile-menu-open .sidebar{transform:translateX(0)}.mobile-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}.app.mobile-menu-open .mobile-backdrop{display:block}.sidebar .brand{display:flex}.sidebar .brand-tagline{display:block}.sidebar .nav-list{display:block;overflow:visible;padding:6px 0}.sidebar .nav-item{display:flex;flex-direction:row;gap:9px;padding:9px 14px;font-size:12px;border-bottom:none;border-left:3px solid transparent;white-space:normal}.sidebar .nav-item.active{border-bottom-color:transparent;border-left-color:var(--accent)}.sidebar .nav-label{font-size:12px}.sidebar .sidebar-status{display:flex}.content{height:auto;min-height:0;flex:1}.stats-chart-row{gap:12px}.stats-chart-row svg{max-width:100%}.stats-chart-legend{width:100%;max-height:none}.stats-two-col>.card{margin-bottom:0}.stats-panel-card .data-table{min-width:0}}';  
 

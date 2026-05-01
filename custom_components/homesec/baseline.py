@@ -23,6 +23,7 @@ class BaselineManager:
         self._baseline_version = 0
         self._confidence = "none"
         self._hosts: dict[str, dict[str, Any]] = {}
+        self._edges: dict[str, dict[str, Any]] = {}
         self._training_stats: dict[str, int] = {
             "snapshots_seen": 0,
             "devices_seen": 0,
@@ -136,6 +137,7 @@ class BaselineManager:
         dns_log: list[dict[str, Any]],
         scan_results: list[dict[str, Any]],
         vulnerabilities: list[dict[str, Any]] = None,
+        connections: list[dict[str, Any]] | None = None,
         now: datetime | None = None,
         **kwargs,
     ) -> None:
@@ -184,6 +186,49 @@ class BaselineManager:
             for port in device.get("exposed_ports", []):
                 ports.add(port)
             host["exposed_ports"] = sorted(ports)
+        # Learn baseline edge statistics from current snapshot connections.
+        # Metrics are averaged after training for static/compare map rendering.
+        snapshot_edges: dict[str, dict[str, Any]] = {}
+        for conn in connections or []:
+            source = str(conn.get("source") or "")
+            target = str(conn.get("target") or "")
+            if not source or not target:
+                continue
+            target_kind = str(conn.get("target_kind") or "")
+            source_kind = str(conn.get("source_kind") or "")
+            key = self._edge_key(source, target, target_kind)
+            snap_edge = snapshot_edges.setdefault(
+                key,
+                {
+                    "source": source,
+                    "target": target,
+                    "source_kind": source_kind,
+                    "target_kind": target_kind,
+                    "octets": 0,
+                    "flows": 0,
+                },
+            )
+            snap_edge["octets"] += int(conn.get("octets", 0) or 0)
+            snap_edge["flows"] += int(conn.get("flows", 0) or 0)
+        for key, edge in snapshot_edges.items():
+            learned = self._edges.setdefault(
+                key,
+                {
+                    "source": edge["source"],
+                    "target": edge["target"],
+                    "source_kind": edge["source_kind"],
+                    "target_kind": edge["target_kind"],
+                    "snapshots_seen": 0,
+                    "octets_total": 0,
+                    "flows_total": 0,
+                    "first_seen": self._iso(now),
+                    "last_seen": self._iso(now),
+                },
+            )
+            learned["snapshots_seen"] = int(learned.get("snapshots_seen", 0) or 0) + 1
+            learned["octets_total"] = int(learned.get("octets_total", 0) or 0) + int(edge["octets"])
+            learned["flows_total"] = int(learned.get("flows_total", 0) or 0) + int(edge["flows"])
+            learned["last_seen"] = self._iso(now)
         # Learn DNS domains and categories
         for entry in dns_log:
             ip = str(entry.get("src_ip", entry.get("source_ip", "")))
@@ -227,6 +272,9 @@ class BaselineManager:
         hosts = data.get("hosts")
         if isinstance(hosts, dict):
             self._hosts = {str(key): value for key, value in hosts.items() if isinstance(value, dict)}
+        edges = data.get("edges")
+        if isinstance(edges, dict):
+            self._edges = {str(key): value for key, value in edges.items() if isinstance(value, dict)}
         stats = data.get("training_stats")
         if isinstance(stats, dict):
             self._training_stats.update(
@@ -256,6 +304,7 @@ class BaselineManager:
             },
             "training_stats": dict(self._training_stats),
             "hosts": self._hosts,
+            "edges": self._edges,
         }
 
     def start_training(self, now: datetime | None = None) -> None:
@@ -266,6 +315,7 @@ class BaselineManager:
         self._baseline_completed_at = None
         self._confidence = "low"
         self._hosts = {}
+        self._edges = {}
         self._training_stats = {
             "snapshots_seen": 0,
             "devices_seen": 0,
@@ -294,6 +344,7 @@ class BaselineManager:
         self._baseline_version = 0
         self._confidence = "none"
         self._hosts = {}
+        self._edges = {}
         self._training_stats = {
             "snapshots_seen": 0,
             "devices_seen": 0,
@@ -327,9 +378,43 @@ class BaselineManager:
             "min_observations": self._min_observations,
             "egress_multiplier": self._egress_multiplier,
             "learned_host_count": len(self._hosts),
+            "learned_edge_count": len(self._edges),
             "training_remaining_seconds": remaining_seconds,
             "training_progress_percent": progress,
             "training_stats": dict(self._training_stats),
+        }
+
+    def graph_snapshot(self) -> dict[str, Any]:
+        total_snapshots = max(1, int(self._training_stats.get("snapshots_seen", 0) or 0))
+        hosts = [dict(v) for v in self._hosts.values()]
+        edges: list[dict[str, Any]] = []
+        for edge in self._edges.values():
+            snapshots_seen = max(1, int(edge.get("snapshots_seen", 0) or 0))
+            octets_total = int(edge.get("octets_total", 0) or 0)
+            flows_total = int(edge.get("flows_total", 0) or 0)
+            edges.append(
+                {
+                    "source": str(edge.get("source") or ""),
+                    "target": str(edge.get("target") or ""),
+                    "source_kind": str(edge.get("source_kind") or ""),
+                    "target_kind": str(edge.get("target_kind") or ""),
+                    "snapshots_seen": snapshots_seen,
+                    "octets_total": octets_total,
+                    "flows_total": flows_total,
+                    "active_probability": round(snapshots_seen / total_snapshots, 4),
+                    "avg_octets_per_snapshot": round(octets_total / total_snapshots, 2),
+                    "avg_octets_when_active": round(octets_total / snapshots_seen, 2),
+                    "avg_flows_per_snapshot": round(flows_total / total_snapshots, 2),
+                    "avg_flows_when_active": round(flows_total / snapshots_seen, 2),
+                }
+            )
+        return {
+            "mode": self._mode,
+            "baseline_version": self._baseline_version,
+            "confidence": self._confidence,
+            "snapshot_count": int(self._training_stats.get("snapshots_seen", 0) or 0),
+            "hosts": hosts,
+            "edges": edges,
         }
 
     def _compute_confidence(self) -> str:
@@ -354,3 +439,7 @@ class BaselineManager:
     @staticmethod
     def _iso(value: datetime | None) -> str | None:
         return value.isoformat() if value is not None else None
+
+    @staticmethod
+    def _edge_key(source: str, target: str, target_kind: str) -> str:
+        return f"{source}|{target}|{target_kind}"

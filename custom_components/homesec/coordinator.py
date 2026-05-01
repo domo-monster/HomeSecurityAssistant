@@ -514,11 +514,13 @@ class HomeSecCollector:
         )
 
         if self._baseline_enabled or self._baseline_manager._mode != BASELINE_MODE_DISABLED:
+            live_connections = list(payload.get("connections", []))
             self._baseline_manager.observe_snapshot(
                 devices=list(payload.get("devices", [])),
                 dns_log=list(self._dns_log),
                 scan_results=scan_results,
                 vulnerabilities=vuln_findings,
+                connections=live_connections,
             )
             # Anomaly findings
             anomalies = self._baseline_manager.get_anomalies(
@@ -528,12 +530,14 @@ class HomeSecCollector:
                 vulnerabilities=vuln_findings,
             )
             payload["baseline"] = self._baseline_manager.status_snapshot()
+            payload["baseline_graph"] = self._baseline_manager.graph_snapshot()
             payload["baseline_anomalies"] = anomalies
             # Merge anomalies into findings
             if anomalies:
                 payload["findings"].extend(anomalies)
         else:
             payload["baseline"] = self._baseline_manager.status_snapshot()
+            payload["baseline_graph"] = self._baseline_manager.graph_snapshot()
             payload["baseline_anomalies"] = []
 
         # Filter out dismissed findings, keep them separately (with notes)
