@@ -145,7 +145,7 @@ A dedicated multi-view single-page application registered in the HA sidebar:
 The dashboard auto-refreshes every 30 seconds. The network map updates live without resetting the physics simulation.
 
 ### Brand Icons
-Custom integration icons (including dark mode variants) are served for the HA integration list page.
+Custom integration icons (including dark mode variants) are shipped in the `brand/` subdirectory of the component. Home Assistant 2026.3+ automatically serves them through the local brands API — no external CDN or brands repository submission required.
 
 ## Sensors
 

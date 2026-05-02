@@ -58,33 +58,6 @@ STATIC_PANEL_PATH = Path(__file__).parent / "frontend" / "homesec-panel.js"
 STATIC_LOGO_URL = "/api/homesec/frontend/hsa-logo.svg"
 STATIC_LOGO_PATH = Path(__file__).parent / "frontend" / "hsa-logo.svg"
 
-BRAND_DIR = Path(__file__).parent
-BRAND_FILES = [
-    "icon.png", "icon@2x.png",
-    "dark_icon.png", "dark_icon@2x.png",
-    "logo.png", "logo@2x.png",
-    "dark_logo.png", "dark_logo@2x.png",
-]
-
-
-def _register_brand_route(hass: HomeAssistant, fname: str, fpath: Path) -> None:
-    """Register a plain GET route for a single brand icon file.
-
-    Plain routes take precedence over HA's dynamic
-    /api/brands/{type}/{domain}/{file} handler in aiohttp.
-    """
-    _path = fpath  # capture for closure
-
-    async def _serve(request: web.Request) -> web.StreamResponse:
-        return web.FileResponse(_path)
-
-    try:
-        hass.http.app.router.add_get(
-            f"/api/brands/integration/{DOMAIN}/{fname}", _serve
-        )
-    except Exception:  # noqa: BLE001
-        _LOGGER.debug("Could not register brand route for %s", fname)
-
 
 async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True) -> None:
     domain_data = hass.data.setdefault(DOMAIN, {})
@@ -107,13 +80,6 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
             ),
         ]
     )
-    # Register exact plain routes for brand icons — plain routes take
-    # precedence over HA's dynamic /api/brands/{type}/{domain}/{file} handler.
-    for fname in BRAND_FILES:
-        fpath = BRAND_DIR / fname
-        if fpath.is_file():
-            _register_brand_route(hass, fname, fpath)
-
     # Load persisted role overrides
     role_overrides = await hass.async_add_executor_job(
         load_role_overrides, hass.config.config_dir
