@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/logo%402x.png" alt="Home Security Assistant" width="200">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/brand/logo%402x.png" alt="Home Security Assistant" width="200">
 </p>
 
 # Home Security Assistant
