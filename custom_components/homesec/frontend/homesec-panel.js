@@ -79,6 +79,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._expandedRec  = null;
     this._findingsGrouped      = true;
     this._expandedFindingGroup = null;
+    this._showBaselineFindings = true;
     this._regexDismissOpen     = false;
     this._regexDismissPattern  = '';
     this._regexDismissNote     = '';
@@ -227,6 +228,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // Findings: grouped view toggle
     if (e.target.closest('[data-findings-group-toggle]')) {
       this._findingsGrouped = !this._findingsGrouped;
+      this._expandedFindingGroup = null;
+      this._render();
+      return;
+    }
+    // Findings: show/hide baseline anomalies
+    if (e.target.closest('[data-baseline-findings-toggle]')) {
+      this._showBaselineFindings = !this._showBaselineFindings;
       this._expandedFindingGroup = null;
       this._render();
       return;
@@ -2762,6 +2770,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var headerButtons =
       '<div style="display:flex;gap:6px;flex-shrink:0">' +
         '<button class="btn active" data-findings-group-toggle title="Toggle grouped/flat view">' + (grouped ? 'Flat view' : 'Grouped view') + '</button>' +
+        '<label class="btn" data-baseline-findings-toggle style="gap:6px;cursor:pointer" title="Show or hide baseline anomaly findings">' +
+          '<input type="checkbox" data-baseline-findings-toggle ' + (this._showBaselineFindings ? 'checked' : '') + ' style="accent-color:#62e8ff;cursor:pointer" />' +
+          '<span>Baseline</span>' +
+        '</label>' +
         '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
       '</div>';
 
@@ -2864,7 +2876,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     };
 
     var baselineSection = '';
-    if (baselineAnomalies.length) {
+    if (this._showBaselineFindings && baselineAnomalies.length) {
       var baselineCards = grouped ? renderGrouped(baselineAnomalies) : baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('');
       baselineSection = '<div style="margin-bottom:32px"><div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' +
         baselineCards + '</div>';
