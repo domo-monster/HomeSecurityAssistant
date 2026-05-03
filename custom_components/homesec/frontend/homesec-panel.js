@@ -2761,7 +2761,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var headerButtons =
       '<div style="display:flex;gap:6px;flex-shrink:0">' +
-        '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle title="Toggle grouped/flat view">Grouped</button>' +
+        '<button class="btn active" data-findings-group-toggle title="Toggle grouped/flat view">' + (grouped ? 'Flat view' : 'Grouped view') + '</button>' +
         '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
       '</div>';
 
@@ -2865,8 +2865,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var baselineSection = '';
     if (baselineAnomalies.length) {
+      var baselineCards = grouped ? renderGrouped(baselineAnomalies) : baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('');
       baselineSection = '<div style="margin-bottom:32px"><div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' +
-        baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('') + '</div>';
+        baselineCards + '</div>';
     }
 
     var cards;
@@ -2889,8 +2890,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div></div>';
 
     var dismissedSection = dismissed.length
-      ? '<div style="margin-top:28px"><div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
-          dismissed.map(function(f) { return renderCard(f, true, false); }).join('') + '</div>'
+      ? '<div style="margin-top:28px;opacity:.7"><div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
+          (grouped ? renderGrouped(dismissed) : dismissed.map(function(f) { return renderCard(f, true, false); }).join('')) + '</div>'
       : '';
 
     return baselineSection + activeSection + dismissedSection;
