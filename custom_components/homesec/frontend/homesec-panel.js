@@ -2488,9 +2488,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           // Line 1: IP address
           ctx.fillStyle = 'rgba(180,210,240,.6)';
           ctx.fillText((n.ip || '').substring(0, 18), n.x, n.y + nodeR + 9);
-          // Line 2: tracker name (display_name or hostname), if available
+          // Line 2: tracker name (display_name or hostname), only if different from the IP
           var trackerName = (n.display_name || n.hostname || '').substring(0, 18);
-          if (trackerName) {
+          if (trackerName && trackerName !== (n.ip || '').substring(0, 18)) {
             ctx.fillStyle = n.at_risk ? '#ff9aae' : 'rgba(140,200,255,.85)';
             ctx.font = 'bold 8px IBM Plex Mono, monospace';
             ctx.fillText(trackerName, n.x, n.y + nodeR + 19);
