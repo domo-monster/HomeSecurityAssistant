@@ -205,7 +205,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var editorSave = e.target.closest('[data-editor-save]');
     if (editorSave) { this._saveEditor(); return; }
     var nav = e.target.closest('[data-view]');
-    if (nav) { this._setView(nav.dataset.view); return; }
+    if (nav) { if (nav.dataset.mapMode) this._mapMode = nav.dataset.mapMode; this._setView(nav.dataset.view); return; }
     var extPage = e.target.closest('[data-extpage]');
     if (extPage) {
       var total = this._extPreparedList().length;
@@ -848,6 +848,145 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</div>';
       })() +
       baselineCard +
+      this._baselineDevianceCard() +
+    '</div>';
+  }
+
+  // ── Baseline deviance score card ─────────────────────────────────────
+  _baselineDevianceCard() {
+    var baseline = (this._data && this._data.baseline) || {};
+    if ((baseline.mode || 'disabled') !== 'active') return '';
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    if (!baselineGraph || !(baselineGraph.edges && baselineGraph.edges.length)) return '';
+    var connections = (this._data && this._data.connections) || [];
+
+    // Build edge indices (same logic as _composeMapEdges but mode-neutral)
+    var live = this._buildLiveEdgeIndex(connections);
+    var base = this._buildBaselineEdgeIndex(baselineGraph);
+    var keys = {};
+    Object.keys(live).forEach(function(k) { keys[k] = true; });
+    Object.keys(base).forEach(function(k) { keys[k] = true; });
+
+    var cntNew = 0, cntMissing = 0, cntBoth = 0;
+    var topDelta = null, topDeltaAbs = 0;
+    for (var key in keys) {
+      var le = live[key];
+      var be = base[key];
+      if (le && be)       { cntBoth++;    var d = (le.live_flows || 0) - (be.avg_flows || 0); if (Math.abs(d) > topDeltaAbs) { topDeltaAbs = Math.abs(d); topDelta = { source: le.source, target: le.target, delta: d }; } }
+      else if (le && !be) { cntNew++;     }
+      else                { cntMissing++; }
+    }
+
+    // ── Score (0-100) ────────────────────────────────────────────────
+    // New connections are the primary security signal (weight 80%).
+    // Missing connections are expected in any snapshot vs. the full training
+    // period, so they only contribute 20% to keep the score fair.
+    var activeLive   = cntNew + cntBoth;
+    var totalKnown   = cntBoth + cntMissing;
+    var newRatio     = activeLive  > 0 ? cntNew     / activeLive  : 0;
+    var missingRatio = totalKnown  > 0 ? cntMissing / totalKnown  : 0;
+    var score        = Math.min(100, Math.round(newRatio * 80 + missingRatio * 20));
+
+    // ── Band ─────────────────────────────────────────────────────────
+    var band, bandColor, bandBg, bandBorder, bandDesc;
+    if (score <= 20) {
+      band = 'Normal';         bandColor = '#3ddc84'; bandBg = 'rgba(61,220,132,.10)'; bandBorder = 'rgba(61,220,132,.35)';
+      bandDesc = 'Traffic closely matches your baseline. No action needed.';
+    } else if (score <= 50) {
+      band = 'Review';         bandColor = '#ffce54'; bandBg = 'rgba(255,206,84,.10)'; bandBorder = 'rgba(255,206,84,.35)';
+      bandDesc = 'Some deviation from baseline detected. Worth a quick look.';
+    } else if (score <= 75) {
+      band = 'Investigate';    bandColor = '#ff9640'; bandBg = 'rgba(255,150,64,.10)'; bandBorder = 'rgba(255,150,64,.35)';
+      bandDesc = 'Noticeable deviation from baseline. Review unexpected connections.';
+    } else {
+      band = 'Critical';       bandColor = '#ff5a32'; bandBg = 'rgba(255,90,50,.10)'; bandBorder = 'rgba(255,90,50,.40)';
+      bandDesc = 'Significant deviation from baseline. Investigate immediately.';
+    }
+
+    // ── Progress bar ─────────────────────────────────────────────────
+    var barFill = score <= 20 ? '#3ddc84' : score <= 50 ? '#ffce54' : score <= 75 ? '#ff9640' : '#ff5a32';
+
+    // ── Row helpers ──────────────────────────────────────────────────
+    function row(icon, count, label, note, iconColor) {
+      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">' +
+        '<span style="font-size:16px;line-height:1.2;flex-shrink:0;color:' + iconColor + '">' + icon + '</span>' +
+        '<div style="flex:1;min-width:0">' +
+          '<span style="font-size:14px;font-weight:600;color:' + iconColor + '">' + count + '</span>' +
+          ' <span style="font-size:12px;color:var(--fg)">' + label + '</span>' +
+          '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + note + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // ── Top-delta plain English ──────────────────────────────────────
+    var topDeltaHtml = '';
+    if (topDelta) {
+      var d   = topDelta.delta;
+      var abs = Math.abs(d);
+      var dir = d > 0 ? 'busier' : 'quieter';
+      var mag = abs > 10000 ? 'far' : abs > 1000 ? 'noticeably' : abs > 100 ? 'somewhat' : 'slightly';
+      var sign = d > 0 ? '+' : '';
+      topDeltaHtml =
+        '<div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(255,206,84,.07);border:1px solid rgba(255,206,84,.22);font-size:11px">' +
+          '<span style="color:#ffce54;font-weight:600">\u0394 Biggest traffic change</span>' +
+          '<div style="margin-top:3px;color:var(--fg)">' +
+            '<span style="font-family:monospace;font-size:11px">' + topDelta.source + ' \u2192 ' + topDelta.target + '</span>' +
+          '</div>' +
+          '<div style="color:var(--muted);margin-top:2px">This known connection is <b style="color:var(--fg)">' + mag + ' ' + dir + '</b> than usual (' + sign + Math.round(d) + '\u00a0flows/snapshot).' +
+            (abs > 1000 ? ' Could be a file transfer, backup, or update in progress.' : '') +
+          '</div>' +
+        '</div>';
+    }
+
+    return '<div class="card" style="margin-top:12px">' +
+      '<div class="card-title">Network Behaviour</div>' +
+
+      // Score row
+      '<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">' +
+        '<div style="position:relative;flex-shrink:0">' +
+          '<svg width="64" height="64" viewBox="0 0 64 64">' +
+            // background ring
+            '<circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>' +
+            // foreground arc: circumference = 2πr ≈ 163.4; dashoffset drives fill
+            '<circle cx="32" cy="32" r="26" fill="none" stroke="' + barFill + '" stroke-width="7"' +
+              ' stroke-dasharray="163.4" stroke-dashoffset="' + (163.4 * (1 - score / 100)).toFixed(1) + '"' +
+              ' stroke-linecap="round" transform="rotate(-90 32 32)"/>' +
+            '<text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="' + barFill + '">' + score + '</text>' +
+          '</svg>' +
+        '</div>' +
+        '<div style="flex:1">' +
+          '<div style="display:inline-block;padding:3px 12px;border-radius:100px;background:' + bandBg + ';border:1px solid ' + bandBorder + ';color:' + bandColor + ';font-size:12px;font-weight:600;margin-bottom:5px">' + band + '</div>' +
+          '<div style="font-size:12px;color:var(--muted)">' + bandDesc + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // Breakdown rows
+      row('\u2191', cntNew,
+        cntNew === 1 ? 'unexpected new connection' : 'unexpected new connections',
+        cntNew === 0
+          ? 'No unknown activity \u2014 all current traffic was seen during training.'
+          : 'These connections were not present during baseline training. ' + (cntNew > 5 ? 'This is the main driver of your score \u2014 investigate.' : 'Review to confirm they are expected.'),
+        cntNew === 0 ? '#3ddc84' : cntNew <= 3 ? '#ffce54' : '#ff5a32') +
+
+      row('\u2193', cntMissing,
+        cntMissing === 1 ? 'baseline connection not active now' : 'baseline connections not active now',
+        'Connections seen during training that are quiet right now. ' +
+          'This is usually normal \u2014 devices don\u2019t maintain all connections at all times. ' +
+          (cntMissing > totalKnown * 0.9
+            ? 'The count is very high, but your baseline likely captured many short-lived flows over a long training window.'
+            : ''),
+        '#88a7c7') +
+
+      row('=', cntBoth,
+        cntBoth === 1 ? 'connection matches baseline exactly' : 'connections match baseline exactly',
+        cntBoth > 0
+          ? 'These connections are active now and were seen during training \u2014 your expected, normal traffic.'
+          : 'No currently active connections were seen in the baseline yet.',
+        '#3ac5c9') +
+
+      topDeltaHtml +
+
+      '<div style="margin-top:10px"><button class="btn" data-view="map" data-map-mode="compare">View on Network Map \u2192</button></div>' +
     '</div>';
   }
 
