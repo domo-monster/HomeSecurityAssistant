@@ -153,7 +153,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _render() {
     const root = this.shadowRoot;
     if (!root.querySelector('.app')) {
-      root.innerHTML = '<style>' + _CSS + '</style><div class="app"><header class="mobile-topbar"><button class="mobile-menu-btn" data-mobile-menu-toggle aria-label="Open menu">☰</button><div class="mobile-topbar-title" id="hsa-mobile-title">Home Security</div></header><div class="mobile-backdrop" data-mobile-menu-close></div><nav class="sidebar" id="hsa-sidebar"></nav><main class="content" id="hsa-content"></main></div>';
+      root.innerHTML = '<style>' + _CSS + '</style><div class="app"><header class="mobile-topbar"><button class="mobile-menu-btn" data-mobile-menu-toggle aria-label="Open menu">☰</button><div class="mobile-topbar-title" id="hsa-mobile-title">Security Assistant</div></header><div class="mobile-backdrop" data-mobile-menu-close></div><nav class="sidebar" id="hsa-sidebar"></nav><main class="content" id="hsa-content"></main></div>';
       root.querySelector('.app').addEventListener('click', e => this._onClick(e));
       root.querySelector('.app').addEventListener('input', e => this._onInput(e));
       root.querySelector('.app').addEventListener('change', e => this._onChange(e));
@@ -162,7 +162,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var app = root.querySelector('.app');
     app.classList.toggle('mobile-menu-open', !!this._mobileMenuOpen);
     var mobileTitle = root.getElementById('hsa-mobile-title');
-    if (mobileTitle) mobileTitle.textContent = _VIEW_LABELS[this._view] || 'Home Security';
+    if (mobileTitle) mobileTitle.textContent = _VIEW_LABELS[this._view] || 'Security Assistant';
     root.getElementById('hsa-sidebar').innerHTML = this._sidebar();
     const content = root.getElementById('hsa-content');
     if (this._error && !this._data) {

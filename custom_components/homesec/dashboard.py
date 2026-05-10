@@ -106,12 +106,12 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
         webcomponent_name=PANEL_COMPONENT,
         frontend_url_path=PANEL_URL_PATH,
         module_url=STATIC_PANEL_URL,
-        sidebar_title="Home Security Assistant",
+        sidebar_title="Security Assistant",
         sidebar_icon="mdi:shield-search",
         require_admin=require_admin,
         config={"domain": DOMAIN},
     )
-    _LOGGER.info("Home Security Assistant panel registered at /%s and fallback at /api/homesec/panel", PANEL_URL_PATH)
+    _LOGGER.info("Security Assistant panel registered at /%s and fallback at /api/homesec/panel", PANEL_URL_PATH)
     domain_data["panel_registered"] = True
 
 
