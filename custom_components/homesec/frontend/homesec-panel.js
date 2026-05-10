@@ -77,8 +77,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._editorPlaceholder = '';
     this._vulnDetail   = null;
     this._expandedRec  = null;
-    this._findingsGrouped      = true;
-    this._dismissedGrouped     = true;
+    this._findingsGroupMode    = 'category'; // 'category' | 'host' | 'severity' | 'flat'
+    this._dismissedGroupMode   = 'category'; // 'category' | 'host' | 'severity' | 'flat'
+    this._findingsSearch       = '';
+    this._baselineSearch       = '';
+    this._dismissedSearch      = '';
     this._expandedFindingGroup = null;
     this._showBaselineFindings = true;
     this._baselineGroupMode    = 'category'; // 'category' | 'host' | 'flat'
@@ -231,16 +234,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var undismissGroup = e.target.closest('[data-undismiss-group]');
     if (undismissGroup) { this._undismissGroup(undismissGroup.dataset.undismissGroup); return; }
     // Findings: grouped view toggle
-    if (e.target.closest('[data-findings-group-toggle]')) {
-      var _fgt = e.target.closest('[data-findings-group-toggle]');
-      this._findingsGrouped = _fgt.dataset.findingsGroupToggle !== 'flat';
+    if (e.target.closest('[data-findings-group-mode]')) {
+      var _fgm = e.target.closest('[data-findings-group-mode]');
+      this._findingsGroupMode = _fgm.dataset.findingsGroupMode;
       this._expandedFindingGroup = null;
       this._render();
       return;
     }
-    if (e.target.closest('[data-dismissed-group-toggle]')) {
-      var _dgt = e.target.closest('[data-dismissed-group-toggle]');
-      this._dismissedGrouped = _dgt.dataset.dismissedGroupToggle !== 'flat';
+    if (e.target.closest('[data-dismissed-group-mode]')) {
+      var _dgm = e.target.closest('[data-dismissed-group-mode]');
+      this._dismissedGroupMode = _dgm.dataset.dismissedGroupMode;
       this._expandedFindingGroup = null;
       this._render();
       return;
@@ -385,6 +388,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (e.target.id === 'hsa-regex-note') {
       this._regexDismissNote = e.target.value;
     }
+    if (e.target.hasAttribute('data-findings-search')) {
+      this._findingsSearch = e.target.value;
+      this._render();
+    }
+    if (e.target.hasAttribute('data-baseline-search')) {
+      this._baselineSearch = e.target.value;
+      this._render();
+    }
+    if (e.target.hasAttribute('data-dismissed-search')) {
+      this._dismissedSearch = e.target.value;
+      this._render();
+    }
   }
 
   _setVulnSort(col) {
@@ -470,9 +485,23 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     });
   }
 
-  async _undismissGroup(summary) {
+  async _undismissGroup(groupKey) {
     var dismissed = (this._data && this._data.dismissed_findings) || [];
-    var toMatch = dismissed.filter(function(f) { return (f.summary || f.category || 'Unknown') === summary; });
+    var BASELINE_ONLY_CATS = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
+    var toMatch;
+    if (groupKey.startsWith('fcat:')) {
+      var cat = groupKey.slice(5);
+      toMatch = dismissed.filter(function(f) { return (f.category || 'unknown') === cat; });
+    } else if (groupKey.startsWith('fhost:')) {
+      var ip = groupKey.slice(6);
+      toMatch = dismissed.filter(function(f) { return (f.source_ip || 'unknown') === ip; });
+    } else if (groupKey.startsWith('fsev:')) {
+      var sev = groupKey.slice(5);
+      toMatch = dismissed.filter(function(f) { return (f.severity || 'info') === sev; });
+    } else {
+      // legacy: match by summary (renderGrouped path)
+      toMatch = dismissed.filter(function(f) { return (f.summary || f.category || 'Unknown') === groupKey; });
+    }
     if (!toMatch.length) return;
     try {
       await Promise.all(toMatch.map(f => this._hass.callApi('POST', 'homesec/findings/undismiss', {
@@ -505,6 +534,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     } else if (summary.startsWith('bcat:')) {
       var cat = summary.slice(5);
       toMatch = baselineAnomalies.filter(function(f) { return f.category === cat; });
+    } else if (summary.startsWith('fcat:')) {
+      var fcat = summary.slice(5);
+      toMatch = findings.filter(function(f) { return (f.category || 'unknown') === fcat; });
+    } else if (summary.startsWith('fhost:')) {
+      var fip = summary.slice(6);
+      toMatch = findings.filter(function(f) { return (f.source_ip || 'unknown') === fip; });
+    } else if (summary.startsWith('fsev:')) {
+      var fsev = summary.slice(5);
+      toMatch = findings.filter(function(f) { return (f.severity || 'info') === fsev; });
     } else {
       toMatch = findings.filter(function(f) { return f.summary === summary; });
       if (!toMatch.length) toMatch = baselineAnomalies.filter(function(f) { return f.summary === summary; });
@@ -3144,19 +3182,32 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     });
     var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
     var allDismissed = (this._data && this._data.dismissed_findings) || [];
-    var dismissed = allDismissed.filter(function(f) {
-      return !BASELINE_ONLY_CATS[f.category];
+    // Tag every dismissed item so we know its origin; combine into one list
+    var allDismissedList = allDismissed.map(function(f) {
+      return Object.assign({}, f, { _isBaseline: !!BASELINE_ONLY_CATS[f.category] });
     });
-    var dismissedBaseline = allDismissed.filter(function(f) {
-      return BASELINE_ONLY_CATS[f.category];
-    });
-    var grouped = this._findingsGrouped;
-    var dismissedGrouped = this._dismissedGrouped;
+    var findingsGroupMode  = this._findingsGroupMode  || 'category';
+    var dismissedGroupMode = this._dismissedGroupMode || 'category';
     var baselineGroupMode = this._baselineGroupMode; // 'category' | 'host' | 'flat'
     var self = this;
 
     var SEV_ORDER = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
     var _sevRank = function(s) { var r = SEV_ORDER[s]; return r != null ? r : 99; };
+
+    // ── search helpers ───────────────────────────────────────────────
+    var findingsQ  = (self._findingsSearch  || '').toLowerCase().trim();
+    var baselineQ  = (self._baselineSearch  || '').toLowerCase().trim();
+    var dismissedQ = (self._dismissedSearch || '').toLowerCase().trim();
+    var _match = function(f, q) {
+      if (!q) return true;
+      return (f.summary   || '').toLowerCase().includes(q) ||
+             (f.source_ip || '').toLowerCase().includes(q) ||
+             (f.category  || '').toLowerCase().includes(q) ||
+             ((f.details && f.details.cve_id) || '').toLowerCase().includes(q);
+    };
+    var filteredFindings  = findingsQ  ? findings.filter(function(f) { return _match(f, findingsQ);  }) : findings;
+    var filteredBaseline  = baselineQ  ? baselineAnomalies.filter(function(f) { return _match(f, baselineQ);  }) : baselineAnomalies;
+    var filteredDismissed = dismissedQ ? allDismissedList.filter(function(f) { return _match(f, dismissedQ); }) : allDismissedList;
 
     // ── Top toolbar (always at page top) ────────────────────────────
     var topBar =
@@ -3205,7 +3256,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       findingsList.forEach(function(f) {
         var gkey = f.summary || f.category || 'Unknown';
         if (!groupMap[gkey]) {
-          groupMap[gkey] = { summary: gkey, findings: [], severity: f.severity, category: f.category };
+          groupMap[gkey] = { summary: gkey, findings: [], severity: f.severity, category: f.category, isBaseline: !!f._isBaseline };
         } else if (_sevRank(f.severity) < _sevRank(groupMap[gkey].severity)) {
           groupMap[gkey].severity = f.severity;
         }
@@ -3224,12 +3275,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var portChip = det0.port ? '<span class="chip">port ' + det0.port + '</span>' : '';
           var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
             g.findings.length + (g.findings.length === 1 ? ' host' : ' hosts') + '</span>';
+          var blBadge = g.isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">Baseline</span>' : '';
           var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
           var groupActionBtn = isDismissed
             ? '<button class="btn" data-undismiss-group="' + self._esc(g.summary) + '">Restore' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>'
             : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
           var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
-            '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge +
+            '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge + blBadge +
               '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
               groupActionBtn + chevron +
             '</div>' +
@@ -3374,99 +3426,209 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         }).join('');
     };
 
-    // ── Baseline section ─────────────────────────────────────────────
-    var dismissedBlSection = '';
-    if (dismissedBaseline.length) {
-      var BL_CAT_LABELS_D = {
-        anomaly_new_host: 'New Host Detected', anomaly_new_peer: 'New External Peer',
-        anomaly_new_port: 'New Open Port', anomaly_new_dns_domain: 'New DNS Domain',
-        anomaly_new_dns_category: 'New DNS Category',
-      };
-      dismissedBlSection =
-        '<div style="margin-top:14px;opacity:.7">' +
-          '<div class="view-header"><h1>Dismissed Baseline Anomalies <span class="dim">(' + dismissedBaseline.length + ')</span></h1></div>' +
-          dismissedBaseline.map(function(f) {
-            var label = BL_CAT_LABELS_D[f.category] || f.category || 'Unknown';
-            var note = f.dismiss_note ? '<span class="dim" style="font-size:10px">' + self._esc(f.dismiss_note) + '</span>' : '';
-            return '<div class="finding-card sev-' + (f.severity || 'info') + '">' +
-              '<div class="finding-header">' + self._sev(f.severity || 'info') +
-                '<span class="finding-title">' + self._esc(f.source_ip || '') + ' \u2014 ' + label + '</span>' +
-                note +
-                '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Restore</button>' +
-              '</div>' +
-              '<div class="finding-meta"><span>' + self._ago(f.last_seen) + '</span></div>' +
-            '</div>';
-          }).join('') +
+    // ── findings group renderers (by category / host / severity) ────
+    var _mkFindingGroup = function(gkey, label, sev, itemList, isDismissed) {
+      var isExpanded = self._expandedFindingGroup === gkey;
+      var totalCount = itemList.reduce(function(s, f) { return s + (f.count || 1); }, 0);
+      var latestSeen = itemList.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+      var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+        itemList.length + (itemList.length === 1 ? ' finding' : ' findings') + '</span>';
+      var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+      var actionBtn = isDismissed
+        ? '<button class="btn" data-undismiss-group="' + self._esc(gkey) + '">Restore all\u00A0' + itemList.length + '</button>'
+        : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all\u00A0' + itemList.length + '</button>';
+      var header = '<div class="finding-card sev-' + sev + ' finding-group-card" data-expand-group="' + self._esc(gkey) + '">' +
+        '<div class="finding-header">' + self._sev(sev) + countBadge +
+          '<span class="finding-title">' + label + '</span>' +
+          actionBtn + chevron +
+        '</div>' +
+        '<div class="finding-meta">' +
+          '<span>' + totalCount + '\u00D7 total</span>' +
+          '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
+        '</div>' +
+      '</div>';
+      var rows = '';
+      if (isExpanded) {
+        rows = '<div class="finding-group-rows">' +
+          itemList.slice().sort(function(a, b) { return _sevRank(a.severity) - _sevRank(b.severity); })
+            .map(function(f) {
+              var det = f.details || {};
+              var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
+                .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+              var blBadge = f._isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">Baseline</span>' : '';
+              var rowActionBtn = isDismissed
+                ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Restore</button>'
+                : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Dismiss</button>';
+              return '<div class="finding-row">' +
+                self._sev(f.severity) +
+                '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
+                blBadge +
+                (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
+                '<span style="flex:1;font-size:11px">' + self._esc(f.summary || f.category || '') + '</span>' +
+                '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
+                (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
+                rowActionBtn +
+              '</div>';
+            }).join('') +
         '</div>';
-    }
+      }
+      return '<div class="finding-group-wrap">' + header + rows + '</div>';
+    };
 
+    var renderFindingsByCategory = function(list, isDismissed) {
+      if (!list.length) return '';
+      var catMap = {};
+      list.forEach(function(f) {
+        var k = f.category || 'unknown';
+        if (!catMap[k]) catMap[k] = { sev: f.severity, items: [] };
+        else if (_sevRank(f.severity) < _sevRank(catMap[k].sev)) catMap[k].sev = f.severity;
+        catMap[k].items.push(f);
+      });
+      return Object.values(catMap)
+        .sort(function(a, b) { return _sevRank(a.sev) - _sevRank(b.sev); })
+        .map(function(g) {
+          var label = self._esc(g.items[0].category || 'Unknown');
+          return _mkFindingGroup('fcat:' + g.items[0].category, label, g.sev, g.items, isDismissed);
+        }).join('');
+    };
+
+    var renderFindingsByHost = function(list, isDismissed) {
+      if (!list.length) return '';
+      var hostMap = {};
+      list.forEach(function(f) {
+        var ip = f.source_ip || 'unknown';
+        if (!hostMap[ip]) hostMap[ip] = { sev: f.severity, items: [] };
+        else if (_sevRank(f.severity) < _sevRank(hostMap[ip].sev)) hostMap[ip].sev = f.severity;
+        hostMap[ip].items.push(f);
+      });
+      return Object.values(hostMap)
+        .sort(function(a, b) {
+          var sd = _sevRank(a.sev) - _sevRank(b.sev);
+          if (sd !== 0) return sd;
+          return a.items[0].source_ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.')
+            .localeCompare(b.items[0].source_ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.'));
+        })
+        .map(function(g) {
+          var ip = g.items[0].source_ip || 'unknown';
+          var label = '<span style="font-family:monospace">' + self._esc(ip) + '</span>';
+          return _mkFindingGroup('fhost:' + ip, label, g.sev, g.items, isDismissed);
+        }).join('');
+    };
+
+    var SEV_LABELS = { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low', info: 'Info' };
+    var renderFindingsBySeverity = function(list, isDismissed) {
+      if (!list.length) return '';
+      var sevMap = {};
+      list.forEach(function(f) {
+        var s = f.severity || 'info';
+        if (!sevMap[s]) sevMap[s] = [];
+        sevMap[s].push(f);
+      });
+      return ['critical', 'high', 'medium', 'low', 'info'].filter(function(s) { return sevMap[s]; })
+        .map(function(s) {
+          return _mkFindingGroup('fsev:' + s, SEV_LABELS[s] || s, s, sevMap[s], isDismissed);
+        }).join('');
+    };
+
+    var _renderFindingCards = function(list, isDismissed, mode) {
+      if (!list.length) return '';
+      if (mode === 'host')     return renderFindingsByHost(list, isDismissed);
+      if (mode === 'severity') return renderFindingsBySeverity(list, isDismissed);
+      if (mode === 'flat')     return list.map(function(f) { return renderCard(f, isDismissed, !!f._isBaseline); }).join('');
+      return renderFindingsByCategory(list, isDismissed); // 'category' (default)
+    };
+
+    // ── Baseline section ─────────────────────────────────────────────
     var baselineSection = '';
-    if (baselineAnomalies.length || dismissedBaseline.length) {
+    if (baselineAnomalies.length) {
       var blModeBtn = function(mode, label) {
         var active = baselineGroupMode === mode;
         return '<button class="btn' + (active ? ' active' : '') + '" data-baseline-group-mode="' + mode + '">' + label + '</button>';
       };
+      var blSearchInput = '<input type="search" data-baseline-search placeholder="Search\u2026" value="' + self._esc(self._baselineSearch || '') + '" ' +
+        'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">';
       var blToolbar =
-        '<div style="display:flex;gap:4px;margin-bottom:8px">' +
+        '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
           blModeBtn('category', 'By Category') +
           blModeBtn('host',     'By Host') +
           blModeBtn('flat',     'Flat') +
+          '<span style="flex:1"></span>' + blSearchInput +
         '</div>';
 
-      var blCards = '';
-      if (baselineAnomalies.length) {
-        if (baselineGroupMode === 'host')         blCards = renderBaselineByHost(baselineAnomalies);
-        else if (baselineGroupMode === 'flat')    blCards = baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('');
-        else                                      blCards = renderBaselineByCategory(baselineAnomalies);
-      }
+      var blCards;
+      if (baselineGroupMode === 'host')         blCards = renderBaselineByHost(filteredBaseline);
+      else if (baselineGroupMode === 'flat')    blCards = filteredBaseline.map(function(f) { return renderCard(f, false, true); }).join('');
+      else                                      blCards = renderBaselineByCategory(filteredBaseline);
 
-      var blActiveHeader = baselineAnomalies.length
-        ? '<div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' + blToolbar + blCards
-        : '';
+      var blContent = (baselineQ && !filteredBaseline.length)
+        ? '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(baselineQ) + '&rdquo;.</p></div>'
+        : blCards;
 
       baselineSection =
         '<div style="margin-bottom:28px">' +
-          blActiveHeader +
-          dismissedBlSection +
+          '<div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length +
+            (baselineQ && filteredBaseline.length !== baselineAnomalies.length ? ', ' + filteredBaseline.length + ' shown' : '') +
+          ')</span></h1></div>' +
+          blToolbar + blContent +
         '</div>';
     }
 
     // ── Security findings section ────────────────────────────────────
-    var cards = grouped
-      ? renderGrouped(findings, false)
-      : findings.map(function(f) { return renderCard(f, false, false); }).join('');
+    var cards = _renderFindingCards(filteredFindings, false, findingsGroupMode);
 
     var findingsHeader = findings.length
-      ? 'Security Findings <span class="dim">(' + findings.length + ' actionable' + (dismissed.length ? ', ' + dismissed.length + ' dismissed' : '') + ')</span>'
-      : 'Security Findings' + (dismissed.length ? ' <span class="dim">(' + dismissed.length + ' dismissed)</span>' : '');
+      ? 'Security Findings <span class="dim">(' + findings.length + ' actionable' +
+          (findingsQ && filteredFindings.length !== findings.length ? ', ' + filteredFindings.length + ' shown' : '') +
+          (allDismissedList.length ? ', ' + allDismissedList.length + ' dismissed' : '') + ')</span>'
+      : 'Security Findings' + (allDismissedList.length ? ' <span class="dim">(' + allDismissedList.length + ' dismissed)</span>' : '');
+    var _fModeBtn = function(mode, label) {
+      return '<button class="btn' + (findingsGroupMode === mode ? ' active' : '') + '" data-findings-group-mode="' + mode + '" style="font-size:10px;padding:3px 8px">' + label + '</button>';
+    };
     var findingsToggle =
-      '<div style="display:flex;gap:4px;margin-bottom:8px">' +
-        '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle="grouped" style="font-size:10px;padding:3px 8px">Grouped</button>' +
-        '<button class="btn' + (!grouped ? ' active' : '') + '" data-findings-group-toggle="flat" style="font-size:10px;padding:3px 8px">Flat</button>' +
+      '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
+        _fModeBtn('category', 'By Category') +
+        _fModeBtn('host',     'By Host') +
+        _fModeBtn('severity', 'By Severity') +
+        _fModeBtn('flat',     'Flat') +
+        '<span style="flex:1"></span>' +
+        '<input type="search" data-findings-search placeholder="Search\u2026" value="' + self._esc(self._findingsSearch || '') + '" ' +
+          'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
       '</div>';
 
     var activeSection = '<div>' +
         '<div class="view-header"><h1>' + findingsHeader + '</h1></div>' +
         findingsToggle +
         (findings.length
-          ? cards
+          ? (filteredFindings.length
+              ? cards
+              : '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(findingsQ) + '&rdquo;.</p></div>')
           : '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div>') +
       '</div>';
 
-    // Dismissed section with Grouped/Flat toggle
+    // ── Dismissed section (security + baseline combined) ─────────────
+    var dismissedCards = _renderFindingCards(filteredDismissed, true, dismissedGroupMode);
+    var _dModeBtn = function(mode, label) {
+      return '<button class="btn' + (dismissedGroupMode === mode ? ' active' : '') + '" data-dismissed-group-mode="' + mode + '" style="font-size:10px;padding:3px 8px">' + label + '</button>';
+    };
     var dismissedToggle =
-      '<div style="display:flex;gap:4px;margin-bottom:8px">' +
-        '<button class="btn' + (dismissedGrouped ? ' active' : '') + '" data-dismissed-group-toggle="grouped" style="font-size:10px;padding:3px 8px">Grouped</button>' +
-        '<button class="btn' + (!dismissedGrouped ? ' active' : '') + '" data-dismissed-group-toggle="flat" style="font-size:10px;padding:3px 8px">Flat</button>' +
+      '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
+        _dModeBtn('category', 'By Category') +
+        _dModeBtn('host',     'By Host') +
+        _dModeBtn('severity', 'By Severity') +
+        _dModeBtn('flat',     'Flat') +
+        '<span style="flex:1"></span>' +
+        '<input type="search" data-dismissed-search placeholder="Search\u2026" value="' + self._esc(self._dismissedSearch || '') + '" ' +
+          'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
       '</div>';
-    var dismissedCards = dismissedGrouped
-      ? renderGrouped(dismissed, true)
-      : dismissed.map(function(f) { return renderCard(f, true, false); }).join('');
-    var dismissedSection = dismissed.length
+    var dismissedSection = allDismissedList.length
       ? '<div style="margin-top:28px;opacity:.7">' +
-          '<div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
+          '<div class="view-header"><h1>Dismissed <span class="dim">(' + allDismissedList.length +
+            (dismissedQ && filteredDismissed.length !== allDismissedList.length ? ', ' + filteredDismissed.length + ' shown' : '') +
+          ')</span></h1></div>' +
           dismissedToggle +
-          dismissedCards +
+          (filteredDismissed.length
+            ? dismissedCards
+            : '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(dismissedQ) + '&rdquo;.</p></div>') +
         '</div>'
       : '';
 
