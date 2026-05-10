@@ -226,8 +226,11 @@ def build_dashboard_payload(
         vulnerability_count += int(snapshot.get("vulnerability_count", 0) or 0)
         total_flows += int(snapshot.get("total_flows", 0) or 0)
 
-        # Collect baseline anomalies if present
-        baseline_anomalies.extend(snapshot.get("baseline_anomalies", []))
+        # Collect baseline anomalies if present, excluding dismissed keys
+        for anomaly in snapshot.get("baseline_anomalies", []):
+            akey = anomaly.get("key", "")
+            if not akey or akey not in dismissed:
+                baseline_anomalies.append(anomaly)
         # Collect baseline status (last entry wins — single-entry setups)
         if snapshot.get("baseline"):
             baseline_status = snapshot["baseline"]
