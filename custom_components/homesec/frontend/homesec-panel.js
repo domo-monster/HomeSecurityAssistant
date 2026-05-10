@@ -157,6 +157,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       root.querySelector('.app').addEventListener('click', e => this._onClick(e));
       root.querySelector('.app').addEventListener('input', e => this._onInput(e));
       root.querySelector('.app').addEventListener('change', e => this._onChange(e));
+      root.querySelector('.app').addEventListener('keydown', e => this._onKeyDown(e));
     }
     var app = root.querySelector('.app');
     app.classList.toggle('mobile-menu-open', !!this._mobileMenuOpen);
@@ -388,15 +389,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (e.target.id === 'hsa-regex-note') {
       this._regexDismissNote = e.target.value;
     }
+  }
+
+  _onKeyDown(e) {
+    if (e.key !== 'Enter') return;
     if (e.target.hasAttribute('data-findings-search')) {
       this._findingsSearch = e.target.value;
       this._render();
-    }
-    if (e.target.hasAttribute('data-baseline-search')) {
+    } else if (e.target.hasAttribute('data-baseline-search')) {
       this._baselineSearch = e.target.value;
       this._render();
-    }
-    if (e.target.hasAttribute('data-dismissed-search')) {
+    } else if (e.target.hasAttribute('data-dismissed-search')) {
       this._dismissedSearch = e.target.value;
       this._render();
     }
@@ -3553,7 +3556,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var active = baselineGroupMode === mode;
         return '<button class="btn' + (active ? ' active' : '') + '" data-baseline-group-mode="' + mode + '">' + label + '</button>';
       };
-      var blSearchInput = '<input type="search" data-baseline-search placeholder="Search\u2026" value="' + self._esc(self._baselineSearch || '') + '" ' +
+      var blSearchInput = '<input type="search" data-baseline-search placeholder="Search + Enter" value="' + self._esc(self._baselineSearch || '') + '" ' +
         'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">';
       var blToolbar =
         '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
@@ -3599,7 +3602,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         _fModeBtn('severity', 'By Severity') +
         _fModeBtn('flat',     'Flat') +
         '<span style="flex:1"></span>' +
-        '<input type="search" data-findings-search placeholder="Search\u2026" value="' + self._esc(self._findingsSearch || '') + '" ' +
+        '<input type="search" data-findings-search placeholder="Search + Enter" value="' + self._esc(self._findingsSearch || '') + '" ' +
           'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
       '</div>';
 
@@ -3625,7 +3628,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         _dModeBtn('severity', 'By Severity') +
         _dModeBtn('flat',     'Flat') +
         '<span style="flex:1"></span>' +
-        '<input type="search" data-dismissed-search placeholder="Search\u2026" value="' + self._esc(self._dismissedSearch || '') + '" ' +
+        '<input type="search" data-dismissed-search placeholder="Search + Enter" value="' + self._esc(self._dismissedSearch || '') + '" ' +
           'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
       '</div>';
     var dismissedSection = allDismissedList.length
