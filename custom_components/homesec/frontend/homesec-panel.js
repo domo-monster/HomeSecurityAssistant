@@ -80,6 +80,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._findingsGrouped      = true;
     this._expandedFindingGroup = null;
     this._showBaselineFindings = true;
+    this._baselineGroupMode    = 'category'; // 'category' | 'host' | 'flat'
+    this._expandedBaselineGroup = null;
     this._regexDismissOpen     = false;
     this._regexDismissPattern  = '';
     this._regexDismissNote     = '';
@@ -236,6 +238,23 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (e.target.closest('[data-baseline-findings-toggle]')) {
       this._showBaselineFindings = !this._showBaselineFindings;
       this._expandedFindingGroup = null;
+      this._expandedBaselineGroup = null;
+      this._render();
+      return;
+    }
+    // Findings: baseline group mode switcher
+    var bgm = e.target.closest('[data-baseline-group-mode]');
+    if (bgm) {
+      this._baselineGroupMode = bgm.dataset.baselineGroupMode;
+      this._expandedBaselineGroup = null;
+      this._render();
+      return;
+    }
+    // Findings: expand/collapse a baseline group
+    var fbge = e.target.closest('[data-expand-baseline-group]');
+    if (fbge && !e.target.closest('[data-dismiss-group]')) {
+      var bgk = fbge.dataset.expandBaselineGroup;
+      this._expandedBaselineGroup = (this._expandedBaselineGroup === bgk) ? null : bgk;
       this._render();
       return;
     }
@@ -452,7 +471,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   async _dismissGroup(summary) {
     var findings = (this._data && this._data.findings) || [];
-    var toMatch = findings.filter(function(f) { return f.summary === summary; });
+    var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
+    var toMatch;
+    if (summary.startsWith('bhost:')) {
+      var ip = summary.slice(6);
+      toMatch = baselineAnomalies.filter(function(f) { return f.source_ip === ip; });
+    } else if (summary.startsWith('bcat:')) {
+      var cat = summary.slice(5);
+      toMatch = baselineAnomalies.filter(function(f) { return f.category === cat; });
+    } else {
+      toMatch = findings.filter(function(f) { return f.summary === summary; });
+      if (!toMatch.length) toMatch = baselineAnomalies.filter(function(f) { return f.summary === summary; });
+    }
     if (!toMatch.length) return;
     try {
       await Promise.all(toMatch.map(f => this._hass.callApi('POST', 'homesec/findings/dismiss', {
@@ -2904,22 +2934,26 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
     var dismissed = (this._data && this._data.dismissed_findings) || [];
     var grouped = this._findingsGrouped;
+    var baselineGroupMode = this._baselineGroupMode; // 'category' | 'host' | 'flat'
     var self = this;
 
-    var headerButtons =
-      '<div style="display:flex;gap:6px;flex-shrink:0">' +
-        '<button class="btn active" data-findings-group-toggle title="Toggle grouped/flat view">' + (grouped ? 'Flat view' : 'Grouped view') + '</button>' +
-        '<label class="btn" data-baseline-findings-toggle style="gap:6px;cursor:pointer" title="Show or hide baseline anomaly findings">' +
-          '<input type="checkbox" data-baseline-findings-toggle ' + (this._showBaselineFindings ? 'checked' : '') + ' style="accent-color:#62e8ff;cursor:pointer" />' +
-          '<span>Baseline</span>' +
-        '</label>' +
-        '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
-      '</div>';
-
-    // Severity ordering used in both grouped and flat renderers
     var SEV_ORDER = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
 
-    // ── individual card (used in flat mode and for dismissed section) ──
+    // ── Top toolbar (always at page top) ────────────────────────────
+    var topBar =
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
+        '<div class="page-header" style="margin:0"><h1 class="page-title">Findings</h1></div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
+          '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle title="Toggle grouped/flat view for security findings">' + (grouped ? 'Flat view' : 'Grouped view') + '</button>' +
+          '<label class="btn" style="display:inline-flex;gap:6px;cursor:pointer" title="Show or hide baseline anomaly findings">' +
+            '<input type="checkbox" data-baseline-findings-toggle ' + (this._showBaselineFindings ? 'checked' : '') + ' style="accent-color:#62e8ff;cursor:pointer" />' +
+            '<span>Baseline</span>' +
+          '</label>' +
+          '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
+        '</div>' +
+      '</div>';
+
+    // ── individual card (flat mode / dismissed) ──────────────────────
     var renderCard = function(f, isDismissed, isBaseline) {
       var det = f.details || {};
       var cve = det.cve_id ? '<span class="chip">' + det.cve_id + '</span>' : '';
@@ -2929,13 +2963,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var noteHtml = (isDismissed && f.dismiss_note)
         ? '<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>Note:</strong> ' + self._esc(f.dismiss_note) + '</div>'
         : '';
-      var baselineBadge = isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">Baseline anomaly</span>' : '';
+      var baselineBadge = isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">Baseline</span>' : '';
       return '<div class="finding-card sev-' + f.severity + '"' + (isDismissed ? ' style="opacity:.55"' : '') + '>' +
         '<div class="finding-header">' + self._sev(f.severity) + cve + portChip +
-        '<span class="finding-title">' + self._esc(f.summary) + baselineBadge + '</span>' +
-        (isDismissed
-          ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore finding">Restore</button>'
-          : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss finding">Dismiss</button>') +
+          '<span class="finding-title">' + self._esc(f.summary) + baselineBadge + '</span>' +
+          (isDismissed
+            ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore finding">Restore</button>'
+            : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss finding">Dismiss</button>') +
         '</div>' +
         '<div class="finding-meta">' +
           '<span>Source: <span class="ip">' + f.source_ip + '</span></span>' +
@@ -2950,7 +2984,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>';
     };
 
-    // ── grouped renderer ──
+    // ── grouped by summary (security findings + dismissed) ──────────
     var renderGrouped = function(findingsList) {
       if (!findingsList.length) return '';
       var groupMap = {};
@@ -2966,7 +3000,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var groups = Object.values(groupMap).sort(function(a, b) {
         return (SEV_ORDER[a.severity] || 99) - (SEV_ORDER[b.severity] || 99);
       });
-
       return groups.map(function(g) {
         var isExpanded = self._expandedFindingGroup === g.summary;
         var totalCount = g.findings.reduce(function(s, f) { return s + (f.count || 1); }, 0);
@@ -2979,7 +3012,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
         var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">' +
           'Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
-
         var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
           '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge +
             '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
@@ -2991,7 +3023,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
           '</div>' +
         '</div>';
-
         var rows = '';
         if (isExpanded) {
           rows = '<div class="finding-group-rows">' +
@@ -3014,38 +3045,152 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }).join('');
     };
 
+    // ── baseline group renderers ─────────────────────────────────────
+    // Shared expand-row builder for host/category groups
+    var _baselineExpandRows = function(list) {
+      return list.map(function(f) {
+        var det = f.details || {};
+        return '<div class="finding-row">' +
+          self._sev(f.severity) +
+          '<span style="flex:1;font-size:12px">' + self._esc(f.summary) + '</span>' +
+          (det.port ? '<span class="chip" style="font-size:9px">:' + det.port + '</span>' : '') +
+          '<span class="dim" style="font-size:10px;flex-shrink:0">' + self._ago(f.last_seen) + '</span>' +
+          '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss">Dismiss</button>' +
+        '</div>';
+      }).join('');
+    };
+
+    var renderBaselineByCategory = function(list) {
+      if (!list.length) return '';
+      var catMap = {};
+      list.forEach(function(f) {
+        var cat = f.category || 'unknown';
+        if (!catMap[cat]) catMap[cat] = { category: cat, findings: [], maxSev: 'info' };
+        if ((SEV_ORDER[f.severity] || 99) < (SEV_ORDER[catMap[cat].maxSev] || 99)) catMap[cat].maxSev = f.severity;
+        catMap[cat].findings.push(f);
+      });
+      return Object.values(catMap)
+        .sort(function(a, b) {
+          var sd = (SEV_ORDER[a.maxSev] || 99) - (SEV_ORDER[b.maxSev] || 99);
+          return sd !== 0 ? sd : a.category.localeCompare(b.category);
+        })
+        .map(function(c) {
+          var gkey = 'bcat:' + c.category;
+          var isExpanded = self._expandedBaselineGroup === gkey;
+          var latestSeen = c.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+          var uniqueHosts = {};
+          c.findings.forEach(function(f) { uniqueHosts[f.source_ip] = true; });
+          var hostCount = Object.keys(uniqueHosts).length;
+          var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+            c.findings.length + ' findings \u00B7 ' + hostCount + ' host' + (hostCount !== 1 ? 's' : '') + '</span>';
+          var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all ' + c.findings.length + '</button>';
+          var header = '<div class="finding-card sev-' + c.maxSev + ' finding-group-card" data-expand-baseline-group="' + self._esc(gkey) + '">' +
+            '<div class="finding-header">' + self._sev(c.maxSev) + countBadge +
+              '<span class="finding-title">' + self._esc(c.category) + '</span>' +
+              dismissAllBtn + chevron +
+            '</div>' +
+            '<div class="finding-meta"><span>Latest: ' + self._ago(latestSeen) + '</span></div>' +
+          '</div>';
+          var rows = isExpanded
+            ? '<div class="finding-group-rows">' + _baselineExpandRows(c.findings) + '</div>'
+            : '';
+          return '<div class="finding-group-wrap">' + header + rows + '</div>';
+        }).join('');
+    };
+
+    var renderBaselineByHost = function(list) {
+      if (!list.length) return '';
+      var hostMap = {};
+      list.forEach(function(f) {
+        var ip = f.source_ip || 'unknown';
+        if (!hostMap[ip]) hostMap[ip] = { ip: ip, findings: [], maxSev: 'info' };
+        if ((SEV_ORDER[f.severity] || 99) < (SEV_ORDER[hostMap[ip].maxSev] || 99)) hostMap[ip].maxSev = f.severity;
+        hostMap[ip].findings.push(f);
+      });
+      return Object.values(hostMap)
+        .sort(function(a, b) {
+          var sd = (SEV_ORDER[a.maxSev] || 99) - (SEV_ORDER[b.maxSev] || 99);
+          if (sd !== 0) return sd;
+          return a.ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.')
+            .localeCompare(b.ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.'));
+        })
+        .map(function(h) {
+          var gkey = 'bhost:' + h.ip;
+          var isExpanded = self._expandedBaselineGroup === gkey;
+          var latestSeen = h.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+          var catCounts = {};
+          h.findings.forEach(function(f) { catCounts[f.category] = (catCounts[f.category] || 0) + 1; });
+          var catChips = Object.keys(catCounts).slice(0, 5).map(function(c) {
+            return '<span class="chip" style="font-size:9px">' + self._esc(c) + ' (' + catCounts[c] + ')</span>';
+          }).join(' ');
+          var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+            h.findings.length + ' finding' + (h.findings.length !== 1 ? 's' : '') + '</span>';
+          var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all ' + h.findings.length + '</button>';
+          var header = '<div class="finding-card sev-' + h.maxSev + ' finding-group-card" data-expand-baseline-group="' + self._esc(gkey) + '">' +
+            '<div class="finding-header">' + self._sev(h.maxSev) + countBadge +
+              '<span class="finding-title" style="font-family:monospace">' + self._esc(h.ip) + '</span>' +
+              dismissAllBtn + chevron +
+            '</div>' +
+            '<div class="finding-meta">' + catChips + '<span style="flex-shrink:0">Latest: ' + self._ago(latestSeen) + '</span></div>' +
+          '</div>';
+          var rows = isExpanded
+            ? '<div class="finding-group-rows">' + _baselineExpandRows(h.findings) + '</div>'
+            : '';
+          return '<div class="finding-group-wrap">' + header + rows + '</div>';
+        }).join('');
+    };
+
+    // ── Baseline section ─────────────────────────────────────────────
     var baselineSection = '';
     if (this._showBaselineFindings && baselineAnomalies.length) {
-      var baselineCards = grouped ? renderGrouped(baselineAnomalies) : baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('');
-      baselineSection = '<div style="margin-bottom:32px"><div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' +
-        baselineCards + '</div>';
+      var blModeBtn = function(mode, label) {
+        var active = baselineGroupMode === mode;
+        return '<button class="btn' + (active ? ' active' : '') + '" data-baseline-group-mode="' + mode + '">' + label + '</button>';
+      };
+      var blToolbar =
+        '<div style="display:flex;gap:4px;margin-bottom:8px">' +
+          blModeBtn('category', 'By Category') +
+          blModeBtn('host',     'By Host') +
+          blModeBtn('flat',     'Flat') +
+        '</div>';
+
+      var blCards;
+      if (baselineGroupMode === 'host')         blCards = renderBaselineByHost(baselineAnomalies);
+      else if (baselineGroupMode === 'flat')    blCards = baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('');
+      else                                      blCards = renderBaselineByCategory(baselineAnomalies);
+
+      baselineSection =
+        '<div style="margin-bottom:28px">' +
+          '<div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' +
+          blToolbar + blCards +
+        '</div>';
     }
 
-    var cards;
-    if (grouped) {
-      cards = renderGrouped(findings);
-    } else {
-      cards = findings.map(function(f) { return renderCard(f, false, false); }).join('');
-    }
-
+    // ── Security findings section ────────────────────────────────────
+    var cards = grouped
+      ? renderGrouped(findings)
+      : findings.map(function(f) { return renderCard(f, false, false); }).join('');
 
     var activeSection = findings.length
-      ? '<div><div class="view-header" style="align-items:flex-start;flex-wrap:wrap;gap:10px">' +
-          '<h1>Security Findings <span class="dim">(' + findings.length + ' actionable' + (dismissed.length ? ', ' + dismissed.length + ' dismissed' : '') + ')</span></h1>' +
-          headerButtons +
-        '</div>' + cards + '</div>'
-      : '<div><div class="view-header" style="align-items:flex-start;flex-wrap:wrap;gap:10px">' +
-          '<h1>Security Findings' + (dismissed.length ? ' <span class="dim">(' + dismissed.length + ' dismissed)</span>' : '') + '</h1>' +
-          headerButtons +
-        '</div>' +
-        '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div></div>';
+      ? '<div>' +
+          '<div class="view-header"><h1>Security Findings <span class="dim">(' + findings.length + ' actionable' + (dismissed.length ? ', ' + dismissed.length + ' dismissed' : '') + ')</span></h1></div>' +
+          cards +
+        '</div>'
+      : '<div>' +
+          '<div class="view-header"><h1>Security Findings' + (dismissed.length ? ' <span class="dim">(' + dismissed.length + ' dismissed)</span>' : '') + '</h1></div>' +
+          '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div>' +
+        '</div>';
 
     var dismissedSection = dismissed.length
-      ? '<div style="margin-top:28px;opacity:.7"><div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
-          (grouped ? renderGrouped(dismissed) : dismissed.map(function(f) { return renderCard(f, true, false); }).join('')) + '</div>'
+      ? '<div style="margin-top:28px;opacity:.7">' +
+          '<div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
+          (grouped ? renderGrouped(dismissed) : dismissed.map(function(f) { return renderCard(f, true, false); }).join('')) +
+        '</div>'
       : '';
 
-    return baselineSection + activeSection + dismissedSection;
+    return topBar + baselineSection + activeSection + dismissedSection;
   }
 
   _extThead() {
