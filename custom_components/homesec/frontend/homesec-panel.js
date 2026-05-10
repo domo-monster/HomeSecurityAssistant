@@ -2219,6 +2219,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _initMap(devices, connections, extIPs, mcIPs, baselineGraph) {
+    var self = this;
     mcIPs = mcIPs || [];
     var canvas = this.shadowRoot.getElementById('hsa-map-canvas');
     if (!canvas) return;
@@ -2444,17 +2445,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _startMap(canvas) {
     this._stopMap();
-    if (this._mapMode === 'baseline') {
-      this._mapTick = 0;
-      this._drawMap(canvas);
-      return;
-    }
     var self = this;
+    var isBaseline = this._mapMode === 'baseline';
     var loop = function() {
       try {
-        self._mapStep(canvas.width, canvas.height);
-        self._mapTick++;
-        self._tickParticles();
+        if (!isBaseline) {
+          self._mapStep(canvas.width, canvas.height);
+          self._mapTick++;
+          self._tickParticles();
+        }
         self._drawMap(canvas);
       } catch (e) {
         console.error('[HomeSec] map loop error:', e);
