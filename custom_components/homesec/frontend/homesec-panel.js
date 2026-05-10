@@ -2025,14 +2025,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</div>' +
       '</div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
-        '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Hosts in Deviations' + toggleBtns('host_findings', modes.host_findings) + '</div>' +
-          hostFindingsSection +
-        '</div>' +
-        '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' External IPs in Deviations' + toggleBtns('ext_deviations', modes.ext_deviations) + '</div>' +
-          extIpDeviationSection +
-        '</div>' +
+        ((function() {
+          var blMode = (self._data && self._data.baseline && self._data.baseline.mode) || 'disabled';
+          if (blMode !== 'active') return '';
+          return '<div class="card stats-panel-card">' +
+              '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Hosts in Deviations' + toggleBtns('host_findings', modes.host_findings) + '</div>' +
+              hostFindingsSection +
+            '</div>' +
+            '<div class="card stats-panel-card">' +
+              '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' External IPs in Deviations' + toggleBtns('ext_deviations', modes.ext_deviations) + '</div>' +
+              extIpDeviationSection +
+            '</div>';
+        })()) +
       '</div>' +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
