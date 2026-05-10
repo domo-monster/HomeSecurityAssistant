@@ -2792,25 +2792,33 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           ctx.fillText(flag, n.x, n.y - nodeR - 3);
         }
       }
-      // Label: show for internal nodes, multicast, and at-risk externals only
-      if (n.type === 'multicast' || n.type !== 'external' || n.at_risk) {
-        ctx.font = '8px IBM Plex Mono, monospace'; ctx.textAlign = 'center';
-        if (n.type === 'internal') {
-          // Line 1: IP address
-          ctx.fillStyle = 'rgba(180,210,240,.6)';
-          ctx.fillText((n.ip || '').substring(0, 18), n.x, n.y + nodeR + 9);
-          // Line 2: tracker name (display_name or hostname), only if different from the IP
-          var trackerName = (n.display_name || n.hostname || '').substring(0, 18);
-          if (trackerName && trackerName !== (n.ip || '').substring(0, 18)) {
-            ctx.fillStyle = n.at_risk ? '#ff9aae' : 'rgba(140,200,255,.85)';
-            ctx.font = 'bold 8px IBM Plex Mono, monospace';
-            ctx.fillText(trackerName, n.x, n.y + nodeR + 19);
-          }
-        } else {
-          var label = ((n.type === 'multicast' ? (n.label || n.ip) : (n.display_name || n.hostname || n.ip || '')) + '').substring(0, 16);
-          ctx.fillStyle = n.at_risk ? '#ff9aae' : (n.type === 'multicast' ? '#d4a843' : 'rgba(180,210,240,.6)');
-          ctx.fillText(label, n.x, n.y + nodeR + 9);
+      // Label: always draw for all node types
+      ctx.font = '8px IBM Plex Mono, monospace'; ctx.textAlign = 'center';
+      if (n.type === 'internal') {
+        // Line 1: IP address
+        ctx.fillStyle = 'rgba(180,210,240,.6)';
+        ctx.fillText((n.ip || '').substring(0, 18), n.x, n.y + nodeR + 9);
+        // Line 2: tracker name (display_name or hostname), only if different from the IP
+        var trackerName = (n.display_name || n.hostname || '').substring(0, 18);
+        if (trackerName && trackerName !== (n.ip || '').substring(0, 18)) {
+          ctx.fillStyle = n.at_risk ? '#ff9aae' : 'rgba(140,200,255,.85)';
+          ctx.font = 'bold 8px IBM Plex Mono, monospace';
+          ctx.fillText(trackerName, n.x, n.y + nodeR + 19);
         }
+      } else if (n.type === 'external') {
+        // Line 1: IP address
+        ctx.fillStyle = n.at_risk ? '#ff9aae' : 'rgba(180,210,240,.55)';
+        ctx.fillText((n.ip || '').substring(0, 16), n.x, n.y + nodeR + 9);
+        // Line 2: org or hostname if available
+        var extMeta = (n.org || n.hostname || '').substring(0, 16);
+        if (extMeta) {
+          ctx.fillStyle = n.at_risk ? 'rgba(255,154,174,.7)' : 'rgba(140,170,210,.45)';
+          ctx.fillText(extMeta, n.x, n.y + nodeR + 18);
+        }
+      } else {
+        var label = (n.label || n.ip || '').substring(0, 16);
+        ctx.fillStyle = n.at_risk ? '#ff9aae' : (n.type === 'multicast' ? '#d4a843' : 'rgba(180,210,240,.6)');
+        ctx.fillText(label, n.x, n.y + nodeR + 9);
       }
     }
     ctx.restore();
@@ -3226,8 +3234,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '</div>' +
             '<div class="finding-meta"><span>Latest: ' + self._ago(latestSeen) + '</span></div>' +
           '</div>';
+          var sortedByCategory = c.findings.slice().sort(function(a, b) {
+            return (SEV_ORDER[a.severity] || 99) - (SEV_ORDER[b.severity] || 99);
+          });
           var rows = isExpanded
-            ? '<div class="finding-group-rows">' + _baselineExpandRows(c.findings) + '</div>'
+            ? '<div class="finding-group-rows">' + _baselineExpandRows(sortedByCategory) + '</div>'
             : '';
           return '<div class="finding-group-wrap">' + header + rows + '</div>';
         }).join('');
@@ -3317,10 +3328,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div>' +
         '</div>';
 
+    // Dismissed items always use individual cards so the Restore button is always visible
     var dismissedSection = dismissed.length
       ? '<div style="margin-top:28px;opacity:.7">' +
           '<div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
-          (grouped ? renderGrouped(dismissed) : dismissed.map(function(f) { return renderCard(f, true, false); }).join('')) +
+          dismissed.map(function(f) { return renderCard(f, true, false); }).join('') +
         '</div>'
       : '';
 
