@@ -229,7 +229,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (undismiss) { this._undismissFinding(undismiss.dataset.undismiss); return; }
     // Findings: grouped view toggle
     if (e.target.closest('[data-findings-group-toggle]')) {
-      this._findingsGrouped = !this._findingsGrouped;
+      var _fgt = e.target.closest('[data-findings-group-toggle]');
+      this._findingsGrouped = _fgt.dataset.findingsGroupToggle !== 'flat';
       this._expandedFindingGroup = null;
       this._render();
       return;
@@ -660,9 +661,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _sidebar() {
     var _BL_ONLY = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
-    var findings   = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY[f.category]; }).length;
-    var blAnomalies = ((this._data && this._data.baseline_anomalies) || []).length;
-    var totalFindings = findings + blAnomalies;
+    var secFindings = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY[f.category]; });
+    var findingGroups = {};
+    secFindings.forEach(function(f) { findingGroups[f.summary || f.category || 'Unknown'] = true; });
+    var blAnoms = (this._data && this._data.baseline_anomalies) || [];
+    var blCats = {};
+    blAnoms.forEach(function(a) { blCats[a.category || 'unknown'] = true; });
+    var totalFindings = Object.keys(findingGroups).length + Object.keys(blCats).length;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
     var dnsEnabled = (this._data && this._data.dns_proxy_stats && this._data.dns_proxy_stats.running) || false;
     var self = this;
@@ -3176,50 +3181,54 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         }
         groupMap[gkey].findings.push(f);
       });
-      var groups = Object.values(groupMap).sort(function(a, b) {
-        return _sevRank(a.severity) - _sevRank(b.severity);
-        var isExpanded = self._expandedFindingGroup === g.summary;
-        var totalCount = g.findings.reduce(function(s, f) { return s + (f.count || 1); }, 0);
-        var latestSeen = g.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
-        var det0 = (g.findings[0] && g.findings[0].details) || {};
-        var cve = det0.cve_id ? '<span class="chip">' + det0.cve_id + '</span>' : '';
-        var portChip = det0.port ? '<span class="chip">port ' + det0.port + '</span>' : '';
-        var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
-          g.findings.length + (g.findings.length === 1 ? ' host' : ' hosts') + '</span>';
-        var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
-        var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">' +
-          'Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
-        var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
-          '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge +
-            '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
-            dismissAllBtn + chevron +
-          '</div>' +
-          '<div class="finding-meta">' +
-            '<span>Category: ' + self._esc(g.category || '—') + '</span>' +
-            '<span>' + totalCount + '\u00D7 total</span>' +
-            '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
-          '</div>' +
-        '</div>';
-        var rows = '';
-        if (isExpanded) {
-          rows = '<div class="finding-group-rows">' +
-            g.findings.map(function(f) {
-              var det = f.details || {};
-              var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
-                .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
-              return '<div class="finding-row">' +
-                '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
-                (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
-                '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
-                (det.remediation ? '<span style="font-size:10px;color:var(--success);flex:1">Fix: ' + self._esc(det.remediation) + '</span>' : '<span style="flex:1"></span>') +
-                (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
-                '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">Dismiss</button>' +
-              '</div>';
-            }).join('') +
+      return Object.values(groupMap)
+        .sort(function(a, b) {
+          return _sevRank(a.severity) - _sevRank(b.severity);
+        })
+        .map(function(g) {
+          var isExpanded = self._expandedFindingGroup === g.summary;
+          var totalCount = g.findings.reduce(function(s, f) { return s + (f.count || 1); }, 0);
+          var latestSeen = g.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+          var det0 = (g.findings[0] && g.findings[0].details) || {};
+          var cve = det0.cve_id ? '<span class="chip">' + det0.cve_id + '</span>' : '';
+          var portChip = det0.port ? '<span class="chip">port ' + det0.port + '</span>' : '';
+          var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+            g.findings.length + (g.findings.length === 1 ? ' host' : ' hosts') + '</span>';
+          var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">' +
+            'Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
+          var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
+            '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge +
+              '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
+              dismissAllBtn + chevron +
+            '</div>' +
+            '<div class="finding-meta">' +
+              '<span>Category: ' + self._esc(g.category || '\u2014') + '</span>' +
+              '<span>' + totalCount + '\u00D7 total</span>' +
+              '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
+            '</div>' +
           '</div>';
-        }
-        return '<div class="finding-group-wrap">' + header + rows + '</div>';
-      }).join('');
+          var rows = '';
+          if (isExpanded) {
+            rows = '<div class="finding-group-rows">' +
+              g.findings.map(function(f) {
+                var det = f.details || {};
+                var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
+                  .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+                return '<div class="finding-row">' +
+                  '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
+                  (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
+                  '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
+                  (det.remediation ? '<span style="font-size:10px;color:var(--success);flex:1">Fix: ' + self._esc(det.remediation) + '</span>' : '<span style="flex:1"></span>') +
+                  (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
+                  '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">Dismiss</button>' +
+                '</div>';
+              }).join('') +
+            '</div>';
+          }
+          return '<div class="finding-group-wrap">' + header + rows + '</div>';
+        })
+        .join('');
     };
 
     // ── baseline group renderers ─────────────────────────────────────
@@ -3365,7 +3374,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var findingsHeader = findings.length
       ? 'Security Findings <span class="dim">(' + findings.length + ' actionable' + (dismissed.length ? ', ' + dismissed.length + ' dismissed' : '') + ')</span>'
       : 'Security Findings' + (dismissed.length ? ' <span class="dim">(' + dismissed.length + ' dismissed)</span>' : '');
-    var groupToggleBtn = '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle style="font-size:10px;padding:3px 8px" title="Toggle grouped/flat view">' + (grouped ? 'Flat' : 'Grouped') + '</button>';
+    var groupToggleBtn =
+      '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle="grouped" style="font-size:10px;padding:3px 8px">Grouped</button>' +
+      '<button class="btn' + (!grouped ? ' active' : '') + '" data-findings-group-toggle="flat" style="font-size:10px;padding:3px 8px">Flat</button>';
 
     var activeSection = findings.length
       ? '<div>' +
