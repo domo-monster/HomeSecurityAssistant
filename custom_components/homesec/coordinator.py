@@ -90,7 +90,7 @@ from .const import (
     DOMAIN,
     get_entry_value,
 )
-from .baseline import BaselineManager, BASELINE_MODE_DISABLED
+from .baseline import BaselineManager, BASELINE_MODE_DISABLED, BASELINE_MODE_ACTIVE
 from .dns_resolver import DNSBlacklistChecker
 from .dns_proxy import DNSProxyServer, DNS_LOG_MAX
 from .enrichment import collect_tracker_enrichment
@@ -695,11 +695,34 @@ class HomeSecCollector:
         # Record timeseries point every TIMESERIES_INTERVAL_SECONDS
         _ts_now = datetime.now(timezone.utc)
         if self._ts_last_point is None or (_ts_now - self._ts_last_point).total_seconds() >= TIMESERIES_INTERVAL_SECONDS:
+            # Compute baseline deviance score (0-100) for this snapshot
+            _deviance_score = 0
+            if self._baseline_manager._mode == BASELINE_MODE_ACTIVE:
+                _bg = self._baseline_manager.graph_snapshot()
+                _base_edge_keys = {
+                    (e["source"], e["target"])
+                    for e in _bg.get("edges", [])
+                    if e.get("source") and e.get("target")
+                }
+                _live_edge_keys: set = set()
+                for _c in payload.get("connections", []):
+                    _s, _t = _c.get("source", ""), _c.get("target", "")
+                    if _s and _t:
+                        _live_edge_keys.add((_s, _t))
+                _cnt_new = len(_live_edge_keys - _base_edge_keys)
+                _cnt_both = len(_live_edge_keys & _base_edge_keys)
+                _cnt_missing = len(_base_edge_keys - _live_edge_keys)
+                _active_live = _cnt_new + _cnt_both
+                _total_known = _cnt_both + _cnt_missing
+                _new_ratio = _cnt_new / _active_live if _active_live else 0.0
+                _miss_ratio = _cnt_missing / _total_known if _total_known else 0.0
+                _deviance_score = min(100, round(_new_ratio * 80 + _miss_ratio * 20))
             self._timeseries.append({
                 "ts": _ts_now.isoformat(),
                 "ext_ips": len(external_ips),
                 "hosts": len(payload.get("devices", [])),
                 "scanned": int(payload.get("scanned_devices", 0) or 0),
+                "deviance_score": _deviance_score,
             })
             self._ts_last_point = _ts_now
             self._timeseries_dirty = True
@@ -1001,6 +1024,11 @@ class HomeSecCoordinator(DataUpdateCoordinator[dict[str, object]]):
                 ts_copy = list(self.collector._timeseries)
                 self.hass.async_add_executor_job(
                     save_timeseries, self.collector._config_dir, ts_copy
+                )
+                # Save dns_log alongside timeseries so it survives unclean restarts
+                dns_copy = list(self.collector._dns_log)
+                self.hass.async_add_executor_job(
+                    save_dns_log, self.collector._config_dir, dns_copy
                 )
             await self.collector.async_persist_runtime_state()
             return result

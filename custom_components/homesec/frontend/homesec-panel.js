@@ -1741,9 +1741,134 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</tbody></table>';
     }
 
+    // ── Baseline deviance timeline bar chart (last 24 h) ─────────────
+    var devianceChartHtml = (function() {
+      var blInfo = (self._data && self._data.baseline) || {};
+      if ((blInfo.mode || 'disabled') !== 'active') {
+        return '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">Baseline not active \u2014 enable it to track deviance over time</div>';
+      }
+      var DV_H = 24, DV_BAR_W = 18, DV_GAP = 3, DV_CHART = 60, DV_LABEL = 16;
+      var dvNow = Date.now();
+      var dvBkts = new Array(DV_H).fill(null);
+      for (var dvi = 0; dvi < allPoints.length; dvi++) {
+        var dvpt = allPoints[dvi];
+        if (dvpt.deviance_score == null) continue;
+        var dago = Math.floor((dvNow - new Date(dvpt.ts).getTime()) / 3600000);
+        if (dago < 0 || dago >= DV_H) continue;
+        var dbi = DV_H - 1 - dago;
+        if (dvBkts[dbi] === null || dvpt.deviance_score > dvBkts[dbi]) dvBkts[dbi] = dvpt.deviance_score;
+      }
+      if (!dvBkts.some(function(v) { return v !== null; })) {
+        return '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">No deviance data yet \u2014 data accumulates every 5\u202fmin</div>';
+      }
+      var dvSvgW = DV_H * (DV_BAR_W + DV_GAP);
+      var dvGuides = [25, 50, 75].map(function(g) {
+        var gy = DV_CHART - Math.round((g / 100) * DV_CHART);
+        return '<line x1="0" y1="' + gy + '" x2="' + dvSvgW + '" y2="' + gy + '" stroke="rgba(255,255,255,.07)" stroke-width="1"/>';
+      }).join('');
+      var dvBars = dvBkts.map(function(v, i) {
+        var x = i * (DV_BAR_W + DV_GAP);
+        if (v === null) return '<rect x="' + x + '" y="' + (DV_CHART - 2) + '" width="' + DV_BAR_W + '" height="2" fill="rgba(255,255,255,.06)" rx="1"><title>No data</title></rect>';
+        var clr = v <= 20 ? '#6bffc8' : v <= 50 ? '#ffc107' : v <= 75 ? '#ff8c42' : '#ff4d6d';
+        var bh = Math.max(2, Math.round((v / 100) * DV_CHART));
+        var tip = new Date(dvNow - (DV_H - 1 - i) * 3600000).getHours() + 'h \u2014 deviance\u00a0' + v + '%';
+        return '<rect x="' + x + '" y="' + (DV_CHART - bh) + '" width="' + DV_BAR_W + '" height="' + bh + '" fill="' + clr + '" opacity="0.85" rx="2"><title>' + tip + '</title></rect>';
+      }).join('');
+      var dvLabels = '';
+      for (var dl = 0; dl < DV_H; dl += 4) {
+        var dlx = dl * (DV_BAR_W + DV_GAP) + DV_BAR_W / 2;
+        dvLabels += '<text x="' + dlx + '" y="' + (DV_CHART + DV_LABEL - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + new Date(dvNow - (DV_H - 1 - dl) * 3600000).getHours() + 'h</text>';
+      }
+      return '<svg viewBox="0 0 ' + dvSvgW + ' ' + (DV_CHART + DV_LABEL) + '" width="100%" height="' + (DV_CHART + DV_LABEL) + '" preserveAspectRatio="none" style="display:block">' + dvGuides + dvBars + dvLabels + '</svg>' +
+        '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px;flex-wrap:wrap">' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6bffc8;display:inline-block;border-radius:2px"></span>\u226420% Normal</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ffc107;display:inline-block;border-radius:2px"></span>\u226450% Review</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff8c42;display:inline-block;border-radius:2px"></span>\u226475% Investigate</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff4d6d;display:inline-block;border-radius:2px"></span>&gt;75% Critical</span>' +
+        '</div>';
+    })();
+
+    // ── Top N hosts with most findings (security + baseline) ─────────
+    var _allFindings = ((this._data && this._data.findings) || []).concat((this._data && this._data.baseline_anomalies) || []);
+    var _hostFindCounts = {};
+    for (var _hfi = 0; _hfi < _allFindings.length; _hfi++) {
+      var _hfip = String(_allFindings[_hfi].source_ip || '').trim();
+      if (_hfip) _hostFindCounts[_hfip] = (_hostFindCounts[_hfip] || 0) + 1;
+    }
+    var _hostFindItems = Object.keys(_hostFindCounts)
+      .map(function(ip) { return { ip: ip, count: _hostFindCounts[ip] }; })
+      .sort(function(a, b) { return b.count - a.count; })
+      .slice(0, topN);
+    var _hostFindTotal = _hostFindItems.reduce(function(s, x) { return s + x.count; }, 0);
+    var _devicesMap = {};
+    ((this._data && this._data.devices) || []).forEach(function(d) { if (d.ip) _devicesMap[d.ip] = d; });
+    var _hfColors = ['#ff8c42','#ffc107','#ff4d6d','#8f86ff','#3ac5c9','#6bffc8','#f472b6','#fb923c','#a78bfa','#22d3ee'];
+    var hostFindingsSection;
+    if (!_hostFindTotal) {
+      hostFindingsSection = '<div class="empty-state"><p style="margin:12px 0">No findings recorded yet</p></div>';
+    } else {
+      var _hfPieSvg = self._pieSvg(_hostFindItems, function(x) { return x.count; }, function(x) {
+        var d = _devicesMap[x.ip]; return ((d && (d.name || d.hostname)) || x.ip) + ': ' + x.count;
+      }, _hfColors);
+      var _hfLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
+        _hostFindItems.map(function(x, i) {
+          var col = _hfColors[i % _hfColors.length];
+          var d = _devicesMap[x.ip];
+          var label = (d && (d.name || d.hostname)) ? (d.name || d.hostname) + ' (' + x.ip + ')' : x.ip;
+          return '<div style="display:flex;align-items:center;gap:6px">' +
+            '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + col + '"></span>' +
+            '<span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(label) + '</span>' +
+            '<span style="color:var(--muted)">' + x.count + '\u00a0(' + Math.round((x.count / _hostFindTotal) * 100) + '%)</span>' +
+          '</div>';
+        }).join('') + '</div>';
+      hostFindingsSection = '<div class="stats-chart-row">' + _hfPieSvg + '<div class="stats-chart-legend">' + _hfLegend + '</div></div>';
+    }
+
+    // ── Top N external IPs appearing in new-peer baseline deviations ──
+    var _blAnoms = (this._data && this._data.baseline_anomalies) || [];
+    var _extDevCounts = {};
+    for (var _edi = 0; _edi < _blAnoms.length; _edi++) {
+      var _editem = _blAnoms[_edi];
+      if (_editem.category === 'anomaly_new_peer' && _editem.details && _editem.details.peer) {
+        var _peer = String(_editem.details.peer).trim();
+        if (_peer) _extDevCounts[_peer] = (_extDevCounts[_peer] || 0) + 1;
+      }
+    }
+    var _extDevItems = Object.keys(_extDevCounts)
+      .map(function(ip) { return { ip: ip, count: _extDevCounts[ip] }; })
+      .sort(function(a, b) { return b.count - a.count; })
+      .slice(0, topN);
+    var _extDevTotal = _extDevItems.reduce(function(s, x) { return s + x.count; }, 0);
+    var _extIpEnrich = {};
+    ((this._data && this._data.external_ips) || []).forEach(function(e) { if (e.ip) _extIpEnrich[e.ip] = e; });
+    var _edColors = ['#ff4d6d','#ff8c42','#ffc107','#f472b6','#fb923c','#ff6b6b','#e879f9','#facc15','#fd8dac','#ffb347'];
+    var extIpDeviationSection;
+    if (!_extDevTotal) {
+      extIpDeviationSection = '<div class="empty-state"><p style="margin:12px 0">No new external peers in baseline deviations</p></div>';
+    } else {
+      var _edPieSvg = self._pieSvg(_extDevItems, function(x) { return x.count; }, function(x) {
+        var enr = _extIpEnrich[x.ip];
+        return x.ip + (enr && enr.org ? ' \u2014 ' + enr.org : '') + (enr && enr.country ? ' [' + enr.country + ']' : '') + ': ' + x.count;
+      }, _edColors);
+      var _edLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
+        _extDevItems.map(function(x, i) {
+          var col = _edColors[i % _edColors.length];
+          var enr = _extIpEnrich[x.ip];
+          var label = x.ip + (enr && enr.org ? ' \u2014 ' + enr.org : '') + (enr && enr.country ? ' [' + enr.country + ']' : '');
+          return '<div style="display:flex;align-items:center;gap:6px">' +
+            '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + col + '"></span>' +
+            '<span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + self._esc(x.ip) + '">' + self._esc(label) + '</span>' +
+            '<span style="color:var(--muted)">' + x.count + '\u00a0(' + Math.round((x.count / _extDevTotal) * 100) + '%)</span>' +
+          '</div>';
+        }).join('') + '</div>';
+      extIpDeviationSection = '<div class="stats-chart-row">' + _edPieSvg + '<div class="stats-chart-legend">' + _edLegend + '</div></div>';
+    }
+
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
-      timelineHtml + '<div style="margin-top:16px">' + dnsChartHtml + '</div></div>' +
+      timelineHtml +
+      '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Baseline Deviance per hour (last 24\u202fh)</div>' + devianceChartHtml + '</div>' +
+      '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">DNS Queries per hour (last 24\u202fh)</div>' + dnsChartHtml + '</div></div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
@@ -1781,6 +1906,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
         '</div>' +
         dnsTopMalHtml +
+      '</div>' +
+      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title">Top\u00a0' + topN + ' Hosts by Findings</div>' +
+          hostFindingsSection +
+        '</div>' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title">Top\u00a0' + topN + ' External IPs in Deviations</div>' +
+          extIpDeviationSection +
+        '</div>' +
       '</div>' +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title">Enrichment Budget (Today)</div>' +
@@ -2175,9 +2310,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return this._mapNodes.has(c.source) && this._mapNodes.has(c.target);
     }.bind(this)).slice(0, 500);
     this._mapTick = 0;
-    this._mapZoom = 1;
-    this._mapPanX = 0;
-    this._mapPanY = 0;
+    // Zoom and pan are intentionally NOT reset here so that switching map mode
+    // or filter preserves the current view.  The Reset button resets explicitly.
     this._spawnParticles();
     this._startMap(canvas);
     canvas.addEventListener('mousemove', function(e) { self._mapHover(e, canvas); });
