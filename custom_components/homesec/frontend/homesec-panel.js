@@ -451,7 +451,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       this._extSortDir *= -1;
     } else {
       this._extSort = col;
-      this._extSortDir = 1;
+      // Numeric/threat columns: default descending (highest first)
+      var descFirst = { vt: 1, abuse: 1, traffic_kb: 1, rating: 1 };
+      this._extSortDir = descFirst[col] ? -1 : 1;
     }
     this._extPage = 1;
     var tbody = this.shadowRoot.getElementById('hsa-ext-tbody');
