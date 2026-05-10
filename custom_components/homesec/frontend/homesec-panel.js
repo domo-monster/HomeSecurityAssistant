@@ -3143,8 +3143,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return !BASELINE_ONLY_CATS[f.category];
     });
     var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
-    var dismissed = ((this._data && this._data.dismissed_findings) || []).filter(function(f) {
+    var allDismissed = (this._data && this._data.dismissed_findings) || [];
+    var dismissed = allDismissed.filter(function(f) {
       return !BASELINE_ONLY_CATS[f.category];
+    });
+    var dismissedBaseline = allDismissed.filter(function(f) {
+      return BASELINE_ONLY_CATS[f.category];
     });
     var grouped = this._findingsGrouped;
     var dismissedGrouped = this._dismissedGrouped;
@@ -3371,8 +3375,33 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     };
 
     // ── Baseline section ─────────────────────────────────────────────
+    var dismissedBlSection = '';
+    if (dismissedBaseline.length) {
+      var BL_CAT_LABELS_D = {
+        anomaly_new_host: 'New Host Detected', anomaly_new_peer: 'New External Peer',
+        anomaly_new_port: 'New Open Port', anomaly_new_dns_domain: 'New DNS Domain',
+        anomaly_new_dns_category: 'New DNS Category',
+      };
+      dismissedBlSection =
+        '<div style="margin-top:14px;opacity:.7">' +
+          '<div class="view-header"><h1>Dismissed Baseline Anomalies <span class="dim">(' + dismissedBaseline.length + ')</span></h1></div>' +
+          dismissedBaseline.map(function(f) {
+            var label = BL_CAT_LABELS_D[f.category] || f.category || 'Unknown';
+            var note = f.dismiss_note ? '<span class="dim" style="font-size:10px">' + self._esc(f.dismiss_note) + '</span>' : '';
+            return '<div class="finding-card sev-' + (f.severity || 'info') + '">' +
+              '<div class="finding-header">' + self._sev(f.severity || 'info') +
+                '<span class="finding-title">' + self._esc(f.source_ip || '') + ' \u2014 ' + label + '</span>' +
+                note +
+                '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Restore</button>' +
+              '</div>' +
+              '<div class="finding-meta"><span>' + self._ago(f.last_seen) + '</span></div>' +
+            '</div>';
+          }).join('') +
+        '</div>';
+    }
+
     var baselineSection = '';
-    if (baselineAnomalies.length) {
+    if (baselineAnomalies.length || dismissedBaseline.length) {
       var blModeBtn = function(mode, label) {
         var active = baselineGroupMode === mode;
         return '<button class="btn' + (active ? ' active' : '') + '" data-baseline-group-mode="' + mode + '">' + label + '</button>';
@@ -3384,15 +3413,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           blModeBtn('flat',     'Flat') +
         '</div>';
 
-      var blCards;
-      if (baselineGroupMode === 'host')         blCards = renderBaselineByHost(baselineAnomalies);
-      else if (baselineGroupMode === 'flat')    blCards = baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('');
-      else                                      blCards = renderBaselineByCategory(baselineAnomalies);
+      var blCards = '';
+      if (baselineAnomalies.length) {
+        if (baselineGroupMode === 'host')         blCards = renderBaselineByHost(baselineAnomalies);
+        else if (baselineGroupMode === 'flat')    blCards = baselineAnomalies.map(function(f) { return renderCard(f, false, true); }).join('');
+        else                                      blCards = renderBaselineByCategory(baselineAnomalies);
+      }
+
+      var blActiveHeader = baselineAnomalies.length
+        ? '<div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' + blToolbar + blCards
+        : '';
 
       baselineSection =
         '<div style="margin-bottom:28px">' +
-          '<div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length + ')</span></h1></div>' +
-          blToolbar + blCards +
+          blActiveHeader +
+          dismissedBlSection +
         '</div>';
     }
 
