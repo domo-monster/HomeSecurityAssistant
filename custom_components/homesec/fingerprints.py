@@ -293,6 +293,11 @@ class HomeSecurityAnalyzer:
             )
 
     def _observe_internal_destination(self, record: FlowRecord) -> None:
+        # Ignore ephemeral / client-side ports (return traffic from outbound connections).
+        # IANA ephemeral range starts at 49152; Linux default starts at 32768.
+        # Only track ports below 32768 as potential listening/server ports.
+        if record.dst_port >= 32768:
+            return
         device = self._device_for(record.dst_ip, record.timestamp)
         device.exposed_ports.add(record.dst_port)
         device.probable_role, device.confidence = self._infer_role(device.exposed_ports)
