@@ -341,14 +341,32 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (ba) {
       var action = ba.getAttribute('data-baseline-action');
       var svc = null;
+      var actionLabel = ba.textContent.trim();
       if (action === 'start') svc = 'start_baseline_training';
       else if (action === 'stop') svc = 'stop_baseline_training';
       else if (action === 'retrain') svc = 'retrain_baseline';
       else if (action === 'clear') svc = 'clear_baseline';
       if (svc && this._hass) {
+        // Show an immediate "working" overlay on the baseline card
+        var card = this.shadowRoot && this.shadowRoot.getElementById('baseline-card');
+        if (card) {
+          card.style.position = 'relative';
+          var overlay = document.createElement('div');
+          overlay.id = 'baseline-working-overlay';
+          overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.45);border-radius:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10;';
+          overlay.innerHTML =
+            '<div style="width:32px;height:32px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite"></div>' +
+            '<div style="color:#fff;font-size:13px;font-weight:600">' + this._esc(actionLabel) + '\u2026</div>';
+          card.appendChild(overlay);
+        }
         console.log('[HomeSec] Calling service:', svc);
-        this._hass.callService('homesec', svc, {});
-        setTimeout(() => this._fetch(), 1200);
+        this._hass.callService('homesec', svc, {}).then(() => {
+          setTimeout(() => this._fetch(), 800);
+        }).catch(() => {
+          // Remove overlay on error so user can try again
+          var ov = this.shadowRoot && this.shadowRoot.getElementById('baseline-working-overlay');
+          if (ov) ov.remove();
+        });
       }
       return;
     }
