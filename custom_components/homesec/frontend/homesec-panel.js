@@ -78,6 +78,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._vulnDetail   = null;
     this._expandedRec  = null;
     this._findingsGrouped      = true;
+    this._dismissedGrouped     = true;
     this._expandedFindingGroup = null;
     this._showBaselineFindings = true;
     this._baselineGroupMode    = 'category'; // 'category' | 'host' | 'flat'
@@ -227,10 +228,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (dismiss) { this._dismissFinding(dismiss.dataset.dismiss); return; }
     var undismiss = e.target.closest('[data-undismiss]');
     if (undismiss) { this._undismissFinding(undismiss.dataset.undismiss); return; }
+    var undismissGroup = e.target.closest('[data-undismiss-group]');
+    if (undismissGroup) { this._undismissGroup(undismissGroup.dataset.undismissGroup); return; }
     // Findings: grouped view toggle
     if (e.target.closest('[data-findings-group-toggle]')) {
       var _fgt = e.target.closest('[data-findings-group-toggle]');
       this._findingsGrouped = _fgt.dataset.findingsGroupToggle !== 'flat';
+      this._expandedFindingGroup = null;
+      this._render();
+      return;
+    }
+    if (e.target.closest('[data-dismissed-group-toggle]')) {
+      var _dgt = e.target.closest('[data-dismissed-group-toggle]');
+      this._dismissedGrouped = _dgt.dataset.dismissedGroupToggle !== 'flat';
       this._expandedFindingGroup = null;
       this._render();
       return;
@@ -253,7 +263,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     // Findings: expand/collapse a baseline group
     var fbge = e.target.closest('[data-expand-baseline-group]');
-    if (fbge && !e.target.closest('[data-dismiss-group]')) {
+    if (fbge && !e.target.closest('[data-dismiss-group]') && !e.target.closest('[data-undismiss-group]')) {
       var bgk = fbge.dataset.expandBaselineGroup;
       this._expandedBaselineGroup = (this._expandedBaselineGroup === bgk) ? null : bgk;
       this._render();
@@ -261,7 +271,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     // Findings: expand/collapse a finding group
     var fge = e.target.closest('[data-expand-group]');
-    if (fge && !e.target.closest('[data-dismiss-group]')) {
+    if (fge && !e.target.closest('[data-dismiss-group]') && !e.target.closest('[data-undismiss-group]')) {
       var gk = fge.dataset.expandGroup;
       this._expandedFindingGroup = (this._expandedFindingGroup === gk) ? null : gk;
       this._render();
@@ -269,7 +279,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     // Findings: dismiss all findings in a group
     var fdg = e.target.closest('[data-dismiss-group]');
-    if (fdg) { this._dismissGroup(fdg.dataset.dismissGroup); return; }
+    if (fdg && !e.target.closest('[data-undismiss-group]')) { this._dismissGroup(fdg.dataset.dismissGroup); return; }
     // Findings: open regex dismiss modal
     if (e.target.closest('[data-regex-dismiss-open]')) {
       this._regexDismissOpen = true;
@@ -458,6 +468,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       placeholder: 'Reason for dismissing (optional)',
       value:       '',
     });
+  }
+
+  async _undismissGroup(summary) {
+    var dismissed = (this._data && this._data.dismissed_findings) || [];
+    var toMatch = dismissed.filter(function(f) { return (f.summary || f.category || 'Unknown') === summary; });
+    if (!toMatch.length) return;
+    try {
+      await Promise.all(toMatch.map(f => this._hass.callApi('POST', 'homesec/findings/undismiss', {
+        key: f.key || (f.source_ip + ':' + f.category),
+      })));
+      this._expandedFindingGroup = null;
+      this._fetch();
+    } catch (err) {
+      alert('Failed to restore group: ' + (err.message || String(err)));
+    }
   }
 
   async _undismissFinding(key) {
@@ -3122,6 +3147,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return !BASELINE_ONLY_CATS[f.category];
     });
     var grouped = this._findingsGrouped;
+    var dismissedGrouped = this._dismissedGrouped;
     var baselineGroupMode = this._baselineGroupMode; // 'category' | 'host' | 'flat'
     var self = this;
 
@@ -3169,7 +3195,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     };
 
     // ── grouped by summary (security findings + dismissed) ──────────
-    var renderGrouped = function(findingsList) {
+    var renderGrouped = function(findingsList, isDismissed) {
       if (!findingsList.length) return '';
       var groupMap = {};
       findingsList.forEach(function(f) {
@@ -3195,12 +3221,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
             g.findings.length + (g.findings.length === 1 ? ' host' : ' hosts') + '</span>';
           var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
-          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">' +
-            'Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
+          var groupActionBtn = isDismissed
+            ? '<button class="btn" data-undismiss-group="' + self._esc(g.summary) + '">Restore' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>'
+            : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
           var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
             '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge +
               '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
-              dismissAllBtn + chevron +
+              groupActionBtn + chevron +
             '</div>' +
             '<div class="finding-meta">' +
               '<span>Category: ' + self._esc(g.category || '\u2014') + '</span>' +
@@ -3215,13 +3242,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
                 var det = f.details || {};
                 var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
                   .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+                var rowActionBtn = isDismissed
+                  ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore this finding">Restore</button>'
+                  : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">Dismiss</button>';
                 return '<div class="finding-row">' +
                   '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
                   (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
                   '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
                   (det.remediation ? '<span style="font-size:10px;color:var(--success);flex:1">Fix: ' + self._esc(det.remediation) + '</span>' : '<span style="flex:1"></span>') +
                   (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
-                  '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">Dismiss</button>' +
+                  rowActionBtn +
                 '</div>';
               }).join('') +
             '</div>';
@@ -3368,31 +3398,40 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // ── Security findings section ────────────────────────────────────
     var cards = grouped
-      ? renderGrouped(findings)
+      ? renderGrouped(findings, false)
       : findings.map(function(f) { return renderCard(f, false, false); }).join('');
 
     var findingsHeader = findings.length
       ? 'Security Findings <span class="dim">(' + findings.length + ' actionable' + (dismissed.length ? ', ' + dismissed.length + ' dismissed' : '') + ')</span>'
       : 'Security Findings' + (dismissed.length ? ' <span class="dim">(' + dismissed.length + ' dismissed)</span>' : '');
-    var groupToggleBtn =
-      '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle="grouped" style="font-size:10px;padding:3px 8px">Grouped</button>' +
-      '<button class="btn' + (!grouped ? ' active' : '') + '" data-findings-group-toggle="flat" style="font-size:10px;padding:3px 8px">Flat</button>';
+    var findingsToggle =
+      '<div style="display:flex;gap:4px;margin-bottom:8px">' +
+        '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle="grouped" style="font-size:10px;padding:3px 8px">Grouped</button>' +
+        '<button class="btn' + (!grouped ? ' active' : '') + '" data-findings-group-toggle="flat" style="font-size:10px;padding:3px 8px">Flat</button>' +
+      '</div>';
 
-    var activeSection = findings.length
-      ? '<div>' +
-          '<div class="view-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h1>' + findingsHeader + '</h1>' + groupToggleBtn + '</div>' +
-          cards +
-        '</div>'
-      : '<div>' +
-          '<div class="view-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h1>' + findingsHeader + '</h1>' + groupToggleBtn + '</div>' +
-          '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div>' +
-        '</div>';
+    var activeSection = '<div>' +
+        '<div class="view-header"><h1>' + findingsHeader + '</h1></div>' +
+        findingsToggle +
+        (findings.length
+          ? cards
+          : '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div>') +
+      '</div>';
 
-    // Dismissed items always use individual cards so the Restore button is always visible
+    // Dismissed section with Grouped/Flat toggle
+    var dismissedToggle =
+      '<div style="display:flex;gap:4px;margin-bottom:8px">' +
+        '<button class="btn' + (dismissedGrouped ? ' active' : '') + '" data-dismissed-group-toggle="grouped" style="font-size:10px;padding:3px 8px">Grouped</button>' +
+        '<button class="btn' + (!dismissedGrouped ? ' active' : '') + '" data-dismissed-group-toggle="flat" style="font-size:10px;padding:3px 8px">Flat</button>' +
+      '</div>';
+    var dismissedCards = dismissedGrouped
+      ? renderGrouped(dismissed, true)
+      : dismissed.map(function(f) { return renderCard(f, true, false); }).join('');
     var dismissedSection = dismissed.length
       ? '<div style="margin-top:28px;opacity:.7">' +
           '<div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
-          dismissed.map(function(f) { return renderCard(f, true, false); }).join('') +
+          dismissedToggle +
+          dismissedCards +
         '</div>'
       : '';
 
