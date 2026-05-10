@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/brand/logo%402x.png" alt="Home Security Assistant" width="200">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/brand/logo%402x.png" alt="Security Assistant" width="200">
 </p>
 
-# Home Security Assistant
+# Security Assistant
 
-Home Security Assistant is a custom Home Assistant integration that provides real-time network security monitoring for your home. It combines passive NetFlow/IPFIX traffic analysis with active network scanning, external IP threat intelligence, DNS blacklist checks, and vulnerability detection — all presented through a dedicated multi-view sidebar dashboard.
+Security Assistant is a custom Home Assistant integration that provides real-time network security monitoring for your home. It combines passive NetFlow/IPFIX traffic analysis with active network scanning, external IP threat intelligence, DNS blacklist checks, and vulnerability detection — all presented through a dedicated multi-view sidebar dashboard.
 
 **Website:** [https://domotic.monster/homesec.html](https://domotic.monster/homesec.html)
 
@@ -75,13 +75,29 @@ Home Security Assistant is a custom Home Assistant integration that provides rea
   <em>Example: Device Fingerprinting & Enrichment Overview Cards</em>
 </p>
 
+### Baseline Learning Mode
+- **Automated normal-behavior profiling** — enable training mode and the integration observes your network for a configurable duration (default 7 days) to build a baseline of normal hosts, external peers, open ports, DNS domains, and traffic volume
+- **Three modes**: `Disabled` (no baseline), `Learning` (actively training), `Active` (baseline ready, anomaly detection enabled)
+- **Confidence scoring** — baseline is rated `low`, `medium`, or `high` based on the number of hosts and training snapshots observed
+- **Anomaly detection** — once active, flags deviations from the baseline as findings: new internal hosts, new external peers, newly opened ports, new DNS domain categories, and egress volume spikes (configurable multiplier)
+- **Persistent baseline** — learned state is saved to `homesec_baseline.yaml` and survives restarts and component updates
+- **Network Map integration** — the Network Map gains two extra view modes: **Baseline Snapshot** (the learned graph) and **Live vs Baseline** (overlay comparison highlighting new edges in a distinct colour)
+- Controlled via four HA services: `start_baseline_training`, `stop_baseline_training`, `retrain_baseline`, and `clear_baseline`, all callable from Developer Tools → Actions or automations
+- **Overview card** — a new Baseline card in the Overview shows current mode, training progress (elapsed / remaining time), baseline creation age, confidence level, and quick-action buttons
+
 ### Security Findings
 - Actionable findings for high/critical issues with severity, source IP, category, and occurrence count
-- Categories: suspicious ports, port scanning, high egress, vulnerabilities
-- **Grouped findings view** (default) — findings with the same title are collapsed into a single card showing a severity badge, host count, aggregated occurrence count, and latest timestamp. Expand any group with ▶ to see per-host rows with individual dismiss buttons
+- Categories: suspicious ports, port scanning, high egress, vulnerabilities, **baseline anomalies** (new host, new peer, new port, new DNS category, egress spike)
+- **Four view modes** — **By Category** (default), **By Host**, **By Severity**, and **Flat**; mode buttons appear below the section title for both the active Security Findings section and the Dismissed section
+- **By Category** — groups findings by their type with human-friendly labels (Vulnerability / CVE, Port Scan, Suspicious Open Port, High Egress Traffic); each group shows a severity badge, finding count, aggregated occurrences, and latest timestamp
+- **By Host** — groups all findings for the same source IP into a single expandable card, sorted by severity then IP address
+- **By Severity** — groups findings into Critical / High / Medium / Low / Info buckets
+- **Flat** — individual per-finding cards unchanged
+- Expand any group with ▶ to see per-item rows with individual dismiss or restore buttons
 - **Dismiss all** — one-click button on each group dismisses every finding in that group simultaneously
 - **Regex dismiss** — "🗑 Pattern…" button opens a modal with a regex input, a live preview of all matched findings, and an optional note field; matching findings across all groups are dismissed in one action
-- **Flat view** toggle switches back to the original per-finding card layout
+- **Per-section search** — each section (Baseline Anomalies, Security Findings, Dismissed) has its own live search bar filtering by summary, source IP, category, or CVE ID; active filter counts shown in the section header
+- **Unified Dismissed section** — dismissed security findings and dismissed baseline anomalies are shown together; baseline items carry a teal `Baseline` chip; the same four view modes and search bar apply
 - **Dismissible findings** — dismiss individual findings from the UI; a `POST /api/homesec/findings/dismiss_by_pattern` endpoint is also available for scripting
 - **Hardening recommendations** with expand panels — click any recommendation card to reveal affected hosts (IP, tracker name, role badge, CVE links) and related findings (severity badge, source IP, summary); cards without structured data remain static
 
@@ -132,10 +148,10 @@ The configurable **Statistics top N** option (3–25, default 10) controls the d
 ### Sidebar Dashboard
 A dedicated multi-view single-page application registered in the HA sidebar:
 
-- **Overview** — summary stats, **Active Scan** card (last scan time, duration, hosts found, scan interval), NetFlow listener health, recent alerts, **DNS Proxy** card (running/stopped, total queries, blocked count, blocked %), and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived). Quick-access navigation links at the bottom of the overview jump directly to the Vulnerabilities, Statistics, and DNS Queries views. The DNS Proxy card and DNS Queries link are hidden when the proxy is disabled.
-- **Network Map** — live force-directed graph with zoom/pan, showing scanned hosts, flow-active hosts, at-risk devices, gateways, and top external peers. Filter toggles: All / Scanned / Flow only / External
+- **Overview** — summary stats, **Active Scan** card (last scan time, duration, hosts found, scan interval), NetFlow listener health, recent alerts, **DNS Proxy** card (running/stopped, total queries, blocked count, blocked %), **Baseline** card (current mode, training progress or baseline age, confidence, and action buttons), and **NVD keyword chips** showing all active search keywords color-coded by source (violet for user-configured, green for scan-derived). Quick-access navigation links at the bottom of the overview jump directly to the Vulnerabilities, Statistics, and DNS Queries views. The DNS Proxy card and DNS Queries link are hidden when the proxy is disabled.
+- **Network Map** — live force-directed graph with zoom/pan, showing scanned hosts, flow-active hosts, at-risk devices, gateways, and top external peers. Filter toggles: All / Scanned / Flow only / External. When a baseline is available, two additional view modes are unlocked: **Baseline Snapshot** (the learned graph) and **Live vs Baseline** (overlay showing new edges in a distinct colour with a host/edge count chip)
 - **Hosts** — searchable device inventory with inferred roles, scan results, and tracker-enriched names (alive hosts only)
-- **Findings** — actionable security findings with grouped view (default), regex dismiss, CVE details, and remediation hints
+- **Findings** — actionable security findings with four view modes (**By Category**, **By Host**, **By Severity**, **Flat**) and a live search bar per section. Dismissed security findings and dismissed baseline anomalies are consolidated in a single Dismissed section with teal `Baseline` chips on baseline items. Regex dismiss, CVE details, and remediation hints included
 - **External IPs** — enriched external IP table with threat ratings, VirusTotal hits, AbuseIPDB scores, **traffic volume (KB)** column (sortable), last-seen timestamps, and on-demand lookup
 - **Vulnerabilities** — sortable vulnerability browser listing **all cached NVD CVEs** (not just network-detected) with CVSS scores, severity, affected service/technology, published date, CISA KEV flags, detected-on-network count, and a **CVE detail modal** showing full description and CPE criteria. CVEs not matching any host on the network are shown with a dimmed "not detected" indicator
 - **Statistics** — at-a-glance operational dashboard. The **Activity Timeline** card (full-width) now contains three bar charts side-by-side: Public IPs per hour, Hosts per hour, and DNS queries per hour (stacked: clean/blocked/malicious). Below it: Top N Public IPs, Top N Countries, Top N Internal Talkers, and Top N Threat IPs (each with Pie/List toggle). Next row: **Blocked DNS Queries by Category** and **Top N Blocked Queries by Client** — both styled with the same Pie/List toggle as the other stat cards. Then a full-width **Top N Blocked/Malicious Domains** table, and finally the **Enrichment Budget** card with per-provider usage, daily budget (∞ for unlimited tiers), usage bar, status badge, detected account tier/plan, and recent API errors
@@ -171,6 +187,10 @@ All services are callable from **Developer Tools → Actions** in Home Assistant
 | `homesec.trigger_scan` | Immediately run a full active network scan without waiting for the next scheduled interval |
 | `homesec.nvd_refresh` | Flush the local NVD CVE cache and re-fetch fresh vulnerability data from NVD |
 | `homesec.blacklist_refresh` | Clear all loaded threat-intel entries and immediately re-download every configured blocklist URL. Useful after adding or changing URLs, or when you need up-to-date coverage without waiting for the next scheduled refresh |
+| `homesec.start_baseline_training` | Start baseline training mode and begin learning a normal activity profile for the configured training duration |
+| `homesec.stop_baseline_training` | Stop baseline training immediately and promote the learned state to the active baseline if any hosts were observed |
+| `homesec.retrain_baseline` | Clear the current baseline and immediately restart training mode |
+| `homesec.clear_baseline` | Remove the current baseline state and all training progress from persistent storage |
 
 ## Installation
 
@@ -178,9 +198,9 @@ All services are callable from **Developer Tools → Actions** in Home Assistant
 
 1. In Home Assistant, go to **HACS → Integrations → Custom Repositories**.
 2. Add this repository URL: `https://github.com/domo-monster/HomeSecurityAssistant` as a custom integration.
-3. Search for "Home Security Assistant" in HACS and click **Install**.
+3. Search for "Security Assistant" in HACS and click **Install**.
 4. Restart Home Assistant.
-5. Go to **Settings → Devices & Services → Add Integration** and search for "Home Security Assistant".
+5. Go to **Settings → Devices & Services → Add Integration** and search for "Security Assistant".
 6. Configure the bind host, UDP port, internal network CIDRs, scanner settings, and optional API keys.
 7. Point your router or flow exporter at the Home Assistant host and configured port.
 
@@ -188,11 +208,11 @@ All services are callable from **Developer Tools → Actions** in Home Assistant
 
 1. Copy the `custom_components/homesec` directory into your Home Assistant `custom_components/` folder.
 2. Restart Home Assistant.
-3. Go to **Settings → Devices & Services → Add Integration** and search for "Home Security Assistant".
+3. Go to **Settings → Devices & Services → Add Integration** and search for "Security Assistant".
 4. Configure the bind host, UDP port, internal network CIDRs, scanner settings, and optional API keys.
 5. Point your router or flow exporter at the Home Assistant host and configured port.
 
-Device tracker enrichment is automatic — if you have router or presence integrations that create `device_tracker` entities, Home Security Assistant will use those names, hostnames, and MAC addresses.
+Device tracker enrichment is automatic — if you have router or presence integrations that create `device_tracker` entities, Security Assistant will use those names, hostnames, and MAC addresses.
 
 ## Configuration Options
 
@@ -225,6 +245,10 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | NVD minimum CVE year | `2020` | Oldest CVE year to include (0 = all years) |
 | NVD search keywords | _(16 defaults)_ | Comma-separated product names to query NVD for (e.g. OpenSSH, nginx, WordPress) |
 | Statistics top N | `10` | Number of top entries shown in the Statistics view (3–25) |
+| Enable baseline learning | `false` | Enable the baseline training and anomaly detection engine |
+| Baseline training duration | `168` h | How many hours to observe the network before promoting the baseline to active |
+| Baseline minimum observations | `3` | Minimum number of coordinator snapshots a host must appear in before it is included in the baseline |
+| Baseline egress anomaly multiplier | `2.5` | Egress volume is flagged as anomalous when it exceeds the baseline average by this factor |
 | Enable DNS proxy | `false` | Run a local DNS proxy that filters queries against threat-intel blacklists |
 | DNS proxy port | `53` | UDP port the DNS proxy listens on |
 | DNS proxy upstream | `1.1.1.1` | Upstream resolver for non-blocked queries |
@@ -309,6 +333,10 @@ All user-facing configuration options are mirrored here on every reload. At star
 | `stats_top_n` | Number of top entries shown in the Statistics view |
 | `nvd_api_url` / `nvd_ttl_hours` / `nvd_min_year` | NVD CVE enrichment settings |
 | `nvd_keywords` | Comma-separated NVD search keywords |
+| `baseline_enabled` | Whether the baseline learning engine is active |
+| `baseline_training_hours` | Training duration in hours before promoting to active baseline |
+| `baseline_min_observations` | Minimum snapshots a host must appear in to be included in the baseline |
+| `baseline_egress_multiplier` | Egress volume multiplier threshold for anomaly detection |
 
 **Merge behaviour:** file values fill in keys that are absent or empty in the config entry — the UI always wins for keys that have a value in both places. This allows pre-seeding settings by writing the file before the integration is installed.
 
@@ -355,6 +383,7 @@ Additional runtime state files used by recent versions:
 - `homesec_timeseries.yaml` — persisted statistics timeline points
 - `homesec_enrichment_state.yaml` — per-provider daily enrichment usage counters
 - `homesec_chart_state.yaml` — persisted top statistics chart snapshots (restart fallback)
+- `homesec_baseline.yaml` — persisted baseline learned state (hosts, edges, training metadata, confidence). Written whenever the baseline changes; read at startup to restore anomaly detection without retraining
 
 These files don't exist yet — they are created at runtime by a running Home Assistant instance, not in this development workspace. They are written to hass.config.config_dir, which is wherever your HA configuration lives (the directory containing configuration.yaml).
 
@@ -376,6 +405,7 @@ So the files will appear as:
 /config/homesec_timeseries.yaml
 /config/homesec_enrichment_state.yaml
 /config/homesec_chart_state.yaml
+/config/homesec_baseline.yaml
 
 They are created:
 
@@ -385,6 +415,7 @@ homesec_names.yaml — the first time you save a custom host name in the Hosts v
 homesec_hosts.yaml — after the first active scanner cycle completes
 homesec_dismissed.yaml — the first time you dismiss a finding in the Findings view
 homesec_dns_log.yaml / homesec_ext_ips.yaml / homesec_timeseries.yaml — after corresponding runtime data is produced
+homesec_baseline.yaml — after the first baseline training cycle completes or when training is stopped manually
 
 ## FAQ
 
@@ -395,6 +426,30 @@ The Vulnerability Browser only shows CVEs that are relevant to services actually
 This is expected behavior, not a bug: a low KEV count means few of the actively-exploited vulnerabilities in the CISA catalog apply to the software versions found on your network.
 
 ## Changelog
+
+### 0.7.4
+
+- **Integration renamed** — the integration display name is now **Security Assistant** (was "Home Security Assistant") across the HA UI, config flow, options flow, and sidebar panel title.
+- **Dismissed baseline anomalies now visible** — dismissed findings from the Baseline Anomalies section were silently filtered out of the Dismissed list. They now appear in the unified Dismissed section with a teal `Baseline` chip to visually distinguish them from security findings.
+- **Unified Dismissed section** — all dismissed items (security findings and baseline anomalies) are shown in a single "Dismissed" section instead of two separate lists. Each item carries a `Baseline` chip when it originated from baseline anomaly detection.
+- **Findings view group modes** — the previous "Grouped / Flat" two-button toggle for Security Findings and Dismissed is replaced by four mode buttons: **By Category**, **By Host**, **By Severity**, and **Flat**. The same four modes are available for both the Security Findings and Dismissed sections.
+- **Human-friendly category labels** — raw `snake_case` category names are replaced by readable labels everywhere in the Findings view. Security finding categories: `vulnerability` → *Vulnerability / CVE*, `port_scan` → *Port Scan*, `suspicious_port` → *Suspicious Open Port*, `high_egress` → *High Egress Traffic*. Baseline anomaly categories: `anomaly_new_host` → *New Host Detected*, `anomaly_new_peer` → *New External Peer*, `anomaly_new_port` → *New Open Port*, `anomaly_new_dns_domain` → *New DNS Domain*, `anomaly_new_dns_category` → *New DNS Category*.
+- **Per-section search bars** — each section in the Findings view (Baseline Anomalies, Security Findings, Dismissed) has its own live search bar placed to the right of the mode buttons. Searches across summary, source IP, category, and CVE ID. Active filter counts ("N shown") are displayed alongside total counts in the section header.
+- **Statistics view enhancements** — two new chart pairs added: **Top N Hosts in Deviations** and **Top N External IPs in Deviations**, both with Pie / List toggle. Chart layout reordered for logical grouping. All ranked stat cards follow consistent two-column pairing.
+- **Map zoom & pan fixed** — a missing `var self = this` in `_initMap` caused all map event listeners to write to `window` instead of the component instance, breaking zoom and pan in all map modes (Live, Baseline Snapshot, Live vs Baseline).
+- **Nav badge count corrected** — the Findings sidebar badge was counting individual raw finding records. It now counts distinct finding-summary groups plus distinct baseline anomaly categories, matching what the user actually sees in the grouped view.
+- **Findings `undefined` rendering bug fixed** — `renderGrouped` returned `undefined` in all cases due to the group-building code being unreachable (placed after a `return` inside the `.sort()` comparator). The function now returns rendered HTML correctly.
+- **Double "ago" bug fixed** — the Overview page displayed timestamps as "2h ago ago". The redundant `+ ' ago'` suffix appended after calling `_ago()` (which already includes "ago") was removed.
+
+### 0.6.4
+
+- **Baseline Learning Mode** — three-mode baseline engine (`disabled` / `training` / `active`). Observes normal network behaviour for a configurable duration and flags deviations: new hosts, new external peers, new open ports, new DNS domains/categories, and egress volume spikes
+- **Baseline confidence scoring** — `low` / `medium` / `high` confidence based on host count and training snapshots
+- **Persistent baseline** — learned state saved to `homesec_baseline.yaml`, survives restarts
+- **Network Map baseline modes** — Baseline Snapshot and Live vs Baseline overlay views added when a baseline is available; new edges highlighted in a distinct colour
+- **Baseline Overview card** — shows current mode, training progress bar (elapsed / remaining), baseline age, confidence, and quick-action buttons
+- **Baseline HA services** — `start_baseline_training`, `stop_baseline_training`, `retrain_baseline`, `clear_baseline`
+- **Baseline anomalies in Findings** — new anomaly categories surfaced as findings: `anomaly_new_host`, `anomaly_new_peer`, `anomaly_new_port`, `anomaly_new_dns_domain`, `anomaly_new_dns_category`
 
 ### 0.6.2
 

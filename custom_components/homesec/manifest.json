@@ -1,6 +1,6 @@
 {
   "domain": "homesec",
-  "name": "Home Security Assistant",
+  "name": "Security Assistant",
   "codeowners": ["@domo-monster"],
   "config_flow": true,
   "dependencies": ["frontend", "http", "panel_custom"],
@@ -9,5 +9,5 @@
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/domo-monster/homesec/issues",
   "requirements": ["python-dateutil==2.9.0.post0", "cachetools==5.5.2"],
-  "version": "0.6.4"
+  "version": "0.7.4"
 }

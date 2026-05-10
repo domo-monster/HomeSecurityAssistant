@@ -77,14 +77,23 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._editorPlaceholder = '';
     this._vulnDetail   = null;
     this._expandedRec  = null;
-    this._findingsGrouped      = true;
+    this._findingsGroupMode    = 'category'; // 'category' | 'host' | 'severity' | 'flat'
+    this._dismissedGroupMode   = 'category'; // 'category' | 'host' | 'severity' | 'flat'
+    this._findingsSearch       = '';
+    this._baselineSearch       = '';
+    this._dismissedSearch      = '';
     this._expandedFindingGroup = null;
+    this._showBaselineFindings = true;
+    this._baselineGroupMode    = 'category'; // 'category' | 'host' | 'flat'
+    this._expandedBaselineGroup = null;
     this._regexDismissOpen     = false;
     this._regexDismissPattern  = '';
     this._regexDismissNote     = '';
     this._mapFilter    = 'all';
+    this._mapMode      = 'live';
+    this._mapBaselineGraph = null;
     this._mapParticles = [];
-    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie' };
+    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie', host_findings: 'pie', ext_deviations: 'pie' };
     this._dnsSearch = '';
     this._dnsCategoryFilter = '';
     this._dnsStatusFilter = '';
@@ -98,6 +107,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   connectedCallback()    { this._startRefresh(); }
+
   disconnectedCallback() { this._stopRefresh(); this._stopMap(); }
 
   _startRefresh() {
@@ -147,6 +157,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       root.querySelector('.app').addEventListener('click', e => this._onClick(e));
       root.querySelector('.app').addEventListener('input', e => this._onInput(e));
       root.querySelector('.app').addEventListener('change', e => this._onChange(e));
+      root.querySelector('.app').addEventListener('keydown', e => this._onKeyDown(e));
     }
     var app = root.querySelector('.app');
     app.classList.toggle('mobile-menu-open', !!this._mobileMenuOpen);
@@ -164,7 +175,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     try {
       switch (this._view) {
-        case 'overview':        content.innerHTML = this._viewOverview();  break;
+        case 'overview':
+          content.innerHTML = this._viewOverview();
+          break;
         case 'map':             this._viewMap(content);                    break;
         case 'hosts':           content.innerHTML = this._viewHosts();     break;
         case 'findings':        content.innerHTML = this._viewFindings();  break;
@@ -199,7 +212,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var editorSave = e.target.closest('[data-editor-save]');
     if (editorSave) { this._saveEditor(); return; }
     var nav = e.target.closest('[data-view]');
-    if (nav) { this._setView(nav.dataset.view); return; }
+    if (nav) { if (nav.dataset.mapMode) this._mapMode = nav.dataset.mapMode; this._setView(nav.dataset.view); return; }
     var extPage = e.target.closest('[data-extpage]');
     if (extPage) {
       var total = this._extPreparedList().length;
@@ -219,16 +232,50 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (dismiss) { this._dismissFinding(dismiss.dataset.dismiss); return; }
     var undismiss = e.target.closest('[data-undismiss]');
     if (undismiss) { this._undismissFinding(undismiss.dataset.undismiss); return; }
+    var undismissGroup = e.target.closest('[data-undismiss-group]');
+    if (undismissGroup) { this._undismissGroup(undismissGroup.dataset.undismissGroup); return; }
     // Findings: grouped view toggle
-    if (e.target.closest('[data-findings-group-toggle]')) {
-      this._findingsGrouped = !this._findingsGrouped;
+    if (e.target.closest('[data-findings-group-mode]')) {
+      var _fgm = e.target.closest('[data-findings-group-mode]');
+      this._findingsGroupMode = _fgm.dataset.findingsGroupMode;
       this._expandedFindingGroup = null;
+      this._render();
+      return;
+    }
+    if (e.target.closest('[data-dismissed-group-mode]')) {
+      var _dgm = e.target.closest('[data-dismissed-group-mode]');
+      this._dismissedGroupMode = _dgm.dataset.dismissedGroupMode;
+      this._expandedFindingGroup = null;
+      this._render();
+      return;
+    }
+    // Findings: show/hide baseline anomalies
+    if (e.target.closest('[data-baseline-findings-toggle]')) {
+      this._showBaselineFindings = !this._showBaselineFindings;
+      this._expandedFindingGroup = null;
+      this._expandedBaselineGroup = null;
+      this._render();
+      return;
+    }
+    // Findings: baseline group mode switcher
+    var bgm = e.target.closest('[data-baseline-group-mode]');
+    if (bgm) {
+      this._baselineGroupMode = bgm.dataset.baselineGroupMode;
+      this._expandedBaselineGroup = null;
+      this._render();
+      return;
+    }
+    // Findings: expand/collapse a baseline group
+    var fbge = e.target.closest('[data-expand-baseline-group]');
+    if (fbge && !e.target.closest('[data-dismiss-group]') && !e.target.closest('[data-undismiss-group]')) {
+      var bgk = fbge.dataset.expandBaselineGroup;
+      this._expandedBaselineGroup = (this._expandedBaselineGroup === bgk) ? null : bgk;
       this._render();
       return;
     }
     // Findings: expand/collapse a finding group
     var fge = e.target.closest('[data-expand-group]');
-    if (fge && !e.target.closest('[data-dismiss-group]')) {
+    if (fge && !e.target.closest('[data-dismiss-group]') && !e.target.closest('[data-undismiss-group]')) {
       var gk = fge.dataset.expandGroup;
       this._expandedFindingGroup = (this._expandedFindingGroup === gk) ? null : gk;
       this._render();
@@ -236,7 +283,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     // Findings: dismiss all findings in a group
     var fdg = e.target.closest('[data-dismiss-group]');
-    if (fdg) { this._dismissGroup(fdg.dataset.dismissGroup); return; }
+    if (fdg && !e.target.closest('[data-undismiss-group]')) { this._dismissGroup(fdg.dataset.dismissGroup); return; }
     // Findings: open regex dismiss modal
     if (e.target.closest('[data-regex-dismiss-open]')) {
       this._regexDismissOpen = true;
@@ -258,6 +305,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     var mf = e.target.closest('[data-mapfilter]');
     if (mf) { this._setMapFilter(mf.dataset.mapfilter); return; }
+    var mm = e.target.closest('[data-mapmode]');
+    if (mm) { this._setMapMode(mm.dataset.mapmode); return; }
     var hs = e.target.closest('[data-hostsort]');
     if (hs) { this._setHostSort(hs.dataset.hostsort); return; }
     var es = e.target.closest('[data-extsort]');
@@ -288,6 +337,29 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       this._render();
       return;
     }
+    var ba = e.target.closest('[data-baseline-action]');
+    if (ba) {
+      var action = ba.getAttribute('data-baseline-action');
+      var svc = null;
+      if (action === 'start') svc = 'start_baseline_training';
+      else if (action === 'stop') svc = 'stop_baseline_training';
+      else if (action === 'retrain') svc = 'retrain_baseline';
+      else if (action === 'clear') svc = 'clear_baseline';
+      if (svc && this._hass) {
+        console.log('[HomeSec] Calling service:', svc);
+        this._hass.callService('homesec', svc, {});
+        setTimeout(() => this._fetch(), 1200);
+      }
+      return;
+    }
+    var sa = e.target.closest('[data-service-action]');
+    if (sa && this._hass) {
+      var svc = sa.getAttribute('data-service-action');
+      console.log('[HomeSec] Calling service:', svc);
+      this._hass.callService('homesec', svc, {});
+      setTimeout(() => this._fetch(), 1500);
+      return;
+    }
   }
 
   _onInput(e) {
@@ -316,6 +388,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     if (e.target.id === 'hsa-regex-note') {
       this._regexDismissNote = e.target.value;
+    }
+  }
+
+  _onKeyDown(e) {
+    if (e.key !== 'Enter') return;
+    if (e.target.hasAttribute('data-findings-search')) {
+      this._findingsSearch = e.target.value;
+      this._render();
+    } else if (e.target.hasAttribute('data-baseline-search')) {
+      this._baselineSearch = e.target.value;
+      this._render();
+    } else if (e.target.hasAttribute('data-dismissed-search')) {
+      this._dismissedSearch = e.target.value;
+      this._render();
     }
   }
 
@@ -402,6 +488,35 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     });
   }
 
+  async _undismissGroup(groupKey) {
+    var dismissed = (this._data && this._data.dismissed_findings) || [];
+    var BASELINE_ONLY_CATS = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
+    var toMatch;
+    if (groupKey.startsWith('fcat:')) {
+      var cat = groupKey.slice(5);
+      toMatch = dismissed.filter(function(f) { return (f.category || 'unknown') === cat; });
+    } else if (groupKey.startsWith('fhost:')) {
+      var ip = groupKey.slice(6);
+      toMatch = dismissed.filter(function(f) { return (f.source_ip || 'unknown') === ip; });
+    } else if (groupKey.startsWith('fsev:')) {
+      var sev = groupKey.slice(5);
+      toMatch = dismissed.filter(function(f) { return (f.severity || 'info') === sev; });
+    } else {
+      // legacy: match by summary (renderGrouped path)
+      toMatch = dismissed.filter(function(f) { return (f.summary || f.category || 'Unknown') === groupKey; });
+    }
+    if (!toMatch.length) return;
+    try {
+      await Promise.all(toMatch.map(f => this._hass.callApi('POST', 'homesec/findings/undismiss', {
+        key: f.key || (f.source_ip + ':' + f.category),
+      })));
+      this._expandedFindingGroup = null;
+      this._fetch();
+    } catch (err) {
+      alert('Failed to restore group: ' + (err.message || String(err)));
+    }
+  }
+
   async _undismissFinding(key) {
     if (!key) return;
     try {
@@ -414,7 +529,27 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   async _dismissGroup(summary) {
     var findings = (this._data && this._data.findings) || [];
-    var toMatch = findings.filter(function(f) { return f.summary === summary; });
+    var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
+    var toMatch;
+    if (summary.startsWith('bhost:')) {
+      var ip = summary.slice(6);
+      toMatch = baselineAnomalies.filter(function(f) { return f.source_ip === ip; });
+    } else if (summary.startsWith('bcat:')) {
+      var cat = summary.slice(5);
+      toMatch = baselineAnomalies.filter(function(f) { return f.category === cat; });
+    } else if (summary.startsWith('fcat:')) {
+      var fcat = summary.slice(5);
+      toMatch = findings.filter(function(f) { return (f.category || 'unknown') === fcat; });
+    } else if (summary.startsWith('fhost:')) {
+      var fip = summary.slice(6);
+      toMatch = findings.filter(function(f) { return (f.source_ip || 'unknown') === fip; });
+    } else if (summary.startsWith('fsev:')) {
+      var fsev = summary.slice(5);
+      toMatch = findings.filter(function(f) { return (f.severity || 'info') === fsev; });
+    } else {
+      toMatch = findings.filter(function(f) { return f.summary === summary; });
+      if (!toMatch.length) toMatch = baselineAnomalies.filter(function(f) { return f.summary === summary; });
+    }
     if (!toMatch.length) return;
     try {
       await Promise.all(toMatch.map(f => this._hass.callApi('POST', 'homesec/findings/dismiss', {
@@ -591,14 +726,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _sidebar() {
-    var findings   = (this._data && this._data.findings && this._data.findings.length) || 0;
+    var _BL_ONLY = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
+    var secFindings = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY[f.category]; });
+    var findingGroups = {};
+    secFindings.forEach(function(f) { findingGroups[f.summary || f.category || 'Unknown'] = true; });
+    var blAnoms = (this._data && this._data.baseline_anomalies) || [];
+    var blCats = {};
+    blAnoms.forEach(function(a) { blCats[a.category || 'unknown'] = true; });
+    var totalFindings = Object.keys(findingGroups).length + Object.keys(blCats).length;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
     var dnsEnabled = (this._data && this._data.dns_proxy_stats && this._data.dns_proxy_stats.running) || false;
     var self = this;
     var views = dnsEnabled ? _VIEWS : _VIEWS.filter(function(v) { return v !== 'dns'; });
     var items = views.map(function(v) {
       var badge = '';
-      if (v === 'findings' && findings > 0)       badge = '<span class="nav-badge">' + findings + '</span>';
+      if (v === 'findings' && totalFindings > 0)       badge = '<span class="nav-badge">' + totalFindings + '</span>';
       if (v === 'external' && ext_threat > 0)     badge = '<span class="nav-badge danger">' + ext_threat + '</span>';
       return '<li class="nav-item ' + (self._view === v ? 'active' : '') + '" data-view="' + v + '">' +
         _VIEW_ICONS[v] + '<span class="nav-label">' + _VIEW_LABELS[v] + '</span>' + badge + '</li>';
@@ -606,7 +748,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var exporters = (this._data && this._data.summary && this._data.summary.exporters) || [];
     var status = exporters.length > 0 ? 'online' : 'waiting';
     return '<div class="brand"><img src="/api/homesec/frontend/hsa-logo.svg" alt="logo" style="height:32px;width:32px;margin-right:10px;border-radius:8px;box-shadow:0 0 8px #62e8ff55;vertical-align:middle">' +
-      '<div class="brand-text"><span class="brand-name">Home Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">Network security telemetry with live flow context</span></div></div>' +
+      '<div class="brand-text"><span class="brand-name">Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">Network security telemetry with live flow context</span></div></div>' +
       '<ul class="nav-list">' + items + '</ul>' +
       '<div class="sidebar-status ' + status + '"><div class="status-dot"></div><span>' +
       (status === 'online' ? 'Collector active' : 'Awaiting flows') + '</span>' +
@@ -615,9 +757,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewOverview() {
+    var _BL_ONLY_OV = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
     var s       = (this._data && this._data.summary) || {};
-    var findings = (this._data && this._data.findings) || [];
-    var dismissed = (this._data && this._data.dismissed_findings) || [];
+    var findings = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY_OV[f.category]; });
+    var dismissed = ((this._data && this._data.dismissed_findings) || []).filter(function(f) { return !_BL_ONLY_OV[f.category]; });
     var dismissedVulns = dismissed.filter(function(f) { return f.category === 'vulnerability'; }).length;
     var recent   = findings.slice(0, 5);
     var exporters = s.exporters || [];
@@ -634,6 +777,43 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var nvdMinYear = (this._data && this._data.nvd_min_year != null) ? this._data.nvd_min_year : null;
     var nvdAge = nvdTs ? this._ago(nvdTs) : 'never fetched';
     var nvdStatus = nvdTs ? ((Date.now() - new Date(nvdTs).getTime()) < 26 * 3600 * 1000 ? 'good' : 'warn') : 'warn';
+
+    // Baseline card
+    var baseline = (this._data && this._data.baseline) || {};
+    var baselineMode = baseline.mode || 'disabled';
+    var baselineModeLabel = baselineMode === 'training' ? 'Learning' : (baselineMode === 'active' ? 'Active' : 'Disabled');
+    var baselineIcon = baselineMode === 'training' ? '🧠' : (baselineMode === 'active' ? '✅' : '⏸');
+    var sinceStr = baseline.baseline_completed_at ? self._ago(baseline.baseline_completed_at) : '';
+    var trainingElapsed = '';
+    if (baselineMode === 'training') {
+      var started = baseline.training_started_at;
+      var ends = baseline.training_ends_at;
+      var now = Date.now();
+      var startMs = started ? new Date(started).getTime() : null;
+      var endMs = ends ? new Date(ends).getTime() : null;
+      var elapsed = startMs ? Math.max(0, Math.min(now, endMs || now) - startMs) : 0;
+      var total = (endMs && startMs) ? endMs - startMs : null;
+      var pct = total ? Math.round((elapsed / total) * 100) : 0;
+      trainingElapsed = '<div>' +
+        '<span style="font-size:13px">Elapsed: <b>' + self._ago(started) + '</b></span>' +
+        (total ? ' &nbsp; <span style="font-size:13px">Progress: <b>' + pct + '%</b></span>' : '') +
+        '</div>';
+    }
+    // Action buttons
+    var btns = '';
+    btns += '<button class="btn" data-baseline-action="start">Start Training</button>';
+    btns += '<button class="btn" data-baseline-action="stop">Stop Training</button>';
+    btns += '<button class="btn" data-baseline-action="retrain">Retrain</button>';
+    btns += '<button class="btn" data-baseline-action="clear">Clear</button>';
+
+    var baselineCard = '<div class="card" id="baseline-card" style="margin-bottom:12px">' +
+      '<div class="card-title">Baseline <span style="font-size:18px;margin-left:6px">' + baselineIcon + '</span></div>' +
+      '<div style="margin-bottom:6px"><b>Mode:</b> ' + baselineModeLabel + '</div>' +
+      (baselineMode === 'training' ? trainingElapsed : '') +
+      (baselineMode === 'active' && sinceStr ? '<div><b>Baseline created:</b> ' + sinceStr + '</div>' : '') +
+      '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' + btns + '</div>' +
+      '</div>';
+
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Overview</h1></div>' +
       '<div class="stat-grid">' +
@@ -658,6 +838,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           this._hrow('Dropped', dropped.toLocaleString(), dropped > 0 ? 'warn' : 'good') +
           this._hrow('Last flow', this._ago(s.last_flow_at), '') +
           (s.last_parser_error ? this._hrow('Last error', s.last_parser_error, 'bad') : '') +
+          '<div style="margin-top:10px"><button class="btn" data-view="statistics">View Statistics →</button></div>' +
         '</div>' +
         '<div class="card">' +
           '<div class="card-title">Recent Alerts</div>' +
@@ -688,6 +869,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           self._hrow('Duration', durStr, '') +
           self._hrow('Hosts found', hostsStr, scanHosts > 0 ? '' : 'warn') +
           self._hrow('Scan interval', intervalStr, '') +
+          '<div style="margin-top:10px"><button class="btn" data-service-action="trigger_scan">Force hosts scan ↻</button></div>' +
         '</div>';
       })() +
       '<div class="card" style="margin-top:12px">' +
@@ -721,6 +903,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           html += '</div>';
           return html;
         })() +
+        '<div style="margin-top:10px"><button class="btn" data-view="vulnerabilities">Browse all vulnerabilities →</button>' +
+        ' <button class="btn" data-service-action="nvd_refresh">Force intelligence refresh ↻</button></div>' +
       '</div>' +
       (function() {
         var kevTotal = (self._data && self._data.kev_total != null) ? self._data.kev_total : 0;
@@ -765,13 +949,149 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             var dnsBlocked = dnsLog.filter(function(e) { return e.status === 'blocked'; }).length;
             return dnsBlocked > 0 ? self._hrow('Blocked queries', dnsBlocked.toLocaleString(), 'bad') : '';
           })() +
+          '<div style="margin-top:10px"><button class="btn" data-view="dns">View DNS Queries →</button></div>' +
         '</div>';
       })() +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
-        '<button class="btn" data-view="vulnerabilities">Browse all vulnerabilities \u2192</button>' +
-        '<button class="btn" data-view="statistics">View Statistics \u2192</button>' +
-        ((function() { var dnsStats = (self._data && self._data.dns_proxy_stats) || {}; return dnsStats.running ? '<button class="btn" data-view="dns">View DNS Queries \u2192</button>' : ''; })()) +
+      baselineCard +
+      this._baselineDevianceCard() +
+    '</div>';
+  }
+
+  // ── Baseline deviance score card ─────────────────────────────────────
+  _baselineDevianceCard() {
+    var baseline = (this._data && this._data.baseline) || {};
+    if ((baseline.mode || 'disabled') !== 'active') return '';
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    if (!baselineGraph || !(baselineGraph.edges && baselineGraph.edges.length)) return '';
+    var connections = (this._data && this._data.connections) || [];
+
+    // Build edge indices (same logic as _composeMapEdges but mode-neutral)
+    var live = this._buildLiveEdgeIndex(connections);
+    var base = this._buildBaselineEdgeIndex(baselineGraph);
+    var keys = {};
+    Object.keys(live).forEach(function(k) { keys[k] = true; });
+    Object.keys(base).forEach(function(k) { keys[k] = true; });
+
+    var cntNew = 0, cntMissing = 0, cntBoth = 0;
+    var topDelta = null, topDeltaAbs = 0;
+    for (var key in keys) {
+      var le = live[key];
+      var be = base[key];
+      if (le && be)       { cntBoth++;    var d = (le.live_flows || 0) - (be.avg_flows || 0); if (Math.abs(d) > topDeltaAbs) { topDeltaAbs = Math.abs(d); topDelta = { source: le.source, target: le.target, delta: d }; } }
+      else if (le && !be) { cntNew++;     }
+      else                { cntMissing++; }
+    }
+
+    // ── Score (0-100) ────────────────────────────────────────────────
+    // New connections are the primary security signal (weight 80%).
+    // Missing connections are expected in any snapshot vs. the full training
+    // period, so they only contribute 20% to keep the score fair.
+    var activeLive   = cntNew + cntBoth;
+    var totalKnown   = cntBoth + cntMissing;
+    var newRatio     = activeLive  > 0 ? cntNew     / activeLive  : 0;
+    var missingRatio = totalKnown  > 0 ? cntMissing / totalKnown  : 0;
+    var score        = Math.min(100, Math.round(newRatio * 80 + missingRatio * 20));
+
+    // ── Band ─────────────────────────────────────────────────────────
+    var band, bandColor, bandBg, bandBorder, bandDesc;
+    if (score <= 20) {
+      band = 'Normal';         bandColor = '#3ddc84'; bandBg = 'rgba(61,220,132,.10)'; bandBorder = 'rgba(61,220,132,.35)';
+      bandDesc = 'Traffic closely matches your baseline. No action needed.';
+    } else if (score <= 50) {
+      band = 'Review';         bandColor = '#ffce54'; bandBg = 'rgba(255,206,84,.10)'; bandBorder = 'rgba(255,206,84,.35)';
+      bandDesc = 'Some deviation from baseline detected. Worth a quick look.';
+    } else if (score <= 75) {
+      band = 'Investigate';    bandColor = '#ff9640'; bandBg = 'rgba(255,150,64,.10)'; bandBorder = 'rgba(255,150,64,.35)';
+      bandDesc = 'Noticeable deviation from baseline. Review unexpected connections.';
+    } else {
+      band = 'Critical';       bandColor = '#ff5a32'; bandBg = 'rgba(255,90,50,.10)'; bandBorder = 'rgba(255,90,50,.40)';
+      bandDesc = 'Significant deviation from baseline. Investigate immediately.';
+    }
+
+    // ── Progress bar ─────────────────────────────────────────────────
+    var barFill = score <= 20 ? '#3ddc84' : score <= 50 ? '#ffce54' : score <= 75 ? '#ff9640' : '#ff5a32';
+
+    // ── Row helpers ──────────────────────────────────────────────────
+    function row(icon, count, label, note, iconColor) {
+      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">' +
+        '<span style="font-size:16px;line-height:1.2;flex-shrink:0;color:' + iconColor + '">' + icon + '</span>' +
+        '<div style="flex:1;min-width:0">' +
+          '<span style="font-size:14px;font-weight:600;color:' + iconColor + '">' + count + '</span>' +
+          ' <span style="font-size:12px;color:var(--fg)">' + label + '</span>' +
+          '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + note + '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // ── Top-delta plain English ──────────────────────────────────────
+    var topDeltaHtml = '';
+    if (topDelta) {
+      var d   = topDelta.delta;
+      var abs = Math.abs(d);
+      var dir = d > 0 ? 'busier' : 'quieter';
+      var mag = abs > 10000 ? 'far' : abs > 1000 ? 'noticeably' : abs > 100 ? 'somewhat' : 'slightly';
+      var sign = d > 0 ? '+' : '';
+      topDeltaHtml =
+        '<div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(255,206,84,.07);border:1px solid rgba(255,206,84,.22);font-size:11px">' +
+          '<span style="color:#ffce54;font-weight:600">\u0394 Biggest traffic change</span>' +
+          '<div style="margin-top:3px;color:var(--fg)">' +
+            '<span style="font-family:monospace;font-size:11px">' + topDelta.source + ' \u2192 ' + topDelta.target + '</span>' +
+          '</div>' +
+          '<div style="color:var(--muted);margin-top:2px">This known connection is <b style="color:var(--fg)">' + mag + ' ' + dir + '</b> than usual (' + sign + Math.round(d) + '\u00a0flows/snapshot).' +
+            (abs > 1000 ? ' Could be a file transfer, backup, or update in progress.' : '') +
+          '</div>' +
+        '</div>';
+    }
+
+    return '<div class="card" style="margin-top:12px">' +
+      '<div class="card-title">Network Behaviour</div>' +
+
+      // Score row
+      '<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">' +
+        '<div style="position:relative;flex-shrink:0">' +
+          '<svg width="64" height="64" viewBox="0 0 64 64">' +
+            // background ring
+            '<circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>' +
+            // foreground arc: circumference = 2πr ≈ 163.4; dashoffset drives fill
+            '<circle cx="32" cy="32" r="26" fill="none" stroke="' + barFill + '" stroke-width="7"' +
+              ' stroke-dasharray="163.4" stroke-dashoffset="' + (163.4 * (1 - score / 100)).toFixed(1) + '"' +
+              ' stroke-linecap="round" transform="rotate(-90 32 32)"/>' +
+            '<text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="' + barFill + '">' + score + '</text>' +
+          '</svg>' +
+        '</div>' +
+        '<div style="flex:1">' +
+          '<div style="display:inline-block;padding:3px 12px;border-radius:100px;background:' + bandBg + ';border:1px solid ' + bandBorder + ';color:' + bandColor + ';font-size:12px;font-weight:600;margin-bottom:5px">' + band + '</div>' +
+          '<div style="font-size:12px;color:var(--muted)">' + bandDesc + '</div>' +
+        '</div>' +
       '</div>' +
+
+      // Breakdown rows
+      row('\u2191', cntNew,
+        cntNew === 1 ? 'unexpected new connection' : 'unexpected new connections',
+        cntNew === 0
+          ? 'No unknown activity \u2014 all current traffic was seen during training.'
+          : 'These connections were not present during baseline training. ' + (cntNew > 5 ? 'This is the main driver of your score \u2014 investigate.' : 'Review to confirm they are expected.'),
+        cntNew === 0 ? '#3ddc84' : cntNew <= 3 ? '#ffce54' : '#ff5a32') +
+
+      row('\u2193', cntMissing,
+        cntMissing === 1 ? 'baseline connection not active now' : 'baseline connections not active now',
+        'Connections seen during training that are quiet right now. ' +
+          'This is usually normal \u2014 devices don\u2019t maintain all connections at all times. ' +
+          (cntMissing > totalKnown * 0.9
+            ? 'The count is very high, but your baseline likely captured many short-lived flows over a long training window.'
+            : ''),
+        '#88a7c7') +
+
+      row('=', cntBoth,
+        cntBoth === 1 ? 'connection matches baseline exactly' : 'connections match baseline exactly',
+        cntBoth > 0
+          ? 'These connections are active now and were seen during training \u2014 your expected, normal traffic.'
+          : 'No currently active connections were seen in the baseline yet.',
+        '#3ac5c9') +
+
+      topDeltaHtml +
+
+      '<div style="margin-top:10px"><button class="btn" data-view="map" data-map-mode="compare">View on Network Map \u2192</button></div>' +
     '</div>';
   }
 
@@ -1272,81 +1592,66 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var dnsLog = (this._data && this._data.dns_log) || [];
     var dnsStats = (this._data && this._data.dns_proxy_stats) || {};
 
-    // Hourly bar chart for last 24h DNS queries (normal=blue, malicious=red)
-    var dnsChartHtml;
-    if (!dnsLog.length) {
-      dnsChartHtml = '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>';
-    } else {
-      var now = Date.now();
-      var DNS_HOURS = 24;
-      var HOUR_MS = 3600000;
-      // Align to the current hour so labels and bars map to exact clock hours.
-      var currentHourStart = Math.floor(now / HOUR_MS) * HOUR_MS;
-      var windowStart = currentHourStart - (DNS_HOURS - 1) * HOUR_MS;
-      var dnsBuckets = new Array(DNS_HOURS).fill(null).map(function() {
-        return { total: 0, mal: 0, blocked: 0 };
-      });
-
-      function _dnsTsToMs(rawTs) {
-        if (rawTs == null) return NaN;
-        if (typeof rawTs === 'number') {
-          // Accept both unix seconds and unix milliseconds.
-          return rawTs < 1e12 ? rawTs * 1000 : rawTs;
-        }
-        var txt = String(rawTs).trim();
-        if (!txt) return NaN;
-        var n = Number(txt);
-        if (!isNaN(n)) return n < 1e12 ? n * 1000 : n;
-
-        var ms = new Date(txt).getTime();
-        if (!isNaN(ms)) return ms;
-
-        // Fallback for persisted YAML timestamps like "YYYY-MM-DD HH:MM:SS+00:00".
-        ms = new Date(txt.replace(' ', 'T')).getTime();
-        return ms;
-      }
-
-      for (var di = 0; di < dnsLog.length; di++) {
-        var row = dnsLog[di] || {};
-        var et = _dnsTsToMs(row.timestamp);
-        if (isNaN(et)) continue;
-        var bi = Math.floor((et - windowStart) / HOUR_MS);
-        if (bi < 0 || bi >= DNS_HOURS) continue;
-        dnsBuckets[bi].total++;
-        if (row.malicious) dnsBuckets[bi].mal++;
-        if (row.status === 'blocked') dnsBuckets[bi].blocked++;
-      }
-
-      var maxDns = Math.max.apply(null, dnsBuckets.map(function(b) { return b.total; })) || 1;
-      var BAR_W = 18, BAR_GAP = 3, CHART_H = 60, LABEL_H = 16;
-      var svgW = DNS_HOURS * (BAR_W + BAR_GAP);
-      var bars = dnsBuckets.map(function(b, i) {
-        var x = i * (BAR_W + BAR_GAP);
-        var barH = b.total > 0 ? Math.max(2, Math.round((b.total / maxDns) * CHART_H)) : 0;
-        var malH = b.total > 0 ? Math.round((b.mal / b.total) * barH) : 0;
-        var blkH = b.total > 0 ? Math.round((b.blocked / b.total) * barH) : 0;
-        var y = CHART_H - barH;
-        var lhour = new Date(windowStart + i * HOUR_MS).getHours();
-        var tip = lhour + 'h \u2014 ' + b.total + ' quer' + (b.total !== 1 ? 'ies' : 'y') +
-          (b.mal > 0 || b.blocked > 0 ? ' (' + (b.mal > 0 ? b.mal + ' malicious' : '') + (b.mal > 0 && b.blocked > 0 ? ', ' : '') + (b.blocked > 0 ? b.blocked + ' blocked' : '') + ')' : '');
-        return (barH > 0 ? '<rect x="' + x + '" y="' + y + '" width="' + BAR_W + '" height="' + barH + '" fill="rgba(98,232,255,.35)" rx="2"><title>' + tip + '</title></rect>' : '') +
-          (malH > 0 ? '<rect x="' + x + '" y="' + (CHART_H - malH) + '" width="' + BAR_W + '" height="' + malH + '" fill="rgba(255,77,109,.7)" rx="2"><title>' + tip + '</title></rect>' : '') +
-          (blkH > 0 && blkH > malH ? '<rect x="' + x + '" y="' + (CHART_H - blkH) + '" width="' + BAR_W + '" height="' + (blkH - malH) + '" fill="rgba(191,111,255,.7)" rx="2"><title>' + tip + '</title></rect>' : '');
-      }).join('');
-      var dnsHourLabels = '';
-      for (var li = 0; li < DNS_HOURS; li += 4) {
-        var lx = li * (BAR_W + BAR_GAP) + BAR_W / 2;
-        var lhour = new Date(windowStart + li * HOUR_MS).getHours();
-        dnsHourLabels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
-      }
-      dnsChartHtml = '<div style="font-size:10px;color:var(--muted);margin-bottom:4px">DNS queries per hour (last 24h)</div>' +
-        '<svg viewBox="0 0 ' + svgW + ' ' + (CHART_H + LABEL_H) + '" width="100%" height="' + (CHART_H + LABEL_H) + '" preserveAspectRatio="none" style="display:block">' + bars + dnsHourLabels + '</svg>' +
-        '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.5);display:inline-block;border-radius:2px"></span>Clean</span>' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>Blocked</span>' +
-        '</div>';
-    }
+    // Hourly stacked bar chart — same style as the first two bar charts above.
+    var dnsChartHtml = !dnsLog.length
+      ? '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>'
+      : (function() {
+          var D_HOURS = 24, D_BAR_W = 18, D_BAR_GAP = 3, D_CHART = 60, D_LABEL = 16;
+          var nowMs = Date.now();
+          var dnsBuckets = new Array(D_HOURS).fill(null).map(function() {
+            return { total: 0, blocked: 0, mal: 0 };
+          });
+          for (var di = 0; di < dnsLog.length; di++) {
+            var row = dnsLog[di] || {};
+            var rawTs = row.timestamp;
+            var et = (rawTs == null) ? NaN
+              : (typeof rawTs === 'number') ? (rawTs < 1e12 ? rawTs * 1000 : rawTs)
+              : (function() {
+                  var txt = String(rawTs).trim();
+                  var n = Number(txt);
+                  if (!isNaN(n)) return n < 1e12 ? n * 1000 : n;
+                  var m = new Date(txt).getTime();
+                  return isNaN(m) ? new Date(txt.replace(' ', 'T')).getTime() : m;
+                })();
+            if (isNaN(et)) continue;
+            var ago = Math.floor((nowMs - et) / 3600000);
+            if (ago < 0 || ago >= D_HOURS) continue;
+            var bi = D_HOURS - 1 - ago;
+            dnsBuckets[bi].total++;
+            if (row.malicious) dnsBuckets[bi].mal++;
+            if (row.status === 'blocked') dnsBuckets[bi].blocked++;
+          }
+          var maxDns = 1;
+          for (var mi = 0; mi < dnsBuckets.length; mi++) {
+            if (dnsBuckets[mi].total > maxDns) maxDns = dnsBuckets[mi].total;
+          }
+          var dSvgW = D_HOURS * (D_BAR_W + D_BAR_GAP);
+          var dBars = dnsBuckets.map(function(b, i) {
+            var x = i * (D_BAR_W + D_BAR_GAP);
+            var th  = Math.max(2, Math.round((b.total   / maxDns) * D_CHART));
+            var bkh = b.blocked > 0 ? Math.max(2, Math.round((b.blocked / maxDns) * D_CHART)) : 0;
+            var mh  = b.mal     > 0 ? Math.max(2, Math.round((b.mal     / maxDns) * D_CHART)) : 0;
+            var lhour = new Date(nowMs - (D_HOURS - 1 - i) * 3600000).getHours();
+            var tip = lhour + 'h \u2014 ' + b.total + ' total' +
+              (b.blocked > 0 ? ', ' + b.blocked + ' blocked' : '') +
+              (b.mal     > 0 ? ', ' + b.mal     + ' malicious' : '');
+            return '<rect x="' + x + '" y="' + (D_CHART - th)  + '" width="' + D_BAR_W + '" height="' + th  + '" fill="rgba(98,232,255,.35)"  rx="2"><title>' + tip + '</title></rect>' +
+              (bkh > 0 ? '<rect x="' + x + '" y="' + (D_CHART - bkh) + '" width="' + D_BAR_W + '" height="' + bkh + '" fill="rgba(191,111,255,.7)"  rx="2"><title>' + tip + '</title></rect>' : '') +
+              (mh  > 0 ? '<rect x="' + x + '" y="' + (D_CHART - mh)  + '" width="' + D_BAR_W + '" height="' + mh  + '" fill="rgba(255,77,109,.7)"   rx="2"><title>' + tip + '</title></rect>' : '');
+          }).join('');
+          var dLabels = '';
+          for (var dl = 0; dl < D_HOURS; dl += 4) {
+            var dlx   = dl * (D_BAR_W + D_BAR_GAP) + D_BAR_W / 2;
+            var dlHour = new Date(nowMs - (D_HOURS - 1 - dl) * 3600000).getHours();
+            dLabels += '<text x="' + dlx + '" y="' + (D_CHART + D_LABEL - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + dlHour + 'h</text>';
+          }
+          return '<svg viewBox="0 0 ' + dSvgW + ' ' + (D_CHART + D_LABEL) + '" width="100%" height="' + (D_CHART + D_LABEL) + '" preserveAspectRatio="none" style="display:block">' + dBars + dLabels + '</svg>' +
+            '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.35);display:inline-block;border-radius:2px"></span>Total</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>Blocked</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
+            '</div>';
+        })();
 
     // Top N malicious/blocked domains (uses configured statistics topN)
     var topMalDomains = [];
@@ -1511,9 +1816,162 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</tbody></table>';
     }
 
+    // ── Baseline deviance timeline bar chart (last 24 h) ─────────────
+    var devianceChartHtml = (function() {
+      var blInfo = (self._data && self._data.baseline) || {};
+      if ((blInfo.mode || 'disabled') !== 'active') {
+        return '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">Baseline not active \u2014 enable it to track deviance over time</div>';
+      }
+      var DV_H = 24, DV_BAR_W = 18, DV_GAP = 3, DV_CHART = 60, DV_LABEL = 16;
+      var dvNow = Date.now();
+      var dvBkts = new Array(DV_H).fill(null);
+      for (var dvi = 0; dvi < allPoints.length; dvi++) {
+        var dvpt = allPoints[dvi];
+        if (dvpt.deviance_score == null) continue;
+        var dago = Math.floor((dvNow - new Date(dvpt.ts).getTime()) / 3600000);
+        if (dago < 0 || dago >= DV_H) continue;
+        var dbi = DV_H - 1 - dago;
+        if (dvBkts[dbi] === null || dvpt.deviance_score > dvBkts[dbi]) dvBkts[dbi] = dvpt.deviance_score;
+      }
+      if (!dvBkts.some(function(v) { return v !== null; })) {
+        return '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">No deviance data yet \u2014 data accumulates every 5\u202fmin</div>';
+      }
+      var dvSvgW = DV_H * (DV_BAR_W + DV_GAP);
+      var dvGuides = [25, 50, 75].map(function(g) {
+        var gy = DV_CHART - Math.round((g / 100) * DV_CHART);
+        return '<line x1="0" y1="' + gy + '" x2="' + dvSvgW + '" y2="' + gy + '" stroke="rgba(255,255,255,.07)" stroke-width="1"/>';
+      }).join('');
+      var dvBars = dvBkts.map(function(v, i) {
+        var x = i * (DV_BAR_W + DV_GAP);
+        if (v === null) return '<rect x="' + x + '" y="' + (DV_CHART - 2) + '" width="' + DV_BAR_W + '" height="2" fill="rgba(255,255,255,.06)" rx="1"><title>No data</title></rect>';
+        var clr = v <= 20 ? '#6bffc8' : v <= 50 ? '#ffc107' : v <= 75 ? '#ff8c42' : '#ff4d6d';
+        var bh = Math.max(2, Math.round((v / 100) * DV_CHART));
+        var tip = new Date(dvNow - (DV_H - 1 - i) * 3600000).getHours() + 'h \u2014 deviance\u00a0' + v + '%';
+        return '<rect x="' + x + '" y="' + (DV_CHART - bh) + '" width="' + DV_BAR_W + '" height="' + bh + '" fill="' + clr + '" opacity="0.85" rx="2"><title>' + tip + '</title></rect>';
+      }).join('');
+      var dvLabels = '';
+      for (var dl = 0; dl < DV_H; dl += 4) {
+        var dlx = dl * (DV_BAR_W + DV_GAP) + DV_BAR_W / 2;
+        dvLabels += '<text x="' + dlx + '" y="' + (DV_CHART + DV_LABEL - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + new Date(dvNow - (DV_H - 1 - dl) * 3600000).getHours() + 'h</text>';
+      }
+      return '<svg viewBox="0 0 ' + dvSvgW + ' ' + (DV_CHART + DV_LABEL) + '" width="100%" height="' + (DV_CHART + DV_LABEL) + '" preserveAspectRatio="none" style="display:block">' + dvGuides + dvBars + dvLabels + '</svg>' +
+        '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px;flex-wrap:wrap">' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6bffc8;display:inline-block;border-radius:2px"></span>\u226420% Normal</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ffc107;display:inline-block;border-radius:2px"></span>\u226450% Review</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff8c42;display:inline-block;border-radius:2px"></span>\u226475% Investigate</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff4d6d;display:inline-block;border-radius:2px"></span>&gt;75% Critical</span>' +
+        '</div>';
+    })();
+
+    // ── Top N hosts with most findings (security + baseline) ─────────
+    var _allFindings = ((this._data && this._data.findings) || []).concat((this._data && this._data.baseline_anomalies) || []);
+    var _hostFindCounts = {};
+    for (var _hfi = 0; _hfi < _allFindings.length; _hfi++) {
+      var _hfip = String(_allFindings[_hfi].source_ip || '').trim();
+      if (_hfip) _hostFindCounts[_hfip] = (_hostFindCounts[_hfip] || 0) + 1;
+    }
+    var _hostFindItems = Object.keys(_hostFindCounts)
+      .map(function(ip) { return { ip: ip, count: _hostFindCounts[ip] }; })
+      .sort(function(a, b) { return b.count - a.count; })
+      .slice(0, topN);
+    var _hostFindTotal = _hostFindItems.reduce(function(s, x) { return s + x.count; }, 0);
+    var _devicesMap = {};
+    ((this._data && this._data.devices) || []).forEach(function(d) { if (d.ip) _devicesMap[d.ip] = d; });
+    var _hfColors = ['#ff8c42','#ffc107','#ff4d6d','#8f86ff','#3ac5c9','#6bffc8','#f472b6','#fb923c','#a78bfa','#22d3ee'];
+    var hostFindingsSection;
+    if (!_hostFindTotal) {
+      hostFindingsSection = '<div class="empty-state"><p style="margin:12px 0">No findings recorded yet</p></div>';
+    } else if (modes.host_findings === 'pie') {
+      var _hfPieSvg = self._pieSvg(_hostFindItems, function(x) { return x.count; }, function(x) {
+        var d = _devicesMap[x.ip]; return ((d && (d.name || d.hostname)) || x.ip) + ': ' + x.count;
+      }, _hfColors);
+      var _hfLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
+        _hostFindItems.map(function(x, i) {
+          var col = _hfColors[i % _hfColors.length];
+          var d = _devicesMap[x.ip];
+          var label = (d && (d.name || d.hostname)) ? (d.name || d.hostname) + ' (' + x.ip + ')' : x.ip;
+          return '<div style="display:flex;align-items:center;gap:6px">' +
+            '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + col + '"></span>' +
+            '<span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(label) + '</span>' +
+            '<span style="color:var(--muted)">' + x.count + '\u00a0(' + Math.round((x.count / _hostFindTotal) * 100) + '%)</span>' +
+          '</div>';
+        }).join('') + '</div>';
+      hostFindingsSection = '<div class="stats-chart-row">' + _hfPieSvg + '<div class="stats-chart-legend">' + _hfLegend + '</div></div>';
+    } else {
+      hostFindingsSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>IP</th><th>Name / Hostname</th><th style="text-align:right">Deviations</th>' +
+        '</tr></thead><tbody>' +
+        _hostFindItems.map(function(x, i) {
+          var d = _devicesMap[x.ip];
+          var name = (d && (d.name || d.hostname)) || '';
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span class="ip">' + self._esc(x.ip) + '</span></td>' +
+            '<td>' + self._esc(name) + '</td>' +
+            '<td style="text-align:right">' + x.count + '</td></tr>';
+        }).join('') +
+        '</tbody></table>';
+    }
+
+    // ── Top N external IPs appearing in new-peer baseline deviations ──
+    var _blAnoms = (this._data && this._data.baseline_anomalies) || [];
+    var _extDevCounts = {};
+    for (var _edi = 0; _edi < _blAnoms.length; _edi++) {
+      var _editem = _blAnoms[_edi];
+      if (_editem.category === 'anomaly_new_peer' && _editem.details && _editem.details.peer) {
+        var _peer = String(_editem.details.peer).trim();
+        if (_peer) _extDevCounts[_peer] = (_extDevCounts[_peer] || 0) + 1;
+      }
+    }
+    var _extDevItems = Object.keys(_extDevCounts)
+      .map(function(ip) { return { ip: ip, count: _extDevCounts[ip] }; })
+      .sort(function(a, b) { return b.count - a.count; })
+      .slice(0, topN);
+    var _extDevTotal = _extDevItems.reduce(function(s, x) { return s + x.count; }, 0);
+    var _extIpEnrich = {};
+    ((this._data && this._data.external_ips) || []).forEach(function(e) { if (e.ip) _extIpEnrich[e.ip] = e; });
+    var _edColors = ['#ff4d6d','#ff8c42','#ffc107','#f472b6','#fb923c','#ff6b6b','#e879f9','#facc15','#fd8dac','#ffb347'];
+    var extIpDeviationSection;
+    if (!_extDevTotal) {
+      extIpDeviationSection = '<div class="empty-state"><p style="margin:12px 0">No new external peers in baseline deviations</p></div>';
+    } else if (modes.ext_deviations === 'pie') {
+      var _edPieSvg = self._pieSvg(_extDevItems, function(x) { return x.count; }, function(x) {
+        var enr = _extIpEnrich[x.ip];
+        return x.ip + (enr && enr.org ? ' \u2014 ' + enr.org : '') + (enr && enr.country ? ' [' + enr.country + ']' : '') + ': ' + x.count;
+      }, _edColors);
+      var _edLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
+        _extDevItems.map(function(x, i) {
+          var col = _edColors[i % _edColors.length];
+          var enr = _extIpEnrich[x.ip];
+          var label = x.ip + (enr && enr.org ? ' \u2014 ' + enr.org : '') + (enr && enr.country ? ' [' + enr.country + ']' : '');
+          return '<div style="display:flex;align-items:center;gap:6px">' +
+            '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + col + '"></span>' +
+            '<span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + self._esc(x.ip) + '">' + self._esc(label) + '</span>' +
+            '<span style="color:var(--muted)">' + x.count + '\u00a0(' + Math.round((x.count / _extDevTotal) * 100) + '%)</span>' +
+          '</div>';
+        }).join('') + '</div>';
+      extIpDeviationSection = '<div class="stats-chart-row">' + _edPieSvg + '<div class="stats-chart-legend">' + _edLegend + '</div></div>';
+    } else {
+      extIpDeviationSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>IP</th><th>Org / Hostname</th><th>Country</th><th style="text-align:right">Deviations</th>' +
+        '</tr></thead><tbody>' +
+        _extDevItems.map(function(x, i) {
+          var enr = _extIpEnrich[x.ip];
+          var org = (enr && (enr.org || enr.hostname)) || '';
+          var country = (enr && (enr.country_name || enr.country)) || '';
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span class="ip">' + self._esc(x.ip) + '</span></td>' +
+            '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(org) + '</td>' +
+            '<td>' + self._esc(country) + '</td>' +
+            '<td style="text-align:right">' + x.count + '</td></tr>';
+        }).join('') +
+        '</tbody></table>';
+    }
+
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
-      timelineHtml + '<div style="margin-top:16px">' + dnsChartHtml + '</div></div>' +
+      timelineHtml +
+      '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Baseline Deviance per hour (last 24\u202fh)</div>' + devianceChartHtml + '</div>' +
+      '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">DNS Queries per hour (last 24\u202fh)</div>' + dnsChartHtml + '</div></div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
@@ -1546,6 +2004,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           dnsClientSection +
         '</div>' +
       '</div>' +
+      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Hosts in Deviations' + toggleBtns('host_findings', modes.host_findings) + '</div>' +
+          hostFindingsSection +
+        '</div>' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' External IPs in Deviations' + toggleBtns('ext_deviations', modes.ext_deviations) + '</div>' +
+          extIpDeviationSection +
+        '</div>' +
+      '</div>' +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
         (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
@@ -1560,13 +2028,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewMap(container) {
-    var _mapCutoff = Date.now() - 10 * 60 * 1000;
-    var allDevices = ((this._data && this._data.devices) || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var allDevices = this._mapAllDevices();
     var connections = (this._data && this._data.connections) || [];
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    this._mapBaselineGraph = baselineGraph;
     var extIPs     = (this._data && this._data.external_ips) || [];
     var mcIPs      = (this._data && this._data.multicast_ips) || [];
     var flows      = (this._data && this._data.summary && this._data.summary.total_flows) || 0;
     var f = this._mapFilter;
+    var m = this._mapMode;
+    var hasBaselineGraph = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
+    if (m !== 'live' && !hasBaselineGraph) m = 'live';
+    this._mapMode = m;
     var filters = [
       { id: 'all',      label: 'All' },
       { id: 'scanned',  label: 'Scanned' },
@@ -1576,17 +2049,74 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var filterBtns = filters.map(function(b) {
       return '<button class="btn map-fbtn' + (f === b.id ? ' active' : '') + '" data-mapfilter="' + b.id + '">' + b.label + '</button>';
     }).join('');
+    var mapModes = [
+      { id: 'live', label: 'Live' },
+      { id: 'baseline', label: 'Baseline', disabled: !hasBaselineGraph },
+      { id: 'compare', label: 'Compare', disabled: !hasBaselineGraph },
+    ];
+    var modeBtns = mapModes.map(function(mm) {
+      var disabledAttr = mm.disabled ? ' disabled' : '';
+      return '<button class="btn map-mbtn' + (m === mm.id ? ' active' : '') + '" data-mapmode="' + mm.id + '"' + disabledAttr + '>' + mm.label + '</button>';
+    }).join('');
+    var modeLabel = m === 'baseline' ? 'Baseline Snapshot' : (m === 'compare' ? 'Live vs Baseline' : 'Live Network Map');
+    var baselineInfo = '';
+    if (hasBaselineGraph) {
+      var edgeCount = (baselineGraph.edges || []).length;
+      var hostCount = (baselineGraph.hosts || []).length;
+      baselineInfo = '<span class="chip" style="margin-left:6px">Baseline ' + hostCount + ' hosts \u00B7 ' + edgeCount + ' edges</span>';
+    }
+    // ── Compare summary chips ─────────────────────────────────────────
+    var compareSummaryHtml = '';
+    if (m === 'compare' && hasBaselineGraph) {
+      var _compEdges = this._composeMapEdges(connections, baselineGraph);
+      var _cntNew = 0, _cntMissing = 0, _cntBoth = 0;
+      var _topDelta = [], _topDeltaLabel = '';
+      for (var _ci = 0; _ci < _compEdges.length; _ci++) {
+        var _ce = _compEdges[_ci];
+        if (_ce.edge_mode === 'new')     _cntNew++;
+        else if (_ce.edge_mode === 'missing') _cntMissing++;
+        else if (_ce.edge_mode === 'both')    _cntBoth++;
+        if (_ce.edge_mode === 'both' && _ce.delta != null) _topDelta.push(_ce);
+      }
+      _topDelta.sort(function(a, b) { return Math.abs(b.delta) - Math.abs(a.delta); });
+      if (_topDelta.length) {
+        var _td = _topDelta[0];
+        var _sign = _td.delta > 0 ? '+' : '';
+        _topDeltaLabel = _td.source + ' \u2192 ' + _td.target + ' (' + _sign + Math.round(_td.delta * 100) / 100 + ' flows/snap)';
+      }
+      compareSummaryHtml =
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:11px">' +
+          '<span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em">Compare:</span>' +
+          '<span style="background:rgba(50,255,120,.12);border:1px solid rgba(50,255,120,.35);border-radius:100px;padding:2px 10px;color:#32ff78">' +
+            '\u2191 ' + _cntNew + ' new edge' + (_cntNew !== 1 ? 's' : '') +
+          '</span>' +
+          '<span style="background:rgba(255,90,50,.12);border:1px solid rgba(255,90,50,.35);border-radius:100px;padding:2px 10px;color:#ff5a32">' +
+            '\u2193 ' + _cntMissing + ' missing edge' + (_cntMissing !== 1 ? 's' : '') +
+          '</span>' +
+          '<span style="background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.2);border-radius:100px;padding:2px 10px;color:var(--accent)">' +
+            _cntBoth + ' unchanged' +
+          '</span>' +
+          (_topDeltaLabel ? '<span style="background:rgba(255,206,84,.08);border:1px solid rgba(255,206,84,.25);border-radius:100px;padding:2px 10px;color:#ffce54;font-size:10px">\u0394 strongest: ' + _topDeltaLabel + '</span>' : '') +
+        '</div>';
+    }
     container.innerHTML =
-      '<div><div class="view-header"><h1>Live Network Map</h1>' +
+      '<div><div class="view-header"><h1>' + modeLabel + baselineInfo + '</h1>' +
       '<div class="row-gap"><span id="map-stats" style="font-size:11px;color:var(--muted)">' +
       allDevices.length + ' internal \u00B7 ' + extIPs.length + ' external' + (mcIPs.length ? ' \u00B7 ' + mcIPs.length + ' multicast' : '') + ' \u00B7 ' + this._fmtN(flows) + ' flows</span>' +
       '<button class="btn" id="map-reset-btn">\u21BA Reset</button></div></div>' +
-      '<div class="map-filter-bar">' + filterBtns + '</div>' +
+      '<div class="map-filter-bar" style="display:flex;justify-content:space-between;align-items:center">' +
+        '<div style="display:flex;gap:4px">' + filterBtns + '</div>' +
+        '<div style="display:flex;gap:4px">' + modeBtns + '</div>' +
+      '</div>' +
+      compareSummaryHtml +
       '<div class="map-wrap"><canvas id="hsa-map-canvas"></canvas>' +
       '<div class="map-tooltip" id="hsa-map-tip" style="display:none"></div>' +
       '<div class="map-legend">' +
         '<div class="legend-item"><div class="ldot" style="background:#8f86ff"></div>Scanned</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#3ac5c9"></div>Flow only</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#88a7c7"></div>Baseline edge</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#ff5a32"></div>Missing</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#32ff78"></div>New</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#ff4d6d"></div>At risk</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#6bffc8"></div>Gateway</div>' +
         '<div class="legend-item"><div class="ldot" style="background:#5a6a80"></div>External</div>' +
@@ -1596,10 +2126,142 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     requestAnimationFrame(function() {
       var devices = self._applyMapFilter(allDevices);
       var showExt = (self._mapFilter === 'all' || self._mapFilter === 'external');
-      self._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : []);
+      self._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
       var btn = self.shadowRoot.getElementById('map-reset-btn');
-      if (btn) btn.addEventListener('click', function() { self._stopMap(); self._mapZoom = 1; self._mapPanX = 0; self._mapPanY = 0; var d = self._applyMapFilter(allDevices); self._initMap(d, connections, showExt ? extIPs : [], showExt ? mcIPs : []); });
+      if (btn) btn.addEventListener('click', function() { self._stopMap(); self._mapZoom = 1; self._mapPanX = 0; self._mapPanY = 0; var d = self._applyMapFilter(allDevices); self._initMap(d, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph); });
     });
+  }
+
+  _mapAllDevices() {
+    var _mapCutoff = Date.now() - 10 * 60 * 1000;
+    var allDevices = ((this._data && this._data.devices) || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    var baselineHosts = (baselineGraph && baselineGraph.hosts) || [];
+    var baselineByIp = {};
+    for (var bi = 0; bi < baselineHosts.length; bi++) {
+      var bh = baselineHosts[bi] || {};
+      if (bh.ip) baselineByIp[bh.ip] = bh;
+    }
+    for (var di = 0; di < allDevices.length; di++) {
+      var d = allDevices[di];
+      var b = baselineByIp[d.ip];
+      if (b) d.baseline_observation_count = b.observation_count || 0;
+    }
+    if (this._mapMode !== 'live' && baselineHosts.length) {
+      for (var bh = 0; bh < baselineHosts.length; bh++) {
+        var h = baselineHosts[bh] || {};
+        if (!h.ip) continue;
+        var exists = allDevices.some(function(d) { return d.ip === h.ip; });
+        if (!exists) {
+          allDevices.push({
+            ip: h.ip,
+            display_name: h.display_name || h.hostname || h.ip,
+            hostname: h.hostname || '',
+            probable_role: h.probable_role || 'unknown',
+            alive: false,
+            total_octets: 0,
+            baseline_only: true,
+            baseline_observation_count: h.observation_count || 0,
+          });
+        }
+      }
+    }
+    return allDevices;
+  }
+
+  _mapEdgeKey(source, target) {
+    return source + '|' + target;
+  }
+
+  _buildLiveEdgeIndex(connections) {
+    var idx = {};
+    for (var i = 0; i < connections.length; i++) {
+      var c = connections[i] || {};
+      var source = c.source;
+      var target = c.target;
+      if (!source || !target) continue;
+      var key = this._mapEdgeKey(source, target);
+      var entry = idx[key];
+      if (!entry) {
+        entry = idx[key] = {
+          source: source,
+          target: target,
+          source_kind: c.source_kind || '',
+          target_kind: c.target_kind || '',
+          live_octets: 0,
+          live_flows: 0,
+        };
+      }
+      entry.live_octets += (c.octets || 0);
+      entry.live_flows += (c.flows || 0);
+    }
+    return idx;
+  }
+
+  _buildBaselineEdgeIndex(baselineGraph) {
+    var idx = {};
+    var edges = (baselineGraph && baselineGraph.edges) || [];
+    for (var i = 0; i < edges.length; i++) {
+      var e = edges[i] || {};
+      var source = e.source;
+      var target = e.target;
+      if (!source || !target) continue;
+      var key = this._mapEdgeKey(source, target);
+      idx[key] = {
+        source: source,
+        target: target,
+        source_kind: e.source_kind || '',
+        target_kind: e.target_kind || '',
+        active_probability: e.active_probability || 0,
+        avg_octets: e.avg_octets_per_snapshot || 0,
+        avg_flows: e.avg_flows_per_snapshot || 0,
+      };
+    }
+    return idx;
+  }
+
+  _composeMapEdges(connections, baselineGraph) {
+    var live = this._buildLiveEdgeIndex(connections || []);
+    var base = this._buildBaselineEdgeIndex(baselineGraph);
+    var keys = {};
+    Object.keys(live).forEach(function(k) { keys[k] = true; });
+    Object.keys(base).forEach(function(k) { keys[k] = true; });
+    var list = [];
+    for (var key in keys) {
+      var le = live[key];
+      var be = base[key];
+      if (this._mapMode === 'live' && !le) continue;
+      if (this._mapMode === 'baseline' && !be) continue;
+      var source = (le && le.source) || (be && be.source);
+      var target = (le && le.target) || (be && be.target);
+      var sourceKind = (le && le.source_kind) || (be && be.source_kind) || '';
+      var targetKind = (le && le.target_kind) || (be && be.target_kind) || '';
+      var liveOctets = le ? le.live_octets : 0;
+      var baselineOctets = be ? be.avg_octets : 0;
+      var weight = this._mapMode === 'baseline' ? Math.max(1, baselineOctets) : Math.max(1, liveOctets || baselineOctets);
+      var edgeMode = 'live';
+      if (this._mapMode === 'baseline') edgeMode = 'baseline';
+      else if (this._mapMode === 'compare') edgeMode = (le && be) ? 'both' : (le ? 'new' : 'missing');
+      var liveFlows = le ? le.live_flows : 0;
+      var baselineFlows = be ? be.avg_flows : 0;
+      var deltaFlows = (le && be) ? (liveFlows - baselineFlows) : 0;
+      var deltaRatio = 0;
+      if (be && be.avg_octets > 0) deltaRatio = (liveOctets - be.avg_octets) / be.avg_octets;
+      list.push({
+        source: source,
+        target: target,
+        source_kind: sourceKind,
+        target_kind: targetKind,
+        weight: weight,
+        edge_mode: edgeMode,
+        live_octets: liveOctets,
+        baseline_octets: baselineOctets,
+        baseline_probability: be ? be.active_probability : 0,
+        delta_ratio: deltaRatio,
+        delta: deltaFlows,
+      });
+    }
+    return list;
   }
 
   _applyMapFilter(devices) {
@@ -1608,15 +2270,32 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (f === 'flow')    return devices.filter(function(d) { return (d.total_octets || 0) > 0; });
     if (f === 'external') {
       var connections = (this._data && this._data.connections) || [];
+      var baselineGraph = (this._data && this._data.baseline_graph) || {};
       var extPeers = {};
       for (var i = 0; i < connections.length; i++) {
         var c = connections[i];
         if (c.target_kind === 'external') extPeers[c.source] = true;
         if (c.source_kind === 'external') extPeers[c.target] = true;
       }
+      if (this._mapMode !== 'live') {
+        var bedges = baselineGraph.edges || [];
+        for (var j = 0; j < bedges.length; j++) {
+          var be = bedges[j];
+          if (be.target_kind === 'external') extPeers[be.source] = true;
+        }
+      }
       return devices.filter(function(d) { return extPeers[d.ip]; });
     }
     return devices;
+  }
+
+  _setMapMode(mode) {
+    if (mode === this._mapMode) return;
+    var baselineGraph = (this._data && this._data.baseline_graph) || null;
+    var hasBaseline = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
+    if (mode !== 'live' && !hasBaseline) return;
+    this._mapMode = mode;
+    if (this._view === 'map') this._render();
   }
 
   _setMapFilter(f) {
@@ -1627,18 +2306,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     btns.forEach(function(b) { b.classList.toggle('active', b.dataset.mapfilter === f); });
     // Rebuild map with new filter
     if (!this._data) return;
-    var _mapCutoff = Date.now() - 10 * 60 * 1000;
-    var allDevices = (this._data.devices || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var allDevices = this._mapAllDevices();
     var devices = this._applyMapFilter(allDevices);
     var connections = this._data.connections || [];
     var extIPs = this._data.external_ips || [];
     this._stopMap();
     var showExt = (f === 'all' || f === 'external');
     var mcIPs = this._data.multicast_ips || [];
-    this._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : []);
+    var baselineGraph = this._data.baseline_graph || null;
+    this._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
   }
 
-  _initMap(devices, connections, extIPs, mcIPs) {
+  _initMap(devices, connections, extIPs, mcIPs, baselineGraph) {
+    var self = this;
     mcIPs = mcIPs || [];
     var canvas = this.shadowRoot.getElementById('hsa-map-canvas');
     if (!canvas) return;
@@ -1663,10 +2343,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       this._mapNodes.set(d.ip, node);
     }
     var extCount = {};
-    if (extIPs.length > 0) {
+    var baselineEdges = (baselineGraph && baselineGraph.edges) || [];
+    if (this._mapMode !== 'baseline') {
       for (var c = 0; c < connections.length; c++) {
         var conn = connections[c];
         if (conn.target_kind === 'external') extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
+      }
+    }
+    if (this._mapMode !== 'live') {
+      for (var bc = 0; bc < baselineEdges.length; bc++) {
+        var bce = baselineEdges[bc];
+        if (bce.target_kind === 'external') extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
       }
     }
     var topExt = Object.keys(extCount).sort(function(a, b) { return extCount[b] - extCount[a]; }).slice(0, 25);
@@ -1696,9 +2383,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     // Add multicast nodes in a dedicated outer ring
     var mcCount = {};
-    for (var mc = 0; mc < connections.length; mc++) {
-      var mconn = connections[mc];
-      if (mconn.target_kind === 'multicast') mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+    if (this._mapMode !== 'baseline') {
+      for (var mc = 0; mc < connections.length; mc++) {
+        var mconn = connections[mc];
+        if (mconn.target_kind === 'multicast') mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+      }
+    }
+    if (this._mapMode !== 'live') {
+      for (var bmc = 0; bmc < baselineEdges.length; bmc++) {
+        var bmce = baselineEdges[bmc];
+        if (bmce.target_kind === 'multicast') mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
+      }
     }
     var topMc = Object.keys(mcCount).sort(function(a, b) { return mcCount[b] - mcCount[a]; }).slice(0, 15);
     for (var mi = 0; mi < topMc.length; mi++) {
@@ -1715,16 +2410,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         internal_sources: minfo.internal_sources || [],
       });
     }
-    var self = this;
-    this._mapEdges = connections.filter(function(c) {
-      return self._mapNodes.has(c.source) && self._mapNodes.has(c.target);
-    }).slice(0, 400).map(function(c) {
-      return { source: c.source, target: c.target, weight: c.octets || 1 };
-    });
+    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c) {
+      return this._mapNodes.has(c.source) && this._mapNodes.has(c.target);
+    }.bind(this)).slice(0, 500);
     this._mapTick = 0;
-    this._mapZoom = 1;
-    this._mapPanX = 0;
-    this._mapPanY = 0;
+    // Zoom and pan are intentionally NOT reset here so that switching map mode
+    // or filter preserves the current view.  The Reset button resets explicitly.
     this._spawnParticles();
     this._startMap(canvas);
     canvas.addEventListener('mousemove', function(e) { self._mapHover(e, canvas); });
@@ -1854,11 +2545,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _startMap(canvas) {
     this._stopMap();
     var self = this;
+    var isBaseline = this._mapMode === 'baseline';
     var loop = function() {
       try {
-        self._mapStep(canvas.width, canvas.height);
-        self._mapTick++;
-        self._tickParticles();
+        if (!isBaseline) {
+          self._mapStep(canvas.width, canvas.height);
+          self._mapTick++;
+          self._tickParticles();
+        }
         self._drawMap(canvas);
       } catch (e) {
         console.error('[HomeSec] map loop error:', e);
@@ -1874,8 +2568,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _spawnParticles() {
     this._mapParticles = [];
+    if (this._mapMode === 'baseline') return;
     for (var i = 0; i < this._mapEdges.length; i++) {
       var e = this._mapEdges[i];
+      if (e.edge_mode === 'missing') continue;
       var count = Math.min(3, Math.max(1, Math.ceil(Math.log10(e.weight + 1))));
       for (var p = 0; p < count; p++) {
         this._mapParticles.push({
@@ -1898,10 +2594,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _liveUpdateMap() {
     if (!this._data) return;
-    var _mapCutoff = Date.now() - 10 * 60 * 1000;
-    var allDevices = (this._data.devices || []).filter(function(d) { return d.alive || (d.last_seen && new Date(d.last_seen).getTime() > _mapCutoff); });
+    var allDevices = this._mapAllDevices();
     var devices    = this._applyMapFilter(allDevices);
     var connections = this._data.connections || [];
+    var baselineGraph = this._data.baseline_graph || null;
     var extIPs     = this._data.external_ips || [];
     var mcIPs      = this._data.multicast_ips || [];
     var showExt    = (this._mapFilter === 'all' || this._mapFilter === 'external');
@@ -1936,10 +2632,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // Update / add external nodes from connections
     var extCount = {};
-    if (showExt) {
+    if (showExt && this._mapMode !== 'baseline') {
       for (var c = 0; c < connections.length; c++) {
         var conn = connections[c];
         if (conn.target_kind === 'external') extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
+      }
+    }
+    if (showExt && this._mapMode !== 'live') {
+      var baselineEdges = (baselineGraph && baselineGraph.edges) || [];
+      for (var bc = 0; bc < baselineEdges.length; bc++) {
+        var bce = baselineEdges[bc];
+        if (bce.target_kind === 'external') extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
       }
     }
     var topExt = Object.keys(extCount).sort(function(a, b) { return extCount[b] - extCount[a]; }).slice(0, 25);
@@ -1987,10 +2690,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // Update / add multicast nodes from connections
     var mcCount = {};
-    if (showExt) {
+    if (showExt && this._mapMode !== 'baseline') {
       for (var mc = 0; mc < connections.length; mc++) {
         var mconn = connections[mc];
         if (mconn.target_kind === 'multicast') mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+      }
+    }
+    if (showExt && this._mapMode !== 'live') {
+      var bmcEdges = (baselineGraph && baselineGraph.edges) || [];
+      for (var bmc = 0; bmc < bmcEdges.length; bmc++) {
+        var bmce = bmcEdges[bmc];
+        if (bmce.target_kind === 'multicast') mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
       }
     }
     var topMc = Object.keys(mcCount).sort(function(a, b) { return mcCount[b] - mcCount[a]; }).slice(0, 15);
@@ -2016,13 +2726,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }
     }
 
-    // Rebuild edges from latest connections
-    var self = this;
-    this._mapEdges = connections.filter(function(c) {
-      return self._mapNodes.has(c.source) && self._mapNodes.has(c.target);
-    }).slice(0, 400).map(function(c) {
-      return { source: c.source, target: c.target, weight: c.octets || 1 };
-    });
+    // Rebuild edges from latest data (live / baseline / compare)
+    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c) {
+      return this._mapNodes.has(c.source) && this._mapNodes.has(c.target);
+    }.bind(this)).slice(0, 500);
 
     // Respawn particles for new edges
     this._spawnParticles();
@@ -2104,9 +2811,32 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var cpy = my - dx * curveOff / Math.max(Math.sqrt(dx*dx+dy*dy), 1);
       ctx.beginPath(); ctx.moveTo(s.x, s.y);
       ctx.quadraticCurveTo(cpx, cpy, t.x, t.y);
-      ctx.strokeStyle = 'rgba(98,232,255,' + a + ')';
-      ctx.lineWidth = Math.min(1.8, 0.3 + Math.log10(e.weight + 1) * 0.18);
+      ctx.setLineDash([]);
+      if (this._mapMode === 'baseline') {
+        ctx.strokeStyle = 'rgba(136,167,199,' + Math.min(0.55, a + 0.22) + ')';
+        ctx.lineWidth = Math.min(1.8, 0.6 + Math.log10(e.weight + 1) * 0.18);
+        ctx.setLineDash([6, 4]);
+      } else if (this._mapMode === 'compare') {
+        if (e.edge_mode === 'missing') {
+          // vivid orange-red, thick dashed — clearly "gone"
+          ctx.strokeStyle = 'rgba(255,90,50,' + Math.min(0.82, a + 0.55) + ')';
+          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e.weight + 1) * 0.25);
+          ctx.setLineDash([8, 5]);
+        } else if (e.edge_mode === 'new') {
+          // vivid green, solid — clearly "appeared"
+          ctx.strokeStyle = 'rgba(50,255,120,' + Math.min(0.88, a + 0.58) + ')';
+          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e.weight + 1) * 0.25);
+        } else {
+          // unchanged — cyan, semi-transparent
+          ctx.strokeStyle = 'rgba(98,232,255,' + Math.min(0.45, a + 0.12) + ')';
+          ctx.lineWidth = Math.min(1.6, 0.4 + Math.log10(e.weight + 1) * 0.16);
+        }
+      } else {
+        ctx.strokeStyle = 'rgba(98,232,255,' + a + ')';
+        ctx.lineWidth = Math.min(1.8, 0.3 + Math.log10(e.weight + 1) * 0.18);
+      }
       ctx.stroke();
+      ctx.setLineDash([]);
     }
     // Draw particles flowing along edges
     for (var pi = 0; pi < this._mapParticles.length; pi++) {
@@ -2164,25 +2894,33 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           ctx.fillText(flag, n.x, n.y - nodeR - 3);
         }
       }
-      // Label: show for internal nodes, multicast, and at-risk externals only
-      if (n.type === 'multicast' || n.type !== 'external' || n.at_risk) {
-        ctx.font = '8px IBM Plex Mono, monospace'; ctx.textAlign = 'center';
-        if (n.type === 'internal') {
-          // Line 1: IP address
-          ctx.fillStyle = 'rgba(180,210,240,.6)';
-          ctx.fillText((n.ip || '').substring(0, 18), n.x, n.y + nodeR + 9);
-          // Line 2: tracker name (display_name or hostname), if available
-          var trackerName = (n.display_name || n.hostname || '').substring(0, 18);
-          if (trackerName) {
-            ctx.fillStyle = n.at_risk ? '#ff9aae' : 'rgba(140,200,255,.85)';
-            ctx.font = 'bold 8px IBM Plex Mono, monospace';
-            ctx.fillText(trackerName, n.x, n.y + nodeR + 19);
-          }
-        } else {
-          var label = ((n.type === 'multicast' ? (n.label || n.ip) : (n.display_name || n.hostname || n.ip || '')) + '').substring(0, 16);
-          ctx.fillStyle = n.at_risk ? '#ff9aae' : (n.type === 'multicast' ? '#d4a843' : 'rgba(180,210,240,.6)');
-          ctx.fillText(label, n.x, n.y + nodeR + 9);
+      // Label: always draw for all node types
+      ctx.font = '8px IBM Plex Mono, monospace'; ctx.textAlign = 'center';
+      if (n.type === 'internal') {
+        // Line 1: IP address
+        ctx.fillStyle = 'rgba(180,210,240,.6)';
+        ctx.fillText((n.ip || '').substring(0, 18), n.x, n.y + nodeR + 9);
+        // Line 2: tracker name (display_name or hostname), only if different from the IP
+        var trackerName = (n.display_name || n.hostname || '').substring(0, 18);
+        if (trackerName && trackerName !== (n.ip || '').substring(0, 18)) {
+          ctx.fillStyle = n.at_risk ? '#ff9aae' : 'rgba(140,200,255,.85)';
+          ctx.font = 'bold 8px IBM Plex Mono, monospace';
+          ctx.fillText(trackerName, n.x, n.y + nodeR + 19);
         }
+      } else if (n.type === 'external') {
+        // Line 1: IP address
+        ctx.fillStyle = n.at_risk ? '#ff9aae' : 'rgba(180,210,240,.55)';
+        ctx.fillText((n.ip || '').substring(0, 16), n.x, n.y + nodeR + 9);
+        // Line 2: org or hostname if available
+        var extMeta = (n.org || n.hostname || '').substring(0, 16);
+        if (extMeta) {
+          ctx.fillStyle = n.at_risk ? 'rgba(255,154,174,.7)' : 'rgba(140,170,210,.45)';
+          ctx.fillText(extMeta, n.x, n.y + nodeR + 18);
+        }
+      } else {
+        var label = (n.label || n.ip || '').substring(0, 16);
+        ctx.fillStyle = n.at_risk ? '#ff9aae' : (n.type === 'multicast' ? '#d4a843' : 'rgba(180,210,240,.6)');
+        ctx.fillText(label, n.x, n.y + nodeR + 9);
       }
     }
     ctx.restore();
@@ -2210,6 +2948,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var lbl  = n.display_name || n.hostname || ip;
         var role = n.probable_role ? '<br><span style="color:#8a9dbf">' + n.probable_role + '</span>' : '';
         var risk = n.at_risk  ? '<br><span style="color:#ff4d6d">\u26A0 At risk</span>' : '';
+        var baselineStats = (this._data && this._data.baseline) || {};
+        var baselineSnapshots = ((baselineStats.training_stats || {}).snapshots_seen || 0);
         var flagEmoji = n.country ? this._countryFlag(n.country) : '';
         var ctryLabel = n.country_name || n.country || '';
         var ctry = ctryLabel  ? '<br><span style="color:#8a9dbf">' + (flagEmoji ? flagEmoji + ' ' : '') + this._esc(ctryLabel) + (n.city ? ', ' + this._esc(n.city) : '') + '</span>' : '';
@@ -2226,6 +2966,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var intelParts = [vtLine, abLine].filter(Boolean).join(' \u00B7 ');
           if (intelParts) extra += '<br><span style="color:#8a9dbf;font-size:9px">' + intelParts + '</span>';
           extra += '<br><span style="color:var(--accent);font-size:9px;opacity:.6">Click for full lookup</span>';
+        } else {
+          if (this._mapMode !== 'live') {
+            var obs = n.baseline_observation_count || 0;
+            var presence = baselineSnapshots > 0 ? Math.min(1, obs / baselineSnapshots) : 0;
+            var presencePct = Math.round(presence * 100);
+            var liveLoad = Math.min(1, Math.log10((n.total_octets || 0) + 1) / 8);
+            var livePct = Math.round(liveLoad * 100);
+            extra += '<br><span style="color:#8a9dbf;font-size:9px">Baseline presence: ' + presencePct + '%</span>';
+            extra += '<div style="margin-top:2px;height:4px;background:rgba(136,167,199,.18);border-radius:3px;overflow:hidden"><div style="height:4px;width:' + presencePct + '%;background:#88a7c7"></div></div>';
+            extra += '<br><span style="color:#8a9dbf;font-size:9px">Live load index: ' + livePct + '%</span>';
+            extra += '<div style="margin-top:2px;height:4px;background:rgba(0,224,255,.15);border-radius:3px;overflow:hidden"><div style="height:4px;width:' + livePct + '%;background:#00e0ff"></div></div>';
+          }
         }
         tip.innerHTML = '<strong style="color:#62e8ff">' + this._esc(lbl) + '</strong><br><span class="ip">' + ip + '</span>' + role + ctry + extra + risk;
         var tipX = n.x * this._mapZoom + this._mapPanX + 14;
@@ -2422,22 +3174,55 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewFindings() {
-    var findings = (this._data && this._data.findings) || [];
-    var dismissed = (this._data && this._data.dismissed_findings) || [];
-    var grouped = this._findingsGrouped;
+    // Categories that belong exclusively to Baseline Anomalies
+    var BASELINE_ONLY_CATS = {
+      anomaly_new_host: true, anomaly_new_peer: true,
+      anomaly_new_port: true, anomaly_new_dns_domain: true,
+      anomaly_new_dns_category: true
+    };
+    var findings = ((this._data && this._data.findings) || []).filter(function(f) {
+      return !BASELINE_ONLY_CATS[f.category];
+    });
+    var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
+    var allDismissed = (this._data && this._data.dismissed_findings) || [];
+    // Tag every dismissed item so we know its origin; combine into one list
+    var allDismissedList = allDismissed.map(function(f) {
+      return Object.assign({}, f, { _isBaseline: !!BASELINE_ONLY_CATS[f.category] });
+    });
+    var findingsGroupMode  = this._findingsGroupMode  || 'category';
+    var dismissedGroupMode = this._dismissedGroupMode || 'category';
+    var baselineGroupMode = this._baselineGroupMode; // 'category' | 'host' | 'flat'
     var self = this;
 
-    var headerButtons =
-      '<div style="display:flex;gap:6px;flex-shrink:0">' +
-        '<button class="btn' + (grouped ? ' active' : '') + '" data-findings-group-toggle title="Toggle grouped/flat view">Grouped</button>' +
-        '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
+    var SEV_ORDER = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
+    var _sevRank = function(s) { var r = SEV_ORDER[s]; return r != null ? r : 99; };
+
+    // ── search helpers ───────────────────────────────────────────────
+    var findingsQ  = (self._findingsSearch  || '').toLowerCase().trim();
+    var baselineQ  = (self._baselineSearch  || '').toLowerCase().trim();
+    var dismissedQ = (self._dismissedSearch || '').toLowerCase().trim();
+    var _match = function(f, q) {
+      if (!q) return true;
+      return (f.summary   || '').toLowerCase().includes(q) ||
+             (f.source_ip || '').toLowerCase().includes(q) ||
+             (f.category  || '').toLowerCase().includes(q) ||
+             ((f.details && f.details.cve_id) || '').toLowerCase().includes(q);
+    };
+    var filteredFindings  = findingsQ  ? findings.filter(function(f) { return _match(f, findingsQ);  }) : findings;
+    var filteredBaseline  = baselineQ  ? baselineAnomalies.filter(function(f) { return _match(f, baselineQ);  }) : baselineAnomalies;
+    var filteredDismissed = dismissedQ ? allDismissedList.filter(function(f) { return _match(f, dismissedQ); }) : allDismissedList;
+
+    // ── Top toolbar (always at page top) ────────────────────────────
+    var topBar =
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
+        '<div class="page-header" style="margin:0"><h1 class="page-title">Findings</h1></div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
+          '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
+        '</div>' +
       '</div>';
 
-    // Severity ordering used in both grouped and flat renderers
-    var SEV_ORDER = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
-
-    // ── individual card (used in flat mode and for dismissed section) ──
-    var renderCard = function(f, isDismissed) {
+    // ── individual card (flat mode / dismissed) ──────────────────────
+    var renderCard = function(f, isDismissed, isBaseline) {
       var det = f.details || {};
       var cve = det.cve_id ? '<span class="chip">' + det.cve_id + '</span>' : '';
       var portChip = det.port ? '<span class="chip">port ' + det.port + '</span>' : '';
@@ -2446,18 +3231,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var noteHtml = (isDismissed && f.dismiss_note)
         ? '<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>Note:</strong> ' + self._esc(f.dismiss_note) + '</div>'
         : '';
+      var baselineBadge = isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">Baseline</span>' : '';
       return '<div class="finding-card sev-' + f.severity + '"' + (isDismissed ? ' style="opacity:.55"' : '') + '>' +
         '<div class="finding-header">' + self._sev(f.severity) + cve + portChip +
-        '<span class="finding-title">' + self._esc(f.summary) + '</span>' +
-        (isDismissed
-          ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore finding">Restore</button>'
-          : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss finding">Dismiss</button>') +
+          '<span class="finding-title">' + self._esc(f.summary) + baselineBadge + '</span>' +
+          (isDismissed
+            ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore finding">Restore</button>'
+            : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss finding">Dismiss</button>') +
         '</div>' +
         '<div class="finding-meta">' +
           '<span>Source: <span class="ip">' + f.source_ip + '</span></span>' +
           (det.port ? '<span>Port: <strong>' + det.port + '</strong></span>' : '') +
-          '<span>Category: ' + f.category + '</span>' +
-          '<span>' + f.count + '\u00D7 seen</span>' +
+          '<span>Category: ' + self._esc(FINDING_CAT_LABELS[f.category] || f.category || '') + '</span>' +
+          (f.count ? '<span>' + f.count + '\u00D7 seen</span>' : '') +
           '<span>' + self._ago(f.last_seen) + '</span>' +
         '</div>' +
         (detRows ? '<div class="finding-detail"><dl>' + detRows + '</dl></div>' : '') +
@@ -2466,94 +3252,398 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>';
     };
 
-    // ── grouped renderer ──
-    var renderGrouped = function(findingsList) {
+    // ── grouped by summary (security findings + dismissed) ──────────
+    var renderGrouped = function(findingsList, isDismissed) {
       if (!findingsList.length) return '';
       var groupMap = {};
       findingsList.forEach(function(f) {
         var gkey = f.summary || f.category || 'Unknown';
         if (!groupMap[gkey]) {
-          groupMap[gkey] = { summary: gkey, findings: [], severity: f.severity, category: f.category };
-        } else if ((SEV_ORDER[f.severity] || 99) < (SEV_ORDER[groupMap[gkey].severity] || 99)) {
+          groupMap[gkey] = { summary: gkey, findings: [], severity: f.severity, category: f.category, isBaseline: !!f._isBaseline };
+        } else if (_sevRank(f.severity) < _sevRank(groupMap[gkey].severity)) {
           groupMap[gkey].severity = f.severity;
         }
         groupMap[gkey].findings.push(f);
       });
-      var groups = Object.values(groupMap).sort(function(a, b) {
-        return (SEV_ORDER[a.severity] || 99) - (SEV_ORDER[b.severity] || 99);
-      });
-
-      return groups.map(function(g) {
-        var isExpanded = self._expandedFindingGroup === g.summary;
-        var totalCount = g.findings.reduce(function(s, f) { return s + (f.count || 1); }, 0);
-        var latestSeen = g.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
-        var det0 = (g.findings[0] && g.findings[0].details) || {};
-        var cve = det0.cve_id ? '<span class="chip">' + det0.cve_id + '</span>' : '';
-        var portChip = det0.port ? '<span class="chip">port ' + det0.port + '</span>' : '';
-        var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
-          g.findings.length + (g.findings.length === 1 ? ' host' : ' hosts') + '</span>';
-        var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
-        var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">' +
-          'Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
-
-        var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
-          '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge +
-            '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
-            dismissAllBtn + chevron +
-          '</div>' +
-          '<div class="finding-meta">' +
-            '<span>Category: ' + self._esc(g.category || '—') + '</span>' +
-            '<span>' + totalCount + '\u00D7 total</span>' +
-            '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
-          '</div>' +
-        '</div>';
-
-        var rows = '';
-        if (isExpanded) {
-          rows = '<div class="finding-group-rows">' +
-            g.findings.map(function(f) {
-              var det = f.details || {};
-              var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
-                .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
-              return '<div class="finding-row">' +
-                '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
-                (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
-                '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
-                (det.remediation ? '<span style="font-size:10px;color:var(--success);flex:1">Fix: ' + self._esc(det.remediation) + '</span>' : '<span style="flex:1"></span>') +
-                (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
-                '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">Dismiss</button>' +
-              '</div>';
-            }).join('') +
+      return Object.values(groupMap)
+        .sort(function(a, b) {
+          return _sevRank(a.severity) - _sevRank(b.severity);
+        })
+        .map(function(g) {
+          var isExpanded = self._expandedFindingGroup === g.summary;
+          var totalCount = g.findings.reduce(function(s, f) { return s + (f.count || 1); }, 0);
+          var latestSeen = g.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+          var det0 = (g.findings[0] && g.findings[0].details) || {};
+          var cve = det0.cve_id ? '<span class="chip">' + det0.cve_id + '</span>' : '';
+          var portChip = det0.port ? '<span class="chip">port ' + det0.port + '</span>' : '';
+          var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+            g.findings.length + (g.findings.length === 1 ? ' host' : ' hosts') + '</span>';
+          var blBadge = g.isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">Baseline</span>' : '';
+          var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+          var groupActionBtn = isDismissed
+            ? '<button class="btn" data-undismiss-group="' + self._esc(g.summary) + '">Restore' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>'
+            : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
+          var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
+            '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge + blBadge +
+              '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
+              groupActionBtn + chevron +
+            '</div>' +
+            '<div class="finding-meta">' +
+              '<span>Category: ' + self._esc(g.category || '\u2014') + '</span>' +
+              '<span>' + totalCount + '\u00D7 total</span>' +
+              '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
+            '</div>' +
           '</div>';
-        }
-        return '<div class="finding-group-wrap">' + header + rows + '</div>';
+          var rows = '';
+          if (isExpanded) {
+            rows = '<div class="finding-group-rows">' +
+              g.findings.map(function(f) {
+                var det = f.details || {};
+                var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
+                  .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+                var rowActionBtn = isDismissed
+                  ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore this finding">Restore</button>'
+                  : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">Dismiss</button>';
+                return '<div class="finding-row">' +
+                  '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
+                  (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
+                  '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
+                  (det.remediation ? '<span style="font-size:10px;color:var(--success);flex:1">Fix: ' + self._esc(det.remediation) + '</span>' : '<span style="flex:1"></span>') +
+                  (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
+                  rowActionBtn +
+                '</div>';
+              }).join('') +
+            '</div>';
+          }
+          return '<div class="finding-group-wrap">' + header + rows + '</div>';
+        })
+        .join('');
+    };
+
+    // ── baseline group renderers ─────────────────────────────────────
+    // Shared expand-row builder for host/category groups
+    var _baselineExpandRows = function(list) {
+      return list.map(function(f) {
+        var det = f.details || {};
+        return '<div class="finding-row">' +
+          self._sev(f.severity) +
+          '<span style="flex:1;font-size:12px">' + self._esc(f.summary) + '</span>' +
+          (det.port ? '<span class="chip" style="font-size:9px">:' + det.port + '</span>' : '') +
+          '<span class="dim" style="font-size:10px;flex-shrink:0">' + self._ago(f.last_seen) + '</span>' +
+          '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss">Dismiss</button>' +
+        '</div>';
       }).join('');
     };
 
-    var cards;
-    if (grouped) {
-      cards = renderGrouped(findings);
-    } else {
-      cards = findings.map(function(f) { return renderCard(f, false); }).join('');
+    var renderBaselineByCategory = function(list) {
+      if (!list.length) return '';
+      var BL_CAT_LABELS = {
+        anomaly_new_host: 'New Host Detected',
+        anomaly_new_peer: 'New External Peer',
+        anomaly_new_port: 'New Open Port',
+        anomaly_new_dns_domain: 'New DNS Domain',
+        anomaly_new_dns_category: 'New DNS Category',
+        anomaly_missing_host: 'Known Host Missing',
+        anomaly_missing_peer: 'Known Peer Missing',
+      };
+      var catMap = {};
+      list.forEach(function(f) {
+        var cat = f.category || 'unknown';
+        if (!catMap[cat]) catMap[cat] = { category: cat, findings: [], maxSev: 'info' };
+        if (_sevRank(f.severity) < _sevRank(catMap[cat].maxSev)) catMap[cat].maxSev = f.severity;
+        catMap[cat].findings.push(f);
+      });
+      return Object.values(catMap)
+        .sort(function(a, b) {
+          var sd = _sevRank(a.maxSev) - _sevRank(b.maxSev);
+          return sd !== 0 ? sd : a.category.localeCompare(b.category);
+        })
+        .map(function(c) {
+          var gkey = 'bcat:' + c.category;
+          var isExpanded = self._expandedBaselineGroup === gkey;
+          var latestSeen = c.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+          var uniqueHosts = {};
+          c.findings.forEach(function(f) { uniqueHosts[f.source_ip] = true; });
+          var hostCount = Object.keys(uniqueHosts).length;
+          var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+            c.findings.length + ' findings \u00B7 ' + hostCount + ' host' + (hostCount !== 1 ? 's' : '') + '</span>';
+          var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all ' + c.findings.length + '</button>';
+          var header = '<div class="finding-card sev-' + c.maxSev + ' finding-group-card" data-expand-baseline-group="' + self._esc(gkey) + '">' +
+            '<div class="finding-header">' + self._sev(c.maxSev) + countBadge +
+              '<span class="finding-title">' + self._esc(BL_CAT_LABELS[c.category] || c.category) + '</span>' +
+              dismissAllBtn + chevron +
+            '</div>' +
+            '<div class="finding-meta"><span>Latest: ' + self._ago(latestSeen) + '</span></div>' +
+          '</div>';
+          var sortedByCategory = c.findings.slice().sort(function(a, b) {
+            return _sevRank(a.severity) - _sevRank(b.severity);
+          });
+          var rows = isExpanded
+            ? '<div class="finding-group-rows">' + _baselineExpandRows(sortedByCategory) + '</div>'
+            : '';
+          return '<div class="finding-group-wrap">' + header + rows + '</div>';
+        }).join('');
+    };
+
+    var renderBaselineByHost = function(list) {
+      if (!list.length) return '';
+      var hostMap = {};
+      list.forEach(function(f) {
+        var ip = f.source_ip || 'unknown';
+        if (!hostMap[ip]) hostMap[ip] = { ip: ip, findings: [], maxSev: 'info' };
+        if (_sevRank(f.severity) < _sevRank(hostMap[ip].maxSev)) hostMap[ip].maxSev = f.severity;
+        hostMap[ip].findings.push(f);
+      });
+      return Object.values(hostMap)
+        .sort(function(a, b) {
+          var sd = _sevRank(a.maxSev) - _sevRank(b.maxSev);
+          if (sd !== 0) return sd;
+          return a.ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.')
+            .localeCompare(b.ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.'));
+        })
+        .map(function(h) {
+          var gkey = 'bhost:' + h.ip;
+          var isExpanded = self._expandedBaselineGroup === gkey;
+          var latestSeen = h.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+          var catCounts = {};
+          h.findings.forEach(function(f) { catCounts[f.category] = (catCounts[f.category] || 0) + 1; });
+          var catChips = Object.keys(catCounts).slice(0, 5).map(function(c) {
+            return '<span class="chip" style="font-size:9px">' + self._esc(c) + ' (' + catCounts[c] + ')</span>';
+          }).join(' ');
+          var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+            h.findings.length + ' finding' + (h.findings.length !== 1 ? 's' : '') + '</span>';
+          var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all ' + h.findings.length + '</button>';
+          var header = '<div class="finding-card sev-' + h.maxSev + ' finding-group-card" data-expand-baseline-group="' + self._esc(gkey) + '">' +
+            '<div class="finding-header">' + self._sev(h.maxSev) + countBadge +
+              '<span class="finding-title" style="font-family:monospace">' + self._esc(h.ip) + '</span>' +
+              dismissAllBtn + chevron +
+            '</div>' +
+            '<div class="finding-meta">' + catChips + '<span style="flex-shrink:0">Latest: ' + self._ago(latestSeen) + '</span></div>' +
+          '</div>';
+          var rows = isExpanded
+            ? '<div class="finding-group-rows">' + _baselineExpandRows(h.findings) + '</div>'
+            : '';
+          return '<div class="finding-group-wrap">' + header + rows + '</div>';
+        }).join('');
+    };
+
+    // ── findings group renderers (by category / host / severity) ────
+    var _mkFindingGroup = function(gkey, label, sev, itemList, isDismissed) {
+      var isExpanded = self._expandedFindingGroup === gkey;
+      var totalCount = itemList.reduce(function(s, f) { return s + (f.count || 1); }, 0);
+      var latestSeen = itemList.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
+      var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
+        itemList.length + (itemList.length === 1 ? ' finding' : ' findings') + '</span>';
+      var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
+      var actionBtn = isDismissed
+        ? '<button class="btn" data-undismiss-group="' + self._esc(gkey) + '">Restore all\u00A0' + itemList.length + '</button>'
+        : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all\u00A0' + itemList.length + '</button>';
+      var header = '<div class="finding-card sev-' + sev + ' finding-group-card" data-expand-group="' + self._esc(gkey) + '">' +
+        '<div class="finding-header">' + self._sev(sev) + countBadge +
+          '<span class="finding-title">' + label + '</span>' +
+          actionBtn + chevron +
+        '</div>' +
+        '<div class="finding-meta">' +
+          '<span>' + totalCount + '\u00D7 total</span>' +
+          '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
+        '</div>' +
+      '</div>';
+      var rows = '';
+      if (isExpanded) {
+        rows = '<div class="finding-group-rows">' +
+          itemList.slice().sort(function(a, b) { return _sevRank(a.severity) - _sevRank(b.severity); })
+            .map(function(f) {
+              var det = f.details || {};
+              var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
+                .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+              var blBadge = f._isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">Baseline</span>' : '';
+              var rowActionBtn = isDismissed
+                ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Restore</button>'
+                : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Dismiss</button>';
+              return '<div class="finding-row">' +
+                self._sev(f.severity) +
+                '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
+                blBadge +
+                (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
+                '<span style="flex:1;font-size:11px">' + self._esc(f.summary || f.category || '') + '</span>' +
+                '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
+                (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
+                rowActionBtn +
+              '</div>';
+            }).join('') +
+        '</div>';
+      }
+      return '<div class="finding-group-wrap">' + header + rows + '</div>';
+    };
+
+    var FINDING_CAT_LABELS = {
+      vulnerability:   'Vulnerability / CVE',
+      port_scan:       'Port Scan',
+      suspicious_port: 'Suspicious Open Port',
+      high_egress:     'High Egress Traffic',
+    };
+
+    var renderFindingsByCategory = function(list, isDismissed) {
+      if (!list.length) return '';
+      var catMap = {};
+      list.forEach(function(f) {
+        var k = f.category || 'unknown';
+        if (!catMap[k]) catMap[k] = { sev: f.severity, items: [] };
+        else if (_sevRank(f.severity) < _sevRank(catMap[k].sev)) catMap[k].sev = f.severity;
+        catMap[k].items.push(f);
+      });
+      return Object.values(catMap)
+        .sort(function(a, b) { return _sevRank(a.sev) - _sevRank(b.sev); })
+        .map(function(g) {
+          var cat = g.items[0].category || 'unknown';
+          var label = self._esc(FINDING_CAT_LABELS[cat] || cat);
+          return _mkFindingGroup('fcat:' + cat, label, g.sev, g.items, isDismissed);
+        }).join('');
+    };
+
+    var renderFindingsByHost = function(list, isDismissed) {
+      if (!list.length) return '';
+      var hostMap = {};
+      list.forEach(function(f) {
+        var ip = f.source_ip || 'unknown';
+        if (!hostMap[ip]) hostMap[ip] = { sev: f.severity, items: [] };
+        else if (_sevRank(f.severity) < _sevRank(hostMap[ip].sev)) hostMap[ip].sev = f.severity;
+        hostMap[ip].items.push(f);
+      });
+      return Object.values(hostMap)
+        .sort(function(a, b) {
+          var sd = _sevRank(a.sev) - _sevRank(b.sev);
+          if (sd !== 0) return sd;
+          return a.items[0].source_ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.')
+            .localeCompare(b.items[0].source_ip.split('.').map(function(n) { return ('000' + n).slice(-3); }).join('.'));
+        })
+        .map(function(g) {
+          var ip = g.items[0].source_ip || 'unknown';
+          var label = '<span style="font-family:monospace">' + self._esc(ip) + '</span>';
+          return _mkFindingGroup('fhost:' + ip, label, g.sev, g.items, isDismissed);
+        }).join('');
+    };
+
+    var SEV_LABELS = { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low', info: 'Info' };
+    var renderFindingsBySeverity = function(list, isDismissed) {
+      if (!list.length) return '';
+      var sevMap = {};
+      list.forEach(function(f) {
+        var s = f.severity || 'info';
+        if (!sevMap[s]) sevMap[s] = [];
+        sevMap[s].push(f);
+      });
+      return ['critical', 'high', 'medium', 'low', 'info'].filter(function(s) { return sevMap[s]; })
+        .map(function(s) {
+          return _mkFindingGroup('fsev:' + s, SEV_LABELS[s] || s, s, sevMap[s], isDismissed);
+        }).join('');
+    };
+
+    var _renderFindingCards = function(list, isDismissed, mode) {
+      if (!list.length) return '';
+      if (mode === 'host')     return renderFindingsByHost(list, isDismissed);
+      if (mode === 'severity') return renderFindingsBySeverity(list, isDismissed);
+      if (mode === 'flat')     return list.map(function(f) { return renderCard(f, isDismissed, !!f._isBaseline); }).join('');
+      return renderFindingsByCategory(list, isDismissed); // 'category' (default)
+    };
+
+    // ── Baseline section ─────────────────────────────────────────────
+    var baselineSection = '';
+    if (baselineAnomalies.length) {
+      var blModeBtn = function(mode, label) {
+        var active = baselineGroupMode === mode;
+        return '<button class="btn' + (active ? ' active' : '') + '" data-baseline-group-mode="' + mode + '">' + label + '</button>';
+      };
+      var blSearchInput = '<input type="search" data-baseline-search placeholder="Search + Enter" value="' + self._esc(self._baselineSearch || '') + '" ' +
+        'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">';
+      var blToolbar =
+        '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
+          blModeBtn('category', 'By Category') +
+          blModeBtn('host',     'By Host') +
+          blModeBtn('flat',     'Flat') +
+          '<span style="flex:1"></span>' + blSearchInput +
+        '</div>';
+
+      var blCards;
+      if (baselineGroupMode === 'host')         blCards = renderBaselineByHost(filteredBaseline);
+      else if (baselineGroupMode === 'flat')    blCards = filteredBaseline.map(function(f) { return renderCard(f, false, true); }).join('');
+      else                                      blCards = renderBaselineByCategory(filteredBaseline);
+
+      var blContent = (baselineQ && !filteredBaseline.length)
+        ? '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(baselineQ) + '&rdquo;.</p></div>'
+        : blCards;
+
+      baselineSection =
+        '<div style="margin-bottom:28px">' +
+          '<div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length +
+            (baselineQ && filteredBaseline.length !== baselineAnomalies.length ? ', ' + filteredBaseline.length + ' shown' : '') +
+          ')</span></h1></div>' +
+          blToolbar + blContent +
+        '</div>';
     }
 
-    var activeSection = findings.length
-      ? '<div><div class="view-header" style="align-items:flex-start;flex-wrap:wrap;gap:10px">' +
-          '<h1>Security Findings <span class="dim">(' + findings.length + ' actionable' + (dismissed.length ? ', ' + dismissed.length + ' dismissed' : '') + ')</span></h1>' +
-          headerButtons +
-        '</div>' + cards + '</div>'
-      : '<div><div class="view-header" style="align-items:flex-start;flex-wrap:wrap;gap:10px">' +
-          '<h1>Security Findings' + (dismissed.length ? ' <span class="dim">(' + dismissed.length + ' dismissed)</span>' : '') + '</h1>' +
-          headerButtons +
-        '</div>' +
-        '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div></div>';
+    // ── Security findings section ────────────────────────────────────
+    var cards = _renderFindingCards(filteredFindings, false, findingsGroupMode);
 
-    var dismissedSection = dismissed.length
-      ? '<div style="margin-top:28px"><div class="view-header"><h1>Dismissed <span class="dim">(' + dismissed.length + ')</span></h1></div>' +
-          dismissed.map(function(f) { return renderCard(f, true); }).join('') + '</div>'
+    var findingsHeader = findings.length
+      ? 'Security Findings <span class="dim">(' + findings.length + ' actionable' +
+          (findingsQ && filteredFindings.length !== findings.length ? ', ' + filteredFindings.length + ' shown' : '') +
+          (allDismissedList.length ? ', ' + allDismissedList.length + ' dismissed' : '') + ')</span>'
+      : 'Security Findings' + (allDismissedList.length ? ' <span class="dim">(' + allDismissedList.length + ' dismissed)</span>' : '');
+    var _fModeBtn = function(mode, label) {
+      return '<button class="btn' + (findingsGroupMode === mode ? ' active' : '') + '" data-findings-group-mode="' + mode + '" style="font-size:10px;padding:3px 8px">' + label + '</button>';
+    };
+    var findingsToggle =
+      '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
+        _fModeBtn('category', 'By Category') +
+        _fModeBtn('host',     'By Host') +
+        _fModeBtn('severity', 'By Severity') +
+        _fModeBtn('flat',     'Flat') +
+        '<span style="flex:1"></span>' +
+        '<input type="search" data-findings-search placeholder="Search + Enter" value="' + self._esc(self._findingsSearch || '') + '" ' +
+          'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
+      '</div>';
+
+    var activeSection = '<div>' +
+        '<div class="view-header"><h1>' + findingsHeader + '</h1></div>' +
+        findingsToggle +
+        (findings.length
+          ? (filteredFindings.length
+              ? cards
+              : '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(findingsQ) + '&rdquo;.</p></div>')
+          : '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div>') +
+      '</div>';
+
+    // ── Dismissed section (security + baseline combined) ─────────────
+    var dismissedCards = _renderFindingCards(filteredDismissed, true, dismissedGroupMode);
+    var _dModeBtn = function(mode, label) {
+      return '<button class="btn' + (dismissedGroupMode === mode ? ' active' : '') + '" data-dismissed-group-mode="' + mode + '" style="font-size:10px;padding:3px 8px">' + label + '</button>';
+    };
+    var dismissedToggle =
+      '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
+        _dModeBtn('category', 'By Category') +
+        _dModeBtn('host',     'By Host') +
+        _dModeBtn('severity', 'By Severity') +
+        _dModeBtn('flat',     'Flat') +
+        '<span style="flex:1"></span>' +
+        '<input type="search" data-dismissed-search placeholder="Search + Enter" value="' + self._esc(self._dismissedSearch || '') + '" ' +
+          'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
+      '</div>';
+    var dismissedSection = allDismissedList.length
+      ? '<div style="margin-top:28px;opacity:.7">' +
+          '<div class="view-header"><h1>Dismissed <span class="dim">(' + allDismissedList.length +
+            (dismissedQ && filteredDismissed.length !== allDismissedList.length ? ', ' + filteredDismissed.length + ' shown' : '') +
+          ')</span></h1></div>' +
+          dismissedToggle +
+          (filteredDismissed.length
+            ? dismissedCards
+            : '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(dismissedQ) + '&rdquo;.</p></div>') +
+        '</div>'
       : '';
 
-    return activeSection + dismissedSection;
+    return topBar + baselineSection + activeSection + dismissedSection;
   }
 
   _extThead() {
@@ -3272,6 +4362,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (n.at_risk || n.blacklisted) return '#ff4d6d';
     if (n.type === 'multicast')             return '#d4a843';
     if (n.type === 'external')              return '#5a6a80';
+    if (n.baseline_only) return '#88a7c7';
     if (n.probable_role === 'dns_or_gateway') return '#6bffc8';
     if (n.probable_role === 'camera')       return '#ffb347';
     if (!n.alive && (n.total_octets || 0) > 0) return '#3ac5c9';
@@ -3318,8 +4409,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 }
 
-// ─── CSS ─────────────────────────────────────────────────────────────────────
-var _CSS = ':host{--bg:#070b12;--card:rgba(14,23,40,.92);--border:rgba(98,232,255,.14);--text:#eef7ff;--muted:#8a9dbf;--accent:#62e8ff;--success:#6bffc8;--danger:#ff4d6d;--warn:#ffb347;--violet:#9e96ff;--glow:0 0 28px rgba(98,232,255,.08);display:block;height:100vh;overflow:hidden;font-family:"IBM Plex Sans","Segoe UI",sans-serif;color:var(--text);background:var(--bg)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:210px;min-width:210px;background:rgba(6,11,24,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}.brand{padding:18px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}.brand-shield{font-size:26px;filter:drop-shadow(0 0 8px rgba(98,232,255,.5))}.brand-text{display:flex;flex-direction:column}.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.06em}.brand-tagline{font-size:9px;color:var(--muted);opacity:.7;margin-top:4px;line-height:1.3}.nav-list{list-style:none;padding:6px 0;flex:1}.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border-left:3px solid transparent;transition:all .12s ease;user-select:none}.nav-item:hover{background:rgba(98,232,255,.05);color:var(--text)}.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(98,232,255,.07)}.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.65}.nav-item.active svg{opacity:1}.nav-label{flex:1}.nav-badge{background:var(--danger);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}.sidebar-status{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}.sidebar-status.online .status-dot{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}.content{flex:1;overflow-y:auto;padding:22px 24px;position:relative;background:var(--bg)}.content::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;background-image:linear-gradient(rgba(98,232,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(98,232,255,.07) 1px,transparent 1px);background-size:40px 40px}.content>*{position:relative;z-index:1}.page-header{margin-bottom:20px}.page-title{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin-bottom:3px}.page-subtitle{font-size:12px;color:var(--muted);letter-spacing:.02em}.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--glow)}.stat-card.danger{border-color:rgba(255,77,109,.3)}.stat-card.warn{border-color:rgba(255,179,71,.28)}.stat-card.success{border-color:rgba(107,255,200,.2)}.stat-value{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--glow);margin-bottom:14px}.table-card{padding:0;overflow:hidden}.card-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.health-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(98,232,255,.05);font-size:12px}.health-row:last-child{border-bottom:none}.health-label{color:var(--muted)}.health-value{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}.health-value.good{color:var(--success)}.health-value.warn{color:var(--warn)}.health-value.bad{color:var(--danger)}.alert-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(98,232,255,.05)}.alert-row:last-child{border-bottom:none}.alert-body{flex:1;min-width:0}.alert-sum{font-size:12px;font-weight:600}.alert-meta{font-size:10px;color:var(--muted);margin-top:2px}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.view-header h1{font-size:18px;font-weight:700}.dim{color:var(--muted);font-weight:400;font-size:13px}.row-gap{display:flex;gap:8px;align-items:center}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}.data-table td{padding:7px 10px;border-bottom:1px solid rgba(98,232,255,.04);vertical-align:middle}.data-table tr.expandable{cursor:pointer}.data-table tr.expandable:hover td{background:rgba(98,232,255,.03)}.mono{font-family:"IBM Plex Mono",monospace}.ip{font-family:"IBM Plex Mono",monospace;font-size:11px}.host-detail-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 16px;background:rgba(0,0,0,.25)}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600}.detail-row{background:rgba(0,0,0,.2)}.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.badge-critical{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-high{background:rgba(255,140,66,.18);color:#ff8c42;border:1px solid rgba(255,140,66,.35)}.badge-medium{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-low{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-clean{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-suspicious{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-malicious{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-ok{background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)}.badge-warn{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.chip{display:inline-block;background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.15);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--accent);margin:1px}.ip-chip{display:inline-block;background:rgba(107,255,200,.08);border:1px solid rgba(107,255,200,.2);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--success);margin:1px 2px 1px 0}.finding-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}.finding-card.sev-critical{border-left-color:var(--danger)}.finding-card.sev-high{border-left-color:#ff8c42}.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}.finding-title{flex:1;font-size:12px;font-weight:600}.finding-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);flex-wrap:wrap}.finding-body{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.finding-detail{margin-top:8px;background:rgba(0,0,0,.2);border-radius:5px;padding:8px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:#b0c8e0}.finding-detail dt{color:var(--muted);font-weight:600}.finding-detail dd{margin-left:4px;color:var(--text);margin-right:12px}.fix-hint{font-size:11px;color:var(--success);margin-top:5px}.finding-group-wrap{margin-bottom:10px}.finding-group-card{cursor:pointer;border-radius:0 10px 10px 0;margin-bottom:0;transition:border-color .12s}.finding-group-card:hover{border-color:rgba(98,232,255,.3)}.finding-group-chevron{font-size:10px;color:var(--muted);transition:transform .15s;display:inline-block;flex-shrink:0}.finding-group-rows{background:rgba(0,0,0,.18);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:4px 0}.finding-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(98,232,255,.05);font-size:11px}.finding-row:last-child{border-bottom:none}.map-wrap{position:relative;height:calc(100vh - 120px);background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}#hsa-map-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}#hsa-map-canvas:active{cursor:grabbing}.map-tooltip{position:absolute;background:rgba(6,11,24,.96);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:10px;pointer-events:none;z-index:10;min-width:130px;box-shadow:0 4px 18px rgba(0,0,0,.5)}.map-legend{position:absolute;bottom:10px;left:10px;background:rgba(6,11,24,.82);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:10px;display:flex;gap:12px}.legend-item{display:flex;align-items:center;gap:4px;color:var(--muted)}.ldot{width:9px;height:9px;border-radius:50%}.map-filter-bar{display:flex;gap:6px;margin-bottom:10px}.map-fbtn{padding:4px 12px}.map-fbtn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.tldr-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.tldr-bar strong{color:var(--accent)}.ip-detail-panel{background:rgba(6,11,24,.98);border:1px solid rgba(98,232,255,.3);border-radius:10px;padding:14px;font-size:12px}.ip-detail-panel h3{color:var(--accent);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.detail-pair{display:flex;flex-direction:column;gap:2px}.detail-key{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}.detail-val{font-size:12px;color:var(--text);word-break:break-all}.ext-report-link{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;border:1px solid rgba(98,232,255,.25);background:rgba(98,232,255,.08);color:var(--accent);text-decoration:none;font-size:11px;font-weight:600}.ext-report-link:hover{background:rgba(98,232,255,.16);border-color:rgba(98,232,255,.45)}.rec-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}.rec-card-clickable{cursor:pointer;transition:border-color .12s}.rec-card-clickable:hover{border-color:rgba(98,232,255,.35);background:rgba(14,23,40,.98)}.rec-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}.rec-title{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}.rec-detail{font-size:11px;color:var(--muted);line-height:1.55}.rec-expand-panel{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.rec-expand-section{margin-bottom:10px}.rec-expand-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:6px}.rec-expand-rows{display:flex;flex-direction:column;gap:5px}.rec-expand-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(98,232,255,.04)}.rec-expand-row:last-child{border-bottom:none}.btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(98,232,255,.05);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}.btn:hover{background:rgba(98,232,255,.12);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:default}.search-bar{padding:5px 11px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:210px}.search-bar:focus{outline:none;border-color:var(--accent)}.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;color:var(--muted)}.state-icon{font-size:32px}.loader{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--muted);text-align:center}.empty-icon{font-size:28px}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--success)}50%{opacity:.6;box-shadow:0 0 2px var(--success)}}@keyframes spin{to{transform:rotate(360deg)}}.role-select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit}.role-select:focus{outline:none;border-color:var(--accent)}.role-select:hover{border-color:var(--accent);background:rgba(98,232,255,.08)}.sortable-th{cursor:pointer;user-select:none;white-space:nowrap}.sortable-th:hover{color:var(--accent)}.sort-arrow{font-size:8px;margin-left:3px;color:var(--accent)}@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--border);align-items:center;gap:0}.brand{display:none}.brand-tagline{display:none}.nav-list{display:flex;flex-direction:row;padding:0;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch}.nav-item{flex-direction:column;gap:2px;padding:8px 12px;font-size:10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;min-width:0}.nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent)}.nav-item svg{width:14px;height:14px}.nav-label{font-size:9px}.sidebar-status{display:none}.content{padding:12px 10px;height:calc(100vh - 52px)}.content::before{display:none}.page-title{font-size:18px}.stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{padding:10px}.stat-value{font-size:20px}.stat-label{font-size:9px}.two-col{grid-template-columns:1fr}.host-detail-wrap{grid-template-columns:1fr}.table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.data-table{min-width:680px}.search-bar{width:100%}.view-header{flex-direction:column;align-items:flex-start;gap:8px}.view-header h1{font-size:16px}.map-wrap{height:calc(100vh - 160px)}.map-legend{flex-wrap:wrap;gap:6px;font-size:9px}.map-filter-bar{flex-wrap:wrap}.finding-meta{flex-direction:column;gap:4px}.detail-grid{grid-template-columns:1fr}.ip-detail-panel{font-size:11px}.rec-card{flex-direction:column;gap:6px}.tldr-bar{flex-direction:column;gap:6px}.card{padding:12px;border-radius:10px}.finding-card{padding:10px}.btn{font-size:10px;padding:4px 8px}}@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.data-table{min-width:560px;font-size:11px}.content{padding:8px 6px}}';
+var _CSS = ':host{--bg:#070b12;--card:rgba(14,23,40,.92);--border:rgba(98,232,255,.14);--text:#eef7ff;--muted:#8a9dbf;--accent:#62e8ff;--success:#6bffc8;--danger:#ff4d6d;--warn:#ffb347;--violet:#9e96ff;--glow:0 0 28px rgba(98,232,255,.08);display:block;height:100vh;overflow:hidden;font-family:"IBM Plex Sans","Segoe UI",sans-serif;color:var(--text);background:var(--bg)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:210px;min-width:210px;background:rgba(6,11,24,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}.brand{padding:18px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}.brand-shield{font-size:26px;filter:drop-shadow(0 0 8px rgba(98,232,255,.5))}.brand-text{display:flex;flex-direction:column}.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.06em}.brand-tagline{font-size:9px;color:var(--muted);opacity:.7;margin-top:4px;line-height:1.3}.nav-list{list-style:none;padding:6px 0;flex:1}.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border-left:3px solid transparent;transition:all .12s ease;user-select:none}.nav-item:hover{background:rgba(98,232,255,.05);color:var(--text)}.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(98,232,255,.07)}.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.65}.nav-item.active svg{opacity:1}.nav-label{flex:1}.nav-badge{background:var(--danger);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}.sidebar-status{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}.sidebar-status.online .status-dot{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}.content{flex:1;overflow-y:auto;padding:22px 24px;position:relative;background:var(--bg)}.content::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;background-image:linear-gradient(rgba(98,232,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(98,232,255,.07) 1px,transparent 1px);background-size:40px 40px}.content>*{position:relative;z-index:1}.page-header{margin-bottom:20px}.page-title{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin-bottom:3px}.page-subtitle{font-size:12px;color:var(--muted);letter-spacing:.02em}.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--glow)}.stat-card.danger{border-color:rgba(255,77,109,.3)}.stat-card.warn{border-color:rgba(255,179,71,.28)}.stat-card.success{border-color:rgba(107,255,200,.2)}.stat-value{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--glow);margin-bottom:14px}.table-card{padding:0;overflow:hidden}.card-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.health-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(98,232,255,.05);font-size:12px}.health-row:last-child{border-bottom:none}.health-label{color:var(--muted)}.health-value{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}.health-value.good{color:var(--success)}.health-value.warn{color:var(--warn)}.health-value.bad{color:var(--danger)}.alert-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(98,232,255,.05)}.alert-row:last-child{border-bottom:none}.alert-body{flex:1;min-width:0}.alert-sum{font-size:12px;font-weight:600}.alert-meta{font-size:10px;color:var(--muted);margin-top:2px}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.view-header h1{font-size:18px;font-weight:700}.dim{color:var(--muted);font-weight:400;font-size:13px}.row-gap{display:flex;gap:8px;align-items:center}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}.data-table td{padding:7px 10px;border-bottom:1px solid rgba(98,232,255,.04);vertical-align:middle}.data-table tr.expandable{cursor:pointer}.data-table tr.expandable:hover td{background:rgba(98,232,255,.03)}.mono{font-family:"IBM Plex Mono",monospace}.ip{font-family:"IBM Plex Mono",monospace;font-size:11px}.host-detail-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 16px;background:rgba(0,0,0,.25)}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600}.detail-row{background:rgba(0,0,0,.2)}.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.badge-critical{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-high{background:rgba(255,140,66,.18);color:#ff8c42;border:1px solid rgba(255,140,66,.35)}.badge-medium{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-low{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-clean{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-suspicious{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-malicious{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-ok{background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)}.badge-warn{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.chip{display:inline-block;background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.15);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--accent);margin:1px}.ip-chip{display:inline-block;background:rgba(107,255,200,.08);border:1px solid rgba(107,255,200,.2);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--success);margin:1px 2px 1px 0}.finding-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}.finding-card.sev-critical{border-left-color:var(--danger)}.finding-card.sev-high{border-left-color:#ff8c42}.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}.finding-title{flex:1;font-size:12px;font-weight:600}.finding-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);flex-wrap:wrap}.finding-body{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.finding-detail{margin-top:8px;background:rgba(0,0,0,.2);border-radius:5px;padding:8px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:#b0c8e0}.finding-detail dt{color:var(--muted);font-weight:600}.finding-detail dd{margin-left:4px;color:var(--text);margin-right:12px}.fix-hint{font-size:11px;color:var(--success);margin-top:5px}.finding-group-wrap{margin-bottom:10px}.finding-group-card{cursor:pointer;border-radius:0 10px 10px 0;margin-bottom:0;transition:border-color .12s}.finding-group-card:hover{border-color:rgba(98,232,255,.3)}.finding-group-chevron{font-size:10px;color:var(--muted);transition:transform .15s;display:inline-block;flex-shrink:0}.finding-group-rows{background:rgba(0,0,0,.18);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:4px 0}.finding-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(98,232,255,.05);font-size:11px}.finding-row:last-child{border-bottom:none}.map-wrap{position:relative;height:calc(100vh - 120px);background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}#hsa-map-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}#hsa-map-canvas:active{cursor:grabbing}.map-tooltip{position:absolute;background:rgba(6,11,24,.96);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:10px;pointer-events:none;z-index:10;min-width:130px;box-shadow:0 4px 18px rgba(0,0,0,.5)}.map-legend{position:absolute;bottom:10px;left:10px;background:rgba(6,11,24,.82);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:10px;display:flex;gap:12px}.legend-item{display:flex;align-items:center;gap:4px;color:var(--muted)}.ldot{width:9px;height:9px;border-radius:50%}.map-mbtn{padding:4px 12px}.map-mbtn.active{background:rgba(136,167,199,.2);border-color:#88a7c7;color:#fff}.map-filter-bar{display:flex;gap:6px;margin-bottom:10px}.map-fbtn{padding:4px 12px}.map-fbtn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.tldr-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.tldr-bar strong{color:var(--accent)}.ip-detail-panel{background:rgba(6,11,24,.98);border:1px solid rgba(98,232,255,.3);border-radius:10px;padding:14px;font-size:12px}.ip-detail-panel h3{color:var(--accent);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.detail-pair{display:flex;flex-direction:column;gap:2px}.detail-key{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}.detail-val{font-size:12px;color:var(--text);word-break:break-all}.ext-report-link{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;border:1px solid rgba(98,232,255,.25);background:rgba(98,232,255,.08);color:var(--accent);text-decoration:none;font-size:11px;font-weight:600}.ext-report-link:hover{background:rgba(98,232,255,.16);border-color:rgba(98,232,255,.45)}.rec-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}.rec-card-clickable{cursor:pointer;transition:border-color .12s}.rec-card-clickable:hover{border-color:rgba(98,232,255,.35);background:rgba(14,23,40,.98)}.rec-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}.rec-title{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}.rec-detail{font-size:11px;color:var(--muted);line-height:1.55}.rec-expand-panel{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.rec-expand-section{margin-bottom:10px}.rec-expand-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:6px}.rec-expand-rows{display:flex;flex-direction:column;gap:5px}.rec-expand-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(98,232,255,.04)}.rec-expand-row:last-child{border-bottom:none}.btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(98,232,255,.05);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}.btn:hover{background:rgba(98,232,255,.12);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:default}.btn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.search-bar{padding:5px 11px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:210px}.search-bar:focus{outline:none;border-color:var(--accent)}.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;color:var(--muted)}.state-icon{font-size:32px}.loader{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--muted);text-align:center}.empty-icon{font-size:28px}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--success)}50%{opacity:.6;box-shadow:0 0 2px var(--success)}}@keyframes spin{to{transform:rotate(360deg)}}.role-select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit}.role-select:focus{outline:none;border-color:var(--accent)}.role-select:hover{border-color:var(--accent);background:rgba(98,232,255,.08)}.sortable-th{cursor:pointer;user-select:none;white-space:nowrap}.sortable-th:hover{color:var(--accent)}.sort-arrow{font-size:8px;margin-left:3px;color:var(--accent)}@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--border);align-items:center;gap:0}.brand{display:none}.brand-tagline{display:none}.nav-list{display:flex;flex-direction:row;padding:0;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch}.nav-item{flex-direction:column;gap:2px;padding:8px 12px;font-size:10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;min-width:0}.nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent)}.nav-item svg{width:14px;height:14px}.nav-label{font-size:9px}.sidebar-status{display:none}.content{padding:12px 10px;height:calc(100vh - 52px)}.content::before{display:none}.page-title{font-size:18px}.stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{padding:10px}.stat-value{font-size:20px}.stat-label{font-size:9px}.two-col{grid-template-columns:1fr}.host-detail-wrap{grid-template-columns:1fr}.table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.data-table{min-width:680px}.search-bar{width:100%}.view-header{flex-direction:column;align-items:flex-start;gap:8px}.view-header h1{font-size:16px}.map-wrap{height:calc(100vh - 160px)}.map-legend{flex-wrap:wrap;gap:6px;font-size:9px}.map-filter-bar{flex-wrap:wrap}.finding-meta{flex-direction:column;gap:4px}.detail-grid{grid-template-columns:1fr}.ip-detail-panel{font-size:11px}.rec-card{flex-direction:column;gap:6px}.tldr-bar{flex-direction:column;gap:6px}.card{padding:12px;border-radius:10px}.finding-card{padding:10px}.btn{font-size:10px;padding:4px 8px}}@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.data-table{min-width:560px;font-size:11px}.content{padding:8px 6px}}';
 
 _CSS += '.mobile-topbar{display:none}.mobile-backdrop{display:none}.stats-two-col>.card{min-width:0;width:100%;overflow:hidden}.stats-panel-card .data-table{min-width:0}.stats-chart-row{display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding-top:10px;width:100%;min-width:0}.stats-chart-legend{flex:1;min-width:0}.stats-chart-legend>div{max-width:100%}@media(max-width:768px){.mobile-topbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);background:rgba(6,11,24,.98);position:sticky;top:0;z-index:35}.mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:rgba(98,232,255,.1);color:var(--text);font-size:18px;cursor:pointer}.mobile-topbar-title{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.sidebar{position:fixed;top:0;left:0;bottom:0;width:min(82vw,300px);min-width:0;max-width:300px;transform:translateX(-102%);transition:transform .2s ease;z-index:45;border-right:1px solid var(--border);border-bottom:none;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}.app.mobile-menu-open .sidebar{transform:translateX(0)}.mobile-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}.app.mobile-menu-open .mobile-backdrop{display:block}.sidebar .brand{display:flex}.sidebar .brand-tagline{display:block}.sidebar .nav-list{display:block;overflow:visible;padding:6px 0}.sidebar .nav-item{display:flex;flex-direction:row;gap:9px;padding:9px 14px;font-size:12px;border-bottom:none;border-left:3px solid transparent;white-space:normal}.sidebar .nav-item.active{border-bottom-color:transparent;border-left-color:var(--accent)}.sidebar .nav-label{font-size:12px}.sidebar .sidebar-status{display:flex}.content{height:auto;min-height:0;flex:1}.stats-chart-row{gap:12px}.stats-chart-row svg{max-width:100%}.stats-chart-legend{width:100%;max-height:none}.stats-two-col>.card{margin-bottom:0}.stats-panel-card .data-table{min-width:0}}';  
 

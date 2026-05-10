@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Home Security Assistant",
+        "title": "Security Assistant",
         "description": "Configurez l'écouteur NetFlow, les réseaux internes, le scanner actif et l'enrichissement optionnel de renseignements sur les menaces.",
         "data": {
           "bind_host": "Hôte d'écoute",
@@ -47,7 +47,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Home Security Assistant — Options",
+        "title": "Security Assistant — Options",
         "description": "Mettez à jour l'écouteur, les seuils de détection, le scanner actif et les paramètres d'enrichissement.",
         "data": {
           "bind_host": "Hôte d'écoute",

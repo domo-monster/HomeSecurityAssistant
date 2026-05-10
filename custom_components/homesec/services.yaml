@@ -20,3 +20,26 @@ nvd_refresh:
     National Vulnerability Database on the next scan snapshot. Useful after
     adding an API key or when you need up-to-date CVE coverage immediately,
     without waiting for the configured cache TTL to expire.
+
+start_baseline_training:
+  name: Start baseline training
+  description: >
+    Start baseline training mode and learn a normal activity profile for the
+    configured training duration.
+
+stop_baseline_training:
+  name: Stop baseline training
+  description: >
+    Stop baseline training mode immediately and promote the learned state to the
+    active baseline if any hosts were observed.
+
+clear_baseline:
+  name: Clear baseline
+  description: >
+    Remove the current baseline state and training progress from persistent
+    storage.
+
+retrain_baseline:
+  name: Retrain baseline
+  description: >
+    Clear the current baseline state and immediately restart training mode.

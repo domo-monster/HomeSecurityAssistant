@@ -400,6 +400,7 @@ def save_ext_ips(hass_config_dir: str, data: list[dict[str, Any]]) -> None:
 # ── External enrichment usage state ──────────────────────────────────────────
 
 ENRICHMENT_STATE_FILENAME = "homesec_enrichment_state.yaml"
+BASELINE_FILENAME = "homesec_baseline.yaml"
 
 
 def _enrichment_state_path(hass_config_dir: str) -> Path:
@@ -433,6 +434,49 @@ def save_enrichment_state(hass_config_dir: str, state: dict[str, Any]) -> None:
         _LOGGER.debug("Saved enrichment usage state to %s", path)
     except Exception:
         _LOGGER.warning("Failed to write %s", path, exc_info=True)
+
+
+def _baseline_path(hass_config_dir: str) -> Path:
+    return Path(hass_config_dir) / BASELINE_FILENAME
+
+
+def load_baseline(hass_config_dir: str) -> dict[str, Any]:
+    """Load persisted baseline state from YAML."""
+    path = _baseline_path(hass_config_dir)
+    if not path.is_file():
+        return {}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+        if isinstance(data, dict):
+            return data
+        return {}
+    except Exception:
+        _LOGGER.warning("Failed to read %s", path, exc_info=True)
+        return {}
+
+
+def save_baseline(hass_config_dir: str, state: dict[str, Any]) -> None:
+    """Persist baseline state to YAML."""
+    path = _baseline_path(hass_config_dir)
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("# Home Security Assistant — baseline training state\n")
+            fh.write("# Auto-managed. Do not edit manually.\n\n")
+            yaml.safe_dump(state, fh, default_flow_style=False, sort_keys=False, allow_unicode=True)
+        _LOGGER.debug("Saved baseline state to %s", path)
+    except Exception:
+        _LOGGER.warning("Failed to write %s", path, exc_info=True)
+
+
+def delete_baseline(hass_config_dir: str) -> None:
+    """Delete the persisted baseline state file if present."""
+    path = _baseline_path(hass_config_dir)
+    try:
+        if path.is_file():
+            path.unlink()
+    except Exception:
+        _LOGGER.warning("Failed to delete %s", path, exc_info=True)
 
 
 # ── Dashboard chart state ────────────────────────────────────────────────────
