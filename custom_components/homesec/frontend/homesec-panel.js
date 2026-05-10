@@ -3239,7 +3239,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<div class="finding-meta">' +
           '<span>Source: <span class="ip">' + f.source_ip + '</span></span>' +
           (det.port ? '<span>Port: <strong>' + det.port + '</strong></span>' : '') +
-          '<span>Category: ' + f.category + '</span>' +
+          '<span>Category: ' + self._esc(FINDING_CAT_LABELS[f.category] || f.category || '') + '</span>' +
           (f.count ? '<span>' + f.count + '\u00D7 seen</span>' : '') +
           '<span>' + self._ago(f.last_seen) + '</span>' +
         '</div>' +
@@ -3475,6 +3475,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return '<div class="finding-group-wrap">' + header + rows + '</div>';
     };
 
+    var FINDING_CAT_LABELS = {
+      vulnerability:   'Vulnerability / CVE',
+      port_scan:       'Port Scan',
+      suspicious_port: 'Suspicious Open Port',
+      high_egress:     'High Egress Traffic',
+    };
+
     var renderFindingsByCategory = function(list, isDismissed) {
       if (!list.length) return '';
       var catMap = {};
@@ -3487,8 +3494,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return Object.values(catMap)
         .sort(function(a, b) { return _sevRank(a.sev) - _sevRank(b.sev); })
         .map(function(g) {
-          var label = self._esc(g.items[0].category || 'Unknown');
-          return _mkFindingGroup('fcat:' + g.items[0].category, label, g.sev, g.items, isDismissed);
+          var cat = g.items[0].category || 'unknown';
+          var label = self._esc(FINDING_CAT_LABELS[cat] || cat);
+          return _mkFindingGroup('fcat:' + cat, label, g.sev, g.items, isDismissed);
         }).join('');
     };
 
