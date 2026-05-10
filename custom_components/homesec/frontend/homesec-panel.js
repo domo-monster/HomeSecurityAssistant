@@ -661,13 +661,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _sidebar() {
     var _BL_ONLY = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
     var findings   = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY[f.category]; }).length;
+    var blAnomalies = ((this._data && this._data.baseline_anomalies) || []).length;
+    var totalFindings = findings + blAnomalies;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
     var dnsEnabled = (this._data && this._data.dns_proxy_stats && this._data.dns_proxy_stats.running) || false;
     var self = this;
     var views = dnsEnabled ? _VIEWS : _VIEWS.filter(function(v) { return v !== 'dns'; });
     var items = views.map(function(v) {
       var badge = '';
-      if (v === 'findings' && findings > 0)       badge = '<span class="nav-badge">' + findings + '</span>';
+      if (v === 'findings' && totalFindings > 0)       badge = '<span class="nav-badge">' + totalFindings + '</span>';
       if (v === 'external' && ext_threat > 0)     badge = '<span class="nav-badge danger">' + ext_threat + '</span>';
       return '<li class="nav-item ' + (self._view === v ? 'active' : '') + '" data-view="' + v + '">' +
         _VIEW_ICONS[v] + '<span class="nav-label">' + _VIEW_LABELS[v] + '</span>' + badge + '</li>';
@@ -737,7 +739,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="card-title">Baseline <span style="font-size:18px;margin-left:6px">' + baselineIcon + '</span></div>' +
       '<div style="margin-bottom:6px"><b>Mode:</b> ' + baselineModeLabel + '</div>' +
       (baselineMode === 'training' ? trainingElapsed : '') +
-      (baselineMode === 'active' && sinceStr ? '<div><b>Baseline created:</b> ' + sinceStr + ' ago</div>' : '') +
+      (baselineMode === 'active' && sinceStr ? '<div><b>Baseline created:</b> ' + sinceStr + '</div>' : '') +
       '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' + btns + '</div>' +
       '</div>';
 
@@ -3210,6 +3212,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var renderBaselineByCategory = function(list) {
       if (!list.length) return '';
+      var BL_CAT_LABELS = {
+        anomaly_new_host: 'New Host Detected',
+        anomaly_new_peer: 'New External Peer',
+        anomaly_new_port: 'New Open Port',
+        anomaly_new_dns_domain: 'New DNS Domain',
+        anomaly_new_dns_category: 'New DNS Category',
+        anomaly_missing_host: 'Known Host Missing',
+        anomaly_missing_peer: 'Known Peer Missing',
+      };
       var catMap = {};
       list.forEach(function(f) {
         var cat = f.category || 'unknown';
@@ -3235,7 +3246,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all ' + c.findings.length + '</button>';
           var header = '<div class="finding-card sev-' + c.maxSev + ' finding-group-card" data-expand-baseline-group="' + self._esc(gkey) + '">' +
             '<div class="finding-header">' + self._sev(c.maxSev) + countBadge +
-              '<span class="finding-title">' + self._esc(c.category) + '</span>' +
+              '<span class="finding-title">' + self._esc(BL_CAT_LABELS[c.category] || c.category) + '</span>' +
               dismissAllBtn + chevron +
             '</div>' +
             '<div class="finding-meta"><span>Latest: ' + self._ago(latestSeen) + '</span></div>' +
