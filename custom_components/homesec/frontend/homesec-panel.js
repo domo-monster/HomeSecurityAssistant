@@ -659,7 +659,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _sidebar() {
-    var findings   = (this._data && this._data.findings && this._data.findings.length) || 0;
+    var _BL_ONLY = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
+    var findings   = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY[f.category]; }).length;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
     var dnsEnabled = (this._data && this._data.dns_proxy_stats && this._data.dns_proxy_stats.running) || false;
     var self = this;
@@ -683,9 +684,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewOverview() {
+    var _BL_ONLY_OV = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
     var s       = (this._data && this._data.summary) || {};
-    var findings = (this._data && this._data.findings) || [];
-    var dismissed = (this._data && this._data.dismissed_findings) || [];
+    var findings = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY_OV[f.category]; });
+    var dismissed = ((this._data && this._data.dismissed_findings) || []).filter(function(f) { return !_BL_ONLY_OV[f.category]; });
     var dismissedVulns = dismissed.filter(function(f) { return f.category === 'vulnerability'; }).length;
     var recent   = findings.slice(0, 5);
     var exporters = s.exporters || [];
@@ -3072,9 +3074,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewFindings() {
-    var findings = (this._data && this._data.findings) || [];
+    // Categories that belong exclusively to Baseline Anomalies
+    var BASELINE_ONLY_CATS = {
+      anomaly_new_host: true, anomaly_new_peer: true,
+      anomaly_new_port: true, anomaly_new_dns_domain: true,
+      anomaly_new_dns_category: true
+    };
+    var findings = ((this._data && this._data.findings) || []).filter(function(f) {
+      return !BASELINE_ONLY_CATS[f.category];
+    });
     var baselineAnomalies = (this._data && this._data.baseline_anomalies) || [];
-    var dismissed = (this._data && this._data.dismissed_findings) || [];
+    var dismissed = ((this._data && this._data.dismissed_findings) || []).filter(function(f) {
+      return !BASELINE_ONLY_CATS[f.category];
+    });
     var grouped = this._findingsGrouped;
     var baselineGroupMode = this._baselineGroupMode; // 'category' | 'host' | 'flat'
     var self = this;
