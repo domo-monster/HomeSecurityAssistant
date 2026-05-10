@@ -1,6 +1,6 @@
 {
   "domain": "homesec",
-  "name": "Home Security Assistant",
+  "name": "Security Assistant",
   "codeowners": ["@domo-monster"],
   "config_flow": true,
   "dependencies": ["frontend", "http", "panel_custom"],

@@ -89,7 +89,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._mapMode      = 'live';
     this._mapBaselineGraph = null;
     this._mapParticles = [];
-    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie' };
+    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie', host_findings: 'pie', ext_deviations: 'pie' };
     this._dnsSearch = '';
     this._dnsCategoryFilter = '';
     this._dnsStatusFilter = '';
@@ -677,7 +677,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var exporters = (this._data && this._data.summary && this._data.summary.exporters) || [];
     var status = exporters.length > 0 ? 'online' : 'waiting';
     return '<div class="brand"><img src="/api/homesec/frontend/hsa-logo.svg" alt="logo" style="height:32px;width:32px;margin-right:10px;border-radius:8px;box-shadow:0 0 8px #62e8ff55;vertical-align:middle">' +
-      '<div class="brand-text"><span class="brand-name">Home Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">Network security telemetry with live flow context</span></div></div>' +
+      '<div class="brand-text"><span class="brand-name">Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">Network security telemetry with live flow context</span></div></div>' +
       '<ul class="nav-list">' + items + '</ul>' +
       '<div class="sidebar-status ' + status + '"><div class="status-dot"></div><span>' +
       (status === 'online' ? 'Collector active' : 'Awaiting flows') + '</span>' +
@@ -1810,7 +1810,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var hostFindingsSection;
     if (!_hostFindTotal) {
       hostFindingsSection = '<div class="empty-state"><p style="margin:12px 0">No findings recorded yet</p></div>';
-    } else {
+    } else if (modes.host_findings === 'pie') {
       var _hfPieSvg = self._pieSvg(_hostFindItems, function(x) { return x.count; }, function(x) {
         var d = _devicesMap[x.ip]; return ((d && (d.name || d.hostname)) || x.ip) + ': ' + x.count;
       }, _hfColors);
@@ -1826,6 +1826,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '</div>';
         }).join('') + '</div>';
       hostFindingsSection = '<div class="stats-chart-row">' + _hfPieSvg + '<div class="stats-chart-legend">' + _hfLegend + '</div></div>';
+    } else {
+      hostFindingsSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>IP</th><th>Name / Hostname</th><th style="text-align:right">Deviations</th>' +
+        '</tr></thead><tbody>' +
+        _hostFindItems.map(function(x, i) {
+          var d = _devicesMap[x.ip];
+          var name = (d && (d.name || d.hostname)) || '';
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span class="ip">' + self._esc(x.ip) + '</span></td>' +
+            '<td>' + self._esc(name) + '</td>' +
+            '<td style="text-align:right">' + x.count + '</td></tr>';
+        }).join('') +
+        '</tbody></table>';
     }
 
     // ── Top N external IPs appearing in new-peer baseline deviations ──
@@ -1849,7 +1862,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var extIpDeviationSection;
     if (!_extDevTotal) {
       extIpDeviationSection = '<div class="empty-state"><p style="margin:12px 0">No new external peers in baseline deviations</p></div>';
-    } else {
+    } else if (modes.ext_deviations === 'pie') {
       var _edPieSvg = self._pieSvg(_extDevItems, function(x) { return x.count; }, function(x) {
         var enr = _extIpEnrich[x.ip];
         return x.ip + (enr && enr.org ? ' \u2014 ' + enr.org : '') + (enr && enr.country ? ' [' + enr.country + ']' : '') + ': ' + x.count;
@@ -1866,6 +1879,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '</div>';
         }).join('') + '</div>';
       extIpDeviationSection = '<div class="stats-chart-row">' + _edPieSvg + '<div class="stats-chart-legend">' + _edLegend + '</div></div>';
+    } else {
+      extIpDeviationSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
+        '<th>#</th><th>IP</th><th>Org / Hostname</th><th>Country</th><th style="text-align:right">Deviations</th>' +
+        '</tr></thead><tbody>' +
+        _extDevItems.map(function(x, i) {
+          var enr = _extIpEnrich[x.ip];
+          var org = (enr && (enr.org || enr.hostname)) || '';
+          var country = (enr && (enr.country_name || enr.country)) || '';
+          return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
+            '<td><span class="ip">' + self._esc(x.ip) + '</span></td>' +
+            '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(org) + '</td>' +
+            '<td>' + self._esc(country) + '</td>' +
+            '<td style="text-align:right">' + x.count + '</td></tr>';
+        }).join('') +
+        '</tbody></table>';
     }
 
     return '<div>' +
@@ -1905,21 +1933,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           dnsClientSection +
         '</div>' +
       '</div>' +
+      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Hosts in Deviations' + toggleBtns('host_findings', modes.host_findings) + '</div>' +
+          hostFindingsSection +
+        '</div>' +
+        '<div class="card stats-panel-card">' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' External IPs in Deviations' + toggleBtns('ext_deviations', modes.ext_deviations) + '</div>' +
+          extIpDeviationSection +
+        '</div>' +
+      '</div>' +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
         (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
         '</div>' +
         dnsTopMalHtml +
-      '</div>' +
-      '<div class="two-col stats-two-col" style="margin-top:12px">' +
-        '<div class="card stats-panel-card">' +
-          '<div class="card-title">Top\u00a0' + topN + ' Hosts by Findings</div>' +
-          hostFindingsSection +
-        '</div>' +
-        '<div class="card stats-panel-card">' +
-          '<div class="card-title">Top\u00a0' + topN + ' External IPs in Deviations</div>' +
-          extIpDeviationSection +
-        '</div>' +
       '</div>' +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title">Enrichment Budget (Today)</div>' +

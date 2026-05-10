@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Home Security Assistant",
+        "title": "Security Assistant",
         "description": "Configure the NetFlow listener, internal networks, active scanner, and optional threat intel enrichment.",
         "data": {
           "bind_host": "Bind host",
@@ -46,7 +46,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Home Security Assistant — Options",
+        "title": "Security Assistant — Options",
         "description": "Update listener, detection thresholds, active scanner, and enrichment settings.",
         "data": {
           "bind_host": "Bind host",

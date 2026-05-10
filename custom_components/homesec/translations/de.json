@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Home Security Assistant",
+        "title": "Security Assistant",
         "description": "Konfigurieren Sie den NetFlow-Listener, interne Netzwerke, den aktiven Scanner und optionale Bedrohungsdaten-Anreicherung.",
         "data": {
           "bind_host": "Bind-Host",
@@ -45,7 +45,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Home Security Assistant — Optionen",
+        "title": "Security Assistant — Optionen",
         "description": "Aktualisieren Sie Listener, Erkennungsschwellenwerte, aktiven Scanner und Anreicherungseinstellungen.",
         "data": {
           "bind_host": "Bind-Host",
