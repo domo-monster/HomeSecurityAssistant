@@ -186,8 +186,12 @@ class HomeSecCollector:
         self._ext_ip_last_seen: dict[str, datetime] = {}
         self._ext_ip_first_seen: dict[str, datetime] = {}
         self._ext_ip_sources: dict[str, set[str]] = {}
+        self._ext_ip_outbound_sources: dict[str, set[str]] = {}
+        self._ext_ip_inbound_sources: dict[str, set[str]] = {}
         self._ext_ip_ports: dict[str, set[int]] = {}
         self._ext_ip_ratings: dict[str, str] = {}  # ip -> "clean" | "suspicious" | "malicious"
+        self._ext_ip_has_outbound: set[str] = set()
+        self._ext_ip_has_inbound: set[str] = set()
         self._ext_ip_retention_hours: int = int(
             get_entry_value(entry, CONF_EXTERNAL_IP_RETENTION, DEFAULT_EXTERNAL_IP_RETENTION)
         )
@@ -319,12 +323,23 @@ class HomeSecCollector:
                 sources = rec.get("sources")
                 if isinstance(sources, list):
                     self._ext_ip_sources[ip] = set(sources)
+                outbound_sources = rec.get("outbound_sources")
+                if isinstance(outbound_sources, list):
+                    self._ext_ip_outbound_sources[ip] = set(outbound_sources)
+                inbound_sources = rec.get("inbound_sources")
+                if isinstance(inbound_sources, list):
+                    self._ext_ip_inbound_sources[ip] = set(inbound_sources)
                 ports = rec.get("ports")
                 if isinstance(ports, list):
                     self._ext_ip_ports[ip] = {int(p) for p in ports if p is not None}
                 rating = rec.get("rating")
                 if rating:
                     self._ext_ip_ratings[ip] = str(rating)
+                direction = rec.get("direction", "outbound")
+                if direction in ("outbound", "both"):
+                    self._ext_ip_has_outbound.add(ip)
+                if direction in ("inbound", "both"):
+                    self._ext_ip_has_inbound.add(ip)
             _LOGGER.info("Restored %d external IP tracking entries", len(ext_ip_data))
 
         # Restore enrichment usage counters (daily provider budgets)
@@ -564,6 +579,10 @@ class HomeSecCollector:
                     srcs.add(device_ip)
                     if len(srcs) != before:
                         ext_state_changed = True
+                    self._ext_ip_outbound_sources.setdefault(ext_ip, set()).add(device_ip)
+                if ext_ip not in self._ext_ip_has_outbound:
+                    self._ext_ip_has_outbound.add(ext_ip)
+                    ext_state_changed = True
         for conn in payload.get("connections", []):
             target_kind = conn.get("target_kind", "")
             if target_kind == "multicast":
@@ -595,11 +614,39 @@ class HomeSecCollector:
                     srcs.add(source_ip)
                     if len(srcs) != before:
                         ext_state_changed = True
+                    self._ext_ip_outbound_sources.setdefault(ext_ip, set()).add(source_ip)
                 if dst_port:
                     ports = self._ext_ip_ports.setdefault(ext_ip, set())
                     before = len(ports)
                     ports.add(int(dst_port))
                     if len(ports) != before:
+                        ext_state_changed = True
+                if ext_ip not in self._ext_ip_has_outbound:
+                    self._ext_ip_has_outbound.add(ext_ip)
+                    ext_state_changed = True
+            elif target_kind == "internal" and conn.get("source_kind") == "external":
+                ext_ip = str(conn.get("source", ""))
+                target_ip = str(conn.get("target", ""))
+                if ext_ip:
+                    if ext_ip not in external_ips:
+                        self._enricher.queue_ip(ext_ip)
+                        self._resolver.queue_resolve(ext_ip)
+                        external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
+                        if ext_ip not in self._ext_ip_last_seen:
+                            self._ext_ip_last_seen[ext_ip] = now
+                            ext_state_changed = True
+                        if ext_ip not in self._ext_ip_first_seen:
+                            self._ext_ip_first_seen[ext_ip] = now
+                            ext_state_changed = True
+                    if target_ip:
+                        srcs = self._ext_ip_sources.setdefault(ext_ip, set())
+                        before = len(srcs)
+                        srcs.add(target_ip)
+                        if len(srcs) != before:
+                            ext_state_changed = True
+                        self._ext_ip_inbound_sources.setdefault(ext_ip, set()).add(target_ip)
+                    if ext_ip not in self._ext_ip_has_inbound:
+                        self._ext_ip_has_inbound.add(ext_ip)
                         ext_state_changed = True
 
         # Include previously-seen external IPs that are still within the retention window.
@@ -635,8 +682,12 @@ class HomeSecCollector:
             self._ext_ip_last_seen.pop(ip, None)
             self._ext_ip_first_seen.pop(ip, None)
             self._ext_ip_sources.pop(ip, None)
+            self._ext_ip_outbound_sources.pop(ip, None)
+            self._ext_ip_inbound_sources.pop(ip, None)
             self._ext_ip_ports.pop(ip, None)
             self._ext_ip_ratings.pop(ip, None)
+            self._ext_ip_has_outbound.discard(ip)
+            self._ext_ip_has_inbound.discard(ip)
             external_ips.pop(ip, None)
             ext_state_changed = True
         # Add retained IPs not in current snapshot
@@ -652,6 +703,15 @@ class HomeSecCollector:
             entry_data["first_seen"] = first_ts.isoformat() if first_ts else None
             entry_data["internal_sources"] = sorted(self._ext_ip_sources.get(ip, set()))
             entry_data["dst_ports"] = sorted(self._ext_ip_ports.get(ip, set()))
+            _is_out = ip in self._ext_ip_has_outbound
+            _is_in = ip in self._ext_ip_has_inbound
+            entry_data["direction"] = "both" if (_is_out and _is_in) else ("inbound" if _is_in else "outbound")
+            if _is_out and _is_in:
+                _out_srcs = self._ext_ip_outbound_sources.get(ip, set())
+                _in_srcs = self._ext_ip_inbound_sources.get(ip, set())
+                entry_data["direction_alert"] = _out_srcs.isdisjoint(_in_srcs)
+            else:
+                entry_data["direction_alert"] = False
 
         payload["external_ips"] = sorted(
             external_ips.values(), key=lambda x: x.get("ip", "")
@@ -967,8 +1027,15 @@ class HomeSecCollector:
                     else None
                 ),
                 "sources": sorted(self._ext_ip_sources.get(ip, set())),
+                "outbound_sources": sorted(self._ext_ip_outbound_sources.get(ip, set())),
+                "inbound_sources": sorted(self._ext_ip_inbound_sources.get(ip, set())),
                 "ports": sorted(int(p) for p in self._ext_ip_ports.get(ip, set())),
                 "rating": self._ext_ip_ratings.get(ip, "clean"),
+                "direction": (
+                    "both" if (ip in self._ext_ip_has_outbound and ip in self._ext_ip_has_inbound)
+                    else "inbound" if ip in self._ext_ip_has_inbound
+                    else "outbound"
+                ),
             }
             for ip, ts in self._ext_ip_last_seen.items()
         ]

@@ -3700,9 +3700,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       { key: 'rating',   label: 'Rating' },
       { key: 'vt',       label: 'VT hits' },
       { key: 'abuse',    label: 'Abuse%' },
-      { key: null,       label: 'Ports' },
-      { key: null,       label: 'Contacted by' },
-      { key: 'last_seen',label: 'Last seen' },
+      { key: null,        label: 'Ports' },
+      { key: 'direction',  label: 'Direction' },
+      { key: null,         label: 'Internal host' },
+      { key: 'last_seen',  label: 'Last seen' },
       { key: null,       label: 'Action' },
     ];
     return '<tr>' + cols.map(function(c) {
@@ -3724,6 +3725,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           (e.country_name || e.country || '').toLowerCase().indexOf(q) >= 0 ||
           (e.org || e.asn || '').toLowerCase().indexOf(q) >= 0 ||
           (e.rating || '').toLowerCase().indexOf(q) >= 0 ||
+          (e.direction || '').toLowerCase().indexOf(q) >= 0 ||
           (e.internal_sources || []).some(function(s) { return s.indexOf(q) >= 0; }) ||
           (e.dst_ports || []).some(function(p) { return String(p).indexOf(q) >= 0; });
       });
@@ -3758,6 +3760,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       } else if (sortKey === 'abuse') {
         va = a.abuse_confidence != null ? a.abuse_confidence : -1;
         vb = b.abuse_confidence != null ? b.abuse_confidence : -1;
+        return (va - vb) * sortDir;
+      } else if (sortKey === 'direction') {
+        var dOrder = { outbound: 0, inbound: 1, both: 2 };
+        va = dOrder[a.direction || 'outbound'] !== undefined ? dOrder[a.direction || 'outbound'] : 0;
+        vb = dOrder[b.direction || 'outbound'] !== undefined ? dOrder[b.direction || 'outbound'] : 0;
         return (va - vb) * sortDir;
       } else if (sortKey === 'last_seen') {
         va = a.last_seen || '';
@@ -3798,7 +3805,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._extPage = Math.min(Math.max(1, this._extPage), totalPages);
     var start = (this._extPage - 1) * this._extPageSize;
     extIPs = extIPs.slice(start, start + this._extPageSize);
-    if (!extIPs.length) return '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No external IPs match the filter</p></div></td></tr>';
+    if (!extIPs.length) return '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No external IPs match the filter</p></div></td></tr>';
     var self = this;
     return extIPs.map(function(e) {
       var rating = e.rating || (e.blacklisted ? 'malicious' : '');
@@ -3813,8 +3820,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var portsHtml = dstPorts.length
         ? dstPorts.map(function(p) { return '<span class="chip">' + p + '</span>'; }).join(' ') + (e.dst_ports.length > 8 ? ' <span class="dim">+' + (e.dst_ports.length - 8) + '</span>' : '')
         : '<span class="dim">\u2014</span>';
+      var dir = e.direction || 'outbound';
+      var directionHtml = dir === 'both'
+        ? '<span style="color:#a78bfa;font-size:11px">\u2195 Both' +
+            (e.direction_alert
+              ? ' <span title="Different internal hosts involved in each direction \u2014 an external IP contacted a server that did not initiate the outbound relationship. Review recommended." style="cursor:help;color:#f59e0b">\u26A0</span>'
+              : '') +
+            '</span>'
+        : dir === 'inbound'
+          ? '<span style="color:#fb923c;font-size:11px">\u2193 Inbound</span>'
+          : '<span style="color:#34d399;font-size:11px">\u2191 Outbound</span>';
       var detail = (self._lookupResult && self._lookupIP === e.ip)
-        ? '<tr class="detail-row"><td colspan="12">' + self._ipDetail(self._lookupResult, e.internal_sources) + '</td></tr>' : '';
+        ? '<tr class="detail-row"><td colspan="13">' + self._ipDetail(self._lookupResult, e.internal_sources, e.direction) + '</td></tr>' : '';
       var sources = e.internal_sources || [];
       var sourcesHtml = sources.length
         ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
@@ -3830,6 +3847,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<td style="font-family:monospace;font-size:11px">' + vt + '</td>' +
         '<td style="font-family:monospace;font-size:11px">' + abuse + '</td>' +
         '<td style="font-size:11px">' + portsHtml + '</td>' +
+        '<td style="font-size:11px">' + directionHtml + '</td>' +
         '<td style="font-size:11px">' + sourcesHtml + '</td>' +
         '<td style="font-size:10px;color:var(--muted)">' + self._ago(e.last_seen) + '</td>' +
         '<td><button class="btn" data-lookup="' + e.ip + '" ' + (isLooking ? 'disabled' : '') + '>' +
@@ -3849,7 +3867,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</table></div></div>';
   }
 
-  _ipDetail(d, internalSources) {
+  _ipDetail(d, internalSources, direction) {
     var ip = d.ip || '';
     var reportLinks = ip ? [
       ['ipwho.is', 'https://ipwho.is/' + encodeURIComponent(ip)],
@@ -3868,6 +3886,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       ['Abuse score',  d.abuse_confidence != null ? d.abuse_confidence + '% (' + d.abuse_total_reports + ' reports)' : null],
       ['Rating source', d.rating_source || null],
       ['Blacklisted',  d.blacklisted ? 'Yes \u2013 ' + ((d.blacklist_info && d.blacklist_info.source) || 'threat_intel') : 'No'],
+      ['Direction',    (function(dir) { return dir.charAt(0).toUpperCase() + dir.slice(1); })(direction || d.direction || 'outbound')],
       ['Data sources', (d.sources && d.sources.join(', ')) || '\u2014'],
       ['Enriched at',  d.enriched_at ? this._ago(d.enriched_at) : null],
     ].filter(function(p) { return p[1] != null && p[1] !== ''; });
@@ -3884,7 +3903,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       : '';
     var sources = internalSources || d.internal_sources || [];
     var sourcesHtml = sources.length
-      ? '<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">Contacted by</span><span class="detail-val">' +
+      ? '<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">Internal host</span><span class="detail-val">'+
           sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ') +
         '</span></div>'
       : '';
