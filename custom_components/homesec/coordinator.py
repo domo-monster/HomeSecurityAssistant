@@ -27,7 +27,6 @@ from .const import (
     CONF_DNS_PROXY_PORT,
     CONF_DNS_PROXY_UPSTREAM,
     CONF_DNS_LOG_RETENTION_HOURS,
-    CONF_DNS_PROXY_CHECK_SOURCES,
     CONF_DNS_BLOCKED_CATEGORIES,
     CONF_DNS_OVERRIDES,
     CONF_ENABLE_DNS_RESOLUTION,
@@ -64,7 +63,6 @@ from .const import (
     DEFAULT_DNS_PROXY_PORT,
     DEFAULT_DNS_PROXY_UPSTREAM,
     DEFAULT_DNS_LOG_RETENTION_HOURS,
-    DEFAULT_DNS_PROXY_CHECK_SOURCES,
     DEFAULT_DNS_BLOCKED_CATEGORIES,
     DEFAULT_DNS_OVERRIDES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
@@ -218,16 +216,6 @@ class HomeSecCollector:
             get_entry_value(entry, CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)
         )
         dns_proxy_enabled = bool(get_entry_value(entry, CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED))
-        check_sources_raw = str(get_entry_value(entry, CONF_DNS_PROXY_CHECK_SOURCES, DEFAULT_DNS_PROXY_CHECK_SOURCES))
-        def _to_hostname(s: str) -> str:
-            """Accept either a bare hostname or a full URL and return just the hostname."""
-            s = s.strip()
-            if s.startswith("http://") or s.startswith("https://"):
-                return s.split("/")[2]
-            return s
-        check_sources: set[str] | None = (
-            {_to_hostname(s) for s in _re.split(r"[\n\r,]+", check_sources_raw) if s.strip()} or None
-        )
         blocked_cats_raw = str(get_entry_value(entry, CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES))
         blocked_categories: set[str] = {
             s.strip().lower() for s in _re.split(r"[\n\r,]+", blocked_cats_raw) if s.strip()
@@ -240,7 +228,7 @@ class HomeSecCollector:
                 checker=self._resolver,
                 dns_log=self._dns_log,
                 on_malicious=self._on_malicious_dns,
-                check_sources=check_sources,
+                check_sources=None,
                 blocked_categories=blocked_categories or None,
                 overrides_raw=str(get_entry_value(entry, CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)),
             )
