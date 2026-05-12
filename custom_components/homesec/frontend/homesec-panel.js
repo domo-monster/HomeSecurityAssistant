@@ -3474,7 +3474,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // ── findings group renderers (by category / host / severity) ────
     var _mkFindingGroup = function(gkey, label, sev, itemList, isDismissed) {
-      var isExpanded = self._expandedFindingGroup === gkey;
+      var expandKey = isDismissed ? 'dismissed:' + gkey : gkey;
+      var isExpanded = self._expandedFindingGroup === expandKey;
       var totalCount = itemList.reduce(function(s, f) { return s + (f.count || 1); }, 0);
       var latestSeen = itemList.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
       var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
@@ -3483,7 +3484,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var actionBtn = isDismissed
         ? '<button class="btn" data-undismiss-group="' + self._esc(gkey) + '">Restore all\u00A0' + itemList.length + '</button>'
         : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all\u00A0' + itemList.length + '</button>';
-      var header = '<div class="finding-card sev-' + sev + ' finding-group-card" data-expand-group="' + self._esc(gkey) + '">' +
+      var header = '<div class="finding-card sev-' + sev + ' finding-group-card" data-expand-group="' + self._esc(expandKey) + '">' +
         '<div class="finding-header">' + self._sev(sev) + countBadge +
           '<span class="finding-title">' + label + '</span>' +
           actionBtn + chevron +
