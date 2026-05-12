@@ -92,7 +92,7 @@ from .const import (
 )
 from .baseline import BaselineManager, BASELINE_MODE_DISABLED, BASELINE_MODE_ACTIVE
 from .dns_resolver import DNSBlacklistChecker
-from .dns_proxy import DNSProxyServer, DNS_LOG_MAX
+from .dns_proxy import DNSProxyServer
 from .enrichment import collect_tracker_enrichment
 from .external_enrichment import ExternalIPEnricher
 from .fingerprints import HomeSecurityAnalyzer
@@ -213,7 +213,7 @@ class HomeSecCollector:
         self._baseline_enabled = bool(get_entry_value(entry, CONF_BASELINE_ENABLED, DEFAULT_BASELINE_ENABLED))
 
         # DNS proxy
-        self._dns_log: deque = deque(maxlen=DNS_LOG_MAX)
+        self._dns_log: deque = deque()
         self._dns_log_retention_hours: int = int(
             get_entry_value(entry, CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)
         )
@@ -717,12 +717,27 @@ class HomeSecCollector:
                 _new_ratio = _cnt_new / _active_live if _active_live else 0.0
                 _miss_ratio = _cnt_missing / _total_known if _total_known else 0.0
                 _deviance_score = min(100, round(_new_ratio * 80 + _miss_ratio * 20))
+            # Count DNS queries logged since the previous timeseries point
+            _ts_cutoff_str = self._ts_last_point.isoformat() if self._ts_last_point else None
+            _dns_total = _dns_blocked = _dns_malicious = 0
+            for _de in self._dns_log:
+                _de_ts = _de.get("timestamp", "")
+                if _ts_cutoff_str and _de_ts < _ts_cutoff_str:
+                    continue
+                _dns_total += 1
+                if _de.get("malicious"):
+                    _dns_malicious += 1
+                if _de.get("status") == "blocked":
+                    _dns_blocked += 1
             self._timeseries.append({
                 "ts": _ts_now.isoformat(),
                 "ext_ips": len(external_ips),
                 "hosts": len(payload.get("devices", [])),
                 "scanned": int(payload.get("scanned_devices", 0) or 0),
                 "deviance_score": _deviance_score,
+                "dns_total": _dns_total,
+                "dns_blocked": _dns_blocked,
+                "dns_malicious": _dns_malicious,
             })
             self._ts_last_point = _ts_now
             self._timeseries_dirty = True

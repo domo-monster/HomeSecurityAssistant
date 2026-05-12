@@ -41,7 +41,6 @@ from .dns_categories import categorize_domain
 
 _LOGGER = logging.getLogger(__name__)
 
-DNS_LOG_MAX = 10_000  # ring-buffer capacity
 
 # Human-readable QTYPE names for the most common record types
 _QTYPES: dict[int, str] = {

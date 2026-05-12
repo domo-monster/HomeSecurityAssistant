@@ -1612,35 +1612,54 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var dnsLog = (this._data && this._data.dns_log) || [];
     var dnsStats = (this._data && this._data.dns_proxy_stats) || {};
 
-    // Hourly stacked bar chart — same style as the first two bar charts above.
-    var dnsChartHtml = !dnsLog.length
-      ? '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>'
-      : (function() {
+    // Hourly stacked bar chart — built from timeseries points so data persists
+    // beyond the raw-log retention window.
+    var dnsChartHtml = (function() {
           var D_HOURS = 24, D_BAR_W = 18, D_BAR_GAP = 3, D_CHART = 60, D_LABEL = 16;
           var nowMs = Date.now();
           var dnsBuckets = new Array(D_HOURS).fill(null).map(function() {
             return { total: 0, blocked: 0, mal: 0 };
           });
-          for (var di = 0; di < dnsLog.length; di++) {
-            var row = dnsLog[di] || {};
-            var rawTs = row.timestamp;
-            var et = (rawTs == null) ? NaN
-              : (typeof rawTs === 'number') ? (rawTs < 1e12 ? rawTs * 1000 : rawTs)
-              : (function() {
-                  var txt = String(rawTs).trim();
-                  var n = Number(txt);
-                  if (!isNaN(n)) return n < 1e12 ? n * 1000 : n;
-                  var m = new Date(txt).getTime();
-                  return isNaN(m) ? new Date(txt.replace(' ', 'T')).getTime() : m;
-                })();
-            if (isNaN(et)) continue;
-            var ago = Math.floor((nowMs - et) / 3600000);
-            if (ago < 0 || ago >= D_HOURS) continue;
-            var bi = D_HOURS - 1 - ago;
-            dnsBuckets[bi].total++;
-            if (row.malicious) dnsBuckets[bi].mal++;
-            if (row.status === 'blocked') dnsBuckets[bi].blocked++;
+          // Aggregate timeseries points into hourly buckets (sum dns counts per hour).
+          var hasTsData = false;
+          for (var ti = 0; ti < allPoints.length; ti++) {
+            var tpt = allPoints[ti];
+            if (tpt.dns_total == null) continue;
+            var tts = new Date(tpt.ts).getTime();
+            var tago = Math.floor((nowMs - tts) / 3600000);
+            if (tago < 0 || tago >= D_HOURS) continue;
+            var tbi = D_HOURS - 1 - tago;
+            dnsBuckets[tbi].total   += (tpt.dns_total    || 0);
+            dnsBuckets[tbi].blocked += (tpt.dns_blocked  || 0);
+            dnsBuckets[tbi].mal     += (tpt.dns_malicious|| 0);
+            hasTsData = true;
           }
+          // Fall back to raw dns_log entries when no timeseries dns data exists yet
+          // (e.g. first start before any interval has elapsed).
+          if (!hasTsData) {
+            for (var di = 0; di < dnsLog.length; di++) {
+              var row = dnsLog[di] || {};
+              var rawTs = row.timestamp;
+              var et = (rawTs == null) ? NaN
+                : (typeof rawTs === 'number') ? (rawTs < 1e12 ? rawTs * 1000 : rawTs)
+                : (function() {
+                    var txt = String(rawTs).trim();
+                    var n = Number(txt);
+                    if (!isNaN(n)) return n < 1e12 ? n * 1000 : n;
+                    var m = new Date(txt).getTime();
+                    return isNaN(m) ? new Date(txt.replace(' ', 'T')).getTime() : m;
+                  })();
+              if (isNaN(et)) continue;
+              var ago = Math.floor((nowMs - et) / 3600000);
+              if (ago < 0 || ago >= D_HOURS) continue;
+              var bi = D_HOURS - 1 - ago;
+              dnsBuckets[bi].total++;
+              if (row.malicious) dnsBuckets[bi].mal++;
+              if (row.status === 'blocked') dnsBuckets[bi].blocked++;
+            }
+          }
+          var hasAny = dnsBuckets.some(function(b) { return b.total > 0; });
+          if (!hasAny) return '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>';
           var maxDns = 1;
           for (var mi = 0; mi < dnsBuckets.length; mi++) {
             if (dnsBuckets[mi].total > maxDns) maxDns = dnsBuckets[mi].total;
@@ -1837,10 +1856,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
 
     // ── Baseline deviance timeline bar chart (last 24 h) ─────────────
+    var blInfo = (self._data && self._data.baseline) || {};
     var devianceChartHtml = (function() {
-      var blInfo = (self._data && self._data.baseline) || {};
       if ((blInfo.mode || 'disabled') !== 'active') {
-        return '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">Baseline not active \u2014 enable it to track deviance over time</div>';
+        return '';
       }
       var DV_H = 24, DV_BAR_W = 18, DV_GAP = 3, DV_CHART = 60, DV_LABEL = 16;
       var dvNow = Date.now();
@@ -1990,7 +2009,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
       timelineHtml +
-      '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Baseline Deviance per hour (last 24\u202fh)</div>' + devianceChartHtml + '</div>' +
+      (devianceChartHtml ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Baseline Deviance per hour (last 24\u202fh)</div>' + devianceChartHtml + '</div>' : '') +
       '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">DNS Queries per hour (last 24\u202fh)</div>' + dnsChartHtml + '</div></div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
