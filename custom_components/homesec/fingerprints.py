@@ -404,7 +404,14 @@ class HomeSecurityAnalyzer:
             for key, _ in by_age[:len(self._connections) - 5000]:
                 self._connections.pop(key, None)
 
-        return sorted(self._connections.values(), key=lambda connection: connection.octets, reverse=True)[:80]
+        # Always include inbound connections (external source → internal target) regardless of
+        # volume — these are exactly the low-byte events (SYN, handshake, probes) that matter
+        # for security and would otherwise be dropped by the octets-based sort+cap below.
+        inbound = [c for c in self._connections.values() if c.source_kind == "external" and c.target_kind == "internal"]
+        inbound_keys = {c.key for c in inbound}
+        outbound = [c for c in self._connections.values() if c.key not in inbound_keys]
+        top_outbound = sorted(outbound, key=lambda c: c.octets, reverse=True)[:80]
+        return inbound + top_outbound
 
     def _infer_role(
         self,
