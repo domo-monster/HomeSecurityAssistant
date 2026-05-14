@@ -3,7 +3,7 @@
 // Views: Overview · Network Map · Hosts · Findings · External IPs · Recommendations
 // ─────────────────────────────────────────────────────────────────────────────
 
-const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'statistics', 'dns', 'recommendations'];
+const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'statistics', 'dns', 'recommendations', 'settings'];
 const _VIEW_LABELS = {
   overview:        'Overview',
   map:             'Network Map',
@@ -14,6 +14,7 @@ const _VIEW_LABELS = {
   statistics:      'Statistics',
   dns:             'DNS Queries',
   recommendations: 'Recommendations',
+  settings:        'Settings',
 };
 const _VIEW_ICONS = {
   overview:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>`,
@@ -25,6 +26,7 @@ const _VIEW_ICONS = {
   statistics:      `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"/></svg>`,
   dns:             `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
   recommendations: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`,
+  settings:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
 };
 
 class HomeSecurityAssistantPanel extends HTMLElement {
@@ -99,6 +101,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._dnsStatusFilter = '';
     this._dnsMaliciousOnly = false;
     this._mobileMenuOpen = false;
+    this._settingsData    = null;
+    this._settingsLoading = false;
+    this._settingsMsg     = '';
+    this._settingsMsgType = '';
   }
 
   set hass(v) {
@@ -138,12 +144,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _setView(v) {
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
+    if (!netflowEnabled && (v === 'map' || v === 'external')) v = 'overview';
     if (v === this._view) return;
     this._stopMap();
     this._mobileMenuOpen = false;
     this._lookupResult = null;
     this._lookupIP     = null;
     if (this._view === 'vulnerabilities') this._vulnData = null;
+    if (v === 'settings') { this._settingsData = null; this._settingsMsg = ''; }
     this._dnsPage = 0;
     this._dnsPageSize = 25;
     this._view = v;
@@ -186,6 +196,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         case 'statistics':       content.innerHTML = this._viewStatistics();   break;
         case 'dns':             content.innerHTML = this._viewDns();       break;
         case 'recommendations': content.innerHTML = this._viewRecs();      break;
+        case 'settings':        content.innerHTML = this._viewSettings();  break;
       }
     } catch (err) {
       console.error('[HomeSec] render error in view \'' + this._view + '\':', err);
@@ -373,11 +384,31 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var sa = e.target.closest('[data-service-action]');
     if (sa && this._hass) {
       var svc = sa.getAttribute('data-service-action');
+      var btn = sa;
+      var origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Working\u2026';
       console.log('[HomeSec] Calling service:', svc);
-      this._hass.callService('homesec', svc, {});
-      setTimeout(() => this._fetch(), 1500);
+      this._hass.callService('homesec', svc, {})
+        .then((resp) => {
+          if (svc === 'trigger_scan' && resp && resp.scan && resp.scan.status === 'no_targets') {
+            btn.textContent = 'No targets';
+          } else {
+            btn.textContent = 'Done \u2713';
+          }
+          setTimeout(() => { btn.disabled = false; btn.textContent = origText; }, 2000);
+          setTimeout(() => this._fetch(), 1500);
+        })
+        .catch((err) => {
+          btn.textContent = 'Error \u2717';
+          btn.style.borderColor = 'var(--danger, #ff4e4e)';
+          console.error('[HomeSec] Service action failed:', svc, err);
+          setTimeout(() => { btn.disabled = false; btn.textContent = origText; btn.style.borderColor = ''; }, 3000);
+        });
       return;
     }
+    if (e.target.closest('[data-settings-save]')) { this._onSettingsSave(); return; }
+    if (e.target.closest('[data-settings-reset]')) { this._settingsData = null; this._settingsMsg = ''; this._render(); return; }
   }
 
   _onInput(e) {
@@ -756,8 +787,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var totalFindings = Object.keys(findingGroups).length + Object.keys(blCats).length;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
     var dnsEnabled = (this._data && this._data.dns_proxy_stats && this._data.dns_proxy_stats.running) || false;
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     var self = this;
-    var views = dnsEnabled ? _VIEWS : _VIEWS.filter(function(v) { return v !== 'dns'; });
+    var views = dnsEnabled ? _VIEWS.slice() : _VIEWS.filter(function(v) { return v !== 'dns'; });
+    if (!netflowEnabled) {
+      views = views.filter(function(v) { return v !== 'map' && v !== 'external'; });
+    }
     var items = views.map(function(v) {
       var badge = '';
       if (v === 'findings' && totalFindings > 0)       badge = '<span class="nav-badge">' + totalFindings + '</span>';
@@ -778,6 +814,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _viewOverview() {
     var _BL_ONLY_OV = { anomaly_new_host:1, anomaly_new_peer:1, anomaly_new_port:1, anomaly_new_dns_domain:1, anomaly_new_dns_category:1 };
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
+    var baselineEnabledRaw = this._data && this._data.baseline_enabled;
+    var baselineEnabled = baselineEnabledRaw === true || baselineEnabledRaw === 'true' || baselineEnabledRaw === 1 || baselineEnabledRaw === '1';
     var s       = (this._data && this._data.summary) || {};
     var findings = ((this._data && this._data.findings) || []).filter(function(f) { return !_BL_ONLY_OV[f.category]; });
     var dismissed = ((this._data && this._data.dismissed_findings) || []).filter(function(f) { return !_BL_ONLY_OV[f.category]; });
@@ -847,7 +887,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         this._stat(exporters.length, 'Exporters', exporters.length > 0 ? 'success' : 'warn') +
       '</div>' +
       '<div class="two-col">' +
-        '<div class="card">' +
+        (netflowEnabled ? ('<div class="card">' +
           '<div class="card-title">NetFlow Listener Health</div>' +
           this._hrow('Status', (function(){ var lf = s.last_flow_at; if (!lf) return 'No flows seen'; var age = Date.now() - new Date(lf).getTime(); return age < 90000 ? 'Receiving flows' : 'No flows (idle ' + (age < 3600000 ? Math.floor(age/60000) + 'm' : Math.floor(age/3600000) + 'h') + ')'; })(), (function(){ var lf = s.last_flow_at; return lf && (Date.now() - new Date(lf).getTime()) < 90000 ? 'good' : 'warn'; })()) +
           this._hrow('Uptime', this._uptime(s.collector_started_at), '') +
@@ -859,8 +899,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           this._hrow('Last flow', this._ago(s.last_flow_at), '') +
           (s.last_parser_error ? this._hrow('Last error', s.last_parser_error, 'bad') : '') +
           '<div style="margin-top:10px"><button class="btn" data-view="statistics">View Statistics →</button></div>' +
-        '</div>' +
-        '<div class="card">' +
+        '</div>') : '') +
+        '<div class="card"' + (!netflowEnabled ? ' style="grid-column:1/-1"' : '') + '>' +
           '<div class="card-title">Recent Alerts</div>' +
           (recent.length === 0
             ? '<div class="empty-state"><div class="empty-icon">\u2713</div><p>No active high/critical findings</p></div>'
@@ -878,16 +918,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var scanDur = self._data && self._data.scan_duration;
         var scanHosts = self._data && self._data.scan_hosts_found;
         var scanInterval = self._data && self._data.scan_interval;
+        var scanResult = self._data && self._data.scan_last_status;
+        var scanTargets = self._data && self._data.scan_last_targets;
         var scanAge = scanAt ? self._ago(scanAt) : 'never';
         var scanStatus = scanAt ? ((Date.now() - new Date(scanAt).getTime()) < (scanInterval || 300) * 2 * 1000 ? 'good' : 'warn') : 'warn';
         var durStr = scanDur != null ? (scanDur < 60 ? scanDur.toFixed(1) + '\u00a0s' : (scanDur / 60).toFixed(1) + '\u00a0min') : '\u2014';
         var hostsStr = scanHosts != null ? scanHosts.toLocaleString() : '\u2014';
         var intervalStr = scanInterval != null ? (scanInterval < 60 ? scanInterval + '\u00a0s' : Math.round(scanInterval / 60) + '\u00a0min') : '\u2014';
+        var targetsStr = scanTargets != null ? scanTargets.toLocaleString() : '\u2014';
+        var resultText = '\u2014', resultTone = '';
+        if (scanResult === 'ok') { resultText = 'Completed'; resultTone = 'good'; }
+        else if (scanResult === 'no_targets') { resultText = 'Skipped \u2014 no targets discovered yet'; resultTone = 'warn'; }
         return '<div class="card" style="margin-top:12px">' +
           '<div class="card-title">Active Scan</div>' +
           self._hrow('Last scan', scanAge, scanStatus) +
+          self._hrow('Last result', resultText, resultTone) +
           self._hrow('Duration', durStr, '') +
           self._hrow('Hosts found', hostsStr, scanHosts > 0 ? '' : 'warn') +
+          self._hrow('Targets scanned', targetsStr, (scanTargets != null && scanTargets > 0) ? '' : 'warn') +
           self._hrow('Scan interval', intervalStr, '') +
           '<div style="margin-top:10px"><button class="btn" data-service-action="trigger_scan">Force hosts scan ↻</button></div>' +
         '</div>';
@@ -972,8 +1020,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<div style="margin-top:10px"><button class="btn" data-view="dns">View DNS Queries →</button></div>' +
         '</div>';
       })() +
-      baselineCard +
-      this._baselineDevianceCard() +
+      (baselineEnabled ? (baselineCard + this._baselineDevianceCard()) : '') +
     '</div>';
   }
 
@@ -1305,6 +1352,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   // ── Statistics view ──────────────────────────────────────────────────
   _viewStatistics() {
     var self = this;
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
+    var dnsProxyEnabledRaw = this._data && this._data.dns_proxy_enabled;
+    var dnsProxyEnabled = dnsProxyEnabledRaw === true || dnsProxyEnabledRaw === 'true' || dnsProxyEnabledRaw === 1 || dnsProxyEnabledRaw === '1';
     var modes = this._statsViewModes;
     var topN = (this._data && this._data.stats_top_n) || 10;
     var COLORS = ['#8f86ff','#3ac5c9','#6bffc8','#ffc107','#ff8c42','#ff4d6d','#7fb3f5','#d4a843','#a8e063','#f472b6','#60a5fa','#34d399','#fb923c','#a78bfa','#22d3ee'];
@@ -2010,7 +2061,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
       timelineHtml +
       (devianceChartHtml ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Baseline Deviance per hour (last 24\u202fh)</div>' + devianceChartHtml + '</div>' : '') +
-      '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">DNS Queries per hour (last 24\u202fh)</div>' + dnsChartHtml + '</div></div>' +
+      (dnsProxyEnabled ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">DNS Queries per hour (last 24\u202fh)</div>' + dnsChartHtml + '</div>' : '') + '</div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
@@ -2033,7 +2084,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           threatSection +
         '</div>' +
       '</div>' +
-      '<div class="two-col stats-two-col" style="margin-top:12px">' +
+      (dnsProxyEnabled ? ('<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Blocked DNS Queries by Category' + toggleBtns('dns_categories', modes.dns_categories) + '</div>' +
           dnsCatSection +
@@ -2042,7 +2093,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Blocked Queries by Client' + toggleBtns('dns_clients', modes.dns_clients) + '</div>' +
           dnsClientSection +
         '</div>' +
-      '</div>' +
+      '</div>') : '') +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         ((function() {
           var blMode = (self._data && self._data.baseline && self._data.baseline.mode) || 'disabled';
@@ -2071,6 +2122,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewMap(container) {
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
+    if (!netflowEnabled) {
+      container.innerHTML = '<div class="state-box"><div class="state-icon">\u23f8</div><p>NetFlow listener is disabled. Enable it in <button class="btn" style="display:inline;padding:2px 10px;font-size:11px" data-view="settings">Settings</button> to use the Network Map.</p></div>';
+      return;
+    }
+    var baselineEnabledRaw = this._data && this._data.baseline_enabled;
+    var baselineEnabled = baselineEnabledRaw === true || baselineEnabledRaw === 'true' || baselineEnabledRaw === 1 || baselineEnabledRaw === '1';
     var allDevices = this._mapAllDevices();
     var connections = (this._data && this._data.connections) || [];
     var baselineGraph = (this._data && this._data.baseline_graph) || null;
@@ -2081,26 +2140,27 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var f = this._mapFilter;
     var m = this._mapMode;
     var hasBaselineGraph = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
+    if (!baselineEnabled) m = 'live';
     if (m !== 'live' && !hasBaselineGraph) m = 'live';
     this._mapMode = m;
     var filters = [
       { id: 'all',      label: 'All' },
       { id: 'scanned',  label: 'Scanned' },
       { id: 'flow',     label: 'Flow only' },
-      { id: 'external', label: 'External' },
-    ];
+      { id: 'external', label: 'External', hide: !netflowEnabled },
+    ].filter(function(b) { return !b.hide; });
     var filterBtns = filters.map(function(b) {
       return '<button class="btn map-fbtn' + (f === b.id ? ' active' : '') + '" data-mapfilter="' + b.id + '">' + b.label + '</button>';
     }).join('');
     var mapModes = [
       { id: 'live', label: 'Live' },
-      { id: 'baseline', label: 'Baseline', disabled: !hasBaselineGraph },
-      { id: 'compare', label: 'Compare', disabled: !hasBaselineGraph },
+      { id: 'baseline', label: 'Baseline', disabled: !hasBaselineGraph || !baselineEnabled },
+      { id: 'compare', label: 'Compare', disabled: !hasBaselineGraph || !baselineEnabled },
     ];
-    var modeBtns = mapModes.map(function(mm) {
+    var modeBtns = baselineEnabled ? mapModes.map(function(mm) {
       var disabledAttr = mm.disabled ? ' disabled' : '';
       return '<button class="btn map-mbtn' + (m === mm.id ? ' active' : '') + '" data-mapmode="' + mm.id + '"' + disabledAttr + '>' + mm.label + '</button>';
-    }).join('');
+    }).join('') : '';
     var modeLabel = m === 'baseline' ? 'Baseline Snapshot' : (m === 'compare' ? 'Live vs Baseline' : 'Live Network Map');
     var baselineInfo = '';
     if (hasBaselineGraph) {
@@ -3036,6 +3096,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _hostThead() {
     var self = this;
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     var cols = [
       { key: 'ip', label: 'IP' },
       { key: 'name', label: 'Name' },
@@ -3044,8 +3106,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       { key: null, label: 'Open ports' },
       { key: 'cve', label: 'CVEs' },
       { key: 'ping', label: 'Ping' },
-      { key: 'traffic', label: 'Traffic' }
     ];
+    if (netflowEnabled) cols.push({ key: 'traffic', label: 'Traffic' });
     return '<tr>' + cols.map(function(c) {
       if (!c.key) return '<th>' + c.label + '</th>';
       var arrow = self._hostSort === c.key ? (self._hostSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
@@ -3066,6 +3128,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _hostRows() {
+    var netflowEnabledRaw2 = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw2 === true || netflowEnabledRaw2 === 'true' || netflowEnabledRaw2 === 1 || netflowEnabledRaw2 === '1';
+    var colCount = netflowEnabled ? 8 : 7;
     var q = this._hostFilter.toLowerCase();
     var devices = (this._data && this._data.devices || []).filter(function(d) {
       if (!d.alive) return false;
@@ -3074,7 +3139,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         (d.hostname || '').toLowerCase().indexOf(q) >= 0 ||
         (d.probable_role || '').indexOf(q) >= 0;
     });
-    if (!devices.length) return '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No hosts match the filter</p></div></td></tr>';
+    if (!devices.length) return '<tr><td colspan="' + colCount + '"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No hosts match the filter</p></div></td></tr>';
     var sortKey = this._hostSort;
     var sortDir = this._hostSortDir;
     devices.sort(function(a, b) {
@@ -3145,10 +3210,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<td style="font-size:11px;font-family:monospace">' + ports + '</td>' +
         '<td>' + (vulns ? '<span class="badge badge-high">' + vulns + ' CVE' + (vulns > 1 ? 's' : '') + '</span>' : '<span class="dim">\u2014</span>') + '</td>' +
         '<td style="font-variant-numeric:tabular-nums">' + (d.ping_ms != null ? d.ping_ms.toFixed(1) + ' ms' : (d.alive ? 'alive' : '\u2014')) + '</td>' +
-        '<td>' + self._bytes(d.total_octets) + '</td>' +
+        (netflowEnabled ? '<td>' + self._bytes(d.total_octets) + '</td>' : '') +
         '</tr>' +
         '<tr class="detail-row" id="' + id + '" style="display:none">' +
-        '<td colspan="8">' + self._hostDetail(d) + '</td>' +
+        '<td colspan="' + colCount + '">' + self._hostDetail(d) + '</td>' +
         '</tr>';
     }).join('');
   }
@@ -4470,6 +4535,102 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     return Math.floor(d/86400000) + 'd ago';
   }
   _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ── Settings view ────────────────────────────────────────────────────
+  _viewSettings() {
+    var self = this;
+    if (!this._settingsData && !this._settingsLoading) {
+      this._settingsLoading = true;
+      this._hass.callApi('GET', 'homesec/settings').then(function(d) {
+        self._settingsData = d;
+        self._settingsLoading = false;
+        self._render();
+      }).catch(function(e) {
+        self._settingsLoading = false;
+        self._settingsMsg = 'Failed to load settings: ' + (e && e.message ? e.message : String(e));
+        self._settingsMsgType = 'error';
+        self._render();
+      });
+      return '<div><div class="view-header"><h1>Settings</h1></div><div class="state-box"><div class="loader"></div><p>Loading settings\u2026</p></div></div>';
+    }
+    if (this._settingsLoading) {
+      return '<div><div class="view-header"><h1>Settings</h1></div><div class="state-box"><div class="loader"></div><p>Loading\u2026</p></div></div>';
+    }
+    var schema = (this._settingsData && this._settingsData.schema) || [];
+    var config = (this._settingsData && this._settingsData.config) || {};
+    var msgHtml = '';
+    if (this._settingsMsg) {
+      var msgColor = this._settingsMsgType === 'error' ? 'var(--danger)' : 'var(--success)';
+      msgHtml = '<div style="background:rgba(0,0,0,.25);border:1px solid ' + msgColor + ';border-radius:8px;padding:10px 14px;margin-bottom:14px;color:' + msgColor + ';font-size:12px">' + this._esc(this._settingsMsg) + '</div>';
+    }
+    var fieldsHtml = schema.map(function(section) {
+      var rows = (section.fields || []).map(function(f) {
+        var val = config[f.key] !== undefined ? config[f.key] : (f.default !== undefined ? f.default : '');
+        var inputHtml = '';
+        if (f.type === 'boolean' || f.type === 'bool') {
+          inputHtml = '<input type="checkbox" id="hsa-setting-' + f.key + '" ' + (val ? 'checked' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">';
+        } else if (f.type === 'number') {
+          inputHtml = '<input type="number" id="hsa-setting-' + f.key + '" value="' + self._esc(String(val)) + '"' +
+            (f.min !== undefined ? ' min="' + f.min + '"' : '') + (f.max !== undefined ? ' max="' + f.max + '"' : '') +
+            ' style="width:160px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">';
+        } else if (f.type === 'password') {
+          inputHtml = '<input type="password" id="hsa-setting-' + f.key + '" value="' + self._esc(String(val)) + '" style="width:340px;max-width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">';
+        } else {
+          inputHtml = '<input type="text" id="hsa-setting-' + f.key + '" value="' + self._esc(String(val)) + '" style="width:340px;max-width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">';
+        }
+        return '<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(98,232,255,.04)">' +
+          '<div style="flex:0 0 240px;min-width:0">' +
+            '<div style="font-size:12px;font-weight:600;color:var(--text)">' + self._esc(f.label) + '</div>' +
+            (f.help ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4">' + self._esc(f.help) + '</div>' : '') +
+          '</div>' +
+          '<div style="flex:1;min-width:0">' + inputHtml + '</div>' +
+        '</div>';
+      }).join('');
+      return '<div class="card" style="margin-bottom:12px">' +
+        '<div class="card-title">' + self._esc(section.section) + '</div>' +
+        rows +
+      '</div>';
+    }).join('');
+    return '<div>' +
+      '<div class="view-header"><h1>Settings</h1><div style="font-size:11px;color:var(--muted)">Changes take effect after reloading the integration.</div></div>' +
+      msgHtml +
+      fieldsHtml +
+      '<div style="margin-top:6px">' +
+        '<button class="btn" data-settings-save style="padding:6px 18px;font-size:12px">Save settings</button>' +
+        ' <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">Reload from server</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  _onSettingsSave() {
+    var self = this;
+    var schema = (this._settingsData && this._settingsData.schema) || [];
+    var payload = {};
+    var root = this.shadowRoot;
+    schema.forEach(function(section) {
+      (section.fields || []).forEach(function(f) {
+        var el = root && root.getElementById('hsa-setting-' + f.key);
+        if (!el) return;
+        if (f.type === 'boolean' || f.type === 'bool') {
+          payload[f.key] = el.checked;
+        } else if (f.type === 'number') {
+          payload[f.key] = Number(el.value);
+        } else {
+          payload[f.key] = el.value;
+        }
+      });
+    });
+    this._hass.callApi('POST', 'homesec/settings/save', payload).then(function() {
+      self._settingsMsg = 'Settings saved. The integration will reload automatically to apply changes.';
+      self._settingsMsgType = 'ok';
+      self._settingsData = null;
+      self._render();
+    }).catch(function(e) {
+      self._settingsMsg = 'Failed to save settings: ' + (e && e.message ? e.message : String(e));
+      self._settingsMsgType = 'error';
+      self._render();
+    });
+  }
 }
 
 var _CSS = ':host{--bg:#070b12;--card:rgba(14,23,40,.92);--border:rgba(98,232,255,.14);--text:#eef7ff;--muted:#8a9dbf;--accent:#62e8ff;--success:#6bffc8;--danger:#ff4d6d;--warn:#ffb347;--violet:#9e96ff;--glow:0 0 28px rgba(98,232,255,.08);display:block;height:100vh;overflow:hidden;font-family:"IBM Plex Sans","Segoe UI",sans-serif;color:var(--text);background:var(--bg)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:210px;min-width:210px;background:rgba(6,11,24,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}.brand{padding:18px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}.brand-shield{font-size:26px;filter:drop-shadow(0 0 8px rgba(98,232,255,.5))}.brand-text{display:flex;flex-direction:column}.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.06em}.brand-tagline{font-size:9px;color:var(--muted);opacity:.7;margin-top:4px;line-height:1.3}.nav-list{list-style:none;padding:6px 0;flex:1}.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border-left:3px solid transparent;transition:all .12s ease;user-select:none}.nav-item:hover{background:rgba(98,232,255,.05);color:var(--text)}.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(98,232,255,.07)}.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.65}.nav-item.active svg{opacity:1}.nav-label{flex:1}.nav-badge{background:var(--danger);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}.sidebar-status{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}.sidebar-status.online .status-dot{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}.content{flex:1;overflow-y:auto;padding:22px 24px;position:relative;background:var(--bg)}.content::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;background-image:linear-gradient(rgba(98,232,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(98,232,255,.07) 1px,transparent 1px);background-size:40px 40px}.content>*{position:relative;z-index:1}.page-header{margin-bottom:20px}.page-title{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin-bottom:3px}.page-subtitle{font-size:12px;color:var(--muted);letter-spacing:.02em}.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--glow)}.stat-card.danger{border-color:rgba(255,77,109,.3)}.stat-card.warn{border-color:rgba(255,179,71,.28)}.stat-card.success{border-color:rgba(107,255,200,.2)}.stat-value{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--glow);margin-bottom:14px}.table-card{padding:0;overflow:hidden}.card-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.health-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(98,232,255,.05);font-size:12px}.health-row:last-child{border-bottom:none}.health-label{color:var(--muted)}.health-value{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}.health-value.good{color:var(--success)}.health-value.warn{color:var(--warn)}.health-value.bad{color:var(--danger)}.alert-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(98,232,255,.05)}.alert-row:last-child{border-bottom:none}.alert-body{flex:1;min-width:0}.alert-sum{font-size:12px;font-weight:600}.alert-meta{font-size:10px;color:var(--muted);margin-top:2px}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.view-header h1{font-size:18px;font-weight:700}.dim{color:var(--muted);font-weight:400;font-size:13px}.row-gap{display:flex;gap:8px;align-items:center}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}.data-table td{padding:7px 10px;border-bottom:1px solid rgba(98,232,255,.04);vertical-align:middle}.data-table tr.expandable{cursor:pointer}.data-table tr.expandable:hover td{background:rgba(98,232,255,.03)}.mono{font-family:"IBM Plex Mono",monospace}.ip{font-family:"IBM Plex Mono",monospace;font-size:11px}.host-detail-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 16px;background:rgba(0,0,0,.25)}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600}.detail-row{background:rgba(0,0,0,.2)}.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.badge-critical{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-high{background:rgba(255,140,66,.18);color:#ff8c42;border:1px solid rgba(255,140,66,.35)}.badge-medium{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-low{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-clean{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-suspicious{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-malicious{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-ok{background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)}.badge-warn{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.chip{display:inline-block;background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.15);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--accent);margin:1px}.ip-chip{display:inline-block;background:rgba(107,255,200,.08);border:1px solid rgba(107,255,200,.2);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--success);margin:1px 2px 1px 0}.finding-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}.finding-card.sev-critical{border-left-color:var(--danger)}.finding-card.sev-high{border-left-color:#ff8c42}.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}.finding-title{flex:1;font-size:12px;font-weight:600}.finding-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);flex-wrap:wrap}.finding-body{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.finding-detail{margin-top:8px;background:rgba(0,0,0,.2);border-radius:5px;padding:8px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:#b0c8e0}.finding-detail dt{color:var(--muted);font-weight:600}.finding-detail dd{margin-left:4px;color:var(--text);margin-right:12px}.fix-hint{font-size:11px;color:var(--success);margin-top:5px}.finding-group-wrap{margin-bottom:10px}.finding-group-card{cursor:pointer;border-radius:0 10px 10px 0;margin-bottom:0;transition:border-color .12s}.finding-group-card:hover{border-color:rgba(98,232,255,.3)}.finding-group-chevron{font-size:10px;color:var(--muted);transition:transform .15s;display:inline-block;flex-shrink:0}.finding-group-rows{background:rgba(0,0,0,.18);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:4px 0}.finding-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(98,232,255,.05);font-size:11px}.finding-row:last-child{border-bottom:none}.map-wrap{position:relative;height:calc(100vh - 120px);background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}#hsa-map-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}#hsa-map-canvas:active{cursor:grabbing}.map-tooltip{position:absolute;background:rgba(6,11,24,.96);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:10px;pointer-events:none;z-index:10;min-width:130px;box-shadow:0 4px 18px rgba(0,0,0,.5)}.map-legend{position:absolute;bottom:10px;left:10px;background:rgba(6,11,24,.82);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:10px;display:flex;gap:12px}.legend-item{display:flex;align-items:center;gap:4px;color:var(--muted)}.ldot{width:9px;height:9px;border-radius:50%}.map-mbtn{padding:4px 12px}.map-mbtn.active{background:rgba(136,167,199,.2);border-color:#88a7c7;color:#fff}.map-filter-bar{display:flex;gap:6px;margin-bottom:10px}.map-fbtn{padding:4px 12px}.map-fbtn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.tldr-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.tldr-bar strong{color:var(--accent)}.ip-detail-panel{background:rgba(6,11,24,.98);border:1px solid rgba(98,232,255,.3);border-radius:10px;padding:14px;font-size:12px}.ip-detail-panel h3{color:var(--accent);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.detail-pair{display:flex;flex-direction:column;gap:2px}.detail-key{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}.detail-val{font-size:12px;color:var(--text);word-break:break-all}.ext-report-link{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;border:1px solid rgba(98,232,255,.25);background:rgba(98,232,255,.08);color:var(--accent);text-decoration:none;font-size:11px;font-weight:600}.ext-report-link:hover{background:rgba(98,232,255,.16);border-color:rgba(98,232,255,.45)}.rec-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}.rec-card-clickable{cursor:pointer;transition:border-color .12s}.rec-card-clickable:hover{border-color:rgba(98,232,255,.35);background:rgba(14,23,40,.98)}.rec-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}.rec-title{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}.rec-detail{font-size:11px;color:var(--muted);line-height:1.55}.rec-expand-panel{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.rec-expand-section{margin-bottom:10px}.rec-expand-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:6px}.rec-expand-rows{display:flex;flex-direction:column;gap:5px}.rec-expand-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(98,232,255,.04)}.rec-expand-row:last-child{border-bottom:none}.btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(98,232,255,.05);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}.btn:hover{background:rgba(98,232,255,.12);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:default}.btn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.search-bar{padding:5px 11px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:210px}.search-bar:focus{outline:none;border-color:var(--accent)}.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;color:var(--muted)}.state-icon{font-size:32px}.loader{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--muted);text-align:center}.empty-icon{font-size:28px}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--success)}50%{opacity:.6;box-shadow:0 0 2px var(--success)}}@keyframes spin{to{transform:rotate(360deg)}}.role-select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit}.role-select:focus{outline:none;border-color:var(--accent)}.role-select:hover{border-color:var(--accent);background:rgba(98,232,255,.08)}.sortable-th{cursor:pointer;user-select:none;white-space:nowrap}.sortable-th:hover{color:var(--accent)}.sort-arrow{font-size:8px;margin-left:3px;color:var(--accent)}@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--border);align-items:center;gap:0}.brand{display:none}.brand-tagline{display:none}.nav-list{display:flex;flex-direction:row;padding:0;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch}.nav-item{flex-direction:column;gap:2px;padding:8px 12px;font-size:10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;min-width:0}.nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent)}.nav-item svg{width:14px;height:14px}.nav-label{font-size:9px}.sidebar-status{display:none}.content{padding:12px 10px;height:calc(100vh - 52px)}.content::before{display:none}.page-title{font-size:18px}.stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{padding:10px}.stat-value{font-size:20px}.stat-label{font-size:9px}.two-col{grid-template-columns:1fr}.host-detail-wrap{grid-template-columns:1fr}.table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.data-table{min-width:680px}.search-bar{width:100%}.view-header{flex-direction:column;align-items:flex-start;gap:8px}.view-header h1{font-size:16px}.map-wrap{height:calc(100vh - 160px)}.map-legend{flex-wrap:wrap;gap:6px;font-size:9px}.map-filter-bar{flex-wrap:wrap}.finding-meta{flex-direction:column;gap:4px}.detail-grid{grid-template-columns:1fr}.ip-detail-panel{font-size:11px}.rec-card{flex-direction:column;gap:6px}.tldr-bar{flex-direction:column;gap:6px}.card{padding:12px;border-radius:10px}.finding-card{padding:10px}.btn{font-size:10px;padding:4px 8px}}@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.data-table{min-width:560px;font-size:11px}.content{padding:8px 6px}}';

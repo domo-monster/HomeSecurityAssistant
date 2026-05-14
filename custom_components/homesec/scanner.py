@@ -732,6 +732,8 @@ class NetworkScanner:
         self._last_scan_at: datetime | None = None
         self._last_scan_duration: float | None = None
         self._last_scan_hosts: int | None = None
+        self._last_scan_status: str | None = None
+        self._last_scan_targets: int | None = None
 
     def add_observed_ips(self, ips: Iterable[str]) -> None:
         """Register IPs seen from netflow so the scanner knows what to probe."""
@@ -776,9 +778,9 @@ class NetworkScanner:
                 pass
             self._task = None
 
-    async def async_trigger_scan(self) -> None:
+    async def async_trigger_scan(self) -> dict[str, object]:
         """Run an immediate scan cycle outside the normal schedule."""
-        await self._run_scan()
+        return await self._run_scan()
 
     async def _scan_loop(self) -> None:
         """Repeatedly scan the network."""
@@ -801,11 +803,32 @@ class NetworkScanner:
     def last_scan_hosts(self) -> int | None:
         return self._last_scan_hosts
 
-    async def _run_scan(self) -> None:
-        """Execute one full scan cycle."""
+    @property
+    def last_scan_status(self) -> str | None:
+        return self._last_scan_status
+
+    @property
+    def last_scan_targets(self) -> int | None:
+        return self._last_scan_targets
+
+    async def _run_scan(self) -> dict[str, object]:
+        """Execute one full scan cycle and return a short status payload."""
         targets = self.get_scan_targets()
         if not targets:
-            return
+            now = datetime.now(UTC)
+            self._last_scan_at = now
+            self._last_scan_duration = 0.0
+            self._last_scan_hosts = 0
+            self._last_scan_status = "no_targets"
+            self._last_scan_targets = 0
+            _LOGGER.info("Skipping scan: no targets available (known IP set is empty)")
+            return {
+                "status": "no_targets",
+                "targets": 0,
+                "alive_hosts": 0,
+                "duration": 0.0,
+                "scan_at": now.isoformat(),
+            }
         _LOGGER.info("Starting network scan of %d hosts", len(targets))
         t0 = datetime.now(UTC)
         results = await scan_network(
@@ -818,6 +841,8 @@ class NetworkScanner:
         self._last_scan_at = datetime.now(UTC)
         self._last_scan_duration = (self._last_scan_at - t0).total_seconds()
         self._last_scan_hosts = sum(1 for h in results if h.alive)
+        self._last_scan_status = "ok"
+        self._last_scan_targets = len(targets)
         _LOGGER.info(
             "Scan complete: %d alive, %d total tracked (%.1fs)",
             self._last_scan_hosts,
@@ -826,6 +851,13 @@ class NetworkScanner:
         )
         if self._on_scan_complete is not None:
             await self._on_scan_complete(self.get_hosts_as_dicts())
+        return {
+            "status": "ok",
+            "targets": len(targets),
+            "alive_hosts": self._last_scan_hosts,
+            "duration": self._last_scan_duration,
+            "scan_at": self._last_scan_at.isoformat(),
+        }
 
     def load_hosts(self, data: dict[str, dict]) -> None:
         """Restore previously persisted hosts without overwriting fresher in-memory data."""

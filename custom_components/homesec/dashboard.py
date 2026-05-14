@@ -21,9 +21,47 @@ from homeassistant.components.http.view import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
 from .const import (
+    CONF_BASELINE_ENABLED,
+    CONF_BIND_HOST,
+    CONF_BIND_PORT,
+    CONF_BLACKLIST_URLS,
+    CONF_BASELINE_EGRESS_MULTIPLIER,
+    CONF_BASELINE_MIN_OBSERVATIONS,
+    CONF_BASELINE_TRAINING_HOURS,
+    CONF_DNS_BLOCKED_CATEGORIES,
+    CONF_DNS_LOG_RETENTION_HOURS,
+    CONF_DNS_OVERRIDES,
+    CONF_DNS_PROXY_ENABLED,
+    CONF_DNS_PROXY_PORT,
+    CONF_DNS_PROXY_UPSTREAM,
+    CONF_ENABLE_DNS_RESOLUTION,
+    CONF_ENABLE_NETFLOW_LISTENER,
+    CONF_ENABLE_SCANNER,
+    CONF_ENRICHMENT_TTL_MINUTES,
+    CONF_EXTERNAL_IP_RETENTION,
+    CONF_HIGH_EGRESS_THRESHOLD,
+    CONF_INTERNAL_NETWORKS,
+    CONF_NVD_API_URL,
+    CONF_NVD_KEYWORDS,
+    CONF_NVD_MIN_YEAR,
+    CONF_NVD_TTL_HOURS,
+    CONF_RETENTION_MALICIOUS_HOURS,
+    CONF_RETENTION_SUSPICIOUS_HOURS,
+    CONF_ABUSEIPDB_API_KEY,
+    CONF_ABUSEIPDB_DAILY_BUDGET,
+    CONF_SCAN_EXCEPTIONS,
     CONF_SCAN_INTERVAL,
+    CONF_SCAN_PORT_THRESHOLD,
+    CONF_SCAN_PORTS,
+    CONF_SCAN_WINDOW_SECONDS,
     CONF_STATS_TOP_N,
+    CONF_VT_ABUSEIPDB_THRESHOLD,
+    CONF_VIRUSTOTAL_API_KEY,
+    CONF_VIRUSTOTAL_DAILY_BUDGET,
     CONF_WEBUI_REQUIRE_ADMIN,
+    DEFAULT_BASELINE_ENABLED,
+    DEFAULT_BIND_HOST,
+    DEFAULT_BIND_PORT,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STATS_TOP_N,
     DEFAULT_WEBUI_REQUIRE_ADMIN,
@@ -50,6 +88,110 @@ _ROLE_RE = _re.compile(r'^[a-z0-9_]{1,40}$')
 _LOGGER = logging.getLogger(__name__)
 
 SEVERITY_SORT = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "low": 4, "info": 5}
+
+# ── Settings schema (mirrors standalone config.py — used by the Settings UI) ──
+SETTINGS_KEYS: tuple[str, ...] = (
+    CONF_BIND_HOST, CONF_BIND_PORT, CONF_ENABLE_NETFLOW_LISTENER,
+    CONF_INTERNAL_NETWORKS, CONF_SCAN_WINDOW_SECONDS, CONF_SCAN_PORT_THRESHOLD,
+    CONF_HIGH_EGRESS_THRESHOLD, CONF_ENABLE_SCANNER, CONF_SCAN_INTERVAL,
+    CONF_SCAN_PORTS, CONF_SCAN_EXCEPTIONS, CONF_ENABLE_DNS_RESOLUTION,
+    CONF_BLACKLIST_URLS, CONF_DNS_PROXY_ENABLED, CONF_DNS_PROXY_PORT,
+    CONF_DNS_PROXY_UPSTREAM, CONF_DNS_LOG_RETENTION_HOURS,
+    CONF_DNS_BLOCKED_CATEGORIES, CONF_DNS_OVERRIDES, CONF_VIRUSTOTAL_API_KEY,
+    CONF_ABUSEIPDB_API_KEY, CONF_VT_ABUSEIPDB_THRESHOLD,
+    CONF_VIRUSTOTAL_DAILY_BUDGET, CONF_ABUSEIPDB_DAILY_BUDGET,
+    CONF_ENRICHMENT_TTL_MINUTES, CONF_EXTERNAL_IP_RETENTION,
+    CONF_RETENTION_SUSPICIOUS_HOURS, CONF_RETENTION_MALICIOUS_HOURS,
+    CONF_BASELINE_ENABLED, CONF_BASELINE_TRAINING_HOURS,
+    CONF_BASELINE_MIN_OBSERVATIONS, CONF_BASELINE_EGRESS_MULTIPLIER,
+    CONF_NVD_API_URL, CONF_NVD_TTL_HOURS, CONF_NVD_MIN_YEAR, CONF_NVD_KEYWORDS,
+    CONF_STATS_TOP_N,
+)
+
+SETTINGS_SCHEMA: list[dict[str, Any]] = [
+    {
+        "section": "Network & NetFlow",
+        "fields": [
+            {"key": CONF_BIND_HOST, "label": "NetFlow Bind Host", "type": "text", "help": "IP address to bind the NetFlow UDP listener (use 0.0.0.0 for all interfaces)"},
+            {"key": CONF_BIND_PORT, "label": "NetFlow Bind Port", "type": "number", "min": 1, "max": 65535, "help": "UDP port for NetFlow v5/v9/IPFIX datagrams (default 2055)"},
+            {"key": CONF_ENABLE_NETFLOW_LISTENER, "label": "Enable NetFlow Listener", "type": "boolean", "help": "Enable UDP NetFlow/IPFIX listener and flow ingestion"},
+            {"key": CONF_INTERNAL_NETWORKS, "label": "Internal Networks", "type": "text", "help": "Comma-separated CIDR ranges that are considered internal (e.g. 192.168.0.0/16,10.0.0.0/8)"},
+        ],
+    },
+    {
+        "section": "Threat Detection",
+        "fields": [
+            {"key": CONF_SCAN_WINDOW_SECONDS, "label": "Port Scan Window (s)", "type": "number", "min": 10, "max": 3600, "help": "Time window in seconds for port-scan detection"},
+            {"key": CONF_SCAN_PORT_THRESHOLD, "label": "Port Scan Threshold", "type": "number", "min": 1, "max": 10000, "help": "Number of distinct ports contacted within the window to trigger a port-scan alert"},
+            {"key": CONF_HIGH_EGRESS_THRESHOLD, "label": "High Egress Threshold (bytes)", "type": "number", "min": 100000, "help": "Bytes sent outbound to trigger a high-egress alert"},
+        ],
+    },
+    {
+        "section": "Active Scanner",
+        "fields": [
+            {"key": CONF_ENABLE_SCANNER, "label": "Enable Scanner", "type": "boolean", "help": "Enable periodic active port scanning of internal hosts"},
+            {"key": CONF_SCAN_INTERVAL, "label": "Scan Interval (s)", "type": "number", "min": 60, "help": "Seconds between active scan cycles"},
+            {"key": CONF_SCAN_PORTS, "label": "Scan Ports", "type": "text", "help": "Ports to scan (ranges and commas allowed, e.g. 22,80,443,8080-8090)"},
+            {"key": CONF_SCAN_EXCEPTIONS, "label": "Scan Exceptions", "type": "text", "help": "Comma-separated IPs to exclude from active scanning"},
+        ],
+    },
+    {
+        "section": "DNS & Threat Intelligence",
+        "fields": [
+            {"key": CONF_ENABLE_DNS_RESOLUTION, "label": "Enable DNS Resolution", "type": "boolean", "help": "Resolve hostnames for external IPs and check them against blacklists"},
+            {"key": CONF_BLACKLIST_URLS, "label": "Blacklist URLs", "type": "text", "help": "Comma or newline-separated URLs of threat-intel blocklists to download"},
+        ],
+    },
+    {
+        "section": "DNS Proxy",
+        "fields": [
+            {"key": CONF_DNS_PROXY_ENABLED, "label": "Enable DNS Proxy", "type": "boolean", "help": "Run a DNS proxy that logs and optionally blocks queries"},
+            {"key": CONF_DNS_PROXY_PORT, "label": "DNS Proxy Port", "type": "number", "min": 1, "max": 65535, "help": "UDP port for the DNS proxy listener (default 53 — requires root/CAP_NET_BIND_SERVICE)"},
+            {"key": CONF_DNS_PROXY_UPSTREAM, "label": "Upstream DNS Server", "type": "text", "help": "Upstream DNS resolver IP (e.g. 1.1.1.1)"},
+            {"key": CONF_DNS_LOG_RETENTION_HOURS, "label": "DNS Log Retention (h)", "type": "number", "min": 0, "max": 8760, "help": "How many hours to keep DNS query log entries (0 = unlimited)"},
+            {"key": CONF_DNS_BLOCKED_CATEGORIES, "label": "Blocked DNS Categories", "type": "text", "help": "Comma or newline-separated category names to block (e.g. ads,malware,tracking)"},
+            {"key": CONF_DNS_OVERRIDES, "label": "DNS Local Overrides", "type": "text", "help": "Local DNS overrides, one per line: hostname=IP (e.g. myhost.local=192.168.1.5)"},
+        ],
+    },
+    {
+        "section": "External IP Enrichment",
+        "fields": [
+            {"key": CONF_VIRUSTOTAL_API_KEY, "label": "VirusTotal API Key", "type": "password", "help": "Optional VirusTotal API key for external IP reputation lookup"},
+            {"key": CONF_ABUSEIPDB_API_KEY, "label": "AbuseIPDB API Key", "type": "password", "help": "Optional AbuseIPDB API key for external IP reputation lookup"},
+            {"key": CONF_VT_ABUSEIPDB_THRESHOLD, "label": "Threat Score Threshold (%)", "type": "number", "min": 0, "max": 100, "help": "Minimum abuse confidence score (0-100) to flag an IP as suspicious"},
+            {"key": CONF_VIRUSTOTAL_DAILY_BUDGET, "label": "VirusTotal Daily Budget", "type": "number", "min": 0, "help": "Max VirusTotal API lookups per day"},
+            {"key": CONF_ABUSEIPDB_DAILY_BUDGET, "label": "AbuseIPDB Daily Budget", "type": "number", "min": 0, "help": "Max AbuseIPDB API lookups per day"},
+            {"key": CONF_ENRICHMENT_TTL_MINUTES, "label": "Enrichment Cache TTL (min)", "type": "number", "min": 1, "help": "Minutes before re-querying enrichment APIs for a known IP"},
+            {"key": CONF_EXTERNAL_IP_RETENTION, "label": "External IP Retention (h)", "type": "number", "min": 0, "help": "Hours to retain clean external IPs in the dashboard"},
+            {"key": CONF_RETENTION_SUSPICIOUS_HOURS, "label": "Suspicious IP Retention (h)", "type": "number", "min": 0, "help": "Hours to retain suspicious IPs"},
+            {"key": CONF_RETENTION_MALICIOUS_HOURS, "label": "Malicious IP Retention (h)", "type": "number", "min": 0, "help": "Hours to retain malicious IPs"},
+        ],
+    },
+    {
+        "section": "NVD Vulnerability Intelligence",
+        "fields": [
+            {"key": CONF_NVD_API_URL, "label": "NVD API URL", "type": "text", "help": "NVD CVE API endpoint URL"},
+            {"key": CONF_NVD_TTL_HOURS, "label": "NVD Cache TTL (h)", "type": "number", "min": 1, "help": "Hours before refreshing the NVD CVE cache"},
+            {"key": CONF_NVD_MIN_YEAR, "label": "CVE Min Year", "type": "number", "min": 1999, "help": "Only show CVEs published on or after this year"},
+            {"key": CONF_NVD_KEYWORDS, "label": "NVD Keywords", "type": "text", "help": "Comma-separated product keywords to pre-fetch from NVD (e.g. OpenSSH,nginx,Samba)"},
+        ],
+    },
+    {
+        "section": "Baseline & Behaviour Analysis",
+        "fields": [
+            {"key": CONF_BASELINE_ENABLED, "label": "Enable Baseline", "type": "boolean", "help": "Enable behavioural baseline learning and anomaly detection"},
+            {"key": CONF_BASELINE_TRAINING_HOURS, "label": "Training Duration (h)", "type": "number", "min": 1, "max": 168, "help": "Hours of traffic to observe before the baseline is considered trained"},
+            {"key": CONF_BASELINE_MIN_OBSERVATIONS, "label": "Min Observations", "type": "number", "min": 1, "max": 50, "help": "Minimum number of flow observations before treating a pattern as normal"},
+            {"key": CONF_BASELINE_EGRESS_MULTIPLIER, "label": "Egress Anomaly Multiplier", "type": "number", "min": 1.0, "help": "How many times the baseline egress a device must exceed before it is flagged"},
+        ],
+    },
+    {
+        "section": "Display",
+        "fields": [
+            {"key": CONF_STATS_TOP_N, "label": "Statistics Top N", "type": "number", "min": 3, "max": 25, "help": "How many top entries to show in statistics charts"},
+        ],
+    },
+]
 
 PANEL_URL_PATH = "homesec"
 PANEL_COMPONENT = "homesec-panel"
@@ -101,6 +243,8 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
     hass.http.register_view(HomeSecVulnBrowserView())
     hass.http.register_view(HomeSecDnsLogView())
     hass.http.register_view(HomeSecClearBlockedDnsView())
+    hass.http.register_view(HomeSecSettingsView())
+    hass.http.register_view(HomeSecSettingsSaveView())
     await panel_custom.async_register_panel(
         hass,
         webcomponent_name=PANEL_COMPONENT,
@@ -158,6 +302,8 @@ def build_dashboard_payload(
     scan_last_at: str | None = None
     scan_duration: float | None = None
     scan_hosts_found: int | None = None
+    scan_last_status: str | None = None
+    scan_last_targets: int | None = None
 
     baseline_anomalies: list[dict[str, Any]] = []
     baseline_status: dict[str, Any] = {}
@@ -291,6 +437,10 @@ def build_dashboard_payload(
             scan_duration = scanner.last_scan_duration
         if scanner.last_scan_hosts is not None:
             scan_hosts_found = scanner.last_scan_hosts
+        if scanner.last_scan_status is not None:
+            scan_last_status = scanner.last_scan_status
+        if scanner.last_scan_targets is not None:
+            scan_last_targets = scanner.last_scan_targets
         nvd_ts = collector._nvd_last_fetch_at
         if nvd_ts:
             nvd_ts_str = nvd_ts.isoformat()
@@ -497,9 +647,20 @@ def build_dashboard_payload(
         "scan_last_at": scan_last_at,
         "scan_duration": scan_duration,
         "scan_hosts_found": scan_hosts_found,
+        "scan_last_status": scan_last_status,
+        "scan_last_targets": scan_last_targets,
         "scan_interval": int(get_entry_value(
             list(entries.values())[0]["entry"], CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
         )) if entries else None,
+        "netflow_listener_enabled": bool(get_entry_value(
+            list(entries.values())[0]["entry"], CONF_ENABLE_NETFLOW_LISTENER, False
+        )) if entries else False,
+        "baseline_enabled": bool(get_entry_value(
+            list(entries.values())[0]["entry"], CONF_BASELINE_ENABLED, DEFAULT_BASELINE_ENABLED
+        )) if entries else False,
+        "dns_proxy_enabled": bool(get_entry_value(
+            list(entries.values())[0]["entry"], CONF_DNS_PROXY_ENABLED, False
+        )) if entries else False,
         "entries": entry_payloads,
         "stats_top_n": TOP_N,
         "top_public_ips": top_public_ips,
@@ -1225,3 +1386,71 @@ class HomeSecClearBlockedDnsView(HomeAssistantView):
             if collector is not None:
                 total_removed += collector.clear_blocked_dns_log()
         return self.json({"removed": total_removed})
+
+
+class HomeSecSettingsView(HomeAssistantView):
+    """Return current integration settings and schema for the Settings UI.
+
+    GET /api/homesec/settings
+    Returns the current config entry values and the settings schema so
+    the frontend can render an editable form.
+    """
+
+    url = "/api/homesec/settings"
+    name = "api:homesec:settings"
+    requires_auth = True
+
+    async def get(self, request: web.Request) -> web.Response:
+        hass: HomeAssistant = request.app["hass"]
+        domain_data = hass.data.get(DOMAIN, {})
+        entries = domain_data.get("entries", {})
+        if not entries:
+            return self.json({"error": "no active HomeSec entries"}, status_code=404)
+        entry = next(iter(entries.values()))["entry"]
+        config: dict[str, Any] = {
+            key: get_entry_value(entry, key)
+            for key in SETTINGS_KEYS
+            if get_entry_value(entry, key) is not None
+        }
+        return self.json({"config": config, "schema": SETTINGS_SCHEMA})
+
+
+class HomeSecSettingsSaveView(HomeAssistantView):
+    """Save updated settings via the HA config entry options.
+
+    POST /api/homesec/settings
+    Accepts a JSON object with one or more settings keys and merges them
+    into the config entry options, then schedules a reload of the entry.
+    """
+
+    url = "/api/homesec/settings/save"
+    name = "api:homesec:settings:save"
+    requires_auth = True
+
+    async def post(self, request: web.Request) -> web.Response:
+        try:
+            data = await request.json()
+        except ValueError:
+            return self.json({"error": "Invalid JSON"}, status_code=400)
+        if not isinstance(data, dict):
+            return self.json({"error": "Expected JSON object"}, status_code=400)
+
+        hass: HomeAssistant = request.app["hass"]
+        domain_data = hass.data.get(DOMAIN, {})
+        entries = domain_data.get("entries", {})
+        if not entries:
+            return self.json({"error": "no active HomeSec entries"}, status_code=404)
+
+        runtime = next(iter(entries.values()))
+        entry = runtime["entry"]
+
+        # Merge submitted keys into existing options (only known keys accepted)
+        new_options = dict(entry.options)
+        for key in SETTINGS_KEYS:
+            if key in data:
+                new_options[key] = data[key]
+
+        hass.config_entries.async_update_entry(entry, options=new_options)
+        _LOGGER.info("HomeSec settings updated via Settings UI; scheduling reload")
+        hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
+        return self.json({"result": "ok", "restart_required": False})

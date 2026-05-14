@@ -2,41 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "title": "Security Assistant",
-        "description": "Konfigurieren Sie den NetFlow-Listener, interne Netzwerke, den aktiven Scanner und optionale Bedrohungsdaten-Anreicherung.",
+        "title": "Security Assistant — Setup",
+        "description": "Enter the NetFlow listener address and your internal network ranges. All advanced settings can be configured from the Security Assistant panel after setup.",
         "data": {
-          "bind_host": "Bind-Host",
-          "bind_port": "Bind-Port (UDP, Standard 2055)",
-          "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs)",
-          "scan_window_seconds": "Erkennungsfenster für Port-Scans (Sekunden)",
-          "scan_port_threshold": "Eindeutige Ports vor Scan-Warnung",
-          "high_egress_threshold": "Hoher ausgehender Datenverkehr-Schwellenwert (Oktette pro Intervall)",
-          "enable_webui": "Seitenleisten-Panel aktivieren",
-          "enable_scanner": "Aktiven Netzwerkscanner aktivieren (Ping + Port-Scan)",
-          "scan_interval": "Aktives Scan-Intervall (Sekunden)",
-          "scan_exceptions": "Scanner-Ausnahmen (kommagetrennte IPs, die übersprungen werden sollen)",
-          "scan_ports": "Zu scannende Ports (kommagetrennte Ports oder Bereiche, z.B. 22,80,443,8000-9000)",
-          "enable_dns_resolution": "Reverse-DNS-Auflösung aktivieren",
-          "blacklist_urls": "Bedrohungsdaten-Feed-URLs (eine pro Zeile oder kommagetrennt)",
-          "dns_proxy_enabled": "DNS-Proxy aktivieren (Port 53 — HA muss als root oder mit CAP_NET_BIND_SERVICE laufen)",
-          "dns_proxy_port": "DNS-Proxy-Port (Standard 53)",
-          "dns_proxy_upstream": "Vorgelagerter(e) DNS-Resolver — kommagetrennt für mehrere (z.B. 1.1.1.1,8.8.8.8)",
-          "dns_log_retention_hours": "DNS-Abfrageprotokoll-Aufbewahrung (Stunden, 0 = alle behalten)",
-          "dns_blocked_categories": "DNS-Blockkategorien\n(eine pro Zeile oder kommagetrennt: adult,gambling,ads,tracking,social,gaming,streaming,news; leer = nichts blockieren)",
-          "dns_overrides": "Lokale DNS-Overrides\n(Domain=IP, eine pro Zeile oder kommagetrennt; in homesec.yaml gespeichert)",
-          "virustotal_api_key": "VirusTotal API-Schlüssel (optional)",
-          "abuseipdb_api_key": "AbuseIPDB API-Schlüssel (optional)",
-          "vt_abuseipdb_threshold": "Erforderliche AbuseIPDB-Konfidenz vor VirusTotal-Abfrage (0-100)",
-          "external_ip_retention_hours": "Aufbewahrung bereinigter IPs (Stunden, 0 = unbegrenzt)",
-          "retention_suspicious_hours": "Aufbewahrung verdächtiger IPs (Stunden, 0 = unbegrenzt)",
-          "retention_malicious_hours": "Aufbewahrung schädlicher IPs (Stunden, 0 = unbegrenzt)",
-          "enrichment_ttl_minutes": "TTL des Anreicherungs-Caches (Minuten, Wartezeit bis zur erneuten Abfrage der Anbieter)",
-          "virustotal_daily_budget": "Tägliches Abfrage-Budget VirusTotal",
-          "abuseipdb_daily_budget": "Tägliches Abfrage-Budget AbuseIPDB",
-          "nvd_ttl_hours": "TTL des NVD-Caches (Stunden, Wartezeit bis zur erneuten CVE-Abfrage)",
-          "nvd_min_year": "NVD-Mindest-CVE-Jahr (0 = alle Jahre, kein Filter)",
-          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)",
-          "stats_top_n": "Statistiken: Top-N Einträge anzeigen (3–25)"
+          "bind_host": "NetFlow bind host (e.g. 0.0.0.0)",
+          "bind_port": "NetFlow bind port (UDP, default 2055)",
+          "enable_netflow_listener": "Enable NetFlow listener",
+          "internal_networks": "Internal networks (comma-separated CIDRs)"
         }
       }
     }
@@ -44,54 +16,15 @@
   "options": {
     "step": {
       "init": {
-        "title": "Security Assistant — Optionen",
-        "description": "Aktualisieren Sie Listener, Erkennungsschwellenwerte, aktiven Scanner und Anreicherungseinstellungen.",
+        "title": "Security Assistant — Listener Settings",
+        "description": "Update the NetFlow listener and internal networks. All advanced settings are available from the Security Assistant panel.",
         "data": {
-          "bind_host": "Bind-Host",
-          "bind_port": "Bind-Port (UDP)",
-          "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs)",
-          "scan_window_seconds": "Erkennungsfenster für Port-Scans (Sekunden)",
-          "scan_port_threshold": "Eindeutige Ports vor Scan-Warnung",
-          "high_egress_threshold": "Hoher ausgehender Datenverkehr-Schwellenwert (Oktette pro Intervall)",
-          "enable_webui": "Seitenleisten-Panel aktivieren",
-          "enable_scanner": "Aktiven Netzwerkscanner aktivieren",
-          "scan_interval": "Aktives Scan-Intervall (Sekunden)",
-          "scan_exceptions": "Scanner-Ausnahmen (kommagetrennte IPs, die übersprungen werden sollen)",
-          "scan_ports": "Zu scannende Ports (kommagetrennte Ports oder Bereiche, z.B. 22,80,443,8000-9000)",
-          "enable_dns_resolution": "Reverse-DNS-Auflösung aktivieren",
-          "blacklist_urls": "Bedrohungsdaten-Feed-URLs (eine pro Zeile oder kommagetrennt)",
-          "dns_proxy_enabled": "DNS-Proxy aktivieren (Port 53 — HA muss als root oder mit CAP_NET_BIND_SERVICE laufen)",
-          "dns_proxy_port": "DNS-Proxy-Port (Standard 53)",
-          "dns_proxy_upstream": "Vorgelagerter(e) DNS-Resolver — kommagetrennt für mehrere (z.B. 1.1.1.1,8.8.8.8)",
-          "dns_log_retention_hours": "DNS-Abfrageprotokoll-Aufbewahrung (Stunden, 0 = alle behalten)",
-          "dns_blocked_categories": "DNS-Blockkategorien\n(eine pro Zeile oder kommagetrennt: adult,gambling,ads,tracking,social,gaming,streaming,news; leer = nichts blockieren)",
-          "dns_overrides": "Lokale DNS-Overrides\n(Domain=IP, eine pro Zeile oder kommagetrennt; in homesec.yaml gespeichert)",
-          "virustotal_api_key": "VirusTotal API-Schlüssel (optional)",
-          "abuseipdb_api_key": "AbuseIPDB API-Schlüssel (optional)",
-          "vt_abuseipdb_threshold": "Erforderliche AbuseIPDB-Konfidenz vor VirusTotal-Abfrage (0-100)",
-          "external_ip_retention_hours": "Aufbewahrung bereinigter IPs (Stunden, 0 = unbegrenzt)",
-          "retention_suspicious_hours": "Aufbewahrung verdächtiger IPs (Stunden, 0 = unbegrenzt)",
-          "retention_malicious_hours": "Aufbewahrung schädlicher IPs (Stunden, 0 = unbegrenzt)",
-          "enrichment_ttl_minutes": "TTL des Anreicherungs-Caches (Minuten, Wartezeit bis zur erneuten Abfrage der Anbieter)",
-          "virustotal_daily_budget": "Tägliches Abfrage-Budget VirusTotal",
-          "abuseipdb_daily_budget": "Tägliches Abfrage-Budget AbuseIPDB",
-          "nvd_api_url": "NVD API-URL",
-          "nvd_ttl_hours": "TTL des NVD-Caches (Stunden, Wartezeit bis zur erneuten CVE-Abfrage)",
-          "nvd_min_year": "NVD-Mindest-CVE-Jahr (0 = alle Jahre, kein Filter)",
-          "nvd_keywords": "NVD-Suchbegriffe (kommagetrennte Produktnamen)",
-          "stats_top_n": "Statistiken: Top-N Einträge anzeigen (3–25)"
+          "bind_host": "NetFlow bind host",
+          "bind_port": "NetFlow bind port (UDP)",
+          "enable_netflow_listener": "Enable NetFlow listener",
+          "internal_networks": "Internal networks (comma-separated CIDRs)"
         }
       }
-    }
-  },
-  "services": {
-    "trigger_scan": {
-      "name": "Aktiven Host-Scan auslösen",
-      "description": "Führt sofort einen vollständigen aktiven Netzwerkscan (Ping + Port-Scan) für alle bekannten und beobachteten IPs durch, ohne auf das nächste geplante Intervall zu warten."
-    },
-    "nvd_refresh": {
-      "name": "NVD-Schwachstellendatenbank aktualisieren",
-      "description": "Löscht den lokalen NVD-CVE-Cache und ruft aktuelle Schwachstellendaten aus der National Vulnerability Database erneut ab."
     }
   }
 }

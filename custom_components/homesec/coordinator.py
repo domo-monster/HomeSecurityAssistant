@@ -30,6 +30,7 @@ from .const import (
     CONF_DNS_BLOCKED_CATEGORIES,
     CONF_DNS_OVERRIDES,
     CONF_ENABLE_DNS_RESOLUTION,
+    CONF_ENABLE_NETFLOW_LISTENER,
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
     CONF_EXTERNAL_IP_RETENTION,
@@ -66,6 +67,7 @@ from .const import (
     DEFAULT_DNS_BLOCKED_CATEGORIES,
     DEFAULT_DNS_OVERRIDES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
+    DEFAULT_ENABLE_NETFLOW_LISTENER,
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENRICHMENT_TTL_MINUTES,
     DEFAULT_EXTERNAL_IP_RETENTION,
@@ -113,6 +115,17 @@ from .vulnerabilities import match_vulnerabilities
 _LOGGER = logging.getLogger(__name__)
 
 
+def _as_bool(value: Any) -> bool:
+    """Parse common YAML/UI boolean forms safely."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes", "on")
+    if isinstance(value, (int, float)):
+        return value != 0
+    return bool(value)
+
+
 class HomeSecCollector:
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.hass = hass
@@ -138,6 +151,9 @@ class HomeSecCollector:
             excluded_ips=excluded_ips,
             ports=scan_ports,
             on_scan_complete=self._persist_hosts,
+        )
+        self._netflow_listener_enabled = _as_bool(
+            get_entry_value(entry, CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER)
         )
         self._scanner_enabled = bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER))
 
@@ -242,32 +258,37 @@ class HomeSecCollector:
     async def async_start(self) -> None:
         self._started_at = datetime.now(timezone.utc)
         loop = asyncio.get_running_loop()
-        bind_host = str(get_entry_value(self.entry, CONF_BIND_HOST, DEFAULT_BIND_HOST))
-        bind_port = int(get_entry_value(self.entry, CONF_BIND_PORT, DEFAULT_BIND_PORT))
-        self._protocol = NetFlowDatagramProtocol(self._handle_records)
+        if self._netflow_listener_enabled:
+            bind_host = str(get_entry_value(self.entry, CONF_BIND_HOST, DEFAULT_BIND_HOST))
+            bind_port = int(get_entry_value(self.entry, CONF_BIND_PORT, DEFAULT_BIND_PORT))
+            self._protocol = NetFlowDatagramProtocol(self._handle_records)
 
-        # Pre-create the socket with SO_REUSEADDR so that integration reloads
-        # don't fail with EADDRINUSE while the previous socket is still draining.
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        try:
-            sock.bind((bind_host, bind_port))
-        except OSError as exc:
-            sock.close()
-            _LOGGER.error(
-                "HomeSec could not bind NetFlow listener on %s:%d — %s. "
-                "Check whether another process already owns UDP port %d, "
-                "or change the bind port in integration options.",
-                bind_host, bind_port, exc, bind_port,
+            # Pre-create the socket with SO_REUSEADDR so that integration reloads
+            # don't fail with EADDRINUSE while the previous socket is still draining.
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                sock.bind((bind_host, bind_port))
+            except OSError as exc:
+                sock.close()
+                _LOGGER.error(
+                    "HomeSec could not bind NetFlow listener on %s:%d — %s. "
+                    "Check whether another process already owns UDP port %d, "
+                    "or change the bind port in integration options.",
+                    bind_host, bind_port, exc, bind_port,
+                )
+                raise
+            sock.setblocking(False)
+            transport, _ = await loop.create_datagram_endpoint(
+                lambda: self._protocol,
+                sock=sock,
             )
-            raise
-        sock.setblocking(False)
-        transport, _ = await loop.create_datagram_endpoint(
-            lambda: self._protocol,
-            sock=sock,
-        )
-        self._transport = transport
-        _LOGGER.info("Home Security Assistant listening for NetFlow v5/v9/IPFIX on %s:%s", bind_host, bind_port)
+            self._transport = transport
+            _LOGGER.info("Home Security Assistant listening for NetFlow v5/v9/IPFIX on %s:%s", bind_host, bind_port)
+        else:
+            self._protocol = None
+            self._transport = None
+            _LOGGER.info("NetFlow listener disabled by configuration")
 
         persisted_hosts = await self.hass.async_add_executor_job(
             load_discovered_hosts, self._config_dir
@@ -736,6 +757,7 @@ class HomeSecCollector:
         payload["kev_ttl_hours"] = self._kev_client.ttl_hours
         kev_ts = self._kev_client.fetched_at
         payload["kev_last_updated"] = kev_ts.isoformat() if kev_ts else None
+        payload["netflow_listener_enabled"] = self._netflow_listener_enabled
 
         if ext_state_changed:
             self._ext_state_dirty = True
