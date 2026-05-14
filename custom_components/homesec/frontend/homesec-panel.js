@@ -4635,6 +4635,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._hass.callApi('POST', 'homesec/settings/save', payload).then(function() {
       self._settingsMsg = 'Settings saved. The integration will reload in a moment to apply changes.';
       self._settingsMsgType = 'ok';
+      // Patch local config with saved values so the form re-renders with the new values
+      if (self._settingsData && self._settingsData.config) {
+        Object.assign(self._settingsData.config, payload);
+      }
       self._render();
     }).catch(function(e) {
       var msg;
