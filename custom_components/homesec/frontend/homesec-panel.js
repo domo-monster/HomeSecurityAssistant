@@ -2108,12 +2108,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '</div>';
         })()) +
       '</div>' +
-      '<div class="card" style="margin-top:12px">' +
+      (dnsProxyEnabled ? '<div class="card" style="margin-top:12px">' +
         '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
         (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
         '</div>' +
         dnsTopMalHtml +
-      '</div>' +
+      '</div>' : '') +
       '<div class="card" style="margin-top:12px">' +
         '<div class="card-title">Enrichment Budget (Today)</div>' +
         enrichSection +
@@ -4230,7 +4230,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
       '<input class="search-bar" id="dns-search" placeholder="Filter by IP or domain…" style="width:220px" ' +
-        'value="' + self._esc(this._dnsSearch) + '" oninput="this.getRootNode().host._dnsFilter()" />' +
+        'value="' + self._esc(this._dnsSearch) + '" onkeydown="if(event.key===\'Enter\')this.getRootNode().host._dnsFilter()" />' +
       '<select id="dns-cat-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
         'onchange="this.getRootNode().host._dnsFilter()">' +
         '<option value="">All categories</option>' +
