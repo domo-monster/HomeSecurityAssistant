@@ -824,10 +824,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var dismissedVulns = dismissed.filter(function(f) { return f.category === 'vulnerability'; }).length;
     var recent   = findings.slice(0, 5);
     var exporters = s.exporters || [];
-    var total    = s.total_datagrams || 0;
+    var totalDatagrams = s.total_datagrams || 0;
     var parsed   = s.parsed_datagrams || 0;
     var dropped  = s.dropped_datagrams || 0;
-    var pct      = total > 0 ? Math.round((parsed / total) * 100) : 0;
+    var pct      = totalDatagrams > 0 ? Math.round((parsed / totalDatagrams) * 100) : 0;
     var self = this;
     var findingsLabel = 'Active Findings' + (dismissed.length ? ' <span class="dim" style="font-size:10px;text-transform:none">(' + dismissed.length + ' dismissed)</span>' : '');
     var cvesLabel = 'Active CVEs' + (dismissedVulns ? ' <span class="dim" style="font-size:10px;text-transform:none">(' + dismissedVulns + ' dismissed)</span>' : '');
@@ -852,11 +852,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var startMs = started ? new Date(started).getTime() : null;
       var endMs = ends ? new Date(ends).getTime() : null;
       var elapsed = startMs ? Math.max(0, Math.min(now, endMs || now) - startMs) : 0;
-      var total = (endMs && startMs) ? endMs - startMs : null;
-      var pct = total ? Math.round((elapsed / total) * 100) : 0;
+      var trainingTotalMs = (endMs && startMs) ? endMs - startMs : null;
+      var pct = trainingTotalMs ? Math.round((elapsed / trainingTotalMs) * 100) : 0;
       trainingElapsed = '<div>' +
         '<span style="font-size:13px">Elapsed: <b>' + self._ago(started) + '</b></span>' +
-        (total ? ' &nbsp; <span style="font-size:13px">Progress: <b>' + pct + '%</b></span>' : '') +
+        (trainingTotalMs ? ' &nbsp; <span style="font-size:13px">Progress: <b>' + pct + '%</b></span>' : '') +
         '</div>';
     }
     // Action buttons
@@ -893,7 +893,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           this._hrow('Uptime', this._uptime(s.collector_started_at), '') +
           this._hrow('Exporters', exporters.join(', ') || '\u2014', '') +
           this._hrow('Flow versions', (s.versions_seen || []).join(', ') || '\u2014', '') +
-          this._hrow('Total datagrams', total.toLocaleString(), '') +
+          this._hrow('Total datagrams', totalDatagrams.toLocaleString(), '') +
           this._hrow('Parsed', parsed.toLocaleString() + ' (' + pct + '%)', pct > 90 ? 'good' : pct > 50 ? 'warn' : 'bad') +
           this._hrow('Dropped', dropped.toLocaleString(), dropped > 0 ? 'warn' : 'good') +
           this._hrow('Last flow', this._ago(s.last_flow_at), '') +
