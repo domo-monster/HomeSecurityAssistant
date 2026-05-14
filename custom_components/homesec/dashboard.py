@@ -1430,8 +1430,8 @@ class HomeSecSettingsSaveView(HomeAssistantView):
     async def post(self, request: web.Request) -> web.Response:
         try:
             data = await request.json()
-        except ValueError:
-            return self.json({"error": "Invalid JSON"}, status_code=400)
+        except Exception:
+            return self.json({"error": "Invalid or non-JSON request body"}, status_code=400)
         if not isinstance(data, dict):
             return self.json({"error": "Expected JSON object"}, status_code=400)
 
@@ -1439,7 +1439,7 @@ class HomeSecSettingsSaveView(HomeAssistantView):
         domain_data = hass.data.get(DOMAIN, {})
         entries = domain_data.get("entries", {})
         if not entries:
-            return self.json({"error": "no active HomeSec entries"}, status_code=404)
+            return self.json({"error": "No active Home Security Assistant entry found. Is the integration set up?"}, status_code=404)
 
         runtime = next(iter(entries.values()))
         entry = runtime["entry"]
@@ -1452,5 +1452,6 @@ class HomeSecSettingsSaveView(HomeAssistantView):
 
         hass.config_entries.async_update_entry(entry, options=new_options)
         _LOGGER.info("HomeSec settings updated via Settings UI; scheduling reload")
-        hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
+        # Delay reload slightly so the HTTP response is sent before teardown begins
+        hass.loop.call_later(0.5, lambda: hass.async_create_task(hass.config_entries.async_reload(entry.entry_id)))
         return self.json({"result": "ok", "restart_required": False})

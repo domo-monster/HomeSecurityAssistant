@@ -4547,7 +4547,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         self._render();
       }).catch(function(e) {
         self._settingsLoading = false;
-        self._settingsMsg = 'Failed to load settings: ' + (e && e.message ? e.message : String(e));
+        var msg;
+        if (typeof e === 'string') {
+          msg = e;
+        } else if (e instanceof Error) {
+          msg = e.message;
+        } else if (e && typeof e === 'object') {
+          msg = e.message || e.error || e.body || e.detail ||
+                (typeof e.status_code === 'number' ? 'HTTP ' + e.status_code : null) ||
+                JSON.stringify(e);
+        } else {
+          msg = String(e);
+        }
+        self._settingsMsg = 'Failed to load settings: ' + msg;
         self._settingsMsgType = 'error';
         self._render();
       });
@@ -4621,12 +4633,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       });
     });
     this._hass.callApi('POST', 'homesec/settings/save', payload).then(function() {
-      self._settingsMsg = 'Settings saved. The integration will reload automatically to apply changes.';
+      self._settingsMsg = 'Settings saved. The integration will reload in a moment to apply changes.';
       self._settingsMsgType = 'ok';
       self._settingsData = null;
       self._render();
     }).catch(function(e) {
-      self._settingsMsg = 'Failed to save settings: ' + (e && e.message ? e.message : String(e));
+      var msg;
+      if (typeof e === 'string') {
+        msg = e;
+      } else if (e instanceof Error) {
+        msg = e.message;
+      } else if (e && typeof e === 'object') {
+        msg = e.message || e.error || e.body || e.detail ||
+              (typeof e.status_code === 'number' ? 'HTTP ' + e.status_code : null) ||
+              JSON.stringify(e);
+      } else {
+        msg = String(e);
+      }
+      self._settingsMsg = 'Failed to save settings: ' + msg;
       self._settingsMsgType = 'error';
       self._render();
     });
