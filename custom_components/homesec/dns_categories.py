@@ -775,6 +775,27 @@ _SUFFIX_MAP: dict[str, str] = {
     "mask.icloud.com":          "cloud",
     "mask-h2.icloud.com":       "cloud",
 
+
+    # Email / webmail providers
+    "gmail.com":                "cloud",
+    "googlemail.com":           "cloud",
+    "yahoo.com":                "cloud",
+    "yahoo.co.jp":              "cloud",
+    "ymail.com":                "cloud",
+    "protonmail.com":           "cloud",
+    "proton.me":                "cloud",
+    "protonvpn.com":            "cloud",
+    "fastmail.com":             "cloud",
+    "fastmail.org":             "cloud",
+    "tutanota.com":             "cloud",
+    "tutanota.de":              "cloud",
+    "zoho.com":                 "cloud",
+    "zohocdn.com":              "cloud",
+    "aol.com":                  "cloud",
+    "yandex.com":               "cloud",
+    "yandex.ru":                "cloud",
+    "yandex.net":               "cloud",
+
     # ── IoT / Smart Home ─────────────────────────────────────────────────────
     # Google / Nest
     "nest.com":                 "iot",
@@ -870,6 +891,38 @@ _SUFFIX_MAP: dict[str, str] = {
     # SwitchBot
     "switch-bot.com":           "iot",
 
+
+    # Networking hardware (routers / APs)
+    "asus.com":                 "iot",
+    "asuscloud.com":            "iot",
+    "dlink.com":                "iot",
+    "linksys.com":              "iot",
+    "belkin.com":               "iot",
+    "zyxel.com":                "iot",
+    "ui.com":                   "iot",   # Ubiquiti UniFi
+    "ubnt.com":                 "iot",   # Ubiquiti legacy
+    "gl-inet.com":              "iot",   # GL.iNet
+    # IP cameras / NVRs
+    "hikvision.com":            "iot",
+    "dahuasecurity.com":        "iot",
+    "amcrest.com":              "iot",
+    "reolink.com":              "iot",
+    "lorex.com":                "iot",
+    "axis.com":                 "iot",
+    "boschsecurity.com":        "iot",
+    # Smart locks / home security
+    "august.com":               "iot",
+    "schlage.com":              "iot",
+    "kwikset.com":              "iot",
+    "simplisafe.com":           "iot",
+    "vivint.com":               "iot",
+    "honeywellhome.com":        "iot",
+    "alarm.com":                "iot",
+    # Smart speakers / AV
+    "bose.com":                 "iot",
+    # Samsung smart home / TVs
+    "samsung.com":              "iot",
+
     # ── Tech / Software / Dev platforms ─────────────────────────────────────
     # OS updates
     "windows.com":              "tech",
@@ -937,6 +990,70 @@ _SUFFIX_MAP: dict[str, str] = {
     "cloudflare-dns.com":       "tech",
     "dns.google":               "tech",
     "doh.opendns.com":          "tech",
+
+    # Browsers
+    "mozilla.org":              "tech",
+    "mozilla.net":              "tech",
+    "mozilla.com":              "tech",
+    "firefox.com":              "tech",
+    "thunderbird.net":          "tech",
+    "chromium.org":             "tech",
+    "chrome.com":               "tech",
+    "opera.com":                "tech",
+    "brave.com":                "tech",
+    "vivaldi.com":              "tech",
+    "torproject.org":           "tech",
+    # PKI / certificate authorities
+    "letsencrypt.org":          "tech",
+    "digicert.com":             "tech",
+    "digicert.net":             "tech",
+    "usertrust.com":            "tech",
+    "comodoca.com":             "tech",
+    "sectigo.com":              "tech",
+    "globalsign.com":           "tech",
+    "globalsign.net":           "tech",
+    "pki.goog":                 "tech",
+    "verisign.com":             "tech",
+    "entrust.net":              "tech",
+    "identrust.com":            "tech",
+    "godaddy.com":              "tech",
+    # NTP / time servers
+    "ntp.org":                  "tech",
+    "time.cloudflare.com":      "tech",
+    "time.google.com":          "tech",
+    "time.apple.com":           "tech",
+    "time.windows.com":         "tech",
+    "time.nist.gov":            "tech",
+    # Antivirus / endpoint security
+    "kaspersky.com":            "tech",
+    "kaspersky-labs.com":       "tech",
+    "mcafee.com":               "tech",
+    "norton.com":               "tech",
+    "nortonlifelock.com":       "tech",
+    "avast.com":                "tech",
+    "avg.com":                  "tech",
+    "malwarebytes.com":         "tech",
+    "eset.com":                 "tech",
+    "bitdefender.com":          "tech",
+    "sophos.com":               "tech",
+    "crowdstrike.com":          "tech",
+    "symantec.com":             "tech",
+    # Hardware / chip vendors
+    "intel.com":                "tech",
+    "amd.com":                  "tech",
+    "nvidia.com":               "tech",
+    "qualcomm.com":             "tech",
+    "arm.com":                  "tech",
+    "raspberrypi.org":          "tech",
+    "raspberrypi.com":          "tech",
+    # VPN providers
+    "nordvpn.com":              "tech",
+    "expressvpn.com":           "tech",
+    "mullvad.net":              "tech",
+    "privateinternetaccess.com": "tech",
+    "surfshark.com":            "tech",
+    "ipvanish.com":             "tech",
+    "tunnelbear.com":           "tech",
 }
 
 
@@ -972,6 +1089,20 @@ _KEYWORD_CATS: list[tuple[str, str]] = [
     (".cdn.",        "cdn"),
     ("static-cdn",  "cdn"),
     ("cdnjs",       "cdn"),
+    # Tracking extras
+    ("beacon",      "tracking"),   # analytics / tracking beacon
+    (".pixel.",     "tracking"),   # tracking pixel subdomains
+    ("collect.",    "tracking"),   # data collection endpoints
+    ("ingest.",     "tracking"),   # log/event ingestion
+    # Ads extras
+    (".ads.",       "ads"),        # explicit .ads. subdomain
+    # CDN extras
+    (".static.",    "cdn"),        # static assets subdomain
+    (".assets.",    "cdn"),        # assets subdomain
+    # Tech / network infrastructure
+    ("ntp.",        "tech"),       # NTP time servers
+    ("update.",     "tech"),       # software update endpoints
+    ("download.",   "tech"),       # software download endpoints
 ]
 
 
@@ -1005,343 +1136,5 @@ def categorize_domain(domain: str) -> str:
     lower = domain.lower()
     for keyword, cat in _KEYWORD_CATS:
         if keyword in lower:
-            return cat
-    return "other"
-
-# ---------------------------------------------------------------------------
-# Suffix → category map
-# Keys are bare domain suffixes (no leading dot).  Matching is tried from
-# the most-specific suffix to the least-specific (TLD).
-# ---------------------------------------------------------------------------
-_SUFFIX_MAP: dict[str, str] = {
-
-    # ── Adult ────────────────────────────────────────────────────────────────
-    "pornhub.com":          "adult",
-    "xvideos.com":          "adult",
-    "xhamster.com":         "adult",
-    "xnxx.com":             "adult",
-    "xnxx-cdn.com":         "adult",
-    "brazzers.com":         "adult",
-    "redtube.com":          "adult",
-    "youporn.com":          "adult",
-    "tube8.com":            "adult",
-    "livejasmin.com":       "adult",
-    "chaturbate.com":       "adult",
-    "onlyfans.com":         "adult",
-    "fapello.com":          "adult",
-    "erome.com":            "adult",
-    "spankbang.com":        "adult",
-    "tnaflix.com":          "adult",
-    "drtuber.com":          "adult",
-    "porn.com":             "adult",
-    "porntrex.com":         "adult",
-    "hentaihaven.xxx":      "adult",
-    "slutload.com":         "adult",
-    "beeg.com":             "adult",
-    "bang.com":             "adult",
-    "reality-kings.com":    "adult",
-    "bangbros.com":         "adult",
-    # Adult TLDs (catch-all for any domain under these TLDs)
-    "xxx":                  "adult",
-    "adult":                "adult",
-    "sex":                  "adult",
-    "porn":                 "adult",
-
-    # ── Gambling ─────────────────────────────────────────────────────────────
-    "bet365.com":           "gambling",
-    "pokerstars.com":       "gambling",
-    "888casino.com":        "gambling",
-    "888sport.com":         "gambling",
-    "888holdings.com":      "gambling",
-    "betway.com":           "gambling",
-    "ladbrokes.com":        "gambling",
-    "williamhill.com":      "gambling",
-    "bwin.com":             "gambling",
-    "unibet.com":           "gambling",
-    "draftkings.com":       "gambling",
-    "fanduel.com":          "gambling",
-    "betonline.ag":         "gambling",
-    "bovada.lv":            "gambling",
-    "betfair.com":          "gambling",
-    "pointsbet.com":        "gambling",
-    "caesars.com":          "gambling",
-    "borgataonline.com":    "gambling",
-    "partycasino.com":      "gambling",
-    "paddy-power.com":      "gambling",
-    "betvictor.com":        "gambling",
-    "coral.co.uk":          "gambling",
-    "skybet.com":           "gambling",
-    "mrgreen.com":          "gambling",
-    "casumo.com":           "gambling",
-    "leovegas.com":         "gambling",
-    "pokerfull.com":        "gambling",
-    "partypoker.com":       "gambling",
-
-    # ── Ads ───────────────────────────────────────────────────────────────────
-    "doubleclick.net":          "ads",
-    "googlesyndication.com":    "ads",
-    "googleadservices.com":     "ads",
-    "adnxs.com":                "ads",
-    "advertising.com":          "ads",
-    "taboola.com":              "ads",
-    "outbrain.com":             "ads",
-    "criteo.com":               "ads",
-    "criteo.net":               "ads",
-    "amazon-adsystem.com":      "ads",
-    "moatads.com":              "ads",
-    "adroll.com":               "ads",
-    "rubiconproject.com":       "ads",
-    "pubmatic.com":             "ads",
-    "openx.net":                "ads",
-    "smaato.net":               "ads",
-    "medianet.com":             "ads",
-    "adcolony.com":             "ads",
-    "appnexus.com":             "ads",
-    "mopub.com":                "ads",
-    "inmobi.com":               "ads",
-    "tradedoubler.com":         "ads",
-    "adfarm.mediaplex.com":     "ads",
-    "contextweb.com":           "ads",
-    "casalemedia.com":          "ads",
-    "yieldmanager.com":         "ads",
-    "serving-sys.com":          "ads",
-    "smartadserver.com":        "ads",
-    "33across.com":             "ads",
-    "bidswitch.net":            "ads",
-    "adsrvr.org":               "ads",
-    "lijit.com":                "ads",
-    "sonobi.com":               "ads",
-    "sharethrough.com":         "ads",
-    "teads.tv":                 "ads",
-
-    # ── Tracking ──────────────────────────────────────────────────────────────
-    "google-analytics.com":     "tracking",
-    "googletagmanager.com":     "tracking",
-    "googletagservices.com":    "tracking",
-    "hotjar.com":               "tracking",
-    "mixpanel.com":             "tracking",
-    "segment.com":              "tracking",
-    "segment.io":               "tracking",
-    "amplitude.com":            "tracking",
-    "heap.io":                  "tracking",
-    "fullstory.com":            "tracking",
-    "logrocket.com":            "tracking",
-    "newrelic.com":             "tracking",
-    "nr-data.net":              "tracking",
-    "mouseflow.com":            "tracking",
-    "statcounter.com":          "tracking",
-    "clicky.com":               "tracking",
-    "scorecardresearch.com":    "tracking",
-    "quantserve.com":           "tracking",
-    "chartbeat.com":            "tracking",
-    "parsely.com":              "tracking",
-    "kissmetrics.com":          "tracking",
-    "intercom.io":              "tracking",
-    "intercom.com":             "tracking",
-    "crazyegg.com":             "tracking",
-    "pingdom.net":              "tracking",
-    "pingdom.com":              "tracking",
-    "branch.io":                "tracking",
-    "appsflyer.com":            "tracking",
-    "adjust.com":               "tracking",
-    "kochava.com":              "tracking",
-    "mparticle.com":            "tracking",
-    "omtrdc.net":               "tracking",
-    "demdex.net":               "tracking",
-    "2o7.net":                  "tracking",
-    "omniture.com":             "tracking",
-    "adobedtm.com":             "tracking",
-    "launchdarkly.com":         "tracking",
-    "optimizely.com":           "tracking",
-    "vwo.com":                  "tracking",
-
-    # ── Social ────────────────────────────────────────────────────────────────
-    "facebook.com":             "social",
-    "fbcdn.net":                "social",
-    "fbsbx.com":                "social",
-    "fb.com":                   "social",
-    "instagram.com":            "social",
-    "cdninstagram.com":         "social",
-    "twitter.com":              "social",
-    "t.co":                     "social",
-    "twimg.com":                "social",
-    "x.com":                    "social",
-    "tiktok.com":               "social",
-    "tiktokv.com":              "social",
-    "tiktokcdn.com":            "social",
-    "musically.com":            "social",
-    "snapchat.com":             "social",
-    "sc-cdn.net":               "social",
-    "pinterest.com":            "social",
-    "pinimg.com":               "social",
-    "linkedin.com":             "social",
-    "licdn.com":                "social",
-    "reddit.com":               "social",
-    "redd.it":                  "social",
-    "redditmedia.com":          "social",
-    "reddituploads.com":        "social",
-    "tumblr.com":               "social",
-    "discord.com":              "social",
-    "discordapp.com":           "social",
-    "discordapp.net":           "social",
-    "whatsapp.com":             "social",
-    "whatsapp.net":             "social",
-    "telegram.org":             "social",
-    "t.me":                     "social",
-    "mastodon.social":          "social",
-    "bsky.app":                 "social",
-    "bsky.social":              "social",
-    "vk.com":                   "social",
-    "vk.me":                    "social",
-    "ok.ru":                    "social",
-    "weibo.com":                "social",
-    "wechat.com":               "social",
-    "wx.qq.com":                "social",
-    "line.me":                  "social",
-    "kakao.com":                "social",
-    "viber.com":                "social",
-    "signal.org":               "social",
-
-    # ── Gaming ────────────────────────────────────────────────────────────────
-    "steampowered.com":         "gaming",
-    "steamcommunity.com":       "gaming",
-    "steamstatic.com":          "gaming",
-    "steamusercontent.com":     "gaming",
-    "epicgames.com":            "gaming",
-    "unrealengine.com":         "gaming",
-    "roblox.com":               "gaming",
-    "rbxcdn.com":               "gaming",
-    "ea.com":                   "gaming",
-    "origin.com":               "gaming",
-    "battle.net":               "gaming",
-    "blizzard.com":             "gaming",
-    "minecraft.net":            "gaming",
-    "mojang.com":               "gaming",
-    "playfab.com":              "gaming",
-    "xboxlive.com":             "gaming",
-    "xbox.com":                 "gaming",
-    "playstation.com":          "gaming",
-    "psn.com":                  "gaming",
-    "nintendo.com":             "gaming",
-    "gog.com":                  "gaming",
-    "ubisoft.com":              "gaming",
-    "ubi.com":                  "gaming",
-    "activision.com":           "gaming",
-    "riotgames.com":            "gaming",
-    "valorant.com":             "gaming",
-    "leagueoflegends.com":      "gaming",
-    "2k.com":                   "gaming",
-    "rockstargames.com":        "gaming",
-    "bethesda.net":             "gaming",
-    "bethesda.com":             "gaming",
-    "cdprojektred.com":         "gaming",
-    "cdprojekt.com":            "gaming",
-    "kongregate.com":           "gaming",
-    "poki.com":                 "gaming",
-    "itch.io":                  "gaming",
-    "gameloft.com":             "gaming",
-    "supercell.com":            "gaming",
-
-    # ── Streaming ─────────────────────────────────────────────────────────────
-    "netflix.com":              "streaming",
-    "nflximg.net":              "streaming",
-    "nflxvideo.net":            "streaming",
-    "nflxext.com":              "streaming",
-    "nflxso.net":               "streaming",
-    "youtube.com":              "streaming",
-    "youtu.be":                 "streaming",
-    "googlevideo.com":          "streaming",
-    "ytimg.com":                "streaming",
-    "yt3.ggpht.com":            "streaming",
-    "hulu.com":                 "streaming",
-    "hulustream.com":           "streaming",
-    "disneyplus.com":           "streaming",
-    "bamgrid.com":              "streaming",
-    "primevideo.com":           "streaming",
-    "aiv-cdn.net":              "streaming",
-    "amazonvideo.com":          "streaming",
-    "spotify.com":              "streaming",
-    "scdn.co":                  "streaming",
-    "spotifycdn.com":           "streaming",
-    "soundcloud.com":           "streaming",
-    "sndcdn.com":               "streaming",
-    "vimeo.com":                "streaming",
-    "vimeocdn.com":             "streaming",
-    "deezer.com":               "streaming",
-    "tidal.com":                "streaming",
-    "jtvnw.net":                "streaming",
-    "plex.tv":                  "streaming",
-    "plexapp.com":              "streaming",
-    "dailymotion.com":          "streaming",
-    "crunchyroll.com":          "streaming",
-    "funimation.com":           "streaming",
-    "paramountplus.com":        "streaming",
-    "discoveryplus.com":        "streaming",
-    "hbomax.com":               "streaming",
-    "max.com":                  "streaming",
-    "peacocktv.com":            "streaming",
-    "appletv.apple.com":        "streaming",
-    "mzstatic.com":             "streaming",
-
-    # ── News ──────────────────────────────────────────────────────────────────
-    "cnn.com":                  "news",
-    "bbc.com":                  "news",
-    "bbc.co.uk":                "news",
-    "bbci.co.uk":               "news",
-    "nytimes.com":              "news",
-    "theguardian.com":          "news",
-    "reuters.com":              "news",
-    "apnews.com":               "news",
-    "washingtonpost.com":       "news",
-    "foxnews.com":              "news",
-    "nbcnews.com":              "news",
-    "cbsnews.com":              "news",
-    "bloomberg.com":            "news",
-    "forbes.com":               "news",
-    "techcrunch.com":           "news",
-    "theverge.com":             "news",
-    "arstechnica.com":          "news",
-    "engadget.com":             "news",
-    "wired.com":                "news",
-    "gizmodo.com":              "news",
-    "mashable.com":             "news",
-    "zdnet.com":                "news",
-    "theregister.com":          "news",
-    "abcnews.go.com":           "news",
-    "msn.com":                  "news",
-    "usatoday.com":             "news",
-    "time.com":                 "news",
-    "economist.com":            "news",
-    "ft.com":                   "news",
-    "lemonde.fr":               "news",
-    "lefigaro.fr":              "news",
-    "spiegel.de":               "news",
-    "faz.net":                  "news",
-    "corriere.it":              "news",
-    "elpais.com":               "news",
-    "marca.com":                "news",
-}
-
-
-def categorize_domain(domain: str) -> str:
-    """Return the content category for *domain* using longest-suffix matching.
-
-    Tries suffixes from most-specific to least-specific (TLD).
-    Falls back to ``"other"`` if no suffix matches.
-
-    Examples::
-
-        categorize_domain("www.pornhub.com")   # -> "adult"
-        categorize_domain("something.xxx")     # -> "adult"
-        categorize_domain("ads.doubleclick.net") # -> "ads"
-        categorize_domain("example.com")       # -> "other"
-    """
-    if not domain:
-        return "other"
-    parts = domain.lower().rstrip(".").split(".")
-    for i in range(len(parts)):
-        candidate = ".".join(parts[i:])
-        cat = _SUFFIX_MAP.get(candidate)
-        if cat is not None:
             return cat
     return "other"
