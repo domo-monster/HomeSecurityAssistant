@@ -429,6 +429,17 @@ This is expected behavior, not a bug: a low KEV count means few of the actively-
 
 ## Changelog
 
+
+- **New DNS categories** — added `Finance`, `Shopping`, and `Travel` domain categories for enhanced DNS classification coverage. Finance domains (banking, cryptocurrency, payment) are now properly tagged, e-commerce sites (Amazon, eBay) are categorized as Shopping, and travel platforms (booking, airlines) as Travel.
+- **Extended ad domains list** — added 15+ additional ad network domains (carbonads.com, buysellads.com, trafficjunky.com, adsterra.com, propellerads.com, popads.net, popcash.net, bidvertiser.com, and others) to improve DNS blocking accuracy for advertising traffic
+- **DNS Proxy card visibility** — the "Top N Blocked / Malicious Domains" statistics card is now hidden when the DNS proxy is disabled, reducing visual clutter in the Overview and Statistics views
+- **Fixed DNS search focus issue** — DNS query log filter now responds only to Enter key presses instead of firing on every keystroke, eliminating focus-stealing re-renders that interrupted typing
+- **Fixed JavaScript variable hoisting bugs** — corrected multiple variable scope issues in the frontend:
+  - Overview card no longer displays baseline training completion percentage when displaying NetFlow listener parse rate
+  - Baseline training section correctly reports datagram count instead of training duration in seconds
+- **Fixed DNS category map** — removed duplicate function definitions in `dns_categories.py` that were silently overwriting the comprehensive domain mapping with an incomplete version, causing excessive "other" categorization
+- **Logo integration** — replaced inline SVG with external image reference for cleaner HTML structure
+
 ### 0.7.4
 
 - **Integration renamed** — the integration display name is now **Security Assistant** (was "Home Security Assistant") across the HA UI, config flow, options flow, and sidebar panel title.
