@@ -43,6 +43,8 @@ CATEGORY_LABELS: dict[str, str] = {
     "cloud":     "Cloud",
     "iot":       "IoT",
     "tech":      "Tech",
+    "ai":        "AI",
+    "intel":     "Threat Intel",
     "other":     "Other",
 }
 
@@ -948,16 +950,21 @@ _SUFFIX_MAP: dict[str, str] = {
     "gw.tuyaus.com":            "iot",
     "gw.tuyacn.com":            "iot",
     "iot.tuya.com":             "iot",
+    # Aqara
+    "aqara.com":                "iot",
     # eWeLink / Sonoff
     "ewelink.cc":               "iot",
     "coolkit.cn":               "iot",
     # TP-Link / Kasa / Tapo
     "tplinkcloud.com":          "iot",
+    "tplinknbu.com":            "iot",
     "tp-link.com":              "iot",
     # IFTTT
     "ifttt.com":                "iot",
     # Home Assistant
     "home-assistant.io":        "iot",
+    "homeassistant.io":         "tech",
+    "hacf.fr":                  "tech",
     "nabucasa.com":             "iot",
     # Wyze
     "wyze.com":                 "iot",
@@ -1218,6 +1225,7 @@ _SUFFIX_MAP: dict[str, str] = {
     "windscribe.com":           "tech",
     # Package managers
     "crates.io":                "tech",
+    "snapcraft.io":             "tech",
     "pkg.go.dev":               "tech",
     "sum.golang.org":           "tech",
     "proxy.golang.org":         "tech",
@@ -1225,10 +1233,37 @@ _SUFFIX_MAP: dict[str, str] = {
     # HashiCorp
     "hashicorp.com":            "tech",
     "terraform.io":             "tech",
-    # Security / threat intel
-    "virustotal.com":           "tech",
-    "shodan.io":                "tech",
-    "abuseipdb.com":            "tech",
+    # Security / threat intel → own category
+    "virustotal.com":           "intel",
+    "shodan.io":                "intel",
+    "censys.io":                "intel",
+    "greynoise.io":             "intel",
+    "abuseipdb.com":            "intel",
+    # IP geolocation / enrichment
+    "ipwho.is":                 "intel",
+    "ipinfo.io":                "intel",
+    "ipapi.co":                 "intel",
+    "ip-api.com":               "intel",
+    "maxmind.com":              "intel",
+    # abuse.ch threat feeds
+    "abuse.ch":                 "intel",
+    "feodotracker.abuse.ch":    "intel",
+    "sslbl.abuse.ch":           "intel",
+    "urlhaus.abuse.ch":         "intel",
+    "threatfox.abuse.ch":       "intel",
+    "bazaar.abuse.ch":          "intel",
+    # Other threat intel platforms
+    "otx.alienvault.com":       "intel",
+    "urlscan.io":               "intel",
+    "phishtank.org":            "intel",
+    "openphish.com":            "intel",
+    "spamhaus.org":             "intel",
+    "spamhaus.net":             "intel",
+    "dshield.org":              "intel",
+    "emerging-threats.net":     "intel",
+    "rules.emergingthreats.net": "intel",
+    "adguard.com":              "intel",
+    "adguardteam.github.io":    "intel",
     # Search engines
     "duckduckgo.com":           "tech",
     "ddg.gg":                   "tech",
@@ -1247,6 +1282,40 @@ _SUFFIX_MAP: dict[str, str] = {
     "here.com":                 "tech",
     "openstreetmap.org":        "tech",
     "waze.com":                 "tech",
+
+    # ── AI / LLM services ────────────────────────────────────────────────────
+    # OpenAI / ChatGPT
+    "openai.com":               "ai",
+    "chatgpt.com":              "ai",
+    "oaiusercontent.com":       "ai",
+    # GitHub Copilot
+    "copilot.github.com":       "ai",
+    "copilot-proxy.githubusercontent.com": "ai",
+    # Google Gemini
+    "gemini.google.com":        "ai",
+    "aistudio.google.com":      "ai",
+    "generativelanguage.googleapis.com": "ai",
+    # Anthropic / Claude
+    "anthropic.com":            "ai",
+    "claude.ai":                "ai",
+    # Mistral
+    "mistral.ai":               "ai",
+    # Perplexity
+    "perplexity.ai":            "ai",
+    # xAI / Grok
+    "x.ai":                     "ai",
+    "grok.com":                 "ai",
+    # Cohere
+    "cohere.com":               "ai",
+    # Hugging Face
+    "huggingface.co":           "ai",
+    "hf.co":                    "ai",
+    # Replicate
+    "replicate.com":            "ai",
+    # Stability AI
+    "stability.ai":             "ai",
+    # AI TLDs
+    "ai":                       "ai",
 
     # ── Finance / Banking ────────────────────────────────────────────────────
     # US banks
