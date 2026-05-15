@@ -853,10 +853,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var endMs = ends ? new Date(ends).getTime() : null;
       var elapsed = startMs ? Math.max(0, Math.min(now, endMs || now) - startMs) : 0;
       var trainingTotalMs = (endMs && startMs) ? endMs - startMs : null;
-      var pct = trainingTotalMs ? Math.round((elapsed / trainingTotalMs) * 100) : 0;
+      var trainingPct = trainingTotalMs ? Math.round((elapsed / trainingTotalMs) * 100) : 0;
       trainingElapsed = '<div>' +
         '<span style="font-size:13px">Elapsed: <b>' + self._ago(started) + '</b></span>' +
-        (trainingTotalMs ? ' &nbsp; <span style="font-size:13px">Progress: <b>' + pct + '%</b></span>' : '') +
+        (trainingTotalMs ? ' &nbsp; <span style="font-size:13px">Progress: <b>' + trainingPct + '%</b></span>' : '') +
         '</div>';
     }
     // Action buttons
