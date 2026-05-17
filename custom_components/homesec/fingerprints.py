@@ -420,7 +420,7 @@ class HomeSecurityAnalyzer:
     ) -> tuple[str, str]:
         identity_text = " ".join(
             str(enrichment.get(key, "")).lower()
-            for key in ("display_name", "hostname", "manufacturer")
+            for key in ("display_name", "name", "hostname", "manufacturer")
         ) if enrichment else ""
 
         if any(token in identity_text for token in ("camera", "doorbell", "reolink", "arlo", "nest cam")):
@@ -450,7 +450,8 @@ class HomeSecurityAnalyzer:
         probable_role, confidence = self._infer_role(device.exposed_ports, enrichment)
         snapshot["probable_role"] = probable_role
         snapshot["confidence"] = confidence
-        snapshot["display_name"] = enrichment.get("display_name")
+        # Backward compatibility for older enrichment payloads that used "name".
+        snapshot["display_name"] = enrichment.get("display_name") or enrichment.get("name")
         snapshot["hostname"] = enrichment.get("hostname")
         snapshot["mac_address"] = enrichment.get("mac_address")
         snapshot["manufacturer"] = enrichment.get("manufacturer")
