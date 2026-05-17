@@ -1773,7 +1773,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
         gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(245,158,11,1)',
         cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
-        override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
+        intel:'rgba(248,84,84,1)', override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
       };
       dnsTopMalHtml = '<table class="data-table" style="width:100%;margin-top:8px;table-layout:fixed"><thead><tr>' +
         '<th style="width:26px">#</th><th>Domain</th><th style="width:88px">Category</th><th style="width:64px;text-align:right">Queries</th>' +
@@ -1798,12 +1798,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
       gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(245,158,11,1)',
       cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
-      override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
+      intel:'rgba(248,84,84,1)', override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
     };
     var _STAT_CAT_LABELS = {
       malware:'Malware', adult:'Adult', gambling:'Gambling', ads:'Ads',
       tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News',
-      cdn:'CDN', cloud:'Cloud', iot:'IoT', tech:'Tech', override:'Override', other:'Other'
+      cdn:'CDN', cloud:'Cloud', iot:'IoT', tech:'Tech', intel:'Threat Intel', override:'Override', other:'Other'
     };
     var _dnsCatCounts = {};
     for (var _dci = 0; _dci < dnsLog.length; _dci++) {
@@ -4213,18 +4213,18 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var log     = (this._data && this._data.dns_log) || [];
     var filteredLog = this._dnsFilteredLog(log);
 
-    var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','cdn','cloud','iot','tech','override','other'];
+    var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','cdn','cloud','iot','tech','intel','override','other'];
     var CAT_COLORS = {
       malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
       ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
       gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(245,158,11,1)',
       cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
-      override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
+      intel:'rgba(248,84,84,1)', override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
     };
     var CAT_LABELS = {
       malware:'Malware', adult:'Adult', gambling:'Gambling', ads:'Ads',
       tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News',
-      cdn:'CDN', cloud:'Cloud', iot:'IoT', tech:'Tech',
+      cdn:'CDN', cloud:'Cloud', iot:'IoT', tech:'Tech', intel:'Threat Intel',
       override:'Override', other:'Other'
     };
 
