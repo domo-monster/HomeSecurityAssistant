@@ -66,8 +66,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._hostSort     = 'ip';
     this._hostSortDir  = 1;
     this._extFilter    = '';
-    this._extSort      = 'last_seen';
-    this._extSortDir   = -1;
+    this._extSort      = 'rating';
+    this._extSortDir   = 1;
     this._extPage      = 1;
     this._extPageSize  = 25;
     this._editorOpen   = false;
@@ -3897,17 +3897,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           ? '<span style="color:#fb923c;font-size:11px">\u2193 Inbound</span>'
           : '<span style="color:#34d399;font-size:11px">\u2191 Outbound</span>';
       var detail = (self._lookupResult && self._lookupIP === e.ip)
-        ? '<tr class="detail-row"><td colspan="13">' + self._ipDetail(self._lookupResult, e.internal_sources, e.direction) + '</td></tr>' : '';
-      var sources = e.internal_sources || [];
+        ? '<tr class="detail-row"><td colspan="13">' + self._ipDetail(self._lookupResult, e.internal_sources || e.sources, e.direction) + '</td></tr>' : '';
+      var sources = e.internal_sources || e.sources || [];
       var sourcesHtml = sources.length
         ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
         : '<span class="dim">\u2014</span>';
       var ratingHtml = rating ? self._ratingWithSource(rating, e.rating_source) : '<span class="dim">\u2014</span>';
+      var countryFlag = self._countryFlag(e.country);
+      var countryTitle = e.country_name || e.country || '';
       return '<tr>' +
         '<td>' + (e.blacklisted ? '<span style="color:#ff4d6d;margin-right:3px">\u26A0</span>' : '') + '<span class="ip">' + e.ip + '</span></td>' +
         '<td style="font-size:11px">' + (host ? self._esc(host) : '<span class="dim">\u2014</span>') + '</td>' +
         '<td style="font-family:monospace;font-size:11px;text-align:right">' + trafficKb + '</td>' +
-        '<td style="font-size:11px">' + (e.country ? '<span title="' + self._esc(e.country_name||e.country) + '">' + e.country + '</span>' : '<span class="dim">\u2014</span>') + '</td>' +
+        '<td style="font-size:11px">' + (countryFlag ? '<span title="' + self._esc(countryTitle) + '" style="font-size:15px;line-height:1">' + countryFlag + '</span>' : '<span class="dim">\u2014</span>') + '</td>' +
         '<td style="font-size:11px">' + self._esc(((e.org||'').substring(0,30))||e.asn||'\u2014') + '</td>' +
         '<td>' + ratingHtml + '</td>' +
         '<td style="font-family:monospace;font-size:11px">' + vt + '</td>' +
