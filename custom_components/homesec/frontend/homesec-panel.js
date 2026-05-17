@@ -1771,7 +1771,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var DNS_CAT_COLORS_STAT = {
         malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
         ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
-        gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)',
+        gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(245,158,11,1)',
         cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
         override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
       };
@@ -1796,7 +1796,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var _STAT_CAT_COLORS = {
       malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
       ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
-      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)',
+      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(245,158,11,1)',
       cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
       override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
     };
@@ -4217,7 +4217,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var CAT_COLORS = {
       malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
       ads:'rgba(255,209,102,1)', tracking:'rgba(107,140,186,1)', social:'rgba(91,170,236,1)',
-      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(176,190,197,1)',
+      gaming:'rgba(107,255,200,1)', streaming:'rgba(58,197,201,1)', news:'rgba(245,158,11,1)',
       cdn:'rgba(72,199,142,1)', cloud:'rgba(59,178,255,1)', iot:'rgba(255,159,67,1)', tech:'rgba(155,135,245,1)',
       override:'rgba(98,232,255,1)', other:'rgba(90,106,128,1)'
     };
