@@ -430,6 +430,9 @@ This is expected behavior, not a bug: a low KEV count means few of the actively-
 ## Changelog
 
 
+### 0.8.0
+
+
 - **New DNS categories** — added `Finance`, `Shopping`, and `Travel` domain categories for enhanced DNS classification coverage. Finance domains (banking, cryptocurrency, payment) are now properly tagged, e-commerce sites (Amazon, eBay) are categorized as Shopping, and travel platforms (booking, airlines) as Travel.
 - **Extended ad domains list** — added 15+ additional ad network domains (carbonads.com, buysellads.com, trafficjunky.com, adsterra.com, propellerads.com, popads.net, popcash.net, bidvertiser.com, and others) to improve DNS blocking accuracy for advertising traffic
 - **DNS Proxy card visibility** — the "Top N Blocked / Malicious Domains" statistics card is now hidden when the DNS proxy is disabled, reducing visual clutter in the Overview and Statistics views
