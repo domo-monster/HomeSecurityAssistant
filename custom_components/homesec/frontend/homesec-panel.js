@@ -105,6 +105,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._settingsLoading = false;
     this._settingsMsg     = '';
     this._settingsMsgType = '';
+    this._settingsDraft   = {};
+    this._settingsDirty   = false;
+    this._pendingView     = null;
   }
 
   set hass(v) {
@@ -114,14 +117,36 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   connectedCallback()    { this._startRefresh(); }
 
-  disconnectedCallback() { this._stopRefresh(); this._stopMap(); }
+  disconnectedCallback() { this._stopRefresh(); this._stopMap(); this._unregisterBeforeUnload(); }
 
   _startRefresh() {
     if (this._refreshTimer) return;
     this._fetch();
-    this._refreshTimer = setInterval(() => this._fetch(), 30000);
+    this._refreshTimer = setInterval(() => {
+      // Keep local settings edits stable while the user is typing.
+      if (this._view === 'settings') return;
+      this._fetch();
+    }, 30000);
   }
   _stopRefresh() { clearInterval(this._refreshTimer); this._refreshTimer = null; }
+
+  _registerBeforeUnload() {
+    if (this._beforeUnloadHandler) return;
+    this._beforeUnloadHandler = (e) => {
+      if (this._settingsDirty) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved Settings changes. Leave and discard them?';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', this._beforeUnloadHandler);
+  }
+
+  _unregisterBeforeUnload() {
+    if (!this._beforeUnloadHandler) return;
+    window.removeEventListener('beforeunload', this._beforeUnloadHandler);
+    this._beforeUnloadHandler = null;
+  }
 
   async _fetch() {
     if (this._loading || !this._hass) return;
@@ -148,12 +173,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     if (!netflowEnabled && (v === 'map' || v === 'external')) v = 'overview';
     if (v === this._view) return;
+    if (this._view === 'settings' && v !== 'settings' && this._settingsDirty) {
+      this._pendingView = v;
+      this._render();
+      return;
+    }
+    if (v === 'settings') this._registerBeforeUnload();
+    else this._unregisterBeforeUnload();
     this._stopMap();
     this._mobileMenuOpen = false;
     this._lookupResult = null;
     this._lookupIP     = null;
     if (this._view === 'vulnerabilities') this._vulnData = null;
-    if (v === 'settings') { this._settingsData = null; this._settingsMsg = ''; }
+    if (v === 'settings') {
+      this._settingsData = null;
+      this._settingsDraft = {};
+      this._settingsDirty = false;
+      this._settingsMsg = '';
+    }
     this._dnsPage = 0;
     this._dnsPageSize = 25;
     this._view = v;
@@ -211,6 +248,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var existingRegex = root.getElementById('hsa-regex-dismiss-modal');
     if (existingRegex) existingRegex.remove();
     if (this._regexDismissOpen) root.querySelector('.app').insertAdjacentHTML('beforeend', this._regexDismissModal());
+    var existingUnsaved = root.getElementById('hsa-unsaved-modal');
+    if (existingUnsaved) existingUnsaved.remove();
+    if (this._pendingView) root.querySelector('.app').insertAdjacentHTML('beforeend', this._unsavedConfirmModal());
   }
 
   _onClick(e) {
@@ -314,6 +354,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       this._applyRegexDismiss();
       return;
     }
+    if (e.target.closest('[data-unsaved-stay]')) {
+      this._pendingView = null;
+      this._render();
+      return;
+    }
+    if (e.target.closest('[data-unsaved-leave]')) {
+      var dest = this._pendingView;
+      this._pendingView = null;
+      this._settingsDraft = {};
+      this._settingsDirty = false;
+      this._unregisterBeforeUnload();
+      this._setView(dest);
+      return;
+    }
     var mf = e.target.closest('[data-mapfilter]');
     if (mf) { this._setMapFilter(mf.dataset.mapfilter); return; }
     var mm = e.target.closest('[data-mapmode]');
@@ -408,10 +462,23 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return;
     }
     if (e.target.closest('[data-settings-save]')) { this._onSettingsSave(); return; }
-    if (e.target.closest('[data-settings-reset]')) { this._settingsData = null; this._settingsMsg = ''; this._render(); return; }
+    if (e.target.closest('[data-settings-reset]')) {
+      this._settingsDraft = {};
+      this._settingsDirty = false;
+      this._settingsData = null;
+      this._settingsMsg = '';
+      this._render();
+      return;
+    }
   }
 
   _onInput(e) {
+    if (e.target.id && e.target.id.indexOf('hsa-setting-') === 0) {
+      var key = e.target.id.slice('hsa-setting-'.length);
+      this._settingsDraft[key] = e.target.value;
+      this._settingsDirty = true;
+      return;
+    }
     if (e.target.id === 'hsa-host-filter') {
       this._hostFilter = e.target.value;
       var tbody = this.shadowRoot.getElementById('hsa-host-tbody');
@@ -483,7 +550,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     } else {
       this._extSort = col;
       // Numeric/threat columns: default descending (highest first)
-      var descFirst = { vt: 1, abuse: 1, traffic_kb: 1, rating: 1 };
+      var descFirst = { vt: 1, abuse: 1, traffic_kb: 1 };
       this._extSortDir = descFirst[col] ? -1 : 1;
     }
     this._extPage = 1;
@@ -496,6 +563,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _onChange(e) {
+    if (e.target.id && e.target.id.indexOf('hsa-setting-') === 0) {
+      var key = e.target.id.slice('hsa-setting-'.length);
+      this._settingsDraft[key] = e.target.type === 'checkbox' ? !!e.target.checked : e.target.value;
+      this._settingsDirty = true;
+      return;
+    }
     if (e.target.id === 'hsa-ext-pagesize') {
       this._extPageSize = Math.max(5, Math.min(200, parseInt(e.target.value, 10) || 25));
       this._extPage = 1;
@@ -677,6 +750,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     '</div>';
   }
 
+  _unsavedConfirmModal() {
+    return '<div id="hsa-unsaved-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">' +
+      '<div class="card" style="width:min(420px,94vw);margin:0;border:1px solid rgba(255,180,0,.3)">' +
+        '<div class="view-header" style="margin-bottom:10px">' +
+          '<h1 style="font-size:16px">\u26A0\uFE0F Unsaved Changes</h1>' +
+        '</div>' +
+        '<p class="dim" style="font-size:13px;margin:0 0 18px">You have unsaved settings changes. If you leave now they will be discarded.</p>' +
+        '<div class="row-gap" style="justify-content:flex-end;gap:8px">' +
+          '<button class="btn" data-unsaved-stay>Stay on Settings</button>' +
+          '<button class="btn" style="background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.4);color:#ff4d6d" data-unsaved-leave>Discard &amp; Leave</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
   async _saveRole(ip, role) {
     try {
       await this._hass.callApi('POST', 'homesec/device/role', { ip: ip, role: role });
@@ -809,7 +897,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="sidebar-status ' + status + '"><div class="status-dot"></div><span>' +
       (status === 'online' ? 'Collector active' : 'Awaiting flows') + '</span>' +
       '<span style="margin-left:auto;opacity:.45;font-size:9px">v' + ((this._data && this._data.summary && this._data.summary.version) || '…') + '</span>' +
-      '</div>';
+      '</div>' +
+      '<div class="sidebar-status"><span style="flex:1"><a href="https://domotic.monster" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">© 2026 domotic.monster</a></span></div>';
   }
 
   _viewOverview() {
@@ -4579,10 +4668,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     var fieldsHtml = schema.map(function(section) {
       var rows = (section.fields || []).map(function(f) {
-        var val = config[f.key] !== undefined ? config[f.key] : (f.default !== undefined ? f.default : '');
+        var hasDraft = Object.prototype.hasOwnProperty.call(self._settingsDraft, f.key);
+        var val = hasDraft ? self._settingsDraft[f.key] : (config[f.key] !== undefined ? config[f.key] : (f.default !== undefined ? f.default : ''));
         var inputHtml = '';
         if (f.type === 'boolean' || f.type === 'bool') {
-          inputHtml = '<input type="checkbox" id="hsa-setting-' + f.key + '" ' + (val ? 'checked' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">';
+          var boolVal = (typeof val === 'string')
+            ? (val.toLowerCase() === 'true' || val === '1')
+            : !!val;
+          inputHtml = '<input type="checkbox" id="hsa-setting-' + f.key + '" ' + (boolVal ? 'checked' : '') + ' style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">';
         } else if (f.type === 'number') {
           inputHtml = '<input type="number" id="hsa-setting-' + f.key + '" value="' + self._esc(String(val)) + '"' +
             (f.min !== undefined ? ' min="' + f.min + '"' : '') + (f.max !== undefined ? ' max="' + f.max + '"' : '') +
@@ -4608,10 +4701,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     return '<div>' +
       '<div class="view-header"><h1>Settings</h1><div style="font-size:11px;color:var(--muted)">Changes take effect after reloading the integration.</div></div>' +
       msgHtml +
+      (this._settingsDirty ? '<div style="background:rgba(255,206,84,.1);border:1px solid rgba(255,206,84,.45);border-radius:8px;padding:8px 12px;margin-bottom:14px;color:#ffce54;font-size:11px">Unsaved changes in this view are kept locally until you click Save settings or Reload from disk.</div>' : '') +
       fieldsHtml +
       '<div style="margin-top:6px">' +
         '<button class="btn" data-settings-save style="padding:6px 18px;font-size:12px">Save settings</button>' +
-        ' <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">Reload from server</button>' +
+        ' <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">Reload from disk</button>' +
       '</div>' +
     '</div>';
   }
@@ -4619,28 +4713,28 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _onSettingsSave() {
     var self = this;
     var schema = (this._settingsData && this._settingsData.schema) || [];
+    var config = (this._settingsData && this._settingsData.config) || {};
     var payload = {};
-    var root = this.shadowRoot;
     schema.forEach(function(section) {
       (section.fields || []).forEach(function(f) {
-        var el = root && root.getElementById('hsa-setting-' + f.key);
-        if (!el) return;
+        var hasDraft = Object.prototype.hasOwnProperty.call(self._settingsDraft, f.key);
+        var draftVal = hasDraft ? self._settingsDraft[f.key] : config[f.key];
         if (f.type === 'boolean' || f.type === 'bool') {
-          payload[f.key] = el.checked;
+          if (typeof draftVal === 'string') payload[f.key] = draftVal.toLowerCase() === 'true' || draftVal === '1';
+          else payload[f.key] = !!draftVal;
         } else if (f.type === 'number') {
-          payload[f.key] = Number(el.value);
+          payload[f.key] = Number(draftVal);
         } else {
-          payload[f.key] = el.value;
+          payload[f.key] = draftVal !== undefined && draftVal !== null ? String(draftVal) : '';
         }
       });
     });
     this._hass.callApi('POST', 'homesec/settings/save', payload).then(function() {
       self._settingsMsg = 'Settings saved. The integration will reload in a moment to apply changes.';
       self._settingsMsgType = 'ok';
-      // Patch local config with saved values so the form re-renders with the new values
-      if (self._settingsData && self._settingsData.config) {
-        Object.assign(self._settingsData.config, payload);
-      }
+      self._settingsDraft = {};
+      self._settingsDirty = false;
+      self._settingsData = null;
       self._render();
     }).catch(function(e) {
       var msg;
