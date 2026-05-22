@@ -1,4 +1,5 @@
-__pycache__/
 *.pyc
 *.pyo
 custom_components/homesec.tgz
+homesec.tgz
+deploy.sh
