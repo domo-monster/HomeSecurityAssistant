@@ -1635,11 +1635,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         topIPs.map(function(e, i) {
           var label = e.hostname || e.org || e.ip;
           var country = e.country_name || e.country || '';
+          var countryFlag = self._countryFlag(e.country);
           var bc = e.blacklisted ? 'badge-critical' : (e.rating === 'suspicious' ? 'badge-warn' : 'badge-ok');
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
             '<td><span class="ip">' + self._esc(e.ip) + '</span></td>' +
             '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(label) + '</td>' +
-            '<td>' + self._esc(country) + '</td>' +
+            '<td>' + (countryFlag
+              ? '<span title="' + self._esc(country) + '" style="font-size:15px;line-height:1">' + countryFlag + '</span>'
+              : '<span class="dim">' + self._esc(country || '—') + '</span>') + '</td>' +
             '<td style="text-align:right">' + e.flows.toLocaleString() + '</td>' +
             '<td><span class="badge ' + bc + '">' + self._esc(e.blacklisted ? 'malicious' : (e.rating || 'ok')) + '</span></td></tr>';
         }).join('') +
@@ -1698,8 +1701,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</tr></thead><tbody>' +
         topT.map(function(d, i) {
           var pct = maxOct > 0 ? Math.round((d.total_octets / maxOct) * 100) : 0;
+          var ccFlag = self._countryFlag(c.country);
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
-            '<td><span class="ip">' + self._esc(d.ip) + '</span></td>' +
+            '<td><b>' + (ccFlag
+              ? '<span title="' + self._esc(c.country || '—') + '" style="font-size:15px;line-height:1">' + ccFlag + '</span>'
+              : self._esc(c.country || '—')) + '</b></td>' +
             '<td>' + self._esc(d.display_name) + '</td>' +
             '<td>' + self._esc(d.probable_role || '\u2014') + '</td>' +
             '<td style="text-align:right">' + self._bytes(d.total_octets) + '</td>' +
@@ -1771,6 +1777,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         topThr.map(function(e, i) {
           var label = e.hostname || e.org || e.ip;
           var country = e.country_name || e.country || '';
+          var countryFlag = self._countryFlag(e.country);
           var bc = e.rating === 'malicious' ? 'badge-critical' : 'badge-warn';
           var details = [];
           if (e.vt_malicious != null && e.vt_malicious > 0) details.push('VT ' + e.vt_malicious);
@@ -1779,7 +1786,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
             '<td><span class="ip">' + self._esc(e.ip) + '</span></td>' +
             '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(label) + '</td>' +
-            '<td>' + self._esc(country) + '</td>' +
+            '<td>' + (countryFlag
+              ? '<span title="' + self._esc(country) + '" style="font-size:15px;line-height:1">' + countryFlag + '</span>'
+              : '<span class="dim">' + self._esc(country || '—') + '</span>') + '</td>' +
             '<td style="text-align:right">' + (e.flows || 0).toLocaleString() + '</td>' +
             '<td><span class="badge ' + bc + '">' + self._esc(e.rating) + '</span></td>' +
             '<td style="font-size:10px;color:var(--muted)">' + details.join(', ') + '</td></tr>';
