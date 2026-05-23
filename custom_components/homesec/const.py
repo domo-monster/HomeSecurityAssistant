@@ -126,7 +126,11 @@ COORDINATOR_INTERVAL_SECONDS = 30
 
 def get_entry_value(entry: ConfigEntry, key: str, default: Any | None = None) -> Any:
     if key in entry.options:
-        return entry.options[key]
+        value = entry.options[key]
+        if value is not None and value != "":
+            return value
     if key in entry.data:
-        return entry.data[key]
+        value = entry.data[key]
+        if value is not None and value != "":
+            return value
     return default

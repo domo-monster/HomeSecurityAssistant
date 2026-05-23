@@ -1448,7 +1448,10 @@ class HomeSecSettingsSaveView(HomeAssistantView):
         new_options = dict(entry.options)
         for key in SETTINGS_KEYS:
             if key in data:
-                new_options[key] = data[key]
+                if data[key] is None:
+                    new_options.pop(key, None)
+                else:
+                    new_options[key] = data[key]
 
         hass.config_entries.async_update_entry(entry, options=new_options)
         _LOGGER.info("HomeSec settings updated via Settings UI; scheduling reload")
