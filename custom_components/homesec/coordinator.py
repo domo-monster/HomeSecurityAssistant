@@ -27,6 +27,7 @@ from .const import (
     CONF_DNS_PROXY_PORT,
     CONF_DNS_PROXY_UPSTREAM,
     CONF_DNS_LOG_RETENTION_HOURS,
+    CONF_DNS_WARN_BLOCKED_LOGS,
     CONF_DNS_BLOCKED_CATEGORIES,
     CONF_DNS_OVERRIDES,
     CONF_ENABLE_DNS_RESOLUTION,
@@ -64,6 +65,7 @@ from .const import (
     DEFAULT_DNS_PROXY_PORT,
     DEFAULT_DNS_PROXY_UPSTREAM,
     DEFAULT_DNS_LOG_RETENTION_HOURS,
+    DEFAULT_DNS_WARN_BLOCKED_LOGS,
     DEFAULT_DNS_BLOCKED_CATEGORIES,
     DEFAULT_DNS_OVERRIDES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
@@ -241,6 +243,9 @@ class HomeSecCollector:
         blocked_categories: set[str] = {
             s.strip().lower() for s in _re.split(r"[\n\r,]+", blocked_cats_raw) if s.strip()
         }
+        self._dns_warn_blocked_logs = bool(
+            get_entry_value(entry, CONF_DNS_WARN_BLOCKED_LOGS, DEFAULT_DNS_WARN_BLOCKED_LOGS)
+        )
         if dns_proxy_enabled:
             self._dns_proxy: DNSProxyServer | None = DNSProxyServer(
                 host=str(get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST)),
@@ -251,6 +256,7 @@ class HomeSecCollector:
                 on_malicious=self._on_malicious_dns,
                 check_sources=None,
                 blocked_categories=blocked_categories or None,
+                warn_blocked_logs=self._dns_warn_blocked_logs,
                 overrides_raw=str(get_entry_value(entry, CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)),
             )
         else:
@@ -404,10 +410,11 @@ class HomeSecCollector:
 
     def _on_malicious_dns(self, src_ip: str, domain: str, qtype: str, hit: dict) -> None:
         """Called by DNSProxyProtocol when a queried domain matches the threat-intel blacklist."""
-        _LOGGER.warning(
-            "HomeSec DNS proxy: malicious domain query from %s — %s (%s) matched %s",
-            src_ip, domain, qtype, hit.get("source", "threat_intel"),
-        )
+        if self._dns_warn_blocked_logs:
+            _LOGGER.warning(
+                "HomeSec DNS proxy: malicious domain query from %s — %s (%s) matched %s",
+                src_ip, domain, qtype, hit.get("source", "threat_intel"),
+            )
         self.hass.bus.async_fire(
             f"{DOMAIN}_malicious_dns",
             {

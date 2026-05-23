@@ -118,12 +118,12 @@ class DNSBlacklistChecker:
     async def async_start(self) -> None:
         if not self._urls:
             _LOGGER.error(
-                "HSA: no blocklist URLs configured — threat-intel checking is DISABLED. "
+                "HomeSec: no blocklist URLs configured — threat-intel checking is DISABLED. "
                 "Add URL(s) to the 'Blacklist URLs' option in the integration settings."
             )
         else:
             _LOGGER.warning(
-                "HSA: starting threat-intel fetch for %d URL(s): %s",
+                "HomeSec: starting threat-intel fetch for %d URL(s): %s",
                 len(self._urls),
                 ", ".join(self._urls),
             )
@@ -141,12 +141,12 @@ class DNSBlacklistChecker:
     def _on_fetch_done(task: asyncio.Task) -> None:
         if task.cancelled():
             # Normal during integration reload — not an error.
-            _LOGGER.debug("HSA: blocklist fetch task cancelled (integration reload?)")
+            _LOGGER.debug("HomeSec: blocklist fetch task cancelled (integration reload?)")
             return
         exc = task.exception()
         if exc is not None:
             _LOGGER.error(
-                "HSA: threat-intel fetch task raised an unexpected exception: %s",
+                "HomeSec: threat-intel fetch task raised an unexpected exception: %s",
                 exc, exc_info=exc,
             )
 
@@ -172,7 +172,7 @@ class DNSBlacklistChecker:
         self._bad_ips.clear()
         self._bad_domains.clear()
         self._source_map.clear()
-        _LOGGER.warning("HSA: force-refreshing threat intel from %d URL(s)", len(self._urls))
+        _LOGGER.warning("HomeSec: force-refreshing threat intel from %d URL(s)", len(self._urls))
         fetch_task = asyncio.create_task(self._fetch_all())
         fetch_task.add_done_callback(self._on_fetch_done)
         # Replace the old fetch task slot; keep refresh loop and resolve worker alive
@@ -276,7 +276,7 @@ class DNSBlacklistChecker:
             try:
                 await self._fetch_one(url)
             except Exception as exc:
-                _LOGGER.error("HSA: blocklist download FAILED for %s: %s", url, exc)
+                _LOGGER.error("HomeSec: blocklist download FAILED for %s: %s", url, exc)
                 # Update timestamp even on failure so UI leaves "Downloading…" state
                 self._last_refresh = datetime.now(UTC)
                 continue
@@ -285,19 +285,19 @@ class DNSBlacklistChecker:
             # Update after every URL so partial results are visible immediately
             self._last_refresh = datetime.now(UTC)
             _LOGGER.warning(
-                "HSA: loaded %d new domains + %d new IPs from %s",
+                "HomeSec: loaded %d new domains + %d new IPs from %s",
                 added_d, added_i,
                 url.split("/")[2] if url.count("/") >= 2 else url,
             )
         _LOGGER.warning(
-            "HSA: threat intel ready — %d blocked IPs, %d blocked domains from %d source(s)",
+            "HomeSec: threat intel ready — %d blocked IPs, %d blocked domains from %d source(s)",
             len(self._bad_ips),
             len(self._bad_domains),
             len(self._urls),
         )
         if self._urls and not self._bad_domains and not self._bad_ips:
             _LOGGER.error(
-                "HSA: threat intel loaded ZERO entries — check blocklist URLs and HA "
+                "HomeSec: threat intel loaded ZERO entries — check blocklist URLs and HA "
                 "network connectivity (Settings \u2192 System \u2192 Logs for details)"
             )
 
@@ -311,7 +311,7 @@ class DNSBlacklistChecker:
             allow_redirects=True,
         ) as resp:
             if resp.status != 200:
-                _LOGGER.warning("HSA: blocklist %s returned HTTP %d", url, resp.status)
+                _LOGGER.warning("HomeSec: blocklist %s returned HTTP %d", url, resp.status)
                 return
             text = await resp.text(encoding="utf-8", errors="replace")
 

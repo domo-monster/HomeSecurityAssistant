@@ -46,6 +46,7 @@ CONF_DNS_PROXY_ENABLED = "dns_proxy_enabled"
 CONF_DNS_PROXY_PORT = "dns_proxy_port"
 CONF_DNS_PROXY_UPSTREAM = "dns_proxy_upstream"
 CONF_DNS_LOG_RETENTION_HOURS = "dns_log_retention_hours"
+CONF_DNS_WARN_BLOCKED_LOGS = "dns_warn_blocked_logs"
 CONF_DNS_BLOCKED_CATEGORIES = "dns_blocked_categories"
 CONF_DNS_OVERRIDES = "dns_overrides"
 
@@ -118,6 +119,7 @@ DEFAULT_DNS_PROXY_ENABLED = False
 DEFAULT_DNS_PROXY_PORT = 53
 DEFAULT_DNS_PROXY_UPSTREAM = "1.1.1.1"
 DEFAULT_DNS_LOG_RETENTION_HOURS = 24
+DEFAULT_DNS_WARN_BLOCKED_LOGS = False
 DEFAULT_DNS_BLOCKED_CATEGORIES = ""  # empty = block nothing
 DEFAULT_DNS_OVERRIDES = ""  # empty = no local overrides
 

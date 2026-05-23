@@ -330,6 +330,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
         blocked_categories: set[str] | None = None,
+        warn_blocked_logs: bool = False,
         overrides: dict[str, str] | None = None,
     ) -> None:
         self._upstreams = upstreams  # list of (host, port)
@@ -339,6 +340,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._on_malicious = on_malicious
         self._check_sources = check_sources  # None = all sources allowed
         self._blocked_categories: set[str] = blocked_categories or set()
+        self._warn_blocked_logs: bool = bool(warn_blocked_logs)
         self._overrides: dict[str, str] = overrides or {}  # domain → IP
         self._transport: asyncio.DatagramTransport | None = None
         self._total_queries: int = 0
@@ -356,7 +358,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         exc = task.exception() if not task.cancelled() else None
         if exc is not None:
             _LOGGER.error(
-                "HSA DNS proxy: unhandled exception in _handle — "
+                "HomeSec DNS proxy: unhandled exception in _handle — "
                 "query may have been forwarded to upstream instead of blocked: %s",
                 exc, exc_info=exc,
             )
@@ -397,16 +399,16 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 if not self._warned_empty:
                     self._warned_empty = True
                     _LOGGER.warning(
-                        "HSA DNS proxy: threat intel blocklist not yet loaded — "
+                        "HomeSec DNS proxy: threat intel blocklist not yet loaded — "
                         "domain queries will NOT be checked until download completes. "
-                        "Check HA logs for 'HSA: threat intel ready'."
+                        "Check HA logs for 'HomeSec: threat intel ready'."
                     )
             else:
                 # List is now populated — reset so we log once when it was empty and once when ready
                 if self._warned_empty:
                     self._warned_empty = False
                     _LOGGER.warning(
-                        "HSA DNS proxy: threat intel blocklist is now active — "
+                        "HomeSec DNS proxy: threat intel blocklist is now active — "
                         "%d domains + %d IPs loaded, blocking is live.",
                         checker_stats["bad_domains"], checker_stats["bad_ips"],
                     )
@@ -418,7 +420,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                     is_malicious = True
                 else:
                     _LOGGER.warning(
-                        "HSA DNS proxy: %s matched blocklist (source: %s) but was NOT blocked — "
+                        "HomeSec DNS proxy: %s matched blocklist (source: %s) but was NOT blocked — "
                         "source excluded by the 'check_sources' filter (active filter: %s)",
                         qname, raw_hit.get("source", "?"), self._check_sources,
                     )
@@ -449,17 +451,18 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 if block_resp:
                     self._transport.sendto(block_resp, addr)
             entry["rcode"] = "NXDOMAIN"
-            _LOGGER.warning(
-                "HSA DNS proxy: BLOCKED %s [%s] from %s (reason: %s / source: %s)",
-                qname, qtype, src_ip,
-                "threat_intel" if is_malicious else category,
-                hit.get("source", "n/a") if hit else category,
-            )
+            if self._warn_blocked_logs:
+                _LOGGER.warning(
+                    "HomeSec DNS proxy: BLOCKED %s [%s] from %s (reason: %s / source: %s)",
+                    qname, qtype, src_ip,
+                    "threat_intel" if is_malicious else category,
+                    hit.get("source", "n/a") if hit else category,
+                )
             if is_malicious and hit:
                 try:
                     self._on_malicious(src_ip, qname, qtype, hit)
                 except Exception as exc:  # noqa: BLE001
-                    _LOGGER.error("HSA DNS proxy: on_malicious callback error: %s", exc)
+                    _LOGGER.error("HomeSec DNS proxy: on_malicious callback error: %s", exc)
             return
 
         # Forward to upstream (round-robin across configured upstreams)
@@ -496,6 +499,7 @@ class DNSProxyServer:
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
         blocked_categories: set[str] | None = None,
+        warn_blocked_logs: bool = False,
         overrides_raw: str = "",
     ) -> None:
         self._host = host
@@ -508,6 +512,7 @@ class DNSProxyServer:
         self._on_malicious = on_malicious
         self._check_sources = check_sources
         self._blocked_categories = blocked_categories
+        self._warn_blocked_logs = bool(warn_blocked_logs)
         self._overrides: dict[str, str] = self._parse_overrides(overrides_raw)
         self._transport: asyncio.DatagramTransport | None = None
         self._protocol: DNSProxyProtocol | None = None
@@ -555,6 +560,7 @@ class DNSProxyServer:
                 self._on_malicious,
                 self._check_sources,
                 self._blocked_categories,
+                self._warn_blocked_logs,
                 self._overrides,
             )
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

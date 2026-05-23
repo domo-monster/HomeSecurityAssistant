@@ -240,7 +240,7 @@ class ExternalIPEnricher:
             try:
                 await coro  # type: ignore[misc]
             except Exception as exc:
-                _LOGGER.debug("HSA: %s tier detection failed: %s", prov, exc)
+                _LOGGER.debug("HomeSec: %s tier detection failed: %s", prov, exc)
 
     async def _detect_vt_tier(self, aiohttp) -> None:
         """Fetch VirusTotal account type (community / premium / enterprise …)."""
@@ -296,7 +296,7 @@ class ExternalIPEnricher:
                     self._cache[ip] = await self._enrich(ip)
                     self._enriched_at[ip] = datetime.now(UTC)
                 except Exception as exc:
-                    _LOGGER.debug("HSA: enrichment error for %s: %s", ip, exc)
+                    _LOGGER.debug("HomeSec: enrichment error for %s: %s", ip, exc)
                     self._cache[ip] = {
                         "ip": ip,
                         "error": str(exc),
@@ -334,13 +334,13 @@ class ExternalIPEnricher:
             if name == "virustotal" and int(result.get("abuse_confidence") or 0) < self._vt_abuseipdb_threshold:
                 continue
             if not self._budget_ok(name):
-                _LOGGER.debug("HSA: %s daily budget exhausted (%d), skipping %s",
+                _LOGGER.debug("HomeSec: %s daily budget exhausted (%d), skipping %s",
                               name, self._prov_daily_count.get(name, 0), ip)
                 continue
             # Skip provider if it returned 429/503 recently (backoff window)
             backoff_remaining = self._prov_backoff_until.get(name, 0.0) - _time.monotonic()
             if backoff_remaining > 0:
-                _LOGGER.debug("HSA: %s in backoff, skipping %s (%.0fs remaining)",
+                _LOGGER.debug("HomeSec: %s in backoff, skipping %s (%.0fs remaining)",
                               name, ip, backoff_remaining)
                 continue
             await self._throttle(name)
@@ -359,15 +359,15 @@ class ExternalIPEnricher:
                     # 429 is transient — don't persist it as a sticky error in the UI
                     self._prov_last_error.pop(name, None)
                     _LOGGER.warning(
-                        "HSA: %s returned HTTP 429 (rate limited) – backing off for %.0fs. "
+                        "HomeSec: %s returned HTTP 429 (rate limited) – backing off for %.0fs. "
                         "If this recurs with a paid token, check your plan's per-second limit.",
                         name, backoff,
                     )
                 else:
                     self._prov_last_error[name] = note
-                    _LOGGER.debug("HSA: %s returned %s for %s", name, exc.status, ip)
+                    _LOGGER.debug("HomeSec: %s returned %s for %s", name, exc.status, ip)
             except Exception as exc:
-                _LOGGER.debug("HSA: %s failed for %s: %s", name, ip, exc)
+                _LOGGER.debug("HomeSec: %s failed for %s: %s", name, ip, exc)
 
         result["rating"], result["rating_source"] = self._compute_rating(result)
         return result
