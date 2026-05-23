@@ -1670,8 +1670,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</tr></thead><tbody>' +
         topC.map(function(c, i) {
           var pct = maxFlows > 0 ? Math.round((c.flow_count / maxFlows) * 100) : 0;
+          var ccFlag = self._countryFlag(c.country);
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
-            '<td><b>' + self._esc(c.country || '\u2014') + '</b></td>' +
+            '<td><b>' + (ccFlag
+              ? '<span title="' + self._esc(c.country || '—') + '" style="font-size:15px;line-height:1">' + ccFlag + '</span>'
+              : self._esc(c.country || '\u2014')) + '</b></td>' +
             '<td>' + self._esc(c.country_name || c.country || '\u2014') + '</td>' +
             '<td style="text-align:right">' + c.ip_count.toLocaleString() + '</td>' +
             '<td style="text-align:right">' + c.flow_count.toLocaleString() + '</td>' +
@@ -1701,11 +1704,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</tr></thead><tbody>' +
         topT.map(function(d, i) {
           var pct = maxOct > 0 ? Math.round((d.total_octets / maxOct) * 100) : 0;
-          var ccFlag = self._countryFlag(c.country);
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
-            '<td><b>' + (ccFlag
-              ? '<span title="' + self._esc(c.country || '—') + '" style="font-size:15px;line-height:1">' + ccFlag + '</span>'
-              : self._esc(c.country || '—')) + '</b></td>' +
+            '<td><span class="ip">' + self._esc(d.ip) + '</span></td>' +
             '<td>' + self._esc(d.display_name) + '</td>' +
             '<td>' + self._esc(d.probable_role || '\u2014') + '</td>' +
             '<td style="text-align:right">' + self._bytes(d.total_octets) + '</td>' +
