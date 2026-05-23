@@ -100,6 +100,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._dnsCategoryFilter = '';
     this._dnsStatusFilter = '';
     this._dnsMaliciousOnly = false;
+    this._dnsSort = 'time';
+    this._dnsSortDir = -1;
     this._mobileMenuOpen = false;
     this._settingsData    = null;
     this._settingsLoading = false;
@@ -387,6 +389,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (vp) { this._vulnPage = parseInt(vp.dataset.vulnPage, 10) || 1; this._render(); return; }
     var dnsPager = e.target.closest('[data-dns-page]');
     if (dnsPager) { var pg = parseInt(dnsPager.dataset.dnsPage, 10); if (!isNaN(pg)) { this._dnsPage = pg; this._render(); } return; }
+    var ds = e.target.closest('[data-dnssort]');
+    if (ds) { this._setDnsSort(ds.dataset.dnssort); return; }
     var vr = e.target.closest('[data-vuln-refresh]');
     if (vr) { this._vulnData = null; this._vulnLoading = false; this._render(); return; }
     var vc = e.target.closest('[data-vuln-close]');
@@ -570,6 +574,31 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (thead) thead.innerHTML = this._extThead();
     var pg = this.shadowRoot.getElementById('hsa-ext-pagebar');
     if (pg) pg.innerHTML = this._extPageBar();
+  }
+
+  _setDnsSort(col) {
+    if (this._dnsSort === col) {
+      this._dnsSortDir *= -1;
+    } else {
+      this._dnsSort = col;
+      this._dnsSortDir = col === 'time' ? -1 : 1;
+    }
+    this._dnsPage = 0;
+    this._render();
+  }
+
+  _dnsIpSortKey(ip) {
+    var raw = String(ip || '').trim();
+    if (raw.indexOf(':') >= 0) return '1:' + raw.toLowerCase();
+    var parts = raw.split('.');
+    if (parts.length !== 4) return '0:' + raw.toLowerCase();
+    for (var i = 0; i < parts.length; i++) {
+      if (!/^\d+$/.test(parts[i])) return '0:' + raw.toLowerCase();
+    }
+    return '0:' + parts.map(function(p) {
+      var n = Math.max(0, Math.min(255, parseInt(p, 10)));
+      return ('000' + n).slice(-3);
+    }).join('.');
   }
 
   _onChange(e) {
@@ -4314,6 +4343,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var stats   = (this._data && this._data.dns_proxy_stats) || {};
     var log     = (this._data && this._data.dns_log) || [];
     var filteredLog = this._dnsFilteredLog(log);
+    var sortedLog = this._dnsSortedLog(filteredLog);
 
     var CATEGORIES = ['malware','adult','gambling','ads','tracking','social','gaming','streaming','news','cdn','cloud','iot','tech','intel','override','other'];
     var CAT_COLORS = {
@@ -4347,20 +4377,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer">' +
         '<input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()"' + (self._dnsMaliciousOnly ? ' checked' : '') + '> Malicious only' +
       '</label>' +
-      '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">' + filteredLog.length + ' / ' + log.length + ' entries</span>' +
+      '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' entries</span>' +
     '</div>';
 
     // Table
     var DNS_PAGE_SIZE = this._dnsPageSize || 25;
     var dnsPage = this._dnsPage || 0;
-    var totalDnsPages = Math.max(1, Math.ceil(filteredLog.length / DNS_PAGE_SIZE));
+    var totalDnsPages = Math.max(1, Math.ceil(sortedLog.length / DNS_PAGE_SIZE));
     if (dnsPage >= totalDnsPages) dnsPage = totalDnsPages - 1;
-    var pageLog = filteredLog.slice(dnsPage * DNS_PAGE_SIZE, (dnsPage + 1) * DNS_PAGE_SIZE);
-    var dnsPageStart = filteredLog.length === 0 ? 0 : (dnsPage * DNS_PAGE_SIZE + 1);
-    var dnsPageEnd = Math.min(filteredLog.length, (dnsPage + 1) * DNS_PAGE_SIZE);
+    var pageLog = sortedLog.slice(dnsPage * DNS_PAGE_SIZE, (dnsPage + 1) * DNS_PAGE_SIZE);
+    var dnsPageStart = sortedLog.length === 0 ? 0 : (dnsPage * DNS_PAGE_SIZE + 1);
+    var dnsPageEnd = Math.min(sortedLog.length, (dnsPage + 1) * DNS_PAGE_SIZE);
     var topPaginationHtml =
       '<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
-        '<div class="row-gap" style="font-size:11px;color:var(--muted)">Showing ' + dnsPageStart + '\u2013' + dnsPageEnd + ' of ' + filteredLog.length + '</div>' +
+        '<div class="row-gap" style="font-size:11px;color:var(--muted)">Showing ' + dnsPageStart + '\u2013' + dnsPageEnd + ' of ' + sortedLog.length + '</div>' +
         '<div class="row-gap" style="gap:6px">' +
           '<label class="dim" style="font-size:11px">Rows</label>' +
           '<select id="hsa-dns-pagesize" class="role-select">' +
@@ -4376,9 +4406,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       ? '<span class="badge badge-malicious" style="margin-left:8px">' + maliciousCount + ' malicious</span>'
       : '';
 
+    var dnsSortCols = [
+      { key: 'time', label: 'Time' },
+      { key: 'client_ip', label: 'Client IP' },
+      { key: 'domain', label: 'Domain' },
+      { key: 'type', label: 'Type' },
+      { key: 'category', label: 'Category' },
+    ];
     var tableHead = '<table class="data-table" id="dns-table" style="min-width:900px">' +
       '<thead><tr>' +
-        '<th>Time</th><th>Client IP</th><th>Domain</th><th>Type</th><th>Category</th><th>Response</th><th>Answer</th><th>Status</th>' +
+        dnsSortCols.map(function(c) {
+          var arrow = self._dnsSort === c.key ? (self._dnsSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
+          return '<th class="sortable-th" data-dnssort="' + c.key + '">' + c.label + '<span class="sort-arrow">' + arrow + '</span></th>';
+        }).join('') +
+        '<th>Response</th><th>Answer</th>' +
+        (function() {
+          var arrow = self._dnsSort === 'status' ? (self._dnsSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
+          return '<th class="sortable-th" data-dnssort="status">Status<span class="sort-arrow">' + arrow + '</span></th>';
+        })() +
       '</tr></thead><tbody>';
 
     var tableRows = pageLog.map(function(e) {
@@ -4482,6 +4527,47 @@ class HomeSecurityAssistantPanel extends HTMLElement {
              (!catFilter || cat === catFilter) &&
              (!statusFilter || status === statusFilter);
     });
+  }
+
+  _dnsSortedLog(log) {
+    var self = this;
+    var sortKey = this._dnsSort || 'time';
+    var sortDir = this._dnsSortDir || -1;
+    var out = (log || []).slice();
+    out.sort(function(a, b) {
+      var va;
+      var vb;
+      if (sortKey === 'time') {
+        va = Date.parse(a.timestamp || '') || 0;
+        vb = Date.parse(b.timestamp || '') || 0;
+      } else if (sortKey === 'client_ip') {
+        va = self._dnsIpSortKey(a.src_ip);
+        vb = self._dnsIpSortKey(b.src_ip);
+      } else if (sortKey === 'domain') {
+        va = String(a.domain || '').toLowerCase();
+        vb = String(b.domain || '').toLowerCase();
+      } else if (sortKey === 'type') {
+        va = String(a.qtype || '').toLowerCase();
+        vb = String(b.qtype || '').toLowerCase();
+      } else if (sortKey === 'category') {
+        va = String(a.category || 'other').toLowerCase();
+        vb = String(b.category || 'other').toLowerCase();
+      } else if (sortKey === 'status') {
+        va = String(a.status || 'allowed').toLowerCase();
+        vb = String(b.status || 'allowed').toLowerCase();
+      } else {
+        va = '';
+        vb = '';
+      }
+      if (va < vb) return -1 * sortDir;
+      if (va > vb) return 1 * sortDir;
+      var ta = Date.parse(a.timestamp || '') || 0;
+      var tb = Date.parse(b.timestamp || '') || 0;
+      if (ta > tb) return -1;
+      if (ta < tb) return 1;
+      return 0;
+    });
+    return out;
   }
 
   _clearBlockedDns(btn) {
