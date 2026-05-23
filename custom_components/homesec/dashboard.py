@@ -20,6 +20,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.http.view import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
+from . import const as _const
 from .const import (
     CONF_BASELINE_ENABLED,
     CONF_BIND_HOST,
@@ -87,6 +88,16 @@ import re as _re
 _ROLE_RE = _re.compile(r'^[a-z0-9_]{1,40}$')
 
 _LOGGER = logging.getLogger(__name__)
+
+# Map each settings key (e.g. "nvd_api_url") to its DEFAULT_* value by
+# matching CONF_* and DEFAULT_* symbol pairs from const.py.
+SETTINGS_DEFAULTS: dict[str, Any] = {
+    conf_value: getattr(_const, f"DEFAULT_{conf_name[5:]}")
+    for conf_name, conf_value in vars(_const).items()
+    if conf_name.startswith("CONF_")
+    and isinstance(conf_value, str)
+    and hasattr(_const, f"DEFAULT_{conf_name[5:]}")
+}
 
 SEVERITY_SORT = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "low": 4, "info": 5}
 
@@ -1411,9 +1422,8 @@ class HomeSecSettingsView(HomeAssistantView):
             return self.json({"error": "no active HomeSec entries"}, status_code=404)
         entry = next(iter(entries.values()))["entry"]
         config: dict[str, Any] = {
-            key: get_entry_value(entry, key)
+            key: get_entry_value(entry, key, SETTINGS_DEFAULTS.get(key))
             for key in SETTINGS_KEYS
-            if get_entry_value(entry, key) is not None
         }
         return self.json({"config": config, "schema": SETTINGS_SCHEMA})
 
