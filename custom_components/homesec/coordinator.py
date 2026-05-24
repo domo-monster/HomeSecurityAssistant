@@ -24,6 +24,7 @@ from .const import (
     CONF_BIND_PORT,
     CONF_BLACKLIST_URLS,
     CONF_DNS_PROXY_ENABLED,
+    CONF_DNS_PROXY_BIND_HOST,
     CONF_DNS_PROXY_PORT,
     CONF_DNS_PROXY_UPSTREAM,
     CONF_DNS_LOG_RETENTION_HOURS,
@@ -62,6 +63,7 @@ from .const import (
     DEFAULT_BIND_PORT,
     DEFAULT_BLACKLIST_URLS,
     DEFAULT_DNS_PROXY_ENABLED,
+    DEFAULT_DNS_PROXY_BIND_HOST,
     DEFAULT_DNS_PROXY_PORT,
     DEFAULT_DNS_PROXY_UPSTREAM,
     DEFAULT_DNS_LOG_RETENTION_HOURS,
@@ -239,6 +241,7 @@ class HomeSecCollector:
             get_entry_value(entry, CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)
         )
         dns_proxy_enabled = bool(get_entry_value(entry, CONF_DNS_PROXY_ENABLED, DEFAULT_DNS_PROXY_ENABLED))
+        dns_allowed_subnets = [n.strip() for n in internal_nets if n.strip()]
         blocked_cats_raw = str(get_entry_value(entry, CONF_DNS_BLOCKED_CATEGORIES, DEFAULT_DNS_BLOCKED_CATEGORIES))
         blocked_categories: set[str] = {
             s.strip().lower() for s in _re.split(r"[\n\r,]+", blocked_cats_raw) if s.strip()
@@ -248,13 +251,14 @@ class HomeSecCollector:
         )
         if dns_proxy_enabled:
             self._dns_proxy: DNSProxyServer | None = DNSProxyServer(
-                host=str(get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST)),
+                host=str(get_entry_value(entry, CONF_DNS_PROXY_BIND_HOST, DEFAULT_DNS_PROXY_BIND_HOST)),
                 port=int(get_entry_value(entry, CONF_DNS_PROXY_PORT, DEFAULT_DNS_PROXY_PORT)),
                 upstream=str(get_entry_value(entry, CONF_DNS_PROXY_UPSTREAM, DEFAULT_DNS_PROXY_UPSTREAM)),
                 checker=self._resolver,
                 dns_log=self._dns_log,
                 on_malicious=self._on_malicious_dns,
                 check_sources=None,
+                allowed_subnets=dns_allowed_subnets,
                 blocked_categories=blocked_categories or None,
                 warn_blocked_logs=self._dns_warn_blocked_logs,
                 overrides_raw=str(get_entry_value(entry, CONF_DNS_OVERRIDES, DEFAULT_DNS_OVERRIDES)),

@@ -76,6 +76,7 @@ PERSISTED_KEYS = (
     "enable_dns_resolution",
     "blacklist_urls",
     "dns_proxy_enabled",
+    "dns_proxy_bind_host",
     "dns_proxy_port",
     "dns_proxy_upstream",
     "dns_log_retention_hours",

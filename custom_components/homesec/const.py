@@ -43,6 +43,7 @@ CONF_BLACKLIST_URLS = "blacklist_urls"
 
 # DNS proxy
 CONF_DNS_PROXY_ENABLED = "dns_proxy_enabled"
+CONF_DNS_PROXY_BIND_HOST = "dns_proxy_bind_host"
 CONF_DNS_PROXY_PORT = "dns_proxy_port"
 CONF_DNS_PROXY_UPSTREAM = "dns_proxy_upstream"
 CONF_DNS_LOG_RETENTION_HOURS = "dns_log_retention_hours"
@@ -116,6 +117,7 @@ DEFAULT_BLACKLIST_URLS = (
 
 # DNS proxy defaults
 DEFAULT_DNS_PROXY_ENABLED = False
+DEFAULT_DNS_PROXY_BIND_HOST = "127.0.0.1"
 DEFAULT_DNS_PROXY_PORT = 53
 DEFAULT_DNS_PROXY_UPSTREAM = "1.1.1.1"
 DEFAULT_DNS_LOG_RETENTION_HOURS = 24

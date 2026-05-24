@@ -30,6 +30,7 @@ from .const import (
     CONF_BASELINE_MIN_OBSERVATIONS,
     CONF_BASELINE_TRAINING_HOURS,
     CONF_DNS_BLOCKED_CATEGORIES,
+    CONF_DNS_PROXY_BIND_HOST,
     CONF_DNS_LOG_RETENTION_HOURS,
     CONF_DNS_OVERRIDES,
     CONF_DNS_PROXY_ENABLED,
@@ -86,6 +87,8 @@ BUILT_IN_ROLES = (
 
 import re as _re
 _ROLE_RE = _re.compile(r'^[a-z0-9_]{1,40}$')
+_REDACTED_SECRET_VALUE = "********"
+_SECRET_SETTINGS_KEYS = {CONF_VIRUSTOTAL_API_KEY, CONF_ABUSEIPDB_API_KEY}
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -108,6 +111,7 @@ SETTINGS_KEYS: tuple[str, ...] = (
     CONF_HIGH_EGRESS_THRESHOLD, CONF_ENABLE_SCANNER, CONF_SCAN_INTERVAL,
     CONF_SCAN_PORTS, CONF_SCAN_EXCEPTIONS, CONF_ENABLE_DNS_RESOLUTION,
     CONF_BLACKLIST_URLS, CONF_DNS_PROXY_ENABLED, CONF_DNS_PROXY_PORT,
+    CONF_DNS_PROXY_BIND_HOST,
     CONF_DNS_PROXY_UPSTREAM, CONF_DNS_LOG_RETENTION_HOURS,
     CONF_DNS_WARN_BLOCKED_LOGS, CONF_DNS_BLOCKED_CATEGORIES, CONF_DNS_OVERRIDES,
     CONF_VIRUSTOTAL_API_KEY,
@@ -159,6 +163,7 @@ SETTINGS_SCHEMA: list[dict[str, Any]] = [
         "section": "DNS Proxy",
         "fields": [
             {"key": CONF_DNS_PROXY_ENABLED, "label": "Enable DNS Proxy", "type": "boolean", "help": "Run a DNS proxy that logs and optionally blocks queries"},
+            {"key": CONF_DNS_PROXY_BIND_HOST, "label": "DNS Proxy Bind Host", "type": "text", "help": "Listener bind address for DNS proxy (recommended: 127.0.0.1 or a specific LAN IP)"},
             {"key": CONF_DNS_PROXY_PORT, "label": "DNS Proxy Port", "type": "number", "min": 1, "max": 65535, "help": "UDP port for the DNS proxy listener (default 53 — requires root/CAP_NET_BIND_SERVICE)"},
             {"key": CONF_DNS_PROXY_UPSTREAM, "label": "Upstream DNS Server", "type": "text", "help": "Upstream DNS resolver IP (e.g. 1.1.1.1)"},
             {"key": CONF_DNS_LOG_RETENTION_HOURS, "label": "DNS Log Retention (h)", "type": "number", "min": 0, "max": 8760, "help": "How many hours to keep DNS query log entries (0 = unlimited)"},
@@ -1414,17 +1419,30 @@ class HomeSecSettingsView(HomeAssistantView):
     name = "api:homesec:settings"
     requires_auth = True
 
+    @staticmethod
+    def _require_admin(request: web.Request) -> web.Response | None:
+        user = request.get("hass_user")
+        if user is None or not getattr(user, "is_admin", False):
+            return web.json_response({"error": "Admin privileges required"}, status=403)
+        return None
+
     async def get(self, request: web.Request) -> web.Response:
+        denied = self._require_admin(request)
+        if denied is not None:
+            return denied
         hass: HomeAssistant = request.app["hass"]
         domain_data = hass.data.get(DOMAIN, {})
         entries = domain_data.get("entries", {})
         if not entries:
             return self.json({"error": "no active HomeSec entries"}, status_code=404)
         entry = next(iter(entries.values()))["entry"]
-        config: dict[str, Any] = {
-            key: get_entry_value(entry, key, SETTINGS_DEFAULTS.get(key))
-            for key in SETTINGS_KEYS
-        }
+        config: dict[str, Any] = {}
+        for key in SETTINGS_KEYS:
+            value = get_entry_value(entry, key, SETTINGS_DEFAULTS.get(key))
+            if key in _SECRET_SETTINGS_KEYS:
+                config[key] = _REDACTED_SECRET_VALUE if value else ""
+            else:
+                config[key] = value
         return self.json({"config": config, "schema": SETTINGS_SCHEMA})
 
 
@@ -1441,6 +1459,9 @@ class HomeSecSettingsSaveView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request: web.Request) -> web.Response:
+        denied = HomeSecSettingsView._require_admin(request)
+        if denied is not None:
+            return denied
         try:
             data = await request.json()
         except Exception:
@@ -1461,6 +1482,13 @@ class HomeSecSettingsSaveView(HomeAssistantView):
         new_options = dict(entry.options)
         for key in SETTINGS_KEYS:
             if key in data:
+                if (
+                    key in _SECRET_SETTINGS_KEYS
+                    and isinstance(data[key], str)
+                    and data[key] == _REDACTED_SECRET_VALUE
+                ):
+                    # Keep existing stored secret when UI posts redacted placeholder.
+                    continue
                 if data[key] is None:
                     new_options.pop(key, None)
                 else:

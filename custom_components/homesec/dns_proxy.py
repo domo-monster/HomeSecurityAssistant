@@ -30,6 +30,7 @@ Notes
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import logging
 import socket
 import struct
@@ -67,6 +68,7 @@ _RCODES: dict[int, str] = {
 # when the query did).  Format: root name (1B) + TYPE=OPT (2B) +
 # CLASS=UDP-payload-4096 (2B) + TTL=0 (4B) + RDLENGTH=0 (2B) = 11 bytes.
 _OPT_RR = b"\x00\x00\x29\x10\x00\x00\x00\x00\x00\x00\x00"
+_UPSTREAM_TIMEOUT_SECONDS = 3.0
 
 
 def _question_end(data: bytes) -> int:
@@ -227,6 +229,44 @@ def _build_block_response(query: bytes) -> bytes:
     return bytes(resp)
 
 
+def _build_refused_response(query: bytes) -> bytes:
+    """Synthesise a minimal REFUSED DNS response for denied clients."""
+    if len(query) < 12:
+        return b""
+    resp = bytearray(query[:12])
+    resp[2] = 0x80 | (query[2] & 0x01)  # QR=1, RD copied
+    resp[3] = 0x85  # RA=1, RCODE=5 (REFUSED)
+    resp[6] = resp[7] = 0
+    resp[8] = resp[9] = 0
+    has_edns = struct.unpack_from("!H", query, 10)[0] > 0
+    resp[10] = 0
+    resp[11] = 1 if has_edns else 0
+    q_end = _question_end(query)
+    resp += query[12:q_end]
+    if has_edns:
+        resp += _OPT_RR
+    return bytes(resp)
+
+
+def _build_servfail_response(query: bytes) -> bytes:
+    """Synthesise a minimal SERVFAIL DNS response for upstream timeouts/errors."""
+    if len(query) < 12:
+        return b""
+    resp = bytearray(query[:12])
+    resp[2] = 0x80 | (query[2] & 0x01)  # QR=1, RD copied
+    resp[3] = 0x82  # RA=1, RCODE=2 (SERVFAIL)
+    resp[6] = resp[7] = 0
+    resp[8] = resp[9] = 0
+    has_edns = struct.unpack_from("!H", query, 10)[0] > 0
+    resp[10] = 0
+    resp[11] = 1 if has_edns else 0
+    q_end = _question_end(query)
+    resp += query[12:q_end]
+    if has_edns:
+        resp += _OPT_RR
+    return bytes(resp)
+
+
 def _parse_first_answer(data: bytes) -> str | None:
     """Extract the first A or AAAA answer value from a DNS response, or None."""
     try:
@@ -289,15 +329,39 @@ class _UpstreamProtocol(asyncio.DatagramProtocol):
         client_transport: asyncio.DatagramTransport,
         client_addr: tuple[str, int],
         log_entry: dict,
+        timeout_seconds: float = _UPSTREAM_TIMEOUT_SECONDS,
     ) -> None:
         self._query = query
         self._client_transport = client_transport
         self._client_addr = client_addr
         self._log_entry = log_entry
         self._transport: asyncio.DatagramTransport | None = None
+        self._loop = asyncio.get_running_loop()
+        self._timeout_seconds = timeout_seconds
+        self._timeout_handle: asyncio.TimerHandle | None = None
+
+    def _close_transport(self) -> None:
+        if self._timeout_handle is not None:
+            self._timeout_handle.cancel()
+            self._timeout_handle = None
+        if self._transport is not None:
+            self._transport.close()
+            self._transport = None
+
+    def _send_servfail(self) -> None:
+        if self._client_transport and not self._client_transport.is_closing():
+            resp = _build_servfail_response(self._query)
+            if resp:
+                self._client_transport.sendto(resp, self._client_addr)
+
+    def _on_timeout(self) -> None:
+        self._log_entry["rcode"] = "SERVFAIL"
+        self._send_servfail()
+        self._close_transport()
 
     def connection_made(self, transport: asyncio.DatagramTransport) -> None:
         self._transport = transport
+        self._timeout_handle = self._loop.call_later(self._timeout_seconds, self._on_timeout)
         transport.sendto(self._query)
 
     def datagram_received(self, data: bytes, addr: tuple) -> None:
@@ -307,16 +371,18 @@ class _UpstreamProtocol(asyncio.DatagramProtocol):
             self._log_entry["answer"] = answer
         if self._client_transport and not self._client_transport.is_closing():
             self._client_transport.sendto(data, self._client_addr)
-        if self._transport:
-            self._transport.close()
+        self._close_transport()
 
     def error_received(self, exc: Exception) -> None:
         _LOGGER.debug("DNS proxy upstream error: %s", exc)
-        if self._transport:
-            self._transport.close()
+        self._log_entry["rcode"] = "SERVFAIL"
+        self._send_servfail()
+        self._close_transport()
 
     def connection_lost(self, exc: Exception | None) -> None:
-        pass
+        if self._timeout_handle is not None:
+            self._timeout_handle.cancel()
+            self._timeout_handle = None
 
 
 class DNSProxyProtocol(asyncio.DatagramProtocol):
@@ -329,6 +395,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         dns_log: deque,
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
+        allowed_networks: list[ipaddress._BaseNetwork] | None = None,
         blocked_categories: set[str] | None = None,
         warn_blocked_logs: bool = False,
         overrides: dict[str, str] | None = None,
@@ -339,6 +406,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._dns_log = dns_log
         self._on_malicious = on_malicious
         self._check_sources = check_sources  # None = all sources allowed
+        self._allowed_networks = allowed_networks
         self._blocked_categories: set[str] = blocked_categories or set()
         self._warn_blocked_logs: bool = bool(warn_blocked_logs)
         self._overrides: dict[str, str] = overrides or {}  # domain → IP
@@ -366,6 +434,31 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
     async def _handle(self, data: bytes, addr: tuple) -> None:
         src_ip = str(addr[0])
         self._total_queries += 1
+        if self._allowed_networks is not None:
+            try:
+                src_addr = ipaddress.ip_address(src_ip)
+            except ValueError:
+                src_addr = None
+            allowed = src_addr is not None and any(src_addr in net for net in self._allowed_networks)
+            if not allowed:
+                entry: dict = {
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "src_ip": src_ip,
+                    "domain": "",
+                    "qtype": "?",
+                    "malicious": False,
+                    "category": "acl",
+                    "status": "denied",
+                    "rcode": "REFUSED",
+                    "answer": None,
+                }
+                self._dns_log.append(entry)
+                if self._transport and not self._transport.is_closing():
+                    resp = _build_refused_response(data)
+                    if resp:
+                        self._transport.sendto(resp, addr)
+                return
+
         question = _parse_dns_question(data)
         qname = question[0] if question else ""
         qtype = question[1] if question else "?"
@@ -498,6 +591,7 @@ class DNSProxyServer:
         dns_log: deque,
         on_malicious: Callable[[str, str, str, dict], None],
         check_sources: set[str] | None = None,
+        allowed_subnets: list[str] | None = None,
         blocked_categories: set[str] | None = None,
         warn_blocked_logs: bool = False,
         overrides_raw: str = "",
@@ -511,6 +605,7 @@ class DNSProxyServer:
         self._dns_log = dns_log
         self._on_malicious = on_malicious
         self._check_sources = check_sources
+        self._allowed_networks = self._parse_networks(allowed_subnets or [])
         self._blocked_categories = blocked_categories
         self._warn_blocked_logs = bool(warn_blocked_logs)
         self._overrides: dict[str, str] = self._parse_overrides(overrides_raw)
@@ -533,6 +628,19 @@ class DNSProxyServer:
                 if domain and ip:
                     result[domain] = ip
         return result
+
+    @staticmethod
+    def _parse_networks(raw_networks: list[str]) -> list[ipaddress._BaseNetwork] | None:
+        nets: list[ipaddress._BaseNetwork] = []
+        for raw in raw_networks:
+            net = raw.strip()
+            if not net:
+                continue
+            try:
+                nets.append(ipaddress.ip_network(net, strict=False))
+            except ValueError:
+                _LOGGER.warning("HomeSec DNS proxy: ignoring invalid allowed subnet '%s'", net)
+        return nets or None
 
     @staticmethod
     def _parse_upstream(upstream: str) -> tuple[str, int]:
@@ -559,6 +667,7 @@ class DNSProxyServer:
                 self._dns_log,
                 self._on_malicious,
                 self._check_sources,
+                self._allowed_networks,
                 self._blocked_categories,
                 self._warn_blocked_logs,
                 self._overrides,
@@ -589,6 +698,11 @@ class DNSProxyServer:
                 self._host, self._port,
                 ", ".join(f"{h}:{p}" for h, p in self._upstreams),
             )
+            if self._host == "0.0.0.0" and self._allowed_networks is None:
+                _LOGGER.warning(
+                    "HomeSec DNS proxy is bound to 0.0.0.0 with no source ACL. "
+                    "Set dns_proxy_bind_host or internal networks to avoid open-resolver exposure."
+                )
         except OSError as exc:
             _LOGGER.error(
                 "HomeSec DNS proxy could not bind %s:%d — %s. "
