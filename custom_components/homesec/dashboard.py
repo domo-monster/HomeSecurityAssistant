@@ -126,7 +126,7 @@ SETTINGS_KEYS: tuple[str, ...] = (
     CONF_BASELINE_ENABLED, CONF_BASELINE_TRAINING_HOURS,
     CONF_BASELINE_MIN_OBSERVATIONS, CONF_BASELINE_EGRESS_MULTIPLIER,
     CONF_NVD_API_URL, CONF_NVD_TTL_HOURS, CONF_NVD_MIN_YEAR, CONF_NVD_KEYWORDS,
-    CONF_STATS_TOP_N,
+    CONF_STATS_TOP_N, CONF_WEBUI_REQUIRE_ADMIN,
     CONF_SURICATA_LISTENER_ENABLED, CONF_SURICATA_LISTENER_HOST,
     CONF_SURICATA_LISTENER_PORT, CONF_SURICATA_LOG_RETENTION_HOURS,
 )
@@ -213,6 +213,7 @@ SETTINGS_SCHEMA: list[dict[str, Any]] = [
     {
         "section": "Display",
         "fields": [
+            {"key": CONF_WEBUI_REQUIRE_ADMIN, "label": "Sidebar panel requires admin", "type": "boolean", "help": "When enabled, only Home Assistant admin users can see the Security Assistant sidebar panel"},
             {"key": CONF_STATS_TOP_N, "label": "Statistics Top N", "type": "number", "min": 3, "max": 25, "help": "How many top entries to show in statistics charts"},
         ],
     },

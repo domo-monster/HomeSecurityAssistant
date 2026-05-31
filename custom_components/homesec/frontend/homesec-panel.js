@@ -17,6 +17,50 @@ const _VIEW_LABELS = {
   recommendations: 'Recommendations',
   settings:        'Settings',
 };
+const _UI_I18N = {
+  fr: {
+    'view.overview': 'Vue d\'ensemble',
+    'view.map': 'Carte reseau',
+    'view.hosts': 'Hotes',
+    'view.findings': 'Constats',
+    'view.external': 'IP externes',
+    'view.vulnerabilities': 'Vulnerabilites',
+    'view.statistics': 'Statistiques',
+    'view.dns': 'Requetes DNS',
+    'view.suricata': 'Alertes Suricata',
+    'view.recommendations': 'Recommandations',
+    'view.settings': 'Parametres',
+    'page.overview': 'Vue d\'ensemble',
+    'page.findings': 'Constats',
+    'page.statistics': 'Statistiques',
+    'page.dns_queries': 'Requetes DNS',
+    'page.suricata_alerts': 'Alertes Suricata',
+    'app.title': 'Security Assistant',
+    'settings.title': 'Parametres',
+    'settings.subtitle': 'Les changements prennent effet apres le rechargement de l\'integration.',
+    'settings.loading': 'Chargement des parametres…',
+    'settings.loading_short': 'Chargement…',
+    'settings.links': 'Liens',
+    'settings.project': 'Projet',
+    'settings.github_repo': 'Depot GitHub',
+    'settings.documentation': 'Documentation',
+    'settings.open_documentation': 'Ouvrir la documentation',
+    'settings.unsaved': 'Vous avez des changements non enregistres.',
+    'settings.save': 'Enregistrer les parametres',
+    'settings.reload_server': 'Recharger depuis le serveur',
+    'settings.failed_load': 'Echec du chargement des parametres : ',
+    'settings.failed_save': 'Echec de l\'enregistrement des parametres : ',
+    'settings.saved_reload': 'Parametres enregistres. L\'integration va se recharger pour appliquer les changements.',
+    'settings.unsaved_title': 'Modifications non enregistrees',
+    'settings.unsaved_body': 'Vous avez des changements de parametres non enregistres. Si vous quittez maintenant, ils seront perdus.',
+    'settings.stay': 'Rester sur Parametres',
+    'settings.discard_leave': 'Ignorer et quitter',
+    'settings.beforeunload': 'Vous avez des changements non enregistres dans les parametres. Quitter et les ignorer ?',
+    'sidebar.tagline': 'Telemetrie reseau de securite avec contexte de flux en direct',
+    'sidebar.collector_active': 'Collecteur actif',
+    'sidebar.awaiting_flows': 'En attente de flux',
+  }
+};
 const _VIEW_ICONS = {
   overview:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>`,
   map:             `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>`,
@@ -142,7 +186,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._beforeUnloadHandler = (e) => {
       if (this._settingsDirty) {
         e.preventDefault();
-        e.returnValue = 'You have unsaved Settings changes. Leave and discard them?';
+        e.returnValue = this._t('settings.beforeunload', 'You have unsaved Settings changes. Leave and discard them?');
         return e.returnValue;
       }
     };
@@ -233,7 +277,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var app = root.querySelector('.app');
     app.classList.toggle('mobile-menu-open', !!this._mobileMenuOpen);
     var mobileTitle = root.getElementById('hsa-mobile-title');
-    if (mobileTitle) mobileTitle.textContent = _VIEW_LABELS[this._view] || 'Security Assistant';
+    if (mobileTitle) mobileTitle.textContent = this._viewLabel(this._view) || this._t('app.title', 'Security Assistant');
     root.getElementById('hsa-sidebar').innerHTML = this._sidebar();
     const content = root.getElementById('hsa-content');
     if (this._error && !this._data) {
@@ -771,7 +815,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       : '';
 
     return '<div>' +
-      '<div class="view-header"><h1>Suricata Alerts ' + critBadge + '</h1></div>' +
+      '<div class="view-header"><h1>' + this._t('page.suricata_alerts', 'Suricata Alerts') + ' ' + critBadge + '</h1></div>' +
       '<div class="card table-card">' +
         '<div style="padding:14px 14px 8px">' + filterBar + '</div>' +
         topPagination +
@@ -1044,12 +1088,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     return '<div id="hsa-unsaved-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">' +
       '<div class="card" style="width:min(420px,94vw);margin:0;border:1px solid rgba(255,180,0,.3)">' +
         '<div class="view-header" style="margin-bottom:10px">' +
-          '<h1 style="font-size:16px">⚠️ Unsaved Changes</h1>' +
+          '<h1 style="font-size:16px">⚠️ ' + this._t('settings.unsaved_title', 'Unsaved Changes') + '</h1>' +
         '</div>' +
-        '<p class="dim" style="font-size:13px;margin:0 0 18px">You have unsaved settings changes. If you leave now they will be discarded.</p>' +
+        '<p class="dim" style="font-size:13px;margin:0 0 18px">' + this._t('settings.unsaved_body', 'You have unsaved settings changes. If you leave now they will be discarded.') + '</p>' +
         '<div class="row-gap" style="justify-content:flex-end;gap:8px">' +
-          '<button class="btn" data-unsaved-stay>Stay on Settings</button>' +
-          '<button class="btn" style="background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.4);color:#ff4d6d" data-unsaved-leave>Discard &amp; Leave</button>' +
+          '<button class="btn" data-unsaved-stay>' + this._t('settings.stay', 'Stay on Settings') + '</button>' +
+          '<button class="btn" style="background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.4);color:#ff4d6d" data-unsaved-leave>' + this._t('settings.discard_leave', 'Discard &amp; Leave') + '</button>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -1181,15 +1225,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       if (v === 'findings' && totalFindings > 0)       badge = '<span class="nav-badge">' + totalFindings + '</span>';
       if (v === 'external' && ext_threat > 0)     badge = '<span class="nav-badge danger">' + ext_threat + '</span>';
       return '<li class="nav-item ' + (self._view === v ? 'active' : '') + '" data-view="' + v + '">' +
-        _VIEW_ICONS[v] + '<span class="nav-label">' + _VIEW_LABELS[v] + '</span>' + badge + '</li>';
+        _VIEW_ICONS[v] + '<span class="nav-label">' + self._viewLabel(v) + '</span>' + badge + '</li>';
     }).join('');
     var exporters = (this._data && this._data.summary && this._data.summary.exporters) || [];
     var status = exporters.length > 0 ? 'online' : 'waiting';
     return '<div class="brand"><img src="/api/homesec/frontend/hsa-logo.svg" alt="logo" style="height:32px;width:32px;margin-right:10px;border-radius:8px;box-shadow:0 0 8px #62e8ff55;vertical-align:middle">' +
-      '<div class="brand-text"><span class="brand-name">Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">Network security telemetry with live flow context</span></div></div>' +
+      '<div class="brand-text"><span class="brand-name">Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">' + this._t('sidebar.tagline', 'Network security telemetry with live flow context') + '</span></div></div>' +
       '<ul class="nav-list">' + items + '</ul>' +
       '<div class="sidebar-status ' + status + '"><div class="status-dot"></div><span>' +
-      (status === 'online' ? 'Collector active' : 'Awaiting flows') + '</span>' +
+      (status === 'online' ? this._t('sidebar.collector_active', 'Collector active') : this._t('sidebar.awaiting_flows', 'Awaiting flows')) + '</span>' +
       '<span style="margin-left:auto;opacity:.45;font-size:9px">v' + ((this._data && this._data.summary && this._data.summary.version) || '…') + '</span>' +
       '</div>' +
         '<div class="sidebar-copy"><a href="https://domotic.monster" target="_blank" rel="noopener noreferrer">© 2026 domotic.monster</a></div>';
@@ -1265,7 +1309,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '</div>';
 
     return '<div>' +
-      '<div class="page-header"><h1 class="page-title">Overview</h1></div>' +
+      '<div class="page-header"><h1 class="page-title">' + this._t('page.overview', 'Overview') + '</h1></div>' +
       '<div class="stat-grid">' +
         this._stat(s.devices || 0, 'Devices', 'success') +
         this._stat((this._data && this._data.scan_hosts_found) != null ? this._data.scan_hosts_found : (s.scanned_devices || 0), 'Scanned', '') +
@@ -2499,7 +2543,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
 
     return '<div>' +
-      '<div class="page-header"><h1 class="page-title">Statistics <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
+      '<div class="page-header"><h1 class="page-title">' + this._t('page.statistics', 'Statistics') + ' <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
       timelineHtml +
       (devianceChartHtml ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Baseline Deviance per hour (last 24\u202fh)</div>' + devianceChartHtml + '</div>' : '') +
       (dnsProxyEnabled ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">DNS Queries per hour (last 24\u202fh)</div>' + dnsChartHtml + '</div>' : '') + '</div>' +
@@ -3816,7 +3860,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // ── Top toolbar (always at page top) ────────────────────────────
     var topBar =
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
-        '<div class="page-header" style="margin:0"><h1 class="page-title">Findings</h1></div>' +
+        '<div class="page-header" style="margin:0"><h1 class="page-title">' + this._t('page.findings', 'Findings') + '</h1></div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
           '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
         '</div>' +
@@ -5038,7 +5082,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var paginationHtml = ''; // kept for compat — pagination now at top
 
     return '<div>' +
-      '<div class="view-header"><h1>DNS Queries ' + summaryBadge + '</h1></div>' +
+      '<div class="view-header"><h1>' + this._t('page.dns_queries', 'DNS Queries') + ' ' + summaryBadge + '</h1></div>' +
       '<div class="card table-card">' +
         '<div style="padding:14px 14px 8px">' + filterBar + '</div>' +
         topPaginationHtml +
@@ -5286,14 +5330,34 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
   _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  _docsUrlForLanguage() {
+  _langCode() {
     var hass = this._hass || {};
     var lang = '';
     if (typeof hass.language === 'string') lang = hass.language;
     else if (typeof hass.selectedLanguage === 'string') lang = hass.selectedLanguage;
     else if (hass.locale && typeof hass.locale.language === 'string') lang = hass.locale.language;
     else if (typeof navigator !== 'undefined' && typeof navigator.language === 'string') lang = navigator.language;
-    lang = String(lang || '').toLowerCase();
+    return String(lang || '').toLowerCase();
+  }
+
+  _activeLocale() {
+    var lang = this._langCode();
+    if (lang.indexOf('fr') === 0) return 'fr';
+    return 'en';
+  }
+
+  _t(key, fallback) {
+    var locale = this._activeLocale();
+    var dict = _UI_I18N[locale] || {};
+    return Object.prototype.hasOwnProperty.call(dict, key) ? dict[key] : fallback;
+  }
+
+  _viewLabel(view) {
+    return this._t('view.' + view, _VIEW_LABELS[view] || view);
+  }
+
+  _docsUrlForLanguage() {
+    var lang = this._langCode();
     if (lang.indexOf('fr') === 0) return 'https://domotic.monster/homesec_fr.html';
     if (lang.indexOf('de') === 0) return 'https://domotic.monster/homesec_de.html';
     return 'https://domotic.monster/homesec.html';
@@ -5339,14 +5403,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         } else {
           msg = String(e);
         }
-        self._settingsMsg = 'Failed to load settings: ' + msg;
+        self._settingsMsg = self._t('settings.failed_load', 'Failed to load settings: ') + msg;
         self._settingsMsgType = 'error';
         self._render();
       });
-      return '<div><div class="view-header"><h1>Settings</h1></div><div class="state-box"><div class="loader"></div><p>Loading settings\u2026</p></div></div>';
+      return '<div><div class="view-header"><h1>' + this._t('settings.title', 'Settings') + '</h1></div><div class="state-box"><div class="loader"></div><p>' + this._t('settings.loading', 'Loading settings\u2026') + '</p></div></div>';
     }
     if (this._settingsLoading) {
-      return '<div><div class="view-header"><h1>Settings</h1></div><div class="state-box"><div class="loader"></div><p>Loading\u2026</p></div></div>';
+      return '<div><div class="view-header"><h1>' + this._t('settings.title', 'Settings') + '</h1></div><div class="state-box"><div class="loader"></div><p>' + this._t('settings.loading_short', 'Loading\u2026') + '</p></div></div>';
     }
     var schema = (this._settingsData && this._settingsData.schema) || [];
     var config = (this._settingsData && this._settingsData.config) || {};
@@ -5357,7 +5421,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       msgHtml = '<div style="background:rgba(0,0,0,.25);border:1px solid ' + msgColor + ';border-radius:8px;padding:10px 14px;margin-bottom:14px;color:' + msgColor + ';font-size:12px">' + this._esc(this._settingsMsg) + '</div>';
     }
     var dirtyHtml = this._settingsDirty
-      ? '<div style="background:rgba(255,179,71,.09);border:1px solid rgba(255,179,71,.4);border-radius:8px;padding:10px 14px;margin-bottom:14px;color:var(--warn);font-size:12px">You have unsaved changes.</div>'
+      ? '<div style="background:rgba(255,179,71,.09);border:1px solid rgba(255,179,71,.4);border-radius:8px;padding:10px 14px;margin-bottom:14px;color:var(--warn);font-size:12px">' + this._t('settings.unsaved', 'You have unsaved changes.') + '</div>'
       : '';
     var fieldsHtml = schema.map(function(section) {
       var rows = (section.fields || []).map(function(f) {
@@ -5392,21 +5456,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }).join('');
     var linksCard =
       '<div class="card" style="margin-top:14px">' +
-        '<div class="card-title">Links</div>' +
+        '<div class="card-title">' + this._t('settings.links', 'Links') + '</div>' +
         '<div style="font-size:12px;color:var(--text);line-height:1.7">' +
-          'Project: <a class="ext-report-link" href="https://github.com/domo-monster/HomeSecurityAssistant" target="_blank" rel="noopener noreferrer">GitHub Repository</a><br>' +
-          'Documentation: <a class="ext-report-link" href="' + docsUrl + '" target="_blank" rel="noopener noreferrer">Open Documentation</a>' +
+          this._t('settings.project', 'Project') + ': <a class="ext-report-link" href="https://github.com/domo-monster/HomeSecurityAssistant" target="_blank" rel="noopener noreferrer">' + this._t('settings.github_repo', 'GitHub Repository') + '</a><br>' +
+          this._t('settings.documentation', 'Documentation') + ': <a class="ext-report-link" href="' + docsUrl + '" target="_blank" rel="noopener noreferrer">' + this._t('settings.open_documentation', 'Open Documentation') + '</a>' +
         '</div>' +
       '</div>';
 
     return '<div>' +
-      '<div class="view-header"><h1>Settings</h1><div style="font-size:11px;color:var(--muted)">Changes take effect after reloading the integration.</div></div>' +
+      '<div class="view-header"><h1>' + this._t('settings.title', 'Settings') + '</h1><div style="font-size:11px;color:var(--muted)">' + this._t('settings.subtitle', 'Changes take effect after reloading the integration.') + '</div></div>' +
       msgHtml +
       dirtyHtml +
       fieldsHtml +
       '<div style="margin-top:6px">' +
-        '<button class="btn" data-settings-save style="padding:6px 18px;font-size:12px">Save settings</button>' +
-        ' <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">Reload from server</button>' +
+        '<button class="btn" data-settings-save style="padding:6px 18px;font-size:12px">' + this._t('settings.save', 'Save settings') + '</button>' +
+        ' <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">' + this._t('settings.reload_server', 'Reload from server') + '</button>' +
       '</div>' +
       linksCard +
     '</div>';
@@ -5431,7 +5495,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       });
     });
     this._hass.callApi('POST', 'homesec/settings/save', payload).then(function() {
-      self._settingsMsg = 'Settings saved. The integration will reload in a moment to apply changes.';
+      self._settingsMsg = self._t('settings.saved_reload', 'Settings saved. The integration will reload in a moment to apply changes.');
       self._settingsMsgType = 'ok';
       self._settingsDraft = {};
       self._settingsDirty = false;
@@ -5455,7 +5519,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       } else {
         msg = String(e);
       }
-      self._settingsMsg = 'Failed to save settings: ' + msg;
+      self._settingsMsg = self._t('settings.failed_save', 'Failed to save settings: ') + msg;
       self._settingsMsgType = 'error';
       self._render();
     });

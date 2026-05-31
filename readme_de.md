@@ -17,7 +17,7 @@ Dokumentation nach Sprache
 - Deutsch: https://domotic.monster/homesec_de.html
 
 Version
-- 0.9.0
+- 0.9.1
 
 Enthaltene Funktionen
 - NetFlow v5/v9/IPFIX Listener mit intern/externer Traffic-Klassifizierung.
@@ -31,12 +31,16 @@ Enthaltene Funktionen
 - Multi-View-Frontend: Overview, Network Map, Hosts, Findings, External IPs,
   Vulnerabilities, Statistics, DNS, Suricata, Recommendations, Settings.
 
-Neue Anderungen in 0.9.0
+Neue Anderungen in 0.9.1
 - In-Place-Anwendung von Optionen (weniger storende Komplett-Reloads).
 - Nicht blockierender Einstellungen-Speicherpfad.
 - Start/Reload-Timing-Logs zur Performance-Analyse.
 - Link-Karte unten auf der Settings-Seite (GitHub + sprachabhangige Doku).
 - Sidebar-Copyright-Link auf https://domotic.monster aktualisiert.
+- HACS-Deep-Link in README.md auf die korrekte my.home-assistant.io URL korrigiert.
+- Suricata-Bilder in den Suricata-Dokumentationsabschnitten hinzugefugt.
+- Fehlende Settings-Option fuer Sidebar-Sichtbarkeit fuer Nicht-Admins hinzugefugt.
+- Franzosische Frontend-UI-Localization fur Menus, Settings und zentrale Seitentitel hinzugefugt.
 
 Baseline-Bilder
 - Live-vs-Baseline-Vergleich:

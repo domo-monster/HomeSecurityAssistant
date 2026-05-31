@@ -2,13 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "title": "Security Assistant — Setup",
-        "description": "Enter the NetFlow listener address and your internal network ranges. All advanced settings can be configured from the Security Assistant panel after setup.",
+        "title": "Security Assistant — Configuration",
+        "description": "Saisissez l'adresse d'ecoute NetFlow et vos plages reseau internes. Tous les parametres avances peuvent etre configures depuis le panneau Security Assistant apres l'installation.",
         "data": {
-          "bind_host": "NetFlow bind host (e.g. 0.0.0.0)",
-          "bind_port": "NetFlow bind port (UDP, default 2055)",
-          "enable_netflow_listener": "Enable NetFlow listener",
-          "internal_networks": "Internal networks (comma-separated CIDRs)"
+          "bind_host": "Hote d'ecoute NetFlow (ex. 0.0.0.0)",
+          "bind_port": "Port d'ecoute NetFlow (UDP, defaut 2055)",
+          "enable_netflow_listener": "Activer l'ecouteur NetFlow",
+          "internal_networks": "Reseaux internes (CIDR separes par des virgules)"
         }
       }
     }
@@ -16,15 +16,45 @@
   "options": {
     "step": {
       "init": {
-        "title": "Security Assistant — Listener Settings",
-        "description": "Update the NetFlow listener and internal networks. All advanced settings are available from the Security Assistant panel.",
+        "title": "Security Assistant — Parametres de l'ecouteur",
+        "description": "Mettez a jour l'ecouteur NetFlow et les reseaux internes. Tous les parametres avances sont disponibles dans le panneau Security Assistant.",
         "data": {
-          "bind_host": "NetFlow bind host",
-          "bind_port": "NetFlow bind port (UDP)",
-          "enable_netflow_listener": "Enable NetFlow listener",
-          "internal_networks": "Internal networks (comma-separated CIDRs)"
+          "bind_host": "Hote d'ecoute NetFlow",
+          "bind_port": "Port d'ecoute NetFlow (UDP)",
+          "enable_netflow_listener": "Activer l'ecouteur NetFlow",
+          "internal_networks": "Reseaux internes (CIDR separes par des virgules)"
         }
       }
+    }
+  },
+  "services": {
+    "trigger_scan": {
+      "name": "Lancer un scan actif des hotes",
+      "description": "Execute immediatement un scan reseau actif complet (ping + scan de ports) pour toutes les IP connues et observees, sans attendre le prochain intervalle planifie."
+    },
+    "blacklist_refresh": {
+      "name": "Forcer le rafraichissement des blocklists de threat intel",
+      "description": "Vide immediatement toutes les entrees de threat intel chargees et retelcharge chaque URL de blocklist configuree."
+    },
+    "nvd_refresh": {
+      "name": "Rafraichir la base de vulnerabilites NVD",
+      "description": "Vide le cache local des CVE NVD et recupere des donnees de vulnerabilite fraiches depuis la National Vulnerability Database."
+    },
+    "start_baseline_training": {
+      "name": "Demarrer l'apprentissage de baseline",
+      "description": "Demarre le mode d'apprentissage de baseline et apprend un profil d'activite normal selon la duree configuree."
+    },
+    "stop_baseline_training": {
+      "name": "Arreter l'apprentissage de baseline",
+      "description": "Arrete immediatement le mode d'apprentissage de baseline et promeut l'etat appris vers la baseline active si des hotes ont ete observes."
+    },
+    "clear_baseline": {
+      "name": "Effacer la baseline",
+      "description": "Supprime l'etat de baseline courant et la progression d'apprentissage du stockage persistant."
+    },
+    "retrain_baseline": {
+      "name": "Relancer l'apprentissage de baseline",
+      "description": "Efface l'etat de baseline courant et redemarre immediatement le mode d'apprentissage."
     }
   }
 }

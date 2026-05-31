@@ -233,7 +233,7 @@ All services are callable from **Developer Tools → Actions** in Home Assistant
 
 ### Installation via HACS (Recommended)
 
-[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdomo-monster%2FHomeSecurityAssistant&category=integration)
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=https%3A%2F%2Fgithub.com%2Fdomo-monster%2FHomeSecurityAssistant&category=Integration&owner=domo-monster)
 
 1. In Home Assistant, go to **HACS → Integrations → Custom Repositories**.
 2. Add this repository URL: `https://github.com/domo-monster/HomeSecurityAssistant` as a custom integration.

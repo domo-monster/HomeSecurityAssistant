@@ -1,5 +1,14 @@
 Security Assistant - Changelog
 
+0.9.1
+
+- Fixed the HACS add-repository deep link in README.md to the correct my.home-assistant.io redirect URL.
+- Added Suricata screenshots in the Suricata sections of README.md, readme_fr.md, and readme_de.md.
+- Added missing Settings toggle for sidebar visibility by non-admin users (webui_require_admin) in the Settings schema.
+- Added French UI localization in the frontend panel for key navigation labels, Settings UI messages, and major page headers.
+- Translated custom_components/homesec/translations/fr.json so Home Assistant setup/options/service texts are shown in French.
+- Bumped integration version to 0.9.1.
+
 0.9.0
 
 - Added in-place options apply to reduce disruptive full integration reloads when saving settings.
