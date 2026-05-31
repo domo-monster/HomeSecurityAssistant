@@ -99,6 +99,11 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
   <em>Example: Baseline deviation summary</em>
 </p>
 
+### Suricata Alert Streaming
+- **Suricata EVE alert listener** — Home Security Assistant can receive Suricata alert events over TCP and ingest them into the sidebar dashboard and alert log.
+- **Companion pusher script** — the included `suricata_pusher.py` script tails Suricata's EVE JSON alert file and streams each alert line to the listener.
+- **Alert visibility** — Suricata alerts are shown in the sidebar dashboard and are persisted with the other runtime logs so they survive restarts.
+
 ### Security Findings
 - Actionable findings for high/critical issues with severity, source IP, category, and occurrence count
 - Categories: suspicious ports, port scanning, high egress, vulnerabilities, **baseline anomalies** (new host, new peer, new port, new DNS category, egress spike)

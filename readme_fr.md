@@ -45,9 +45,13 @@ Visuels du baseline
 
   ![Live vs Baseline](custom_components/homesec/hsa_baseline_comparison.png)
 
-- Resume des ecarts du baseline :
 
   ![Deviation baseline](custom_components/homesec/hsa_baseline_deviation.png)
+
+Suricata - Flux des alertes
+- **Ecouteur d'alertes Suricata EVE** - Home Security Assistant peut recevoir les alertes Suricata via TCP et les integrer au tableau de bord lateral ainsi qu'au journal d'alertes.
+- **Script d'envoi accompagne** - le script `suricata_pusher.py` fourni lit en continu le fichier JSON EVE de Suricata et envoie chaque ligne d'alerte au listener.
+- **Visibilite des alertes** - les alertes Suricata apparaissent dans le tableau de bord lateral et sont conservees avec les autres journaux d'execution apres redemarrage.
 
 Installation (HACS)
 1. Ouvrir HACS -> Integrations -> Custom Repositories.

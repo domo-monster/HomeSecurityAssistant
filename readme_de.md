@@ -47,6 +47,11 @@ Baseline-Bilder
 
   ![Baseline deviation](custom_components/homesec/hsa_baseline_deviation.png)
 
+Suricata - Alarm-Streaming
+- **Suricata EVE Alarm-Listener** - Home Security Assistant kann Suricata-Alarmereignisse per TCP empfangen und in das Sidebar-Dashboard sowie das Alarmprotokoll aufnehmen.
+- **Begleitendes Pusher-Skript** - das mitgelieferte Skript `suricata_pusher.py` verfolgt die EVE-JSON-Alarmdatei von Suricata und streamt jede Alarmzeile an den Listener.
+- **Alarmanzeige** - Suricata-Alarme werden im Sidebar-Dashboard angezeigt und zusammen mit den anderen Laufzeitprotokollen fuer Neustarts gespeichert.
+
 Installation (HACS)
 1. HACS -> Integrations -> Custom Repositories offnen.
 2. Repository hinzufugen: https://github.com/domo-monster/HomeSecurityAssistant
