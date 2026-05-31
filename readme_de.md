@@ -52,6 +52,19 @@ Suricata - Alarm-Streaming
 - **Begleitendes Pusher-Skript** - das mitgelieferte Skript `suricata_pusher.py` verfolgt die EVE-JSON-Alarmdatei von Suricata und streamt jede Alarmzeile an den Listener.
 - **Alarmanzeige** - Suricata-Alarme werden im Sidebar-Dashboard angezeigt und zusammen mit den anderen Laufzeitprotokollen fuer Neustarts gespeichert.
 
+Suricata-Bilder
+- Uebersicht:
+
+  ![Suricata overview](custom_components/homesec/hsa_suricata_ov.png)
+
+- Alarmliste:
+
+  ![Suricata alerts](custom_components/homesec/hsa_suricata_alerts.png)
+
+- Statistiken:
+
+  ![Suricata stats](custom_components/homesec/hsa_suricata_stats.png)
+
 Installation (HACS)
 1. HACS -> Integrations -> Custom Repositories offnen.
 2. Repository hinzufugen: https://github.com/domo-monster/HomeSecurityAssistant

@@ -53,6 +53,19 @@ Suricata - Flux des alertes
 - **Script d'envoi accompagne** - le script `suricata_pusher.py` fourni lit en continu le fichier JSON EVE de Suricata et envoie chaque ligne d'alerte au listener.
 - **Visibilite des alertes** - les alertes Suricata apparaissent dans le tableau de bord lateral et sont conservees avec les autres journaux d'execution apres redemarrage.
 
+Visuels Suricata
+- Vue d'ensemble :
+
+  ![Suricata overview](custom_components/homesec/hsa_suricata_ov.png)
+
+- Liste d'alertes :
+
+  ![Suricata alerts](custom_components/homesec/hsa_suricata_alerts.png)
+
+- Statistiques :
+
+  ![Suricata stats](custom_components/homesec/hsa_suricata_stats.png)
+
 Installation (HACS)
 1. Ouvrir HACS -> Integrations -> Custom Repositories.
 2. Ajouter : https://github.com/domo-monster/HomeSecurityAssistant

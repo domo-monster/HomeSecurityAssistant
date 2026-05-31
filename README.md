@@ -104,6 +104,24 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - **Companion pusher script** — the included `suricata_pusher.py` script tails Suricata's EVE JSON alert file and streams each alert line to the listener.
 - **Alert visibility** — Suricata alerts are shown in the sidebar dashboard and are persisted with the other runtime logs so they survive restarts.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_suricata_ov.png" alt="Suricata overview" width="600">
+  <br>
+  <em>Example: Suricata overview card</em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_suricata_alerts.png" alt="Suricata alerts list" width="600">
+  <br>
+  <em>Example: Suricata alerts view</em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_suricata_stats.png" alt="Suricata statistics" width="600">
+  <br>
+  <em>Example: Suricata statistics</em>
+</p>
+
 ### Security Findings
 - Actionable findings for high/critical issues with severity, source IP, category, and occurrence count
 - Categories: suspicious ports, port scanning, high egress, vulnerabilities, **baseline anomalies** (new host, new peer, new port, new DNS category, egress spike)
