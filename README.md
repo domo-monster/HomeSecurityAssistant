@@ -429,58 +429,12 @@ The Vulnerability Browser only shows CVEs that are relevant to services actually
 
 This is expected behavior, not a bug: a low KEV count means few of the actively-exploited vulnerabilities in the CISA catalog apply to the software versions found on your network.
 
-## Changelog
+## Version History
 
+Release notes and historical changes are now maintained in `changelog.txt` at the repository root.
 
-### 0.8.0
-
-
-- **New DNS categories** — added `Finance`, `Shopping`, and `Travel` domain categories for enhanced DNS classification coverage. Finance domains (banking, cryptocurrency, payment) are now properly tagged, e-commerce sites (Amazon, eBay) are categorized as Shopping, and travel platforms (booking, airlines) as Travel.
-- **Extended ad domains list** — added 15+ additional ad network domains (carbonads.com, buysellads.com, trafficjunky.com, adsterra.com, propellerads.com, popads.net, popcash.net, bidvertiser.com, and others) to improve DNS blocking accuracy for advertising traffic
-- **DNS Proxy card visibility** — the "Top N Blocked / Malicious Domains" statistics card is now hidden when the DNS proxy is disabled, reducing visual clutter in the Overview and Statistics views
-- **Fixed DNS search focus issue** — DNS query log filter now responds only to Enter key presses instead of firing on every keystroke, eliminating focus-stealing re-renders that interrupted typing
-- **Fixed JavaScript variable hoisting bugs** — corrected multiple variable scope issues in the frontend:
-  - Overview card no longer displays baseline training completion percentage when displaying NetFlow listener parse rate
-  - Baseline training section correctly reports datagram count instead of training duration in seconds
-- **Fixed DNS category map** — removed duplicate function definitions in `dns_categories.py` that were silently overwriting the comprehensive domain mapping with an incomplete version, causing excessive "other" categorization
-- **Logo integration** — replaced inline SVG with external image reference for cleaner HTML structure
-
-### 0.7.4
-
-- **Integration renamed** — the integration display name is now **Security Assistant** (was "Home Security Assistant") across the HA UI, config flow, options flow, and sidebar panel title.
-- **Dismissed baseline anomalies now visible** — dismissed findings from the Baseline Anomalies section were silently filtered out of the Dismissed list. They now appear in the unified Dismissed section with a teal `Baseline` chip to visually distinguish them from security findings.
-- **Unified Dismissed section** — all dismissed items (security findings and baseline anomalies) are shown in a single "Dismissed" section instead of two separate lists. Each item carries a `Baseline` chip when it originated from baseline anomaly detection.
-- **Findings view group modes** — the previous "Grouped / Flat" two-button toggle for Security Findings and Dismissed is replaced by four mode buttons: **By Category**, **By Host**, **By Severity**, and **Flat**. The same four modes are available for both the Security Findings and Dismissed sections.
-- **Human-friendly category labels** — raw `snake_case` category names are replaced by readable labels everywhere in the Findings view. Security finding categories: `vulnerability` → *Vulnerability / CVE*, `port_scan` → *Port Scan*, `suspicious_port` → *Suspicious Open Port*, `high_egress` → *High Egress Traffic*. Baseline anomaly categories: `anomaly_new_host` → *New Host Detected*, `anomaly_new_peer` → *New External Peer*, `anomaly_new_port` → *New Open Port*, `anomaly_new_dns_domain` → *New DNS Domain*, `anomaly_new_dns_category` → *New DNS Category*.
-- **Per-section search bars** — each section in the Findings view (Baseline Anomalies, Security Findings, Dismissed) has its own live search bar placed to the right of the mode buttons. Searches across summary, source IP, category, and CVE ID. Active filter counts ("N shown") are displayed alongside total counts in the section header.
-- **Statistics view enhancements** — two new chart pairs added: **Top N Hosts in Deviations** and **Top N External IPs in Deviations**, both with Pie / List toggle. Chart layout reordered for logical grouping. All ranked stat cards follow consistent two-column pairing.
-- **Map zoom & pan fixed** — a missing `var self = this` in `_initMap` caused all map event listeners to write to `window` instead of the component instance, breaking zoom and pan in all map modes (Live, Baseline Snapshot, Live vs Baseline).
-- **Nav badge count corrected** — the Findings sidebar badge was counting individual raw finding records. It now counts distinct finding-summary groups plus distinct baseline anomaly categories, matching what the user actually sees in the grouped view.
-- **Findings `undefined` rendering bug fixed** — `renderGrouped` returned `undefined` in all cases due to the group-building code being unreachable (placed after a `return` inside the `.sort()` comparator). The function now returns rendered HTML correctly.
-- **Double "ago" bug fixed** — the Overview page displayed timestamps as "2h ago ago". The redundant `+ ' ago'` suffix appended after calling `_ago()` (which already includes "ago") was removed.
-
-### 0.6.4
-
-- **Baseline Learning Mode** — three-mode baseline engine (`disabled` / `training` / `active`). Observes normal network behaviour for a configurable duration and flags deviations: new hosts, new external peers, new open ports, new DNS domains/categories, and egress volume spikes
-- **Baseline confidence scoring** — `low` / `medium` / `high` confidence based on host count and training snapshots
-- **Persistent baseline** — learned state saved to `homesec_baseline.yaml`, survives restarts
-- **Network Map baseline modes** — Baseline Snapshot and Live vs Baseline overlay views added when a baseline is available; new edges highlighted in a distinct colour
-- **Baseline Overview card** — shows current mode, training progress bar (elapsed / remaining), baseline age, confidence, and quick-action buttons
-- **Baseline HA services** — `start_baseline_training`, `stop_baseline_training`, `retrain_baseline`, `clear_baseline`
-- **Baseline anomalies in Findings** — new anomaly categories surfaced as findings: `anomaly_new_host`, `anomaly_new_peer`, `anomaly_new_port`, `anomaly_new_dns_domain`, `anomaly_new_dns_category`
-
-### 0.6.2
-
-- **Recommendation count fix** — "Unknown roles" and "Tracker enrichment" recommendation thresholds now count only *alive* devices, matching the filter used in the Hosts view. Previously offline devices could inflate counts and trigger recommendations unnecessarily.
-- **Clickable recommendation cards** — each recommendation now exposes structured `hosts` and `findings_refs` metadata. In the UI, cards with data show a ▶ chevron and expand on click to reveal: affected hosts (IP, tracker name, role badge, CVE links) and related findings (severity badge, source IP, summary).
-- **Traffic (KB) in External IPs** — each external IP entry now aggregates total byte volume from flow records. A sortable **Traffic (KB)** column appears in the External IPs table.
-- **Grouped findings view** — the Findings view defaults to grouped mode: findings sharing the same summary are collapsed into one card. Expanding a group shows per-host rows. A "Dismiss all N" button dismisses the entire group at once. A header toggle switches to the original flat layout.
-- **Regex dismiss** — a "🗑 Pattern…" button opens a dismiss-by-regex modal with live preview. The backend also exposes `POST /api/homesec/findings/dismiss_by_pattern` for scripting.
-- **Statistics view DNS reorganisation** — the DNS Activity bar chart moved into the Activity Timeline card (alongside Public IPs/hr and Hosts/hr). "Blocked DNS Queries by Category" and "Top N Blocked Queries by Client" are now styled stat-cards with Pie/List toggle buttons. "Top N Blocked/Malicious Domains" is promoted to a full-width card.
-
-### 0.6.1
-
-See [GitHub releases](https://github.com/domo-monster/HomeSecurityAssistant/releases) for earlier history.
+For older releases, GitHub release notes are also available at:
+https://github.com/domo-monster/HomeSecurityAssistant/releases
 
 ## Development
 

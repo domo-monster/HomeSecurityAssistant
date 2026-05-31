@@ -58,6 +58,10 @@ from .const import (
     CONF_SCAN_PORTS,
     CONF_SCAN_WINDOW_SECONDS,
     CONF_STATS_TOP_N,
+    CONF_SURICATA_LISTENER_ENABLED,
+    CONF_SURICATA_LISTENER_HOST,
+    CONF_SURICATA_LISTENER_PORT,
+    CONF_SURICATA_LOG_RETENTION_HOURS,
     CONF_VT_ABUSEIPDB_THRESHOLD,
     CONF_VIRUSTOTAL_API_KEY,
     CONF_VIRUSTOTAL_DAILY_BUDGET,
@@ -123,6 +127,8 @@ SETTINGS_KEYS: tuple[str, ...] = (
     CONF_BASELINE_MIN_OBSERVATIONS, CONF_BASELINE_EGRESS_MULTIPLIER,
     CONF_NVD_API_URL, CONF_NVD_TTL_HOURS, CONF_NVD_MIN_YEAR, CONF_NVD_KEYWORDS,
     CONF_STATS_TOP_N,
+    CONF_SURICATA_LISTENER_ENABLED, CONF_SURICATA_LISTENER_HOST,
+    CONF_SURICATA_LISTENER_PORT, CONF_SURICATA_LOG_RETENTION_HOURS,
 )
 
 SETTINGS_SCHEMA: list[dict[str, Any]] = [
@@ -208,6 +214,15 @@ SETTINGS_SCHEMA: list[dict[str, Any]] = [
         "section": "Display",
         "fields": [
             {"key": CONF_STATS_TOP_N, "label": "Statistics Top N", "type": "number", "min": 3, "max": 25, "help": "How many top entries to show in statistics charts"},
+        ],
+    },
+    {
+        "section": "Suricata Alert Listener",
+        "fields": [
+            {"key": CONF_SURICATA_LISTENER_ENABLED, "label": "Enable Suricata Listener", "type": "boolean", "help": "Accept Suricata EVE JSON alerts over TCP from suricata_pusher.py"},
+            {"key": CONF_SURICATA_LISTENER_HOST, "label": "Listener Bind Host", "type": "text", "help": "IP address to bind the TCP listener (0.0.0.0 for all interfaces)"},
+            {"key": CONF_SURICATA_LISTENER_PORT, "label": "Listener TCP Port", "type": "number", "min": 1, "max": 65535, "help": "TCP port for the Suricata pusher to connect to (default 6343)"},
+            {"key": CONF_SURICATA_LOG_RETENTION_HOURS, "label": "Alert Log Retention (h)", "type": "number", "min": 0, "max": 8760, "help": "Hours to keep Suricata alert log entries (0 = unlimited)"},
         ],
     },
 ]
@@ -694,6 +709,8 @@ def build_dashboard_payload(
         "dns_log_limit": dns_limit,
         "dns_proxy_stats": _build_dns_proxy_stats(entries),
         "blacklist_stats": _build_blacklist_stats(entries),
+        "suricata_stats": _build_suricata_stats(entries),
+        "suricata_log": _build_suricata_log(entries),
     }
 
 
@@ -725,6 +742,25 @@ def _build_dns_proxy_stats(entries: dict) -> dict[str, Any]:
     for runtime in entries.values():
         return runtime["collector"].dns_proxy_stats()
     return {"running": False}
+
+
+def _build_suricata_stats(entries: dict) -> dict[str, Any]:
+    """Return Suricata listener stats from the first collector that has one running."""
+    for runtime in entries.values():
+        stats = runtime["collector"].suricata_stats()
+        if stats.get("running"):
+            return stats
+    for runtime in entries.values():
+        return runtime["collector"].suricata_stats()
+    return {"running": False}
+
+
+def _build_suricata_log(entries: dict) -> list[dict[str, Any]]:
+    """Return merged Suricata alert log across all entries, newest-first."""
+    merged: list[dict[str, Any]] = []
+    for runtime in entries.values():
+        merged.extend(runtime["collector"].suricata_log_snapshot())
+    return sorted(merged, key=lambda e: e.get("timestamp", ""), reverse=True)
 
 
 def _build_recommendations(

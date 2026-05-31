@@ -330,6 +330,55 @@ def _dns_log_path(hass_config_dir: str) -> Path:
     return Path(hass_config_dir) / DNS_LOG_FILENAME
 
 
+# ── Suricata alert log ─────────────────────────────────────────────────────────
+
+SURICATA_LOG_FILENAME = "homesec_suricata_log.yaml"
+
+
+def _suricata_log_path(hass_config_dir: str) -> Path:
+    return Path(hass_config_dir) / SURICATA_LOG_FILENAME
+
+
+def load_suricata_log(hass_config_dir: str) -> list[dict[str, Any]]:
+    """Load persisted Suricata alert log from YAML. Returns empty list if missing."""
+    path = _suricata_log_path(hass_config_dir)
+    if not path.is_file():
+        return []
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+        if not isinstance(data, list):
+            return []
+        return [e for e in data if isinstance(e, dict) and "timestamp" in e]
+    except Exception:
+        _LOGGER.warning("Failed to read %s", path, exc_info=True)
+        return []
+
+
+def save_suricata_log(
+    hass_config_dir: str,
+    entries: list[dict[str, Any]],
+    max_entries: int = 10_000,
+) -> None:
+    """Persist Suricata alert log to YAML, capped at max_entries."""
+    path = _suricata_log_path(hass_config_dir)
+    trimmed = entries[-max_entries:]
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("# Home Security Assistant — Suricata alert log\n")
+            fh.write("# Auto-managed. Do not edit manually.\n\n")
+            yaml.safe_dump(
+                trimmed,
+                fh,
+                default_flow_style=False,
+                sort_keys=False,
+                allow_unicode=True,
+            )
+        _LOGGER.debug("Saved Suricata log (%d entries) to %s", len(trimmed), path)
+    except Exception:
+        _LOGGER.warning("Failed to write %s", path, exc_info=True)
+
+
 def load_dns_log(hass_config_dir: str) -> list[dict[str, Any]]:
     """Load persisted DNS query log from YAML. Returns empty list if missing."""
     path = _dns_log_path(hass_config_dir)

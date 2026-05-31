@@ -73,7 +73,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = HomeSecCoordinator(hass, collector, entry)
     await coordinator.async_config_entry_first_refresh()
 
-    domain_data = hass.data.setdefault(DOMAIN, {"entries": {}, "panel_registered": False})
+    domain_data = hass.data.setdefault(
+        DOMAIN,
+        {"entries": {}, "panel_registered": False, "reload_tasks": {}},
+    )
     domain_data["entries"][entry.entry_id] = {
         "collector": collector,
         "coordinator": coordinator,
@@ -166,7 +169,51 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     # Persist latest options to file before reload
     all_config = {**entry.data, **entry.options}
     await hass.async_add_executor_job(save_config, hass.config.config_dir, all_config)
-    await hass.config_entries.async_reload(entry.entry_id)
+
+    domain_data = hass.data.get(DOMAIN)
+    if not isinstance(domain_data, dict):
+        hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
+        return
+
+    runtime = domain_data.get("entries", {}).get(entry.entry_id)
+    if runtime is not None:
+        collector: HomeSecCollector = runtime["collector"]
+        coordinator: HomeSecCoordinator = runtime["coordinator"]
+        async def _apply_in_place() -> None:
+            try:
+                await collector.async_apply_entry_update(entry)
+                await coordinator.async_request_refresh()
+                _LOGGER.info("Applied HomeSec options in-place for entry %s", entry.entry_id)
+            except Exception:
+                # Keep runtime alive even if a hot-apply fails; avoid full teardown that hides cards.
+                _LOGGER.exception(
+                    "In-place HomeSec options apply failed for entry %s",
+                    entry.entry_id,
+                )
+
+        hass.async_create_task(_apply_in_place())
+        return
+
+    reload_tasks = domain_data.setdefault("reload_tasks", {})
+    existing = reload_tasks.get(entry.entry_id)
+    if existing is not None and not existing.done():
+        _LOGGER.debug("Reload already in progress for entry %s", entry.entry_id)
+        return
+
+    async def _do_reload() -> None:
+        _LOGGER.info("Starting background reload for HomeSec entry %s", entry.entry_id)
+        try:
+            await hass.config_entries.async_reload(entry.entry_id)
+        except Exception:
+            _LOGGER.exception("Background reload failed for HomeSec entry %s", entry.entry_id)
+        finally:
+            dd = hass.data.get(DOMAIN)
+            if isinstance(dd, dict):
+                tasks = dd.get("reload_tasks")
+                if isinstance(tasks, dict):
+                    tasks.pop(entry.entry_id, None)
+
+    reload_tasks[entry.entry_id] = hass.async_create_task(_do_reload())
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

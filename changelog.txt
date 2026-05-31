@@ -1,0 +1,65 @@
+Security Assistant - Changelog
+
+0.9.0
+
+- Added in-place options apply to reduce disruptive full integration reloads when saving settings.
+- Added non-blocking/background settings apply flow to shorten save wait time.
+- Added runtime startup step timing logs to help profile slow startup/reload phases.
+- Added NetFlow listener hot-rebind helpers and scanner start idempotency for safer runtime updates.
+- Added Settings page links card with:
+  - GitHub repository link: https://github.com/domo-monster/HomeSecurityAssistant
+  - Language-aware documentation link:
+    - English: https://domotic.monster/homesec.html
+    - French: https://domotic.monster/homesec_fr.html
+    - German: https://domotic.monster/homesec_de.html
+    - Other languages: English page fallback
+- Updated sidebar copyright link target to https://domotic.monster.
+- Bumped integration version to 0.9.0.
+
+0.8.0
+
+- New DNS categories - added Finance, Shopping, and Travel domain categories for enhanced DNS classification coverage. Finance domains (banking, cryptocurrency, payment) are now properly tagged, e-commerce sites (Amazon, eBay) are categorized as Shopping, and travel platforms (booking, airlines) as Travel.
+- Extended ad domains list - added 15+ additional ad network domains (carbonads.com, buysellads.com, trafficjunky.com, adsterra.com, propellerads.com, popads.net, popcash.net, bidvertiser.com, and others) to improve DNS blocking accuracy for advertising traffic.
+- DNS Proxy card visibility - the Top N Blocked / Malicious Domains statistics card is now hidden when the DNS proxy is disabled, reducing visual clutter in the Overview and Statistics views.
+- Fixed DNS search focus issue - DNS query log filter now responds only to Enter key presses instead of firing on every keystroke, eliminating focus-stealing re-renders that interrupted typing.
+- Fixed JavaScript variable hoisting bugs - corrected multiple variable scope issues in the frontend.
+- Fixed DNS category map - removed duplicate function definitions in dns_categories.py that were silently overwriting the comprehensive domain mapping with an incomplete version, causing excessive other categorization.
+- Logo integration - replaced inline SVG with external image reference for cleaner HTML structure.
+
+0.7.4
+
+- Integration renamed - the integration display name is now Security Assistant (was Home Security Assistant) across the HA UI, config flow, options flow, and sidebar panel title.
+- Dismissed baseline anomalies now visible - dismissed findings from the Baseline Anomalies section now appear in the unified Dismissed section with a Baseline chip.
+- Unified Dismissed section - all dismissed items (security findings and baseline anomalies) are shown in a single Dismissed section.
+- Findings view group modes - replaced Grouped / Flat with By Category, By Host, By Severity, and Flat modes.
+- Human-friendly category labels - replaced raw snake_case labels in Findings view.
+- Per-section search bars - added live search in Baseline Anomalies, Security Findings, and Dismissed sections.
+- Statistics view enhancements - added Top N Hosts in Deviations and Top N External IPs in Deviations with Pie / List toggle.
+- Map zoom & pan fixed - corrected missing self binding in map event listeners.
+- Nav badge count corrected - badge now matches grouped findings/anomaly categories.
+- Findings undefined rendering bug fixed - grouped rendering returns valid HTML.
+- Double ago bug fixed - removed duplicate ago suffix in overview timestamps.
+
+0.6.4
+
+- Baseline Learning Mode - three-mode baseline engine (disabled / training / active).
+- Baseline confidence scoring - low / medium / high confidence from observed data quality.
+- Persistent baseline - baseline saved to homesec_baseline.yaml.
+- Network Map baseline modes - added Baseline Snapshot and Live vs Baseline.
+- Baseline Overview card - added mode/progress/age/confidence and quick actions.
+- Baseline HA services - start_baseline_training, stop_baseline_training, retrain_baseline, clear_baseline.
+- Baseline anomalies in Findings - added anomaly_new_host, anomaly_new_peer, anomaly_new_port, anomaly_new_dns_domain, anomaly_new_dns_category.
+
+0.6.2
+
+- Recommendation count fix - recommendation thresholds now count alive devices only.
+- Clickable recommendation cards - expandable cards with affected hosts and related findings.
+- Traffic (KB) in External IPs - sortable traffic column added.
+- Grouped findings view - grouped-by-summary view with dismiss-all.
+- Regex dismiss - modal preview + dismiss_by_pattern API endpoint.
+- Statistics view DNS reorganisation - DNS chart placement and DNS stat cards improved.
+
+0.6.1
+
+- See GitHub releases for earlier history:
+  https://github.com/domo-monster/HomeSecurityAssistant/releases

@@ -3,7 +3,7 @@
 // Views: Overview · Network Map · Hosts · Findings · External IPs · Recommendations
 // ─────────────────────────────────────────────────────────────────────────────
 
-const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'statistics', 'dns', 'recommendations', 'settings'];
+const _VIEWS = ['overview', 'map', 'hosts', 'findings', 'external', 'vulnerabilities', 'statistics', 'dns', 'suricata', 'recommendations', 'settings'];
 const _VIEW_LABELS = {
   overview:        'Overview',
   map:             'Network Map',
@@ -13,6 +13,7 @@ const _VIEW_LABELS = {
   vulnerabilities:  'Vulnerabilities',
   statistics:      'Statistics',
   dns:             'DNS Queries',
+  suricata:        'Suricata Alerts',
   recommendations: 'Recommendations',
   settings:        'Settings',
 };
@@ -25,6 +26,7 @@ const _VIEW_ICONS = {
   vulnerabilities:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>`,
   statistics:      `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z"/></svg>`,
   dns:             `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
+  suricata:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm1 14h-2v-2h2v2zm0-4h-2V7h2v4z"/></svg>`,
   recommendations: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`,
   settings:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
 };
@@ -70,6 +72,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._extSortDir   = 1;
     this._extPage      = 1;
     this._extPageSize  = 25;
+    this._extIPDetail  = null;
     this._editorOpen   = false;
     this._editorMode   = '';
     this._editorIP     = '';
@@ -95,13 +98,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._mapMode      = 'live';
     this._mapBaselineGraph = null;
     this._mapParticles = [];
-    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie', host_findings: 'pie', ext_deviations: 'pie' };
+    this._statsViewModes = { public_ips: 'pie', countries: 'pie', talkers: 'pie', threat_ips: 'pie', dns_categories: 'pie', dns_clients: 'pie', host_findings: 'pie', ext_deviations: 'pie', suricata_severity: 'pie', suricata_category: 'pie', suricata_src: 'pie' };
     this._dnsSearch = '';
     this._dnsCategoryFilter = '';
     this._dnsStatusFilter = '';
     this._dnsMaliciousOnly = false;
     this._dnsSort = 'time';
     this._dnsSortDir = -1;
+    this._suricataSearch = '';
+    this._suricataSeverityFilter = '';
+    this._suricataActionFilter = '';
+    this._suricataSort = 'time';
+    this._suricataSortDir = -1;
+    this._suricataPage = 0;
+    this._suricataPageSize = 25;
+    this._suricataAlertDetail = null;
     this._mobileMenuOpen = false;
     this._settingsData    = null;
     this._settingsLoading = false;
@@ -179,6 +190,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
     var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     if (!netflowEnabled && (v === 'map' || v === 'external')) v = 'overview';
+    var suricataEnabled = (this._data && this._data.suricata_stats && this._data.suricata_stats.running) || false;
+    if (!suricataEnabled && v === 'suricata') v = 'overview';
     if (v === this._view) return;
     if (this._view === 'settings' && v !== 'settings' && this._settingsDirty) {
       this._pendingView = v;
@@ -191,15 +204,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._mobileMenuOpen = false;
     this._lookupResult = null;
     this._lookupIP     = null;
+    this._extIPDetail  = null;
     if (this._view === 'vulnerabilities') this._vulnData = null;
     if (v === 'settings') {
       this._settingsData = null;
       this._settingsMsg = '';
       this._settingsDraft = {};
       this._settingsDirty = false;
+      this._settingsRetries = 0;
     }
     this._dnsPage = 0;
     this._dnsPageSize = 25;
+    this._suricataPage = 0;
+    this._suricataPageSize = 25;
     this._view = v;
     this._render();
   }
@@ -239,6 +256,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         case 'vulnerabilities':  content.innerHTML = this._viewVulns();        break;
         case 'statistics':       content.innerHTML = this._viewStatistics();   break;
         case 'dns':             content.innerHTML = this._viewDns();       break;
+        case 'suricata':        content.innerHTML = this._viewSuricata();   break;
         case 'recommendations': content.innerHTML = this._viewRecs();      break;
         case 'settings':        content.innerHTML = this._viewSettings();  break;
       }
@@ -252,6 +270,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var existingVuln = root.getElementById('hsa-vuln-modal');
     if (existingVuln) existingVuln.remove();
     if (this._vulnDetail) root.querySelector('.app').insertAdjacentHTML('beforeend', this._vulnDetailModal());
+    var existingSuricataDetail = root.getElementById('hsa-suricata-detail-modal');
+    if (existingSuricataDetail) existingSuricataDetail.remove();
+    if (this._suricataAlertDetail !== null) root.querySelector('.app').insertAdjacentHTML('beforeend', this._suricataAlertDetailModal());
+    var existingExtIPModal = root.getElementById('hsa-ext-ip-modal');
+    if (existingExtIPModal) existingExtIPModal.remove();
+    if (this._extIPDetail !== null) root.querySelector('.app').insertAdjacentHTML('beforeend', this._extIPDetailModal());
     var existingRegex = root.getElementById('hsa-regex-dismiss-modal');
     if (existingRegex) existingRegex.remove();
     if (this._regexDismissOpen) root.querySelector('.app').insertAdjacentHTML('beforeend', this._regexDismissModal());
@@ -282,8 +306,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
     var en = e.target.closest('[data-editname]');
     if (en) { this._editHostName(en.dataset.editname); return; }
-    var lu = e.target.closest('[data-lookup]');
-    if (lu) { this._doLookup(lu.dataset.lookup); return; }
+    var extClose = e.target.closest('[data-ext-close]');
+    if (extClose) { this._extIPDetail = null; this._lookupResult = null; this._lookupIP = null; this._render(); return; }
+    if (e.target.id === 'hsa-ext-ip-modal') { this._extIPDetail = null; this._lookupResult = null; this._lookupIP = null; this._render(); return; }
+    var extLookup = e.target.closest('[data-ext-lookup]');
+    if (extLookup) { this._doLookup(extLookup.dataset.extLookup); return; }
+    var extRow = e.target.closest('[data-ext-ip-row]');
+    if (extRow && !e.target.closest('[data-ext-close]')) {
+      var _extAllIPs = (this._data && this._data.external_ips) || [];
+      var _extEntry = _extAllIPs.find(function(x) { return x.ip === extRow.dataset.extIpRow; });
+      if (_extEntry) {
+        this._extIPDetail = _extEntry;
+        this._lookupResult = null;
+        this._lookupIP = null;
+        this._render();
+        this._doLookup(_extEntry.ip);
+      }
+      return;
+    }
     var hr = e.target.closest('tr[data-ip]');
     if (hr && !e.target.closest('select')) { this._toggleRow(hr.dataset.ip); return; }
     var dismiss = e.target.closest('[data-dismiss]');
@@ -391,6 +431,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (dnsPager) { var pg = parseInt(dnsPager.dataset.dnsPage, 10); if (!isNaN(pg)) { this._dnsPage = pg; this._render(); } return; }
     var ds = e.target.closest('[data-dnssort]');
     if (ds) { this._setDnsSort(ds.dataset.dnssort); return; }
+    var suricataPager = e.target.closest('[data-suricata-page]');
+    if (suricataPager) { var spg = parseInt(suricataPager.dataset.suricataPage, 10); if (!isNaN(spg)) { this._suricataPage = spg; this._render(); } return; }
+    var ss = e.target.closest('[data-suricatasort]');
+    if (ss) { this._setSuricataSort(ss.dataset.suricatasort); return; }
+    var sc = e.target.closest('[data-suricata-close]');
+    if (sc) { this._suricataAlertDetail = null; this._render(); return; }
+    var sad = e.target.closest('[data-suricata-alert-idx]');
+    if (sad && !e.target.closest('[data-suricata-close]')) {
+      var idx = parseInt(sad.dataset.suricataAlertIdx, 10);
+      var _log = (this._data && this._data.suricata_log) || [];
+      var _filtered = this._suricataFilteredLog(_log);
+      var _sorted = this._suricataSortedLog(_filtered);
+      var _PAGE_SIZE = this._suricataPageSize || 25;
+      var _page = this._suricataPage || 0;
+      var _absIdx = _page * _PAGE_SIZE + idx;
+      if (_sorted[_absIdx]) { this._suricataAlertDetail = _sorted[_absIdx]; this._render(); }
+      return;
+    }
     var vr = e.target.closest('[data-vuln-refresh]');
     if (vr) { this._vulnData = null; this._vulnLoading = false; this._render(); return; }
     var vc = e.target.closest('[data-vuln-close]');
@@ -601,6 +659,191 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }).join('.');
   }
 
+  // ── Suricata view ────────────────────────────────────────────────────────────
+
+  _viewSuricata() {
+    var self = this;
+    var stats = (this._data && this._data.suricata_stats) || {};
+    var log   = (this._data && this._data.suricata_log) || [];
+    var filteredLog = this._suricataFilteredLog(log);
+    var sortedLog   = this._suricataSortedLog(filteredLog);
+
+    // Severity colour helpers
+    var SEV_COLORS = { 1:'rgba(255,77,109,1)', 2:'rgba(255,179,71,1)', 3:'rgba(107,255,200,1)' };
+    var SEV_LABELS = { 1:'Critical', 2:'Major', 3:'Minor' };
+    function sevColor(s) { return SEV_COLORS[s] || 'rgba(90,106,128,1)'; }
+    function sevLabel(s) { return SEV_LABELS[s] || 'Unknown'; }
+    function sevBadge(s) {
+      var c = sevColor(s); var l = sevLabel(s);
+      return '<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:' +
+        c.replace(',1)',',0.18)') + ';color:' + c + ';border:1px solid ' + c.replace(',1)',',0.4)') + '">' + l + '</span>';
+    }
+
+    var critCount  = log.filter(function(e) { return e.severity === 1; }).length;
+
+    // ── filter bar ────────────────────────────────────────────────────────────
+    var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
+      '<input class="search-bar" id="suricata-search" placeholder="Filter by IP, signature…" style="width:230px" ' +
+        'value="' + self._esc(this._suricataSearch) + '" onkeydown="if(event.key===\'Enter\')this.getRootNode().host._suricataFilter()" />' +
+      '<select id="suricata-sev-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
+        'onchange="this.getRootNode().host._suricataFilter()">' +
+        '<option value="">All severities</option>' +
+        [1,2,3].map(function(s){ return '<option value="'+s+'"'+(self._suricataSeverityFilter===String(s)?' selected':'')+'>'+sevLabel(s)+'</option>'; }).join('') +
+      '</select>' +
+      '<select id="suricata-action-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
+        'onchange="this.getRootNode().host._suricataFilter()">' +
+        '<option value="">All actions</option>' +
+        '<option value="allowed"'+(self._suricataActionFilter==='allowed'?' selected':'')+'>Allowed</option>' +
+        '<option value="blocked"'+(self._suricataActionFilter==='blocked'?' selected':'')+'>Blocked</option>' +
+      '</select>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' entries</span>' +
+    '</div>';
+
+    // ── table ─────────────────────────────────────────────────────────────────
+    var PAGE_SIZE = this._suricataPageSize || 25;
+    var page = this._suricataPage || 0;
+    var totalPages = Math.max(1, Math.ceil(sortedLog.length / PAGE_SIZE));
+    if (page >= totalPages) page = totalPages - 1;
+    var pageLog = sortedLog.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    var pageStart = sortedLog.length === 0 ? 0 : (page * PAGE_SIZE + 1);
+    var pageEnd = Math.min(sortedLog.length, (page + 1) * PAGE_SIZE);
+
+    var topPagination = '<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
+      '<div class="row-gap" style="font-size:11px;color:var(--muted)">Showing ' + pageStart + '\u2013' + pageEnd + ' of ' + sortedLog.length + '</div>' +
+      '<div class="row-gap" style="gap:6px">' +
+        '<label class="dim" style="font-size:11px">Rows</label>' +
+        '<select id="hsa-suricata-pagesize" class="role-select">' +
+          [10,25,50,100].map(function(n){return '<option value="'+n+'"'+(n===PAGE_SIZE?' selected':'')+'>'+n+'</option>';}).join('') +
+        '</select>' +
+        '<button class="btn" data-suricata-page="'+(page-1)+'"'+(page<=0?' disabled':'')+'>Previous</button>' +
+        '<span class="dim" style="font-size:11px;min-width:70px;text-align:center">'+(page+1)+' / '+totalPages+'</span>' +
+        '<button class="btn" data-suricata-page="'+(page+1)+'"'+(page>=totalPages-1?' disabled':'')+'>Next</button>' +
+      '</div>' +
+    '</div>';
+
+    var SORT_COLS = [
+      { key:'time',      label:'Time' },
+      { key:'src_ip',    label:'Src IP' },
+      { key:'dest_ip',   label:'Dest IP' },
+      { key:'proto',     label:'Proto' },
+      { key:'signature', label:'Signature' },
+      { key:'category',  label:'Category' },
+      { key:'severity',  label:'Severity' },
+      { key:'action',    label:'Action' },
+    ];
+    var thead = '<table class="data-table" style="min-width:960px"><thead><tr>' +
+      SORT_COLS.map(function(c) {
+        var arrow = self._suricataSort === c.key ? (self._suricataSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
+        return '<th class="sortable-th" data-suricatasort="' + c.key + '">' + c.label + '<span class="sort-arrow">' + arrow + '</span></th>';
+      }).join('') +
+    '</tr></thead><tbody>';
+
+    var rows = pageLog.map(function(e, rowIdx) {
+      var ts    = e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : '—';
+      var sip   = self._esc(e.src_ip || '—');
+      var dip   = self._esc(e.dest_ip || '—');
+      var sproto = self._esc(e.proto || '');
+      var sig   = self._esc(e.signature || '—');
+      var cat   = self._esc(e.category || '—');
+      var sev   = parseInt(e.severity) || 3;
+      var action = (e.action || 'allowed').toLowerCase();
+
+      var actionBadge = action === 'blocked'
+        ? '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">\uD83D\uDEAB Blocked</span>'
+        : '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">\u2713 Allowed</span>';
+
+      var rowBg = sev === 1 ? 'rgba(255,77,109,.06)' : sev === 2 ? 'rgba(255,179,71,.04)' : '';
+      var rowStyle = 'cursor:pointer' + (rowBg ? ';background:' + rowBg : '');
+      return '<tr style="' + rowStyle + '" data-suricata-alert-idx="' + rowIdx + '" title="Click for details">' +
+        '<td class="mono" style="white-space:nowrap;font-size:11px">' + ts + '</td>' +
+        '<td class="mono ip">' + sip + '</td>' +
+        '<td class="mono ip">' + dip + '</td>' +
+        '<td><span class="chip">' + sproto + '</span></td>' +
+        '<td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + sig + '">' + sig + '</td>' +
+        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)" title="' + cat + '">' + cat + '</td>' +
+        '<td>' + sevBadge(sev) + '</td>' +
+        '<td>' + actionBadge + '</td>' +
+      '</tr>';
+    }).join('');
+
+    var critBadge = critCount > 0
+      ? '<span class="badge badge-malicious" style="margin-left:8px">' + critCount + ' critical</span>'
+      : '';
+
+    return '<div>' +
+      '<div class="view-header"><h1>Suricata Alerts ' + critBadge + '</h1></div>' +
+      '<div class="card table-card">' +
+        '<div style="padding:14px 14px 8px">' + filterBar + '</div>' +
+        topPagination +
+        '<div style="overflow-x:auto">' + thead + rows + '</tbody></table></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  _suricataFilter() {
+    this._suricataSearch   = ((this.shadowRoot.getElementById('suricata-search') || {}).value || '').toLowerCase().trim();
+    this._suricataSeverityFilter = ((this.shadowRoot.getElementById('suricata-sev-filter') || {}).value || '');
+    this._suricataActionFilter   = ((this.shadowRoot.getElementById('suricata-action-filter') || {}).value || '');
+    this._suricataPage = 0;
+    this._render();
+  }
+
+  _suricataFilteredLog(log) {
+    var search = this._suricataSearch || '';
+    var sevF   = this._suricataSeverityFilter || '';
+    var actF   = this._suricataActionFilter || '';
+    return (log || []).filter(function(e) {
+      if (sevF && String(e.severity) !== sevF) return false;
+      if (actF && (e.action || 'allowed').toLowerCase() !== actF) return false;
+      if (search) {
+        var hay = [e.src_ip, e.dest_ip, e.signature, e.category, e.proto, e.app_proto].join(' ').toLowerCase();
+        if (hay.indexOf(search) < 0) return false;
+      }
+      return true;
+    });
+  }
+
+  _suricataSortedLog(log) {
+    var self = this;
+    var key  = this._suricataSort || 'time';
+    var dir  = this._suricataSortDir || -1;
+    var out  = (log || []).slice();
+    out.sort(function(a, b) {
+      var va, vb;
+      if (key === 'time') {
+        va = Date.parse(a.timestamp || '') || 0;
+        vb = Date.parse(b.timestamp || '') || 0;
+      } else if (key === 'severity') {
+        va = parseInt(a.severity) || 3;
+        vb = parseInt(b.severity) || 3;
+      } else if (key === 'src_ip') {
+        va = self._dnsIpSortKey(a.src_ip);
+        vb = self._dnsIpSortKey(b.src_ip);
+      } else if (key === 'dest_ip') {
+        va = self._dnsIpSortKey(a.dest_ip);
+        vb = self._dnsIpSortKey(b.dest_ip);
+      } else {
+        va = String(a[key] || '').toLowerCase();
+        vb = String(b[key] || '').toLowerCase();
+      }
+      if (va < vb) return -dir;
+      if (va > vb) return dir;
+      return 0;
+    });
+    return out;
+  }
+
+  _setSuricataSort(col) {
+    if (this._suricataSort === col) {
+      this._suricataSortDir *= -1;
+    } else {
+      this._suricataSort = col;
+      this._suricataSortDir = col === 'time' ? -1 : 1;
+    }
+    this._suricataPage = 0;
+    this._render();
+  }
+
   _onChange(e) {
     if (e.target && e.target.id && e.target.id.indexOf('hsa-setting-') === 0) {
       var key = e.target.id.slice('hsa-setting-'.length);
@@ -619,6 +862,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (e.target.id === 'hsa-dns-pagesize') {
       this._dnsPageSize = Math.max(10, Math.min(100, parseInt(e.target.value, 10) || 25));
       this._dnsPage = 0;
+      this._render();
+      return;
+    }
+    if (e.target.id === 'hsa-suricata-pagesize') {
+      this._suricataPageSize = Math.max(10, Math.min(100, parseInt(e.target.value, 10) || 25));
+      this._suricataPage = 0;
       this._render();
       return;
     }
@@ -916,12 +1165,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var totalFindings = Object.keys(findingGroups).length + Object.keys(blCats).length;
     var ext_threat = (this._data && this._data.external_ips || []).filter(function(e) { return e.blacklisted; }).length;
     var dnsEnabled = (this._data && this._data.dns_proxy_stats && this._data.dns_proxy_stats.running) || false;
+    var suricataEnabled = (this._data && this._data.suricata_stats && this._data.suricata_stats.running) || false;
     var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
     var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     var self = this;
     var views = dnsEnabled ? _VIEWS.slice() : _VIEWS.filter(function(v) { return v !== 'dns'; });
     if (!netflowEnabled) {
       views = views.filter(function(v) { return v !== 'map' && v !== 'external'; });
+    }
+    if (!suricataEnabled) {
+      views = views.filter(function(v) { return v !== 'suricata'; });
     }
     var items = views.map(function(v) {
       var badge = '';
@@ -939,7 +1192,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       (status === 'online' ? 'Collector active' : 'Awaiting flows') + '</span>' +
       '<span style="margin-left:auto;opacity:.45;font-size:9px">v' + ((this._data && this._data.summary && this._data.summary.version) || '…') + '</span>' +
       '</div>' +
-      '<div class="sidebar-copy"><a href="https://domotic.monster" target="_blank" rel="noopener noreferrer">© 2026 domotic.monster</a></div>';
+        '<div class="sidebar-copy"><a href="https://domotic.monster" target="_blank" rel="noopener noreferrer">© 2026 domotic.monster</a></div>';
   }
 
   _viewOverview() {
@@ -967,6 +1220,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var nvdMinYear = (this._data && this._data.nvd_min_year != null) ? this._data.nvd_min_year : null;
     var nvdAge = nvdTs ? this._ago(nvdTs) : 'never fetched';
     var nvdStatus = nvdTs ? ((Date.now() - new Date(nvdTs).getTime()) < 26 * 3600 * 1000 ? 'good' : 'warn') : 'warn';
+
+    // Suricata stats for overview cards
+    var suricataEnabledOv = (this._data && this._data.suricata_stats && this._data.suricata_stats.running) || false;
+    var suricataStatsOv = (this._data && this._data.suricata_stats) || {};
+    var suricataLogOv = (this._data && this._data.suricata_log) || [];
+    var suricataTotalOv = suricataLogOv.length;
+    var suricataCritOv = suricataLogOv.filter(function(e) { return e.severity === 1; }).length;
 
     // Baseline card
     var baseline = (this._data && this._data.baseline) || {};
@@ -1015,6 +1275,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         this._stat((this._data && this._data.kev_total) || 0, 'CISA KEV', '') +
         this._stat(this._fmtN(s.total_flows || 0), 'Flows', '') +
         this._stat(exporters.length, 'Exporters', exporters.length > 0 ? 'success' : 'warn') +
+        (suricataEnabledOv ? (
+          this._stat(suricataTotalOv, 'Suricata Alerts', suricataTotalOv > 0 ? 'warn' : '') +
+          this._stat(suricataCritOv, 'Critical Alerts', suricataCritOv > 0 ? 'danger' : '')
+        ) : '') +
       '</div>' +
       '<div class="two-col">' +
         (netflowEnabled ? ('<div class="card">' +
@@ -1150,7 +1414,30 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<div style="margin-top:10px"><button class="btn" data-view="dns">View DNS Queries →</button></div>' +
         '</div>';
       })() +
-      (baselineEnabled ? (baselineCard + this._baselineDevianceCard()) : '') +
+      (function() {
+        if (!suricataEnabledOv) return '';
+        var sStats = suricataStatsOv;
+        var sLog   = suricataLogOv;
+        var sRunning = sStats.running || false;
+        var sPort    = sStats.port || '\u2014';
+        var sUptime  = sStats.started_at ? self._uptime(sStats.started_at) : '\u2014';
+        var sExporters = (sStats.exporter_ips && sStats.exporter_ips.length) ? sStats.exporter_ips.join(', ') : '\u2014';
+        var sTotal   = sLog.length;
+        var sCrit    = sLog.filter(function(e) { return e.severity === 1; }).length;
+        var sConns   = sStats.active_connections != null ? sStats.active_connections : 0;
+        return '<div class="card" style="margin-top:12px">' +
+          '<div class="card-title">Suricata Alert Listener</div>' +
+          self._hrow('Status', sRunning ? 'Active' : 'Inactive', sRunning ? 'good' : 'warn') +
+          self._hrow('Port', String(sPort), '') +
+          self._hrow('Uptime', sUptime, '') +
+          self._hrow('Exporter IP(s)', sExporters, sConns > 0 ? 'good' : '') +
+          self._hrow('Active connections', String(sConns), sConns > 0 ? 'good' : '') +
+          self._hrow('Alerts in log', sTotal.toLocaleString(), sTotal > 0 ? 'warn' : 'good') +
+          self._hrow('Critical alerts', sCrit.toLocaleString(), sCrit > 0 ? 'bad' : 'good') +
+          '<div style="margin-top:10px"><button class="btn" data-view="suricata">View Suricata Alerts \u2192</button></div>' +
+        '</div>';
+      })() +
+      (baselineEnabled ? (baselineCard + self._baselineDevianceCard()) : '') +
     '</div>';
   }
 
@@ -1296,7 +1583,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _pieSvg(items, getVal, getLabel, colors) {
     var total = items.reduce(function(s, it) { return s + getVal(it); }, 0);
     if (!total) return '<div style="text-align:center;color:var(--muted);padding:20px;font-size:11px">No data</div>';
-    var size = 180, cx = 90, cy = 90, r = 72, ri = 32;
+    var size = 130, cx = 65, cy = 65, r = 52, ri = 28;
     var TAU = Math.PI * 2;
     var angle = -Math.PI / 2;
     var GAP = 0.018;
@@ -1486,9 +1773,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     var dnsProxyEnabledRaw = this._data && this._data.dns_proxy_enabled;
     var dnsProxyEnabled = dnsProxyEnabledRaw === true || dnsProxyEnabledRaw === 'true' || dnsProxyEnabledRaw === 1 || dnsProxyEnabledRaw === '1';
+    var suricataEnabledStats = (this._data && this._data.suricata_stats && this._data.suricata_stats.running) || false;
     var modes = this._statsViewModes;
     var topN = (this._data && this._data.stats_top_n) || 10;
     var COLORS = ['#8f86ff','#3ac5c9','#6bffc8','#ffc107','#ff8c42','#ff4d6d','#7fb3f5','#d4a843','#a8e063','#f472b6','#60a5fa','#34d399','#fb923c','#a78bfa','#22d3ee'];
+
+    // ── Suricata pie data ─────────────────────────────────────────────
+    var suricataLogStats = (this._data && this._data.suricata_log) || [];
+    var SUC_SEV_COLORS = ['rgba(255,77,109,1)','rgba(255,179,71,1)','rgba(107,255,200,1)'];
+    var SUC_CAT_PALETTE = ['rgba(255,77,109,1)','rgba(255,179,71,1)','rgba(107,255,200,1)','rgba(98,232,255,1)','rgba(191,111,255,1)','rgba(59,178,255,1)','rgba(72,199,142,1)','rgba(255,159,67,1)'];
+    var SUC_SRC_PALETTE = ['rgba(98,232,255,1)','rgba(59,178,255,1)','rgba(72,199,142,1)','rgba(191,111,255,1)','rgba(255,179,71,1)','rgba(255,77,109,1)','rgba(107,255,200,1)','rgba(155,135,245,1)'];
+    var sucSevLabels = { 1:'Critical', 2:'Major', 3:'Minor' };
+    var sucSevData = [1,2,3].filter(function(s){return suricataLogStats.some(function(e){return e.severity===s;});}).map(function(s){return{label:sucSevLabels[s],value:suricataLogStats.filter(function(e){return e.severity===s;}).length};});
+    var sucCatCounts = {}; var sucCatColors = [];
+    suricataLogStats.forEach(function(e){var c=e.category||'Other';sucCatCounts[c]=(sucCatCounts[c]||0)+1;});
+    var sucCatData = Object.keys(sucCatCounts).sort(function(a,b){return sucCatCounts[b]-sucCatCounts[a];}).map(function(k,i){sucCatColors.push(SUC_CAT_PALETTE[i%SUC_CAT_PALETTE.length]);return{label:k,value:sucCatCounts[k]};});
+    var sucSrcCounts = {};
+    suricataLogStats.forEach(function(e){var ip=e.src_ip||'unknown';sucSrcCounts[ip]=(sucSrcCounts[ip]||0)+1;});
+    var sucSrcData = Object.keys(sucSrcCounts).sort(function(a,b){return sucSrcCounts[b]-sucSrcCounts[a];}).slice(0,topN).map(function(k){return{label:k,value:sucSrcCounts[k]};});
 
     // ── Timeline ─────────────────────────────────────────────────────
     var allPoints = (this._data && this._data.timeseries) || [];
@@ -2247,6 +2549,58 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '</div>';
         })()) +
       '</div>' +
+      (suricataEnabledStats ? (function() {
+        function _sucPie(data, colors, key, title, noDataMsg) {
+          var mode = modes[key] || 'pie';
+          var total = data.reduce(function(s,d){return s+d.value;},0);
+          var SIZE = 130; var CX = SIZE/2; var CY = SIZE/2; var R = 52; var IR = 28;
+          var pieSvg = '';
+          if (total > 0) {
+            var startAngle = -Math.PI/2;
+            for (var i = 0; i < data.length; i++) {
+              var frac = data[i].value/total;
+              var end = startAngle + frac*2*Math.PI;
+              var x1=CX+R*Math.cos(startAngle),y1=CY+R*Math.sin(startAngle);
+              var x2=CX+R*Math.cos(end),y2=CY+R*Math.sin(end);
+              var ix1=CX+IR*Math.cos(startAngle),iy1=CY+IR*Math.sin(startAngle);
+              var ix2=CX+IR*Math.cos(end),iy2=CY+IR*Math.sin(end);
+              var lg=frac>0.5?1:0;
+              var d='M '+ix1+' '+iy1+' L '+x1+' '+y1+' A '+R+' '+R+' 0 '+lg+' 1 '+x2+' '+y2+' L '+ix2+' '+iy2+' A '+IR+' '+IR+' 0 '+lg+' 0 '+ix1+' '+iy1;
+              pieSvg += '<path d="'+d+'" fill="'+colors[i%colors.length]+'" opacity="0.92"/>';
+              startAngle = end;
+            }
+          }
+          var legend = data.slice(0,8).map(function(item,i){
+            return '<div class="row-gap" style="font-size:10px;gap:5px;margin-bottom:3px">' +
+              '<span style="width:9px;height:9px;border-radius:2px;background:'+colors[i%colors.length]+';flex-shrink:0;display:inline-block"></span>' +
+              '<span style="color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+self._esc(item.label)+'</span>' +
+              '<span style="color:var(--text);font-weight:600;font-variant-numeric:tabular-nums">'+item.value+'</span>' +
+            '</div>';
+          }).join('');
+          var tableHtml = total === 0 ? '<div style="color:var(--muted);font-size:12px;padding:12px 0">'+(noDataMsg||'No data')+'</div>' :
+            '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>Label</th><th style="text-align:right">Count</th></tr></thead><tbody>' +
+            data.map(function(item,i){return '<tr><td style="color:var(--muted)">'+(i+1)+'</td><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+colors[i%colors.length]+';margin-right:5px;vertical-align:middle"></span>'+self._esc(item.label)+'</td><td style="text-align:right">'+item.value+'</td></tr>';}).join('') +
+            '</tbody></table>';
+          var toggleHtml = '<div style="display:flex;gap:4px">' +
+            '<button class="btn'+(mode==='pie'?' active':'')+'" style="padding:2px 8px;font-size:10px" data-statstoggle="'+key+':pie">Pie</button>' +
+            '<button class="btn'+(mode==='bar'?' active':'')+'" style="padding:2px 8px;font-size:10px" data-statstoggle="'+key+':bar">List</button>' +
+          '</div>';
+          var content = (mode === 'pie' && total > 0)
+            ? '<div class="stats-chart-row"><svg width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'" style="flex-shrink:0">'+pieSvg+'</svg><div class="stats-chart-legend" style="min-width:0;flex:1">'+legend+'</div></div>'
+            : tableHtml;
+          return '<div class="card stats-panel-card">' +
+            '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">'+title+toggleHtml+'</div>' +
+            (total === 0 ? '<div style="color:var(--muted);font-size:12px;padding:8px 0">'+(noDataMsg||'No data')+'</div>' : content) +
+          '</div>';
+        }
+        return '<div class="two-col stats-two-col" style="margin-top:12px">' +
+          _sucPie(sucSevData, SUC_SEV_COLORS, 'suricata_severity', 'Suricata Alerts \u2014 By Severity', 'No alerts yet') +
+          _sucPie(sucCatData, sucCatColors.length ? sucCatColors : SUC_CAT_PALETTE, 'suricata_category', 'Suricata Alerts \u2014 By Category', 'No alerts yet') +
+        '</div>' +
+        '<div class="two-col stats-two-col" style="margin-top:12px">' +
+          _sucPie(sucSrcData, SUC_SRC_PALETTE, 'suricata_src', 'Suricata Alerts \u2014 Top\u00a0' + topN + ' Source IPs', 'No alerts yet') +
+        '</div>';
+      })() : '') +
       (dnsProxyEnabled ? '<div class="card" style="margin-top:12px">' +
         '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
         (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
@@ -3909,7 +4263,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       { key: 'direction',  label: 'Direction' },
       { key: null,         label: 'Internal host' },
       { key: 'last_seen',  label: 'Last seen' },
-      { key: null,       label: 'Action' },
     ];
     return '<tr>' + cols.map(function(c) {
       if (!c.key) return '<th>' + c.label + '</th>';
@@ -4010,7 +4363,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._extPage = Math.min(Math.max(1, this._extPage), totalPages);
     var start = (this._extPage - 1) * this._extPageSize;
     extIPs = extIPs.slice(start, start + this._extPageSize);
-    if (!extIPs.length) return '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No external IPs match the filter</p></div></td></tr>';
+    if (!extIPs.length) return '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No external IPs match the filter</p></div></td></tr>';
     var self = this;
     return extIPs.map(function(e) {
       var rating = e.rating || (e.blacklisted ? 'malicious' : '');
@@ -4020,7 +4373,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var abuse = e.abuse_confidence != null ? e.abuse_confidence + '%' : '\u2014';
       var trafficKb = ((e.total_octets || 0) / 1024).toFixed(1);
       var host  = e.hostname || '';
-      var isLooking = self._lookupIP === e.ip && self._lookingUp;
       var dstPorts = (e.dst_ports || []).slice(0, 8);
       var portsHtml = dstPorts.length
         ? dstPorts.map(function(p) { return '<span class="chip">' + p + '</span>'; }).join(' ') + (e.dst_ports.length > 8 ? ' <span class="dim">+' + (e.dst_ports.length - 8) + '</span>' : '')
@@ -4035,8 +4387,6 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         : dir === 'inbound'
           ? '<span style="color:#fb923c;font-size:11px">\u2193 Inbound</span>'
           : '<span style="color:#34d399;font-size:11px">\u2191 Outbound</span>';
-      var detail = (self._lookupResult && self._lookupIP === e.ip)
-        ? '<tr class="detail-row"><td colspan="13">' + self._ipDetail(self._lookupResult, e.internal_sources || e.sources, e.direction) + '</td></tr>' : '';
       var sources = e.internal_sources || e.sources || [];
       var sourcesHtml = sources.length
         ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
@@ -4044,7 +4394,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var ratingHtml = rating ? self._ratingWithSource(rating, e.rating_source) : '<span class="dim">\u2014</span>';
       var countryFlag = self._countryFlag(e.country);
       var countryTitle = e.country_name || e.country || '';
-      return '<tr>' +
+      return '<tr style="cursor:pointer" data-ext-ip-row="' + self._esc(e.ip) + '">' +
         '<td>' + (e.blacklisted ? '<span style="color:#ff4d6d;margin-right:3px">\u26A0</span>' : '') + '<span class="ip">' + e.ip + '</span></td>' +
         '<td style="font-size:11px">' + (host ? self._esc(host) : '<span class="dim">\u2014</span>') + '</td>' +
         '<td style="font-family:monospace;font-size:11px;text-align:right">' + trafficKb + '</td>' +
@@ -4056,9 +4406,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<td style="font-size:11px">' + portsHtml + '</td>' +
         '<td style="font-size:11px">' + directionHtml + '</td>' +
         '<td style="font-size:11px">' + sourcesHtml + '</td>' +
-        '<td style="font-size:10px;color:var(--muted)">' + self._ago(e.last_seen) + '</td>' +
-        '<td><button class="btn" data-lookup="' + e.ip + '" ' + (isLooking ? 'disabled' : '') + '>' +
-          (isLooking ? '<span class="spin"></span>' : '\uD83D\uDD0D Lookup') + '</button></td></tr>' + detail;
+        '<td style="font-size:10px;color:var(--muted)">' + self._ago(e.last_seen) + '</td></tr>';
     }).join('');
   }
 
@@ -4344,6 +4692,210 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<a href="https://nvd.nist.gov/vuln/detail/' + cid + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">View on NVD</a>' +
           '<a href="https://www.cvedetails.com/cve/' + cid + '/" target="_blank" rel="noopener noreferrer" class="ext-report-link">CVE Details</a>' +
         '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  _suricataAlertDetailModal() {
+    var a = this._suricataAlertDetail;
+    if (!a) return '';
+    var self = this;
+    var SEV_COLORS = { 1:'rgba(255,77,109,1)', 2:'rgba(255,179,71,1)', 3:'rgba(107,255,200,1)' };
+    var SEV_LABELS = { 1:'Critical', 2:'Major', 3:'Minor' };
+    var sev = parseInt(a.severity) || 3;
+    var sevColor = SEV_COLORS[sev] || 'rgba(90,106,128,1)';
+    var sevLabel = SEV_LABELS[sev] || 'Unknown';
+    var sevBadge = '<span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;background:' +
+      sevColor.replace(',1)',',0.18)') + ';color:' + sevColor + ';border:1px solid ' + sevColor.replace(',1)',',0.4)') + '">' + sevLabel + '</span>';
+    var action = (a.action || 'allowed').toLowerCase();
+    var actionBadge = action === 'blocked'
+      ? '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">\uD83D\uDEAB Blocked</span>'
+      : '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">\u2713 Allowed</span>';
+
+    // Source host lookup
+    var allHosts = (this._data && this._data.devices) || [];
+    var srcHost = allHosts.find(function(h) { return h.ip === a.src_ip; });
+    var destHost = allHosts.find(function(h) { return h.ip === a.dest_ip; });
+    function hostInfo(h) {
+      if (!h) return '<span class="dim">\u2014</span>';
+      var parts = [];
+      if (h.hostname) parts.push('<b>' + self._esc(h.hostname) + '</b>');
+      if (h.vendor) parts.push(self._esc(h.vendor));
+      if (h.os) parts.push(self._esc(h.os));
+      return parts.join(' \u00B7 ') || '<span class="dim">\u2014</span>';
+    }
+
+    // Signature ID and rule links
+    var sigId = a.signature_id;
+    var sigLinks = '';
+    if (sigId) {
+      // Emerging Threats rules (SIDs typically 2000000+)
+      var etLink = '<a href="https://doc.emergingthreats.net/bin/view/Main/SidFAQ?topic=' + sigId + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Emerging Threats</a>';
+      // Snort rule docs
+      var snortLink = '<a href="https://www.snort.org/rule_docs/' + sigId + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Snort Rule Docs</a>';
+      // Generic search
+      var searchLink = '<a href="https://www.google.com/search?q=suricata+rule+sid+' + sigId + '+' + encodeURIComponent(a.signature || '') + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search</a>';
+      sigLinks = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' + etLink + snortLink + searchLink + '</div>';
+    } else if (a.signature) {
+      var searchLink2 = '<a href="https://www.google.com/search?q=suricata+alert+' + encodeURIComponent(a.signature) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search rule</a>';
+      sigLinks = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' + searchLink2 + '</div>';
+    }
+
+    function row(label, value) {
+      return '<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">' +
+        '<span style="font-size:11px;color:var(--muted);min-width:110px;flex-shrink:0">' + label + '</span>' +
+        '<span style="font-size:12px;color:var(--fg);word-break:break-all">' + value + '</span>' +
+      '</div>';
+    }
+
+    var ts = a.timestamp ? new Date(a.timestamp).toLocaleString() : '\u2014';
+    var srcPort = a.src_port ? ':' + a.src_port : '';
+    var destPort = a.dest_port ? ':' + a.dest_port : '';
+    var flow = '<span class="mono" style="font-size:12px">' + self._esc((a.src_ip || '\u2014') + srcPort) + '</span>' +
+      ' <span style="color:var(--muted)">\u2192</span> ' +
+      '<span class="mono" style="font-size:12px">' + self._esc((a.dest_ip || '\u2014') + destPort) + '</span>';
+    var proto = [a.proto, a.app_proto].filter(Boolean).map(function(p) {
+      return '<span class="chip">' + self._esc(p) + '</span>';
+    }).join(' ');
+
+    return '<div id="hsa-suricata-detail-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" data-suricata-close="1">' +
+      '<div class="card" style="width:min(660px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(255,77,109,.26)">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
+          '<h1 style="font-size:15px;color:var(--accent);margin:0">Alert Detail</h1>' +
+          '<button class="btn" data-suricata-close="1">\u2715 Close</button>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">' +
+          sevBadge + ' ' + actionBadge +
+          (sigId ? '<span class="dim" style="font-size:11px">SID\u00a0' + sigId + '</span>' : '') +
+        '</div>' +
+        '<div class="card-title" style="margin-bottom:6px">Alert Info</div>' +
+        row('Timestamp', self._esc(ts)) +
+        row('Flow', flow) +
+        row('Protocol', proto || '\u2014') +
+        row('Interface', self._esc(a.in_iface || '\u2014')) +
+        row('Signature', '<span style="font-weight:600">' + self._esc(a.signature || '\u2014') + '</span>') +
+        (sigId ? row('Signature ID', String(sigId)) : '') +
+        row('Category', self._esc(a.category || '\u2014')) +
+        row('Severity', sevBadge) +
+        row('Action', actionBadge) +
+        (a.flow_id ? row('Flow ID', self._esc(String(a.flow_id))) : '') +
+        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Source Host</div>' +
+        row('IP', '<span class="mono">' + self._esc(a.src_ip || '\u2014') + '</span>') +
+        row('Host info', hostInfo(srcHost)) +
+        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Destination Host</div>' +
+        row('IP', '<span class="mono">' + self._esc(a.dest_ip || '\u2014') + '</span>') +
+        row('Host info', hostInfo(destHost)) +
+        sigLinks +
+      '</div>' +
+    '</div>';
+  }
+
+  _extIPDetailModal() {
+    var e = this._extIPDetail;
+    if (!e) return '';
+    var self = this;
+    var ip = e.ip || '';
+    var isLooking = self._lookupIP === ip && self._lookingUp;
+    var enriched = (self._lookupResult && self._lookupIP === ip) ? self._lookupResult : null;
+
+    function row(label, value) {
+      return '<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">' +
+        '<span style="font-size:11px;color:var(--muted);min-width:120px;flex-shrink:0">' + label + '</span>' +
+        '<span style="font-size:12px;word-break:break-all">' + value + '</span>' +
+      '</div>';
+    }
+
+    var rating = e.rating || (e.blacklisted ? 'malicious' : '');
+    var ratingBadge = rating ? self._ratingWithSource(rating, e.rating_source) : '<span class="dim">\u2014</span>';
+
+    var countryFlag = self._countryFlag(e.country);
+    var countryDisplay = (countryFlag ? '<span style="font-size:15px">' + countryFlag + '</span> ' : '') + self._esc(e.country_name || e.country || '\u2014');
+
+    var vtHtml = e.vt_malicious != null
+      ? (e.vt_malicious + '/' + ((e.vt_malicious||0) + (e.vt_suspicious||0) + (e.vt_harmless||0)) + ' malicious')
+      : '\u2014';
+    var abuseHtml = e.abuse_confidence != null
+      ? (e.abuse_confidence + '%' + (e.abuse_total_reports ? ' (' + e.abuse_total_reports + ' reports)' : ''))
+      : '\u2014';
+
+    var blacklistHtml = e.blacklisted
+      ? '<span style="color:#ff4d6d">\u26A0 Yes' + (e.blacklist_info && e.blacklist_info.source ? ' \u2013 ' + self._esc(e.blacklist_info.source) : '') + '</span>'
+      : '<span style="color:#6bffc8">No</span>';
+
+    var dir = e.direction || 'outbound';
+    var directionHtml = dir === 'both'
+      ? '<span style="color:#a78bfa">\u2195 Both</span>'
+      : dir === 'inbound'
+        ? '<span style="color:#fb923c">\u2193 Inbound</span>'
+        : '<span style="color:#34d399">\u2191 Outbound</span>';
+
+    var dstPorts = (e.dst_ports || []).slice(0, 16);
+    var portsHtml = dstPorts.length
+      ? dstPorts.map(function(p) { return '<span class="chip">' + p + '</span>'; }).join(' ') + (e.dst_ports.length > 16 ? ' <span class="dim">+' + (e.dst_ports.length - 16) + '</span>' : '')
+      : '\u2014';
+
+    var sources = e.internal_sources || e.sources || [];
+    var sourcesHtml = sources.length
+      ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
+      : '\u2014';
+
+    var trafficKb = ((e.total_octets || 0) / 1024).toFixed(1) + ' KB';
+
+    // Enrichment section
+    var enrichSection = '';
+    if (isLooking) {
+      enrichSection = '<div style="display:flex;align-items:center;gap:8px;padding:12px 0;color:var(--muted);font-size:12px"><span class="spin"></span> Running enrichment lookup\u2026</div>';
+    } else if (enriched) {
+      var enrichPairs = [
+        ['City',          enriched.city],
+        ['Timezone',      enriched.timezone],
+        ['ISP',           enriched.isp],
+        ['VT Reputation', enriched.vt_reputation != null ? String(enriched.vt_reputation) : null],
+        ['Enriched at',   enriched.enriched_at ? self._ago(enriched.enriched_at) : null],
+      ].filter(function(p) { return p[1] != null && p[1] !== ''; });
+      if (enrichPairs.length || enriched.error) {
+        enrichSection = '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Enrichment Details</div>' +
+          enrichPairs.map(function(p) { return row(p[0], self._esc(String(p[1]))); }).join('') +
+          (enriched.error ? '<div style="color:var(--danger);font-size:11px;margin-top:6px">\u26A0 ' + self._esc(enriched.error) + '</div>' : '');
+      }
+    } else {
+      enrichSection = '<div style="margin-top:10px"><button class="btn" data-ext-lookup="' + self._esc(ip) + '">\uD83D\uDD0D Run Full Lookup</button></div>';
+    }
+
+    // External links
+    var linksHtml = ip ? '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">' +
+      ['<a href="https://ipwho.is/' + encodeURIComponent(ip) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">ipwho.is</a>',
+       '<a href="https://www.abuseipdb.com/check/' + encodeURIComponent(ip) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">AbuseIPDB</a>',
+       '<a href="https://www.virustotal.com/gui/ip-address/' + encodeURIComponent(ip) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">VirusTotal</a>',
+       '<a href="https://www.shodan.io/host/' + encodeURIComponent(ip) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Shodan</a>',
+      ].join('') + '</div>' : '';
+
+    return '<div id="hsa-ext-ip-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">' +
+      '<div class="card" style="width:min(620px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(98,232,255,.26)">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
+          '<h1 style="font-size:15px;color:var(--accent);margin:0;font-family:monospace">' + self._esc(ip) + '</h1>' +
+          '<button class="btn" data-ext-close="1">\u2715 Close</button>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">' +
+          ratingBadge +
+          (e.blacklisted ? ' <span class="badge badge-critical">\u26A0 Blacklisted</span>' : '') +
+        '</div>' +
+        '<div class="card-title" style="margin-bottom:6px">IP Info</div>' +
+        row('Hostname',    self._esc(e.hostname || '\u2014')) +
+        row('Country',     countryDisplay) +
+        row('ASN',         self._esc(e.asn || '\u2014')) +
+        row('Org / ISP',   self._esc(e.org || e.isp || '\u2014')) +
+        row('VirusTotal',  vtHtml) +
+        row('Abuse score', abuseHtml) +
+        row('Blacklisted', blacklistHtml) +
+        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Traffic</div>' +
+        row('Direction',       directionHtml) +
+        row('Ports contacted', portsHtml) +
+        row('Internal hosts',  sourcesHtml) +
+        row('Total traffic',   trafficKb) +
+        row('Last seen',       self._ago(e.last_seen)) +
+        enrichSection +
+        linksHtml +
       '</div>' +
     '</div>';
   }
@@ -4734,17 +5286,47 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
   _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+  _docsUrlForLanguage() {
+    var hass = this._hass || {};
+    var lang = '';
+    if (typeof hass.language === 'string') lang = hass.language;
+    else if (typeof hass.selectedLanguage === 'string') lang = hass.selectedLanguage;
+    else if (hass.locale && typeof hass.locale.language === 'string') lang = hass.locale.language;
+    else if (typeof navigator !== 'undefined' && typeof navigator.language === 'string') lang = navigator.language;
+    lang = String(lang || '').toLowerCase();
+    if (lang.indexOf('fr') === 0) return 'https://domotic.monster/homesec_fr.html';
+    if (lang.indexOf('de') === 0) return 'https://domotic.monster/homesec_de.html';
+    return 'https://domotic.monster/homesec.html';
+  }
+
   // ── Settings view ────────────────────────────────────────────────────
   _viewSettings() {
     var self = this;
+    var docsUrl = this._docsUrlForLanguage();
     if (!this._settingsData && !this._settingsLoading) {
       this._settingsLoading = true;
+      this._settingsRetries = (this._settingsRetries || 0);
       this._hass.callApi('GET', 'homesec/settings').then(function(d) {
         self._settingsData = d;
         self._settingsLoading = false;
+        self._settingsRetries = 0;
         self._render();
       }).catch(function(e) {
         self._settingsLoading = false;
+        var status = (e && typeof e === 'object') ? (e.status_code || e.status || 0) : 0;
+        // During integration reload the endpoint briefly returns 404 — retry automatically
+        if ((status === 404 || status === 0) && self._settingsRetries < 8) {
+          self._settingsRetries++;
+          setTimeout(function() {
+            if (self._view === 'settings') {
+              self._settingsLoading = false;
+              self._settingsData = null;
+              self._render();
+            }
+          }, 2000);
+          return; // keep showing the loading spinner
+        }
+        self._settingsRetries = 0;
         var msg;
         if (typeof e === 'string') {
           msg = e;
@@ -4808,6 +5390,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         rows +
       '</div>';
     }).join('');
+    var linksCard =
+      '<div class="card" style="margin-top:14px">' +
+        '<div class="card-title">Links</div>' +
+        '<div style="font-size:12px;color:var(--text);line-height:1.7">' +
+          'Project: <a class="ext-report-link" href="https://github.com/domo-monster/HomeSecurityAssistant" target="_blank" rel="noopener noreferrer">GitHub Repository</a><br>' +
+          'Documentation: <a class="ext-report-link" href="' + docsUrl + '" target="_blank" rel="noopener noreferrer">Open Documentation</a>' +
+        '</div>' +
+      '</div>';
+
     return '<div>' +
       '<div class="view-header"><h1>Settings</h1><div style="font-size:11px;color:var(--muted)">Changes take effect after reloading the integration.</div></div>' +
       msgHtml +
@@ -4817,6 +5408,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<button class="btn" data-settings-save style="padding:6px 18px;font-size:12px">Save settings</button>' +
         ' <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">Reload from server</button>' +
       '</div>' +
+      linksCard +
     '</div>';
   }
 

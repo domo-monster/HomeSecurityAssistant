@@ -764,6 +764,8 @@ class NetworkScanner:
 
     async def async_start(self) -> None:
         """Start the periodic scan loop."""
+        if self._running and self._task is not None and not self._task.done():
+            return
         self._running = True
         self._task = asyncio.create_task(self._scan_loop())
 

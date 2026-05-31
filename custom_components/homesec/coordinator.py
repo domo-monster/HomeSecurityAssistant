@@ -3,10 +3,12 @@ from __future__ import annotations
 import asyncio
 from collections import deque
 from collections.abc import Callable, Coroutine
-from typing import Any
+import ipaddress
 from datetime import datetime, timedelta, timezone
 import logging
 import socket
+import time
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -49,6 +51,10 @@ from .const import (
     CONF_NVD_TTL_HOURS,
     CONF_NVD_MIN_YEAR,
     CONF_NVD_KEYWORDS,
+    CONF_SURICATA_LISTENER_ENABLED,
+    CONF_SURICATA_LISTENER_HOST,
+    CONF_SURICATA_LISTENER_PORT,
+    CONF_SURICATA_LOG_RETENTION_HOURS,
     CONF_VIRUSTOTAL_API_KEY,
     CONF_VIRUSTOTAL_DAILY_BUDGET,
     CONF_VT_ABUSEIPDB_THRESHOLD,
@@ -88,6 +94,10 @@ from .const import (
     DEFAULT_NVD_TTL_HOURS,
     DEFAULT_NVD_MIN_YEAR,
     DEFAULT_NVD_KEYWORDS,
+    DEFAULT_SURICATA_LISTENER_ENABLED,
+    DEFAULT_SURICATA_LISTENER_HOST,
+    DEFAULT_SURICATA_LISTENER_PORT,
+    DEFAULT_SURICATA_LOG_RETENTION_HOURS,
     DEFAULT_VIRUSTOTAL_API_KEY,
     DEFAULT_VIRUSTOTAL_DAILY_BUDGET,
     DEFAULT_VT_ABUSEIPDB_THRESHOLD,
@@ -103,6 +113,7 @@ from .fingerprints import HomeSecurityAnalyzer
 from .netflow import FlowRecord, NetFlowDatagramProtocol
 from .nvd_enrichment import NVDClient, CISAKEVClient
 from .scanner import NetworkScanner, parse_scan_ports
+from .suricata import SuricataAlertListener
 from .storage import (
     delete_baseline,
     load_baseline,
@@ -110,6 +121,7 @@ from .storage import (
     load_dismissed_findings, save_dismissed_findings,
     load_timeseries, save_timeseries, TIMESERIES_INTERVAL_SECONDS,
     load_dns_log, save_dns_log,
+    load_suricata_log, save_suricata_log,
     load_ext_ips, save_ext_ips,
     load_enrichment_state, save_enrichment_state,
     save_baseline,
@@ -156,6 +168,8 @@ class HomeSecCollector:
             ports=scan_ports,
             on_scan_complete=self._persist_hosts,
         )
+        self._bind_host = str(get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST))
+        self._bind_port = int(get_entry_value(entry, CONF_BIND_PORT, DEFAULT_BIND_PORT))
         self._netflow_listener_enabled = _as_bool(
             get_entry_value(entry, CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER)
         )
@@ -266,55 +280,96 @@ class HomeSecCollector:
         else:
             self._dns_proxy = None
 
+        # Suricata alert listener
+        self._suricata_log: deque = deque()
+        self._suricata_log_retention_hours: int = int(
+            get_entry_value(entry, CONF_SURICATA_LOG_RETENTION_HOURS, DEFAULT_SURICATA_LOG_RETENTION_HOURS)
+        )
+        suricata_enabled = bool(
+            get_entry_value(entry, CONF_SURICATA_LISTENER_ENABLED, DEFAULT_SURICATA_LISTENER_ENABLED)
+        )
+        if suricata_enabled:
+            self._suricata_listener: SuricataAlertListener | None = SuricataAlertListener(
+                host=str(get_entry_value(entry, CONF_SURICATA_LISTENER_HOST, DEFAULT_SURICATA_LISTENER_HOST)),
+                port=int(get_entry_value(entry, CONF_SURICATA_LISTENER_PORT, DEFAULT_SURICATA_LISTENER_PORT)),
+                alert_log=self._suricata_log,
+                on_alert=self._on_suricata_alert,
+            )
+        else:
+            self._suricata_listener = None
+
+    async def _async_start_netflow_listener(self) -> None:
+        loop = asyncio.get_running_loop()
+        self._protocol = NetFlowDatagramProtocol(self._handle_records)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            sock.bind((self._bind_host, self._bind_port))
+        except OSError as exc:
+            sock.close()
+            _LOGGER.error(
+                "HomeSec could not bind NetFlow listener on %s:%d - %s. "
+                "Check whether another process already owns UDP port %d, "
+                "or change the bind port in integration options.",
+                self._bind_host,
+                self._bind_port,
+                exc,
+                self._bind_port,
+            )
+            raise
+        sock.setblocking(False)
+        transport, _ = await loop.create_datagram_endpoint(lambda: self._protocol, sock=sock)
+        self._transport = transport
+        _LOGGER.info(
+            "Home Security Assistant listening for NetFlow v5/v9/IPFIX on %s:%s",
+            self._bind_host,
+            self._bind_port,
+        )
+
+    async def _async_stop_netflow_listener(self) -> None:
+        if self._transport is not None:
+            self._transport.close()
+            self._transport = None
+        self._protocol = None
+
     async def async_start(self) -> None:
         self._started_at = datetime.now(timezone.utc)
-        loop = asyncio.get_running_loop()
-        if self._netflow_listener_enabled:
-            bind_host = str(get_entry_value(self.entry, CONF_BIND_HOST, DEFAULT_BIND_HOST))
-            bind_port = int(get_entry_value(self.entry, CONF_BIND_PORT, DEFAULT_BIND_PORT))
-            self._protocol = NetFlowDatagramProtocol(self._handle_records)
+        startup_started = time.monotonic()
 
-            # Pre-create the socket with SO_REUSEADDR so that integration reloads
-            # don't fail with EADDRINUSE while the previous socket is still draining.
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            try:
-                sock.bind((bind_host, bind_port))
-            except OSError as exc:
-                sock.close()
-                _LOGGER.error(
-                    "HomeSec could not bind NetFlow listener on %s:%d — %s. "
-                    "Check whether another process already owns UDP port %d, "
-                    "or change the bind port in integration options.",
-                    bind_host, bind_port, exc, bind_port,
-                )
-                raise
-            sock.setblocking(False)
-            transport, _ = await loop.create_datagram_endpoint(
-                lambda: self._protocol,
-                sock=sock,
+        def _log_step(step: str, started_at: float) -> None:
+            _LOGGER.warning(
+                "Home Security Assistant startup step %s took %.3f s",
+                step,
+                time.monotonic() - started_at,
             )
-            self._transport = transport
-            _LOGGER.info("Home Security Assistant listening for NetFlow v5/v9/IPFIX on %s:%s", bind_host, bind_port)
+
+        if self._netflow_listener_enabled:
+            step_started = time.monotonic()
+            await self._async_start_netflow_listener()
+            _log_step("netflow listener setup", step_started)
         else:
-            self._protocol = None
-            self._transport = None
+            await self._async_stop_netflow_listener()
             _LOGGER.info("NetFlow listener disabled by configuration")
 
+        step_started = time.monotonic()
         persisted_hosts = await self.hass.async_add_executor_job(
             load_discovered_hosts, self._config_dir
         )
         if persisted_hosts:
             self._scanner.load_hosts(persisted_hosts)
             _LOGGER.info("Restored %d previously discovered hosts", len(persisted_hosts))
+        _log_step("load discovered hosts", step_started)
 
+        step_started = time.monotonic()
         persisted_dismissed = await self.hass.async_add_executor_job(
             load_dismissed_findings, self._config_dir
         )
         if persisted_dismissed:
             self._dismissed_findings.update(persisted_dismissed)
             _LOGGER.info("Restored %d dismissed findings", len(persisted_dismissed))
+        _log_step("load dismissed findings", step_started)
 
+        step_started = time.monotonic()
         ts_data = await self.hass.async_add_executor_job(load_timeseries, self._config_dir)
         if ts_data:
             self._timeseries = ts_data
@@ -323,8 +378,10 @@ class HomeSecCollector:
             except (ValueError, TypeError, KeyError):
                 pass
             _LOGGER.info("Restored %d timeseries points", len(ts_data))
+        _log_step("load timeseries", step_started)
 
         # Restore persistent DNS log (filtered to configured retention window)
+        step_started = time.monotonic()
         dns_data = await self.hass.async_add_executor_job(load_dns_log, self._config_dir)
         if dns_data:
             if self._dns_log_retention_hours > 0:
@@ -333,8 +390,10 @@ class HomeSecCollector:
             for entry in dns_data:
                 self._dns_log.append(entry)
             _LOGGER.info("Restored %d DNS log entries", len(dns_data))
+        _log_step("load dns log", step_started)
 
         # Restore persistent external IP tracking state
+        step_started = time.monotonic()
         ext_ip_data = await self.hass.async_add_executor_job(load_ext_ips, self._config_dir)
         if ext_ip_data:
             now_ext = datetime.now(timezone.utc)
@@ -379,30 +438,60 @@ class HomeSecCollector:
                 if total_octets > 0:
                     self._ext_ip_total_octets[ip] = total_octets
             _LOGGER.info("Restored %d external IP tracking entries", len(ext_ip_data))
+        _log_step("load external ip state", step_started)
 
         # Restore enrichment usage counters (daily provider budgets)
+        step_started = time.monotonic()
         enr_state = await self.hass.async_add_executor_job(load_enrichment_state, self._config_dir)
         if enr_state:
             self._enricher.import_usage_state(enr_state)
             _LOGGER.info("Restored external enrichment usage state")
+        _log_step("load enrichment state", step_started)
 
+        step_started = time.monotonic()
         baseline_state = await self.hass.async_add_executor_job(load_baseline, self._config_dir)
         if baseline_state:
             self._baseline_manager.load_state(baseline_state)
             _LOGGER.info("Restored baseline training state")
+        _log_step("load baseline state", step_started)
 
+        step_started = time.monotonic()
         if self._scanner_enabled:
             await self._scanner.async_start()
             _LOGGER.info("Home Security Assistant active network scanner started")
+        _log_step("scanner startup", step_started)
 
+        step_started = time.monotonic()
         await self._resolver.async_start()
         await self._enricher.async_start()
         if self._dns_proxy is not None:
             await self._dns_proxy.async_start()
+        _log_step("resolver enrichment dns proxy startup", step_started)
+
+        # Restore persisted Suricata alert log
+        step_started = time.monotonic()
+        suricata_data = await self.hass.async_add_executor_job(load_suricata_log, self._config_dir)
+        if suricata_data:
+            if self._suricata_log_retention_hours > 0:
+                cutoff = (
+                    datetime.now(timezone.utc) - timedelta(hours=self._suricata_log_retention_hours)
+                ).isoformat()
+                suricata_data = [e for e in suricata_data if e.get("timestamp", "") >= cutoff]
+            for _se in suricata_data:
+                self._suricata_log.append(_se)
+            _LOGGER.info("Restored %d Suricata alert log entries", len(suricata_data))
+        if self._suricata_listener is not None:
+            await self._suricata_listener.async_start()
+        _log_step("load suricata log and listener startup", step_started)
+
         self._nvd_task = self.hass.async_create_background_task(
             self._nvd_background_loop(), name="homesec_nvd_background"
         )
         self._nvd_task.add_done_callback(self._nvd_task_done)
+        _LOGGER.warning(
+            "Home Security Assistant collector startup completed in %.3f s",
+            time.monotonic() - startup_started,
+        )
 
     def _nvd_task_done(self, task: asyncio.Task) -> None:
         """Log unhandled exceptions from the NVD background task."""
@@ -430,24 +519,90 @@ class HomeSecCollector:
             },
         )
 
+    def _on_suricata_alert(self, record: dict) -> None:
+        """Called when a new Suricata alert is received; fires an HA event for severity 1 alerts."""
+        if record.get("severity") == 1:
+            self.hass.bus.async_fire(
+                f"{DOMAIN}_suricata_alert",
+                {
+                    "src_ip": record.get("src_ip", ""),
+                    "dest_ip": record.get("dest_ip", ""),
+                    "signature": record.get("signature", ""),
+                    "category": record.get("category", ""),
+                    "severity": record.get("severity"),
+                    "action": record.get("action", ""),
+                },
+            )
+
     async def async_stop(self) -> None:
-        # Persist DNS log and external IP state before tearing down services
+        # Persist DNS log, Suricata log, and external IP state before tearing down services
         dns_snapshot = list(self._dns_log)
         await self.hass.async_add_executor_job(save_dns_log, self._config_dir, dns_snapshot)
+        suricata_snapshot = list(self._suricata_log)
+        await self.hass.async_add_executor_job(save_suricata_log, self._config_dir, suricata_snapshot)
         await self.async_persist_runtime_state(force=True)
 
         if self._nvd_task is not None:
             self._nvd_task.cancel()
             self._nvd_task = None
+        if self._suricata_listener is not None:
+            await self._suricata_listener.async_stop()
         if self._dns_proxy is not None:
             await self._dns_proxy.async_stop()
-        if self._transport is not None:
-            self._transport.close()
-            self._transport = None
-        self._protocol = None
+        await self._async_stop_netflow_listener()
         await self._scanner.async_stop()
         await self._resolver.async_stop()
         await self._enricher.async_stop()
+
+    async def async_apply_entry_update(self, entry: ConfigEntry) -> None:
+        """Apply updated config-entry options in-place to avoid full teardown/reload."""
+        self.entry = entry
+
+        new_bind_host = str(get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST))
+        new_bind_port = int(get_entry_value(entry, CONF_BIND_PORT, DEFAULT_BIND_PORT))
+        new_netflow_enabled = _as_bool(
+            get_entry_value(entry, CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER)
+        )
+        new_scanner_enabled = bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER))
+
+        internal_nets_raw = str(get_entry_value(entry, CONF_INTERNAL_NETWORKS, DEFAULT_INTERNAL_NETWORKS))
+        internal_nets = [n.strip() for n in internal_nets_raw.split(",") if n.strip()]
+        try:
+            parsed_nets = [ipaddress.ip_network(n) for n in internal_nets]
+            self._scanner._internal_networks = parsed_nets
+            self._analyzer._internal_networks = parsed_nets
+        except ValueError as exc:
+            _LOGGER.warning("HomeSec: invalid internal networks update ignored: %s", exc)
+
+        self._dns_log_retention_hours = int(
+            get_entry_value(entry, CONF_DNS_LOG_RETENTION_HOURS, DEFAULT_DNS_LOG_RETENTION_HOURS)
+        )
+        self._suricata_log_retention_hours = int(
+            get_entry_value(entry, CONF_SURICATA_LOG_RETENTION_HOURS, DEFAULT_SURICATA_LOG_RETENTION_HOURS)
+        )
+        self._resolver._enable_resolution = bool(
+            get_entry_value(entry, CONF_ENABLE_DNS_RESOLUTION, DEFAULT_ENABLE_DNS_RESOLUTION)
+        )
+
+        netflow_rebind_required = (
+            new_bind_host != self._bind_host or new_bind_port != self._bind_port
+        )
+        if not new_netflow_enabled:
+            await self._async_stop_netflow_listener()
+        elif self._transport is None or not self._netflow_listener_enabled or netflow_rebind_required:
+            await self._async_stop_netflow_listener()
+            self._bind_host = new_bind_host
+            self._bind_port = new_bind_port
+            await self._async_start_netflow_listener()
+        self._bind_host = new_bind_host
+        self._bind_port = new_bind_port
+        self._netflow_listener_enabled = new_netflow_enabled
+
+        if new_scanner_enabled and not self._scanner_enabled:
+            await self._scanner.async_start()
+        elif not new_scanner_enabled and self._scanner_enabled:
+            await self._scanner.async_stop()
+        self._scanner_enabled = new_scanner_enabled
 
     async def async_trigger_scan(self) -> None:
         """Run an immediate active scan cycle outside the normal schedule."""
@@ -784,6 +939,11 @@ class HomeSecCollector:
         self._purge_dns_log()
         payload["dns_log"] = list(self._dns_log)
         payload["dns_proxy_stats"] = self._dns_proxy.stats() if self._dns_proxy is not None else {"running": False}
+        self._purge_suricata_log()
+        payload["suricata_log"] = list(self._suricata_log)
+        payload["suricata_stats"] = (
+            self._suricata_listener.stats() if self._suricata_listener is not None else {"running": False}
+        )
         nvd_ts = self._nvd_last_fetch_at
         payload["nvd_last_updated"] = nvd_ts.isoformat() if nvd_ts else None
         payload["nvd_ttl_hours"] = self._nvd_client._ttl_hours
@@ -913,11 +1073,31 @@ class HomeSecCollector:
         while self._dns_log and self._dns_log[0].get("timestamp", "") < cutoff:
             self._dns_log.popleft()
 
+    def _purge_suricata_log(self) -> None:
+        """Remove Suricata alert log entries older than the configured retention window."""
+        if not self._suricata_log or self._suricata_log_retention_hours == 0:
+            return
+        cutoff = (
+            datetime.now(timezone.utc) - timedelta(hours=self._suricata_log_retention_hours)
+        ).isoformat()
+        while self._suricata_log and self._suricata_log[0].get("timestamp", "") < cutoff:
+            self._suricata_log.popleft()
+
     def dns_proxy_stats(self) -> dict:
         """Return DNS proxy status stats."""
         if self._dns_proxy is not None:
             return self._dns_proxy.stats()
         return {"running": False}
+
+    def suricata_stats(self) -> dict:
+        """Return Suricata listener status stats."""
+        if self._suricata_listener is not None:
+            return self._suricata_listener.stats()
+        return {"running": False}
+
+    def suricata_log_snapshot(self) -> list[dict]:
+        """Return a snapshot of the Suricata alert ring buffer."""
+        return list(self._suricata_log)
 
     def dismiss_finding(self, key: str, note: str = "") -> None:
         self._dismissed_findings[key] = note
