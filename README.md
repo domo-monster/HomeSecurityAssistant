@@ -87,6 +87,18 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - Controlled via four HA services: `start_baseline_training`, `stop_baseline_training`, `retrain_baseline`, and `clear_baseline`, all callable from Developer Tools → Actions or automations
 - **Overview card** — a new Baseline card in the Overview shows current mode, training progress (elapsed / remaining time), baseline creation age, confidence level, and quick-action buttons
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_baseline_comparison.png" alt="Live vs Baseline comparison" width="600">
+  <br>
+  <em>Example: Live vs Baseline comparison</em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_baseline_deviation.png" alt="Baseline deviation summary" width="600">
+  <br>
+  <em>Example: Baseline deviation summary</em>
+</p>
+
 ### Security Findings
 - Actionable findings for high/critical issues with severity, source IP, category, and occurrence count
 - Categories: suspicious ports, port scanning, high egress, vulnerabilities, **baseline anomalies** (new host, new peer, new port, new DNS category, egress spike)

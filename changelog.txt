@@ -6,6 +6,7 @@ Security Assistant - Changelog
 - Added non-blocking/background settings apply flow to shorten save wait time.
 - Added runtime startup step timing logs to help profile slow startup/reload phases.
 - Added NetFlow listener hot-rebind helpers and scanner start idempotency for safer runtime updates.
+- Added Suricata alert listener and `scripts/suricata_pusher.py` to stream Suricata EVE alerts into Home Security Assistant.
 - Added Settings page links card with:
   - GitHub repository link: https://github.com/domo-monster/HomeSecurityAssistant
   - Language-aware documentation link:
