@@ -35,6 +35,15 @@ Recent 0.9.0 updates
 - Settings page links card (GitHub + language-aware documentation link).
 - Sidebar copyright link points to https://domotic.monster.
 
+Baseline visuals
+- Live vs Baseline comparison:
+
+    ![Live vs Baseline](custom_components/homesec/hsa_baseline_comparison.png)
+
+- Baseline deviation summary:
+
+    ![Baseline deviation](custom_components/homesec/hsa_baseline_deviation.png)
+
 Installation (HACS)
 1. Open HACS -> Integrations -> Custom Repositories.
 2. Add repository URL: https://github.com/domo-monster/HomeSecurityAssistant
