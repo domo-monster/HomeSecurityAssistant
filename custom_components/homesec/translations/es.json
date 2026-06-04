@@ -2,13 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "title": "Security Assistant — Setup",
-        "description": "Enter the NetFlow listener address and your internal network ranges. All advanced settings can be configured from the Security Assistant panel after setup.",
+        "title": "Security Assistant — Configuraci\u00f3n",
+        "description": "Introduzca la direcci\u00f3n del receptor NetFlow y sus rangos de red internos. Todos los ajustes avanzados (escaner, proxy DNS, enriquecimiento, l\u00ednea base, etc.) se pueden configurar desde el panel Security Assistant tras la instalaci\u00f3n.",
         "data": {
-          "bind_host": "NetFlow bind host (e.g. 0.0.0.0)",
-          "bind_port": "NetFlow bind port (UDP, default 2055)",
-          "enable_netflow_listener": "Enable NetFlow listener",
-          "internal_networks": "Internal networks (comma-separated CIDRs)"
+          "bind_host": "Host de escucha NetFlow (p.ej. 0.0.0.0)",
+          "bind_port": "Puerto de escucha NetFlow (UDP, predeterminado 2055)",
+          "enable_netflow_listener": "Activar receptor NetFlow",
+          "internal_networks": "Redes internas (CIDRs separados por comas, p.ej. 192.168.0.0/16,10.0.0.0/8)"
         }
       }
     }
@@ -16,15 +16,45 @@
   "options": {
     "step": {
       "init": {
-        "title": "Security Assistant — Listener Settings",
-        "description": "Update the NetFlow listener and internal networks. All advanced settings are available from the Security Assistant panel.",
+        "title": "Security Assistant — Configuraci\u00f3n del receptor",
+        "description": "Actualice la direcci\u00f3n del receptor NetFlow y las redes internas. Todos los ajustes avanzados est\u00e1n disponibles en el panel Security Assistant \u2192 Configuraci\u00f3n.",
         "data": {
-          "bind_host": "NetFlow bind host",
-          "bind_port": "NetFlow bind port (UDP)",
-          "enable_netflow_listener": "Enable NetFlow listener",
-          "internal_networks": "Internal networks (comma-separated CIDRs)"
+          "bind_host": "Host de escucha NetFlow",
+          "bind_port": "Puerto de escucha NetFlow (UDP)",
+          "enable_netflow_listener": "Activar receptor NetFlow",
+          "internal_networks": "Redes internas (CIDRs separados por comas)"
         }
       }
+    }
+  },
+  "services": {
+    "trigger_scan": {
+      "name": "Iniciar an\u00e1lisis activo de hosts",
+      "description": "Ejecuta inmediatamente un an\u00e1lisis de red activo completo (ping + escaneo de puertos) para todas las IPs conocidas y observadas, sin esperar al pr\u00f3ximo intervalo programado."
+    },
+    "blacklist_refresh": {
+      "name": "Forzar actualizaci\u00f3n de listas de bloqueo de inteligencia de amenazas",
+      "description": "Borra inmediatamente todas las entradas de inteligencia de amenazas cargadas y vuelve a descargar cada URL de lista de bloqueo configurada."
+    },
+    "nvd_refresh": {
+      "name": "Actualizar base de datos de vulnerabilidades NVD",
+      "description": "Vac\u00eda el cach\u00e9 local de CVE de NVD y vuelve a obtener datos de vulnerabilidades actualizados de la Base de Datos Nacional de Vulnerabilidades."
+    },
+    "start_baseline_training": {
+      "name": "Iniciar entrenamiento de l\u00ednea base",
+      "description": "Inicia el modo de entrenamiento de l\u00ednea base y aprende un perfil de actividad normal durante la duraci\u00f3n de entrenamiento configurada."
+    },
+    "stop_baseline_training": {
+      "name": "Detener entrenamiento de l\u00ednea base",
+      "description": "Detiene inmediatamente el modo de entrenamiento de l\u00ednea base y promueve el estado aprendido a la l\u00ednea base activa si se observaron hosts."
+    },
+    "clear_baseline": {
+      "name": "Limpiar l\u00ednea base",
+      "description": "Elimina el estado de l\u00ednea base actual y el progreso del entrenamiento del almacenamiento persistente."
+    },
+    "retrain_baseline": {
+      "name": "Reentrenar l\u00ednea base",
+      "description": "Borra el estado de l\u00ednea base actual y reinicia inmediatamente el modo de entrenamiento."
     }
   }
 }

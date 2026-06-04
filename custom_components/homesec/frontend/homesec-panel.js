@@ -59,6 +59,676 @@ const _UI_I18N = {
     'sidebar.tagline': 'Telemetrie reseau de securite avec contexte de flux en direct',
     'sidebar.collector_active': 'Collecteur actif',
     'sidebar.awaiting_flows': 'En attente de flux',
+    // ── Overview page ────────────────────────────────────────────────
+    'overview.active_findings': 'Alertes actives',
+    'overview.active_cves': 'CVEs actifs',
+    'overview.dismissed': 'ignoré(s)',
+    'overview.never_fetched': 'jamais récupéré',
+    'overview.never': 'jamais',
+    'overview.stat_devices': 'Appareils',
+    'overview.stat_scanned': 'Scannés',
+    'overview.stat_nvd_cves': 'CVEs NVD',
+    'overview.stat_cisa_kev': 'CISA KEV',
+    'overview.stat_flows': 'Flux',
+    'overview.stat_exporters': 'Exporteurs',
+    'overview.stat_suricata_alerts': 'Alertes Suricata',
+    'overview.stat_critical_alerts': 'Alertes critiques',
+    // Baseline
+    'overview.baseline_learning': 'Apprentissage',
+    'overview.baseline_active': 'Actif',
+    'overview.baseline_disabled': 'Désactivé',
+    'overview.elapsed': 'Écoulé',
+    'overview.progress': 'Progression',
+    'overview.btn_start_training': 'Démarrer l\'apprentissage',
+    'overview.btn_stop_training': 'Arrêter l\'apprentissage',
+    'overview.btn_retrain': 'Réentraîner',
+    'overview.btn_clear': 'Effacer',
+    'overview.baseline_title': 'Référence',
+    'overview.mode_label': 'Mode',
+    'overview.baseline_created_label': 'Référence créée',
+    // NetFlow
+    'overview.netflow_title': 'Santé du collecteur NetFlow',
+    'overview.status_label': 'Statut',
+    'overview.no_flows_seen': 'Aucun flux reçu',
+    'overview.receiving_flows': 'Flux en cours',
+    'overview.no_flows_idle_prefix': 'Aucun flux (inactif ',
+    'overview.uptime_label': 'Disponibilité',
+    'overview.exporters_label': 'Exporteurs',
+    'overview.flow_versions': 'Versions de flux',
+    'overview.total_datagrams': 'Datagrammes totaux',
+    'overview.parsed': 'Analysés',
+    'overview.dropped': 'Perdus',
+    'overview.last_flow': 'Dernier flux',
+    'overview.last_error': 'Dernière erreur',
+    'overview.view_statistics': 'Voir les statistiques \u2192',
+    // Recent Alerts
+    'overview.recent_alerts': 'Alertes récentes',
+    'overview.no_active_findings': 'Aucun constat actif haut/critique',
+    'overview.view_all_findings': 'Voir tous les constats \u2192',
+    // Active Scan
+    'overview.active_scan_title': 'Scan actif',
+    'overview.last_scan': 'Dernier scan',
+    'overview.last_result': 'Dernier résultat',
+    'overview.duration': 'Durée',
+    'overview.hosts_found': 'Hôtes trouvés',
+    'overview.targets_scanned': 'Cibles scannées',
+    'overview.scan_interval': 'Intervalle de scan',
+    'overview.scan_completed': 'Terminé',
+    'overview.scan_skipped': 'Ignoré \u2014 aucune cible découverte',
+    'overview.force_scan_btn': 'Forcer le scan \u21bb',
+    // NVD
+    'overview.nvd_title': 'Renseignement sur les vulnérabilités (NVD)',
+    'overview.last_db_fetch': 'Dernière mise à jour de la base',
+    'overview.cache_ttl': 'Durée de cache',
+    'overview.cves_in_db': 'CVEs en base',
+    'overview.min_pub_year': 'Année de publication minimale',
+    'overview.all_years': 'Toutes les années',
+    'overview.keywords_label': 'Mots-clés',
+    'overview.none_loaded': 'Aucun chargé',
+    'overview.kw_configured': 'Configurés',
+    'overview.kw_from_scans': 'Issus des scans',
+    'overview.browse_vulns_btn': 'Parcourir les vulnérabilités \u2192',
+    'overview.force_nvd_refresh_btn': 'Forcer la mise à jour \u21bb',
+    // KEV
+    'overview.kev_title': 'Vulnérabilités exploitées connues CISA (KEV)',
+    'overview.last_catalog_fetch': 'Dernière récupération du catalogue',
+    'overview.catalog_size': 'Taille du catalogue',
+    // DNS Proxy
+    'overview.dns_domains': 'domaines',
+    'overview.dns_blocked_suffix': 'bloqués',
+    'overview.dns_bl_empty': '0 entrées \u2014 vérifiez les URLs',
+    'overview.dns_bl_downloading': 'Téléchargement\u2026',
+    'overview.dns_proxy_title': 'Proxy DNS',
+    'overview.dns_running': 'En cours',
+    'overview.port_label': 'Port',
+    'overview.upstream_label': 'Serveur amont',
+    'overview.blocklist_label': 'Liste de blocage',
+    'overview.last_refreshed': 'Dernière actualisation',
+    'overview.queries_in_log': 'Requêtes enregistrées',
+    'overview.malicious_queries': 'Requêtes malveillantes',
+    'overview.blocked_queries': 'Requêtes bloquées',
+    'overview.view_dns_btn': 'Voir les requêtes DNS \u2192',
+    // Suricata
+    'overview.suricata_listener_title': 'Récepteur d\'alertes Suricata',
+    'overview.suricata_active': 'Actif',
+    'overview.suricata_inactive': 'Inactif',
+    'overview.exporter_ips_label': 'IP(s) exporteur',
+    'overview.active_connections': 'Connexions actives',
+    'overview.alerts_in_log': 'Alertes enregistrées',
+    'overview.critical_alerts_label': 'Alertes critiques',
+    'overview.view_suricata_btn': 'Voir les alertes Suricata \u2192',
+    // Network Behaviour (baseline deviance)
+    'overview.network_behaviour_title': 'Comportement réseau',
+    'overview.band_normal': 'Normal',
+    'overview.band_review': 'Réviser',
+    'overview.band_investigate': 'Enquêter',
+    'overview.band_critical': 'Critique',
+    'overview.band_desc_normal': 'Le trafic correspond étroitement à votre référence. Aucune action requise.',
+    'overview.band_desc_review': 'Quelques déviations détectées. Un coup d\'œil s\'impose.',
+    'overview.band_desc_investigate': 'Déviations notables. Vérifiez les connexions inattendues.',
+    'overview.band_desc_critical': 'Déviations importantes. Enquêtez immédiatement.',
+    'overview.new_conn_single': 'nouvelle connexion inattendue',
+    'overview.new_conn_plural': 'nouvelles connexions inattendues',
+    'overview.new_conn_note_none': 'Aucune activité inconnue \u2014 tout le trafic actuel a été vu en formation.',
+    'overview.new_conn_note_some': 'Ces connexions n\'étaient pas présentes lors de la formation.',
+    'overview.new_conn_note_investigate': 'C\'est le principal facteur de votre score \u2014 enquêtez.',
+    'overview.new_conn_note_review': 'Vérifiez qu\'elles sont attendues.',
+    'overview.missing_conn_single': 'connexion de référence inactive',
+    'overview.missing_conn_plural': 'connexions de référence inactives',
+    'overview.missing_conn_note': 'Connexions vues en formation silencieuses maintenant. C\'est habituellement normal \u2014 les appareils ne maintiennent pas toutes les connexions en permanence.',
+    'overview.missing_conn_note_high': 'Le nombre est très élevé, mais votre référence a probablement capturé de nombreux flux courts sur une longue fenêtre d\'apprentissage.',
+    'overview.both_conn_single': 'connexion correspond à la référence',
+    'overview.both_conn_plural': 'connexions correspondent à la référence',
+    'overview.both_conn_note_some': 'Ces connexions sont actives et ont été vues en formation \u2014 votre trafic normal attendu.',
+    'overview.both_conn_note_none': 'Aucune connexion active n\'a encore été vue dans la référence.',
+    'overview.biggest_traffic_change': '\u0394 Plus grande variation de trafic',
+    'overview.traffic_change_pre': 'Cette connexion connue est',
+    'overview.traffic_change_mid': 'que d\'habitude',
+    'overview.traffic_change_post': 'flux/snapshot).',
+    'overview.traffic_change_file_hint': 'Cela pourrait être un transfert de fichier, une sauvegarde ou une mise à jour.',
+    'overview.traffic_far_busier': 'beaucoup plus chargé',
+    'overview.traffic_noticeably_busier': 'nettement plus chargé',
+    'overview.traffic_somewhat_busier': 'légèrement plus chargé',
+    'overview.traffic_slightly_busier': 'un peu plus chargé',
+    'overview.traffic_far_quieter': 'beaucoup plus calme',
+    'overview.traffic_noticeably_quieter': 'nettement plus calme',
+    'overview.traffic_somewhat_quieter': 'légèrement plus calme',
+    'overview.traffic_slightly_quieter': 'un peu plus calme',
+    'overview.view_map_btn': 'Voir sur la carte réseau \u2192',
+  },
+  de: {
+    'view.overview': '\u00dcbersicht',
+    'view.map': 'Netzwerkkarte',
+    'view.hosts': 'Hosts',
+    'view.findings': 'Befunde',
+    'view.external': 'Externe IPs',
+    'view.vulnerabilities': 'Schwachstellen',
+    'view.statistics': 'Statistiken',
+    'view.dns': 'DNS-Anfragen',
+    'view.suricata': 'Suricata-Alarme',
+    'view.recommendations': 'Empfehlungen',
+    'view.settings': 'Einstellungen',
+    'page.overview': '\u00dcbersicht',
+    'page.findings': 'Befunde',
+    'page.statistics': 'Statistiken',
+    'page.dns_queries': 'DNS-Anfragen',
+    'page.suricata_alerts': 'Suricata-Alarme',
+    'app.title': 'Security Assistant',
+    'settings.title': 'Einstellungen',
+    'settings.subtitle': '\u00c4nderungen werden nach dem Neuladen der Integration wirksam.',
+    'settings.loading': 'Einstellungen werden geladen\u2026',
+    'settings.loading_short': 'Laden\u2026',
+    'settings.links': 'Links',
+    'settings.project': 'Projekt',
+    'settings.github_repo': 'GitHub-Repository',
+    'settings.documentation': 'Dokumentation',
+    'settings.open_documentation': 'Dokumentation \u00f6ffnen',
+    'settings.unsaved': 'Sie haben nicht gespeicherte \u00c4nderungen.',
+    'settings.save': 'Einstellungen speichern',
+    'settings.reload_server': 'Vom Server neu laden',
+    'settings.failed_load': 'Fehler beim Laden der Einstellungen: ',
+    'settings.failed_save': 'Fehler beim Speichern der Einstellungen: ',
+    'settings.saved_reload': 'Einstellungen gespeichert. Die Integration wird neu geladen, um die \u00c4nderungen zu \u00fcbernehmen.',
+    'settings.unsaved_title': 'Nicht gespeicherte \u00c4nderungen',
+    'settings.unsaved_body': 'Sie haben nicht gespeicherte Einstellungs\u00e4nderungen. Wenn Sie jetzt verlassen, gehen sie verloren.',
+    'settings.stay': 'Bei Einstellungen bleiben',
+    'settings.discard_leave': 'Verwerfen und verlassen',
+    'settings.beforeunload': 'Sie haben nicht gespeicherte Einstellungs\u00e4nderungen. Verlassen und verwerfen?',
+    'sidebar.tagline': 'Sicherheitsnetzwerk-Telemetrie mit Live-Flow-Kontext',
+    'sidebar.collector_active': 'Collector aktiv',
+    'sidebar.awaiting_flows': 'Warte auf Flows',
+    // \u2500\u2500 Overview page \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    'overview.active_findings': 'Aktive Befunde',
+    'overview.active_cves': 'Aktive CVEs',
+    'overview.dismissed': 'ignoriert',
+    'overview.never_fetched': 'nie abgerufen',
+    'overview.never': 'nie',
+    'overview.stat_devices': 'Ger\u00e4te',
+    'overview.stat_scanned': 'Gescannt',
+    'overview.stat_nvd_cves': 'NVD CVEs',
+    'overview.stat_cisa_kev': 'CISA KEV',
+    'overview.stat_flows': 'Flows',
+    'overview.stat_exporters': 'Exporteure',
+    'overview.stat_suricata_alerts': 'Suricata-Alarme',
+    'overview.stat_critical_alerts': 'Kritische Alarme',
+    // Baseline
+    'overview.baseline_learning': 'Lernend',
+    'overview.baseline_active': 'Aktiv',
+    'overview.baseline_disabled': 'Deaktiviert',
+    'overview.elapsed': 'Vergangen',
+    'overview.progress': 'Fortschritt',
+    'overview.btn_start_training': 'Training starten',
+    'overview.btn_stop_training': 'Training stoppen',
+    'overview.btn_retrain': 'Neu trainieren',
+    'overview.btn_clear': 'L\u00f6schen',
+    'overview.baseline_title': 'Baseline',
+    'overview.mode_label': 'Modus',
+    'overview.baseline_created_label': 'Baseline erstellt',
+    // NetFlow
+    'overview.netflow_title': 'NetFlow-Collector-Status',
+    'overview.status_label': 'Status',
+    'overview.no_flows_seen': 'Keine Flows empfangen',
+    'overview.receiving_flows': 'Flows werden empfangen',
+    'overview.no_flows_idle_prefix': 'Keine Flows (inaktiv ',
+    'overview.uptime_label': 'Betriebszeit',
+    'overview.exporters_label': 'Exporteure',
+    'overview.flow_versions': 'Flow-Versionen',
+    'overview.total_datagrams': 'Gesamte Datagramme',
+    'overview.parsed': 'Verarbeitet',
+    'overview.dropped': 'Verworfen',
+    'overview.last_flow': 'Letzter Flow',
+    'overview.last_error': 'Letzter Fehler',
+    'overview.view_statistics': 'Statistiken anzeigen \u2192',
+    // Recent Alerts
+    'overview.recent_alerts': 'Aktuelle Alarme',
+    'overview.no_active_findings': 'Keine aktiven hohen/kritischen Befunde',
+    'overview.view_all_findings': 'Alle Befunde anzeigen \u2192',
+    // Active Scan
+    'overview.active_scan_title': 'Aktiver Scan',
+    'overview.last_scan': 'Letzter Scan',
+    'overview.last_result': 'Letztes Ergebnis',
+    'overview.duration': 'Dauer',
+    'overview.hosts_found': 'Hosts gefunden',
+    'overview.targets_scanned': 'Gescannte Ziele',
+    'overview.scan_interval': 'Scan-Intervall',
+    'overview.scan_completed': 'Abgeschlossen',
+    'overview.scan_skipped': 'Übersprungen \u2014 keine Ziele gefunden',
+    'overview.force_scan_btn': 'Scan erzwingen \u21bb',
+    // NVD
+    'overview.nvd_title': 'Schwachstellen-Intelligence (NVD)',
+    'overview.last_db_fetch': 'Letztes Datenbank-Update',
+    'overview.cache_ttl': 'Cache-G\u00fcltigkeitsdauer',
+    'overview.cves_in_db': 'CVEs in der Datenbank',
+    'overview.min_pub_year': 'Minimales Ver\u00f6ffentlichungsjahr',
+    'overview.all_years': 'Alle Jahre',
+    'overview.keywords_label': 'Schl\u00fcsselw\u00f6rter',
+    'overview.none_loaded': 'Keine geladen',
+    'overview.kw_configured': 'Konfiguriert',
+    'overview.kw_from_scans': 'Aus Scans',
+    'overview.browse_vulns_btn': 'Schwachstellen durchsuchen \u2192',
+    'overview.force_nvd_refresh_btn': 'NVD-Aktualisierung erzwingen \u21bb',
+    // KEV
+    'overview.kev_title': 'CISA Bekannte ausgenutzte Schwachstellen (KEV)',
+    'overview.last_catalog_fetch': 'Letzter Katalogabruf',
+    'overview.catalog_size': 'Kataloggr\u00f6\u00dfe',
+    // DNS Proxy
+    'overview.dns_domains': 'Domains',
+    'overview.dns_blocked_suffix': 'blockiert',
+    'overview.dns_bl_empty': '0 Eintr\u00e4ge \u2014 URLs pr\u00fcfen',
+    'overview.dns_bl_downloading': 'Wird heruntergeladen\u2026',
+    'overview.dns_proxy_title': 'DNS-Proxy',
+    'overview.dns_running': 'L\u00e4uft',
+    'overview.port_label': 'Port',
+    'overview.upstream_label': 'Upstream-Server',
+    'overview.blocklist_label': 'Blockliste',
+    'overview.last_refreshed': 'Zuletzt aktualisiert',
+    'overview.queries_in_log': 'Anfragen im Protokoll',
+    'overview.malicious_queries': 'Sch\u00e4dliche Anfragen',
+    'overview.blocked_queries': 'Blockierte Anfragen',
+    'overview.view_dns_btn': 'DNS-Anfragen anzeigen \u2192',
+    // Suricata
+    'overview.suricata_listener_title': 'Suricata-Alarm-Listener',
+    'overview.suricata_active': 'Aktiv',
+    'overview.suricata_inactive': 'Inaktiv',
+    'overview.exporter_ips_label': 'Exporteur-IP(s)',
+    'overview.active_connections': 'Aktive Verbindungen',
+    'overview.alerts_in_log': 'Alarme im Protokoll',
+    'overview.critical_alerts_label': 'Kritische Alarme',
+    'overview.view_suricata_btn': 'Suricata-Alarme anzeigen \u2192',
+    // Network Behaviour
+    'overview.network_behaviour_title': 'Netzwerkverhalten',
+    'overview.band_normal': 'Normal',
+    'overview.band_review': 'Pr\u00fcfen',
+    'overview.band_investigate': 'Untersuchen',
+    'overview.band_critical': 'Kritisch',
+    'overview.band_desc_normal': 'Der Datenverkehr entspricht weitgehend Ihrer Baseline. Kein Handlungsbedarf.',
+    'overview.band_desc_review': 'Einige Abweichungen erkannt. Ein kurzer Blick lohnt sich.',
+    'overview.band_desc_investigate': 'Deutliche Abweichungen. Pr\u00fcfen Sie unerwartete Verbindungen.',
+    'overview.band_desc_critical': 'Erhebliche Abweichungen. Sofort untersuchen.',
+    'overview.new_conn_single': 'unerwartete neue Verbindung',
+    'overview.new_conn_plural': 'unerwartete neue Verbindungen',
+    'overview.new_conn_note_none': 'Keine unbekannte Aktivit\u00e4t \u2014 der gesamte aktuelle Datenverkehr wurde beim Training gesehen.',
+    'overview.new_conn_note_some': 'Diese Verbindungen waren beim Baseline-Training nicht vorhanden.',
+    'overview.new_conn_note_investigate': 'Dies ist der Haupttreiber Ihres Scores \u2014 untersuchen Sie es.',
+    'overview.new_conn_note_review': 'Pr\u00fcfen Sie, ob sie erwartet werden.',
+    'overview.missing_conn_single': 'Baseline-Verbindung jetzt inaktiv',
+    'overview.missing_conn_plural': 'Baseline-Verbindungen jetzt inaktiv',
+    'overview.missing_conn_note': 'Beim Training gesehene Verbindungen, die jetzt still sind. Das ist meist normal \u2014 Ger\u00e4te halten nicht alle Verbindungen dauerhaft aufrecht.',
+    'overview.missing_conn_note_high': 'Die Anzahl ist sehr hoch, aber Ihre Baseline hat wahrscheinlich viele kurzlebige Flows \u00fcber ein langes Trainingsfenster erfasst.',
+    'overview.both_conn_single': 'Verbindung entspricht der Baseline',
+    'overview.both_conn_plural': 'Verbindungen entsprechen der Baseline',
+    'overview.both_conn_note_some': 'Diese Verbindungen sind aktiv und wurden beim Training gesehen \u2014 Ihr erwarteter normaler Datenverkehr.',
+    'overview.both_conn_note_none': 'Noch keine aktiven Verbindungen in der Baseline gesehen.',
+    'overview.biggest_traffic_change': '\u0394 Gr\u00f6\u00dfte Verkehrs\u00e4nderung',
+    'overview.traffic_change_pre': 'Diese bekannte Verbindung ist',
+    'overview.traffic_change_mid': 'als \u00fcblich',
+    'overview.traffic_change_post': 'Flows/Snapshot).',
+    'overview.traffic_change_file_hint': 'K\u00f6nnte eine Datei\u00fcbertragung, ein Backup oder ein Update sein.',
+    'overview.traffic_far_busier': 'viel st\u00e4rker belastet',
+    'overview.traffic_noticeably_busier': 'merklich st\u00e4rker belastet',
+    'overview.traffic_somewhat_busier': 'etwas st\u00e4rker belastet',
+    'overview.traffic_slightly_busier': 'leicht st\u00e4rker belastet',
+    'overview.traffic_far_quieter': 'viel ruhiger',
+    'overview.traffic_noticeably_quieter': 'merklich ruhiger',
+    'overview.traffic_somewhat_quieter': 'etwas ruhiger',
+    'overview.traffic_slightly_quieter': 'leicht ruhiger',
+    'overview.view_map_btn': 'Auf Netzwerkkarte anzeigen \u2192',
+  },
+  es: {
+    'view.overview': 'Resumen',
+    'view.map': 'Mapa de red',
+    'view.hosts': 'Hosts',
+    'view.findings': 'Hallazgos',
+    'view.external': 'IPs externas',
+    'view.vulnerabilities': 'Vulnerabilidades',
+    'view.statistics': 'Estad\u00edsticas',
+    'view.dns': 'Consultas DNS',
+    'view.suricata': 'Alertas Suricata',
+    'view.recommendations': 'Recomendaciones',
+    'view.settings': 'Configuraci\u00f3n',
+    'page.overview': 'Resumen',
+    'page.findings': 'Hallazgos',
+    'page.statistics': 'Estad\u00edsticas',
+    'page.dns_queries': 'Consultas DNS',
+    'page.suricata_alerts': 'Alertas Suricata',
+    'app.title': 'Security Assistant',
+    'settings.title': 'Configuraci\u00f3n',
+    'settings.subtitle': 'Los cambios surten efecto tras recargar la integraci\u00f3n.',
+    'settings.loading': 'Cargando configuraci\u00f3n\u2026',
+    'settings.loading_short': 'Cargando\u2026',
+    'settings.links': 'Enlaces',
+    'settings.project': 'Proyecto',
+    'settings.github_repo': 'Repositorio GitHub',
+    'settings.documentation': 'Documentaci\u00f3n',
+    'settings.open_documentation': 'Abrir documentaci\u00f3n',
+    'settings.unsaved': 'Tiene cambios sin guardar.',
+    'settings.save': 'Guardar configuraci\u00f3n',
+    'settings.reload_server': 'Recargar desde el servidor',
+    'settings.failed_load': 'Error al cargar la configuraci\u00f3n: ',
+    'settings.failed_save': 'Error al guardar la configuraci\u00f3n: ',
+    'settings.saved_reload': 'Configuraci\u00f3n guardada. La integraci\u00f3n se recargar\u00e1 para aplicar los cambios.',
+    'settings.unsaved_title': 'Cambios sin guardar',
+    'settings.unsaved_body': 'Tiene cambios de configuraci\u00f3n sin guardar. Si sale ahora, se perder\u00e1n.',
+    'settings.stay': 'Permanecer en Configuraci\u00f3n',
+    'settings.discard_leave': 'Descartar y salir',
+    'settings.beforeunload': '\u00bfSalir y descartar los cambios no guardados de la configuraci\u00f3n?',
+    'sidebar.tagline': 'Telemetr\u00eda de red de seguridad con contexto de flujo en vivo',
+    'sidebar.collector_active': 'Colector activo',
+    'sidebar.awaiting_flows': 'Esperando flujos',
+    // \u2500\u2500 Overview page \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    'overview.active_findings': 'Hallazgos activos',
+    'overview.active_cves': 'CVEs activos',
+    'overview.dismissed': 'ignorado(s)',
+    'overview.never_fetched': 'nunca obtenido',
+    'overview.never': 'nunca',
+    'overview.stat_devices': 'Dispositivos',
+    'overview.stat_scanned': 'Analizados',
+    'overview.stat_nvd_cves': 'CVEs NVD',
+    'overview.stat_cisa_kev': 'CISA KEV',
+    'overview.stat_flows': 'Flujos',
+    'overview.stat_exporters': 'Exportadores',
+    'overview.stat_suricata_alerts': 'Alertas Suricata',
+    'overview.stat_critical_alerts': 'Alertas cr\u00edticas',
+    // Baseline
+    'overview.baseline_learning': 'Aprendiendo',
+    'overview.baseline_active': 'Activo',
+    'overview.baseline_disabled': 'Desactivado',
+    'overview.elapsed': 'Transcurrido',
+    'overview.progress': 'Progreso',
+    'overview.btn_start_training': 'Iniciar entrenamiento',
+    'overview.btn_stop_training': 'Detener entrenamiento',
+    'overview.btn_retrain': 'Reentrenar',
+    'overview.btn_clear': 'Limpiar',
+    'overview.baseline_title': 'L\u00ednea base',
+    'overview.mode_label': 'Modo',
+    'overview.baseline_created_label': 'L\u00ednea base creada',
+    // NetFlow
+    'overview.netflow_title': 'Estado del colector NetFlow',
+    'overview.status_label': 'Estado',
+    'overview.no_flows_seen': 'Sin flujos recibidos',
+    'overview.receiving_flows': 'Recibiendo flujos',
+    'overview.no_flows_idle_prefix': 'Sin flujos (inactivo ',
+    'overview.uptime_label': 'Tiempo activo',
+    'overview.exporters_label': 'Exportadores',
+    'overview.flow_versions': 'Versiones de flujo',
+    'overview.total_datagrams': 'Datagramas totales',
+    'overview.parsed': 'Analizados',
+    'overview.dropped': 'Descartados',
+    'overview.last_flow': '\u00daltimo flujo',
+    'overview.last_error': '\u00daltimo error',
+    'overview.view_statistics': 'Ver estad\u00edsticas \u2192',
+    // Recent Alerts
+    'overview.recent_alerts': 'Alertas recientes',
+    'overview.no_active_findings': 'Sin hallazgos activos altos/cr\u00edticos',
+    'overview.view_all_findings': 'Ver todos los hallazgos \u2192',
+    // Active Scan
+    'overview.active_scan_title': 'An\u00e1lisis activo',
+    'overview.last_scan': '\u00daltimo an\u00e1lisis',
+    'overview.last_result': '\u00daltimo resultado',
+    'overview.duration': 'Duraci\u00f3n',
+    'overview.hosts_found': 'Hosts encontrados',
+    'overview.targets_scanned': 'Objetivos analizados',
+    'overview.scan_interval': 'Intervalo de an\u00e1lisis',
+    'overview.scan_completed': 'Completado',
+    'overview.scan_skipped': 'Omitido \u2014 sin objetivos descubiertos',
+    'overview.force_scan_btn': 'Forzar an\u00e1lisis \u21bb',
+    // NVD
+    'overview.nvd_title': 'Inteligencia de vulnerabilidades (NVD)',
+    'overview.last_db_fetch': '\u00daltima actualizaci\u00f3n de BD',
+    'overview.cache_ttl': 'TTL de cach\u00e9',
+    'overview.cves_in_db': 'CVEs en BD',
+    'overview.min_pub_year': 'A\u00f1o de publicaci\u00f3n m\u00ednimo',
+    'overview.all_years': 'Todos los a\u00f1os',
+    'overview.keywords_label': 'Palabras clave',
+    'overview.none_loaded': 'Ninguna cargada',
+    'overview.kw_configured': 'Configuradas',
+    'overview.kw_from_scans': 'De an\u00e1lisis',
+    'overview.browse_vulns_btn': 'Explorar vulnerabilidades \u2192',
+    'overview.force_nvd_refresh_btn': 'Forzar actualizaci\u00f3n NVD \u21bb',
+    // KEV
+    'overview.kev_title': 'Vulnerabilidades explotadas conocidas CISA (KEV)',
+    'overview.last_catalog_fetch': '\u00daltima obtenci\u00f3n del cat\u00e1logo',
+    'overview.catalog_size': 'Tama\u00f1o del cat\u00e1logo',
+    // DNS Proxy
+    'overview.dns_domains': 'dominios',
+    'overview.dns_blocked_suffix': 'bloqueados',
+    'overview.dns_bl_empty': '0 entradas \u2014 verificar URLs',
+    'overview.dns_bl_downloading': 'Descargando\u2026',
+    'overview.dns_proxy_title': 'Proxy DNS',
+    'overview.dns_running': 'Ejecut\u00e1ndose',
+    'overview.port_label': 'Puerto',
+    'overview.upstream_label': 'Servidor upstream',
+    'overview.blocklist_label': 'Lista de bloqueo',
+    'overview.last_refreshed': '\u00daltima actualizaci\u00f3n',
+    'overview.queries_in_log': 'Consultas en registro',
+    'overview.malicious_queries': 'Consultas maliciosas',
+    'overview.blocked_queries': 'Consultas bloqueadas',
+    'overview.view_dns_btn': 'Ver consultas DNS \u2192',
+    // Suricata
+    'overview.suricata_listener_title': 'Receptor de alertas Suricata',
+    'overview.suricata_active': 'Activo',
+    'overview.suricata_inactive': 'Inactivo',
+    'overview.exporter_ips_label': 'IP(s) exportador',
+    'overview.active_connections': 'Conexiones activas',
+    'overview.alerts_in_log': 'Alertas en registro',
+    'overview.critical_alerts_label': 'Alertas cr\u00edticas',
+    'overview.view_suricata_btn': 'Ver alertas Suricata \u2192',
+    // Network Behaviour
+    'overview.network_behaviour_title': 'Comportamiento de red',
+    'overview.band_normal': 'Normal',
+    'overview.band_review': 'Revisar',
+    'overview.band_investigate': 'Investigar',
+    'overview.band_critical': 'Cr\u00edtico',
+    'overview.band_desc_normal': 'El tr\u00e1fico coincide estrechamente con su l\u00ednea base. No se requiere acci\u00f3n.',
+    'overview.band_desc_review': 'Algunas desviaciones detectadas. Vale la pena echar un vistazo.',
+    'overview.band_desc_investigate': 'Desviaciones notables. Revise las conexiones inesperadas.',
+    'overview.band_desc_critical': 'Desviaciones significativas. Investigue de inmediato.',
+    'overview.new_conn_single': 'nueva conexi\u00f3n inesperada',
+    'overview.new_conn_plural': 'nuevas conexiones inesperadas',
+    'overview.new_conn_note_none': 'Sin actividad desconocida \u2014 todo el tr\u00e1fico actual se vio durante el entrenamiento.',
+    'overview.new_conn_note_some': 'Estas conexiones no estaban presentes durante el entrenamiento de l\u00ednea base.',
+    'overview.new_conn_note_investigate': 'Este es el principal factor de su puntuaci\u00f3n \u2014 investigue.',
+    'overview.new_conn_note_review': 'Verifique que sean esperadas.',
+    'overview.missing_conn_single': 'conexi\u00f3n de l\u00ednea base inactiva ahora',
+    'overview.missing_conn_plural': 'conexiones de l\u00ednea base inactivas ahora',
+    'overview.missing_conn_note': 'Conexiones vistas durante el entrenamiento que ahora est\u00e1n silenciosas. Esto es normalmente normal \u2014 los dispositivos no mantienen todas las conexiones en todo momento.',
+    'overview.missing_conn_note_high': 'El recuento es muy alto, pero su l\u00ednea base probablemente captur\u00f3 muchos flujos de corta duraci\u00f3n durante un largo per\u00edodo de entrenamiento.',
+    'overview.both_conn_single': 'conexi\u00f3n coincide con la l\u00ednea base',
+    'overview.both_conn_plural': 'conexiones coinciden con la l\u00ednea base',
+    'overview.both_conn_note_some': 'Estas conexiones est\u00e1n activas y se vieron durante el entrenamiento \u2014 su tr\u00e1fico normal esperado.',
+    'overview.both_conn_note_none': 'A\u00fan no se han visto conexiones activas en la l\u00ednea base.',
+    'overview.biggest_traffic_change': '\u0394 Mayor cambio de tr\u00e1fico',
+    'overview.traffic_change_pre': 'Esta conexi\u00f3n conocida est\u00e1',
+    'overview.traffic_change_mid': 'que de costumbre',
+    'overview.traffic_change_post': 'flujos/snapshot).',
+    'overview.traffic_change_file_hint': 'Podr\u00eda ser una transferencia de archivos, copia de seguridad o actualizaci\u00f3n en progreso.',
+    'overview.traffic_far_busier': 'mucho m\u00e1s activo',
+    'overview.traffic_noticeably_busier': 'notablemente m\u00e1s activo',
+    'overview.traffic_somewhat_busier': 'algo m\u00e1s activo',
+    'overview.traffic_slightly_busier': 'ligeramente m\u00e1s activo',
+    'overview.traffic_far_quieter': 'mucho m\u00e1s tranquilo',
+    'overview.traffic_noticeably_quieter': 'notablemente m\u00e1s tranquilo',
+    'overview.traffic_somewhat_quieter': 'algo m\u00e1s tranquilo',
+    'overview.traffic_slightly_quieter': 'ligeramente m\u00e1s tranquilo',
+    'overview.view_map_btn': 'Ver en mapa de red \u2192',
+  },
+  it: {
+    'view.overview': 'Panoramica',
+    'view.map': 'Mappa di rete',
+    'view.hosts': 'Host',
+    'view.findings': 'Rilevamenti',
+    'view.external': 'IP esterni',
+    'view.vulnerabilities': 'Vulnerabilit\u00e0',
+    'view.statistics': 'Statistiche',
+    'view.dns': 'Query DNS',
+    'view.suricata': 'Avvisi Suricata',
+    'view.recommendations': 'Raccomandazioni',
+    'view.settings': 'Impostazioni',
+    'page.overview': 'Panoramica',
+    'page.findings': 'Rilevamenti',
+    'page.statistics': 'Statistiche',
+    'page.dns_queries': 'Query DNS',
+    'page.suricata_alerts': 'Avvisi Suricata',
+    'app.title': 'Security Assistant',
+    'settings.title': 'Impostazioni',
+    'settings.subtitle': 'Le modifiche hanno effetto dopo il ricaricamento dell\u2019integrazione.',
+    'settings.loading': 'Caricamento impostazioni\u2026',
+    'settings.loading_short': 'Caricamento\u2026',
+    'settings.links': 'Link',
+    'settings.project': 'Progetto',
+    'settings.github_repo': 'Repository GitHub',
+    'settings.documentation': 'Documentazione',
+    'settings.open_documentation': 'Apri documentazione',
+    'settings.unsaved': 'Hai modifiche non salvate.',
+    'settings.save': 'Salva impostazioni',
+    'settings.reload_server': 'Ricarica dal server',
+    'settings.failed_load': 'Errore nel caricamento delle impostazioni: ',
+    'settings.failed_save': 'Errore nel salvataggio delle impostazioni: ',
+    'settings.saved_reload': 'Impostazioni salvate. L\u2019integrazione verr\u00e0 ricaricata per applicare le modifiche.',
+    'settings.unsaved_title': 'Modifiche non salvate',
+    'settings.unsaved_body': 'Hai modifiche alle impostazioni non salvate. Se esci ora, andranno perse.',
+    'settings.stay': 'Resta nelle impostazioni',
+    'settings.discard_leave': 'Ignora ed esci',
+    'settings.beforeunload': 'Hai modifiche non salvate nelle impostazioni. Uscire e ignorarle?',
+    'sidebar.tagline': 'Telemetria di rete di sicurezza con contesto di flusso in tempo reale',
+    'sidebar.collector_active': 'Collector attivo',
+    'sidebar.awaiting_flows': 'In attesa di flussi',
+    // \u2500\u2500 Overview page \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+    'overview.active_findings': 'Rilevamenti attivi',
+    'overview.active_cves': 'CVE attivi',
+    'overview.dismissed': 'ignorato/i',
+    'overview.never_fetched': 'mai recuperato',
+    'overview.never': 'mai',
+    'overview.stat_devices': 'Dispositivi',
+    'overview.stat_scanned': 'Scansionati',
+    'overview.stat_nvd_cves': 'CVE NVD',
+    'overview.stat_cisa_kev': 'CISA KEV',
+    'overview.stat_flows': 'Flussi',
+    'overview.stat_exporters': 'Esportatori',
+    'overview.stat_suricata_alerts': 'Avvisi Suricata',
+    'overview.stat_critical_alerts': 'Avvisi critici',
+    // Baseline
+    'overview.baseline_learning': 'Apprendimento',
+    'overview.baseline_active': 'Attivo',
+    'overview.baseline_disabled': 'Disabilitato',
+    'overview.elapsed': 'Trascorso',
+    'overview.progress': 'Avanzamento',
+    'overview.btn_start_training': 'Avvia addestramento',
+    'overview.btn_stop_training': 'Ferma addestramento',
+    'overview.btn_retrain': 'Riaddestrare',
+    'overview.btn_clear': 'Cancella',
+    'overview.baseline_title': 'Baseline',
+    'overview.mode_label': 'Modalit\u00e0',
+    'overview.baseline_created_label': 'Baseline creata',
+    // NetFlow
+    'overview.netflow_title': 'Stato collector NetFlow',
+    'overview.status_label': 'Stato',
+    'overview.no_flows_seen': 'Nessun flusso ricevuto',
+    'overview.receiving_flows': 'Ricezione flussi',
+    'overview.no_flows_idle_prefix': 'Nessun flusso (inattivo ',
+    'overview.uptime_label': 'Tempo di attivit\u00e0',
+    'overview.exporters_label': 'Esportatori',
+    'overview.flow_versions': 'Versioni flusso',
+    'overview.total_datagrams': 'Datagrammi totali',
+    'overview.parsed': 'Analizzati',
+    'overview.dropped': 'Scartati',
+    'overview.last_flow': 'Ultimo flusso',
+    'overview.last_error': 'Ultimo errore',
+    'overview.view_statistics': 'Vedi statistiche \u2192',
+    // Recent Alerts
+    'overview.recent_alerts': 'Avvisi recenti',
+    'overview.no_active_findings': 'Nessun rilevamento attivo alto/critico',
+    'overview.view_all_findings': 'Vedi tutti i rilevamenti \u2192',
+    // Active Scan
+    'overview.active_scan_title': 'Scansione attiva',
+    'overview.last_scan': 'Ultima scansione',
+    'overview.last_result': 'Ultimo risultato',
+    'overview.duration': 'Durata',
+    'overview.hosts_found': 'Host trovati',
+    'overview.targets_scanned': 'Obiettivi scansionati',
+    'overview.scan_interval': 'Intervallo di scansione',
+    'overview.scan_completed': 'Completato',
+    'overview.scan_skipped': 'Saltato \u2014 nessun obiettivo scoperto',
+    'overview.force_scan_btn': 'Forza scansione \u21bb',
+    // NVD
+    'overview.nvd_title': 'Intelligence vulnerabilit\u00e0 (NVD)',
+    'overview.last_db_fetch': 'Ultimo aggiornamento DB',
+    'overview.cache_ttl': 'TTL cache',
+    'overview.cves_in_db': 'CVE nel DB',
+    'overview.min_pub_year': 'Anno di pubblicazione minimo',
+    'overview.all_years': 'Tutti gli anni',
+    'overview.keywords_label': 'Parole chiave',
+    'overview.none_loaded': 'Nessuna caricata',
+    'overview.kw_configured': 'Configurate',
+    'overview.kw_from_scans': 'Dalle scansioni',
+    'overview.browse_vulns_btn': 'Sfoglia vulnerabilit\u00e0 \u2192',
+    'overview.force_nvd_refresh_btn': 'Forza aggiornamento NVD \u21bb',
+    // KEV
+    'overview.kev_title': 'Vulnerabilit\u00e0 note sfruttate CISA (KEV)',
+    'overview.last_catalog_fetch': 'Ultimo recupero catalogo',
+    'overview.catalog_size': 'Dimensione catalogo',
+    // DNS Proxy
+    'overview.dns_domains': 'domini',
+    'overview.dns_blocked_suffix': 'bloccati',
+    'overview.dns_bl_empty': '0 voci \u2014 verificare gli URL',
+    'overview.dns_bl_downloading': 'Scaricamento\u2026',
+    'overview.dns_proxy_title': 'Proxy DNS',
+    'overview.dns_running': 'In esecuzione',
+    'overview.port_label': 'Porta',
+    'overview.upstream_label': 'Server upstream',
+    'overview.blocklist_label': 'Lista di blocco',
+    'overview.last_refreshed': 'Ultimo aggiornamento',
+    'overview.queries_in_log': 'Query nel registro',
+    'overview.malicious_queries': 'Query dannose',
+    'overview.blocked_queries': 'Query bloccate',
+    'overview.view_dns_btn': 'Vedi query DNS \u2192',
+    // Suricata
+    'overview.suricata_listener_title': 'Listener avvisi Suricata',
+    'overview.suricata_active': 'Attivo',
+    'overview.suricata_inactive': 'Inattivo',
+    'overview.exporter_ips_label': 'IP esportatore/i',
+    'overview.active_connections': 'Connessioni attive',
+    'overview.alerts_in_log': 'Avvisi nel registro',
+    'overview.critical_alerts_label': 'Avvisi critici',
+    'overview.view_suricata_btn': 'Vedi avvisi Suricata \u2192',
+    // Network Behaviour
+    'overview.network_behaviour_title': 'Comportamento di rete',
+    'overview.band_normal': 'Normale',
+    'overview.band_review': 'Revisione',
+    'overview.band_investigate': 'Indagare',
+    'overview.band_critical': 'Critico',
+    'overview.band_desc_normal': 'Il traffico corrisponde strettamente alla tua baseline. Nessuna azione necessaria.',
+    'overview.band_desc_review': 'Alcune deviazioni rilevate. Vale la pena dare un\u2019occhiata.',
+    'overview.band_desc_investigate': 'Deviazioni notevoli. Controlla le connessioni impreviste.',
+    'overview.band_desc_critical': 'Deviazioni significative. Indagare immediatamente.',
+    'overview.new_conn_single': 'nuova connessione inaspettata',
+    'overview.new_conn_plural': 'nuove connessioni inaspettate',
+    'overview.new_conn_note_none': 'Nessuna attivit\u00e0 sconosciuta \u2014 tutto il traffico attuale \u00e8 stato visto durante l\u2019addestramento.',
+    'overview.new_conn_note_some': 'Queste connessioni non erano presenti durante l\u2019addestramento della baseline.',
+    'overview.new_conn_note_investigate': 'Questo \u00e8 il principale fattore del tuo punteggio \u2014 indaga.',
+    'overview.new_conn_note_review': 'Verifica che siano previste.',
+    'overview.missing_conn_single': 'connessione baseline ora inattiva',
+    'overview.missing_conn_plural': 'connessioni baseline ora inattive',
+    'overview.missing_conn_note': 'Connessioni viste durante l\u2019addestramento che ora sono silenziose. Di solito \u00e8 normale \u2014 i dispositivi non mantengono tutte le connessioni in ogni momento.',
+    'overview.missing_conn_note_high': 'Il conteggio \u00e8 molto alto, ma la tua baseline ha probabilmente catturato molti flussi di breve durata durante una lunga finestra di addestramento.',
+    'overview.both_conn_single': 'connessione corrisponde alla baseline',
+    'overview.both_conn_plural': 'connessioni corrispondono alla baseline',
+    'overview.both_conn_note_some': 'Queste connessioni sono attive e sono state viste durante l\u2019addestramento \u2014 il tuo traffico normale atteso.',
+    'overview.both_conn_note_none': 'Nessuna connessione attiva \u00e8 stata ancora vista nella baseline.',
+    'overview.biggest_traffic_change': '\u0394 Maggiore variazione di traffico',
+    'overview.traffic_change_pre': 'Questa connessione nota \u00e8',
+    'overview.traffic_change_mid': 'del solito',
+    'overview.traffic_change_post': 'flussi/snapshot).',
+    'overview.traffic_change_file_hint': 'Potrebbe essere un trasferimento di file, un backup o un aggiornamento in corso.',
+    'overview.traffic_far_busier': 'molto pi\u00f9 trafficata',
+    'overview.traffic_noticeably_busier': 'notevolmente pi\u00f9 trafficata',
+    'overview.traffic_somewhat_busier': 'un po\u2019 pi\u00f9 trafficata',
+    'overview.traffic_slightly_busier': 'leggermente pi\u00f9 trafficata',
+    'overview.traffic_far_quieter': 'molto pi\u00f9 silenziosa',
+    'overview.traffic_noticeably_quieter': 'notevolmente pi\u00f9 silenziosa',
+    'overview.traffic_somewhat_quieter': 'un po\u2019 pi\u00f9 silenziosa',
+    'overview.traffic_slightly_quieter': 'leggermente pi\u00f9 silenziosa',
+    'overview.view_map_btn': 'Vedi sulla mappa di rete \u2192',
   }
 };
 const _VIEW_ICONS = {
@@ -1256,13 +1926,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var dropped  = s.dropped_datagrams || 0;
     var pct      = totalDatagrams > 0 ? Math.round((parsed / totalDatagrams) * 100) : 0;
     var self = this;
-    var findingsLabel = 'Active Findings' + (dismissed.length ? ' <span class="dim" style="font-size:10px;text-transform:none">(' + dismissed.length + ' dismissed)</span>' : '');
-    var cvesLabel = 'Active CVEs' + (dismissedVulns ? ' <span class="dim" style="font-size:10px;text-transform:none">(' + dismissedVulns + ' dismissed)</span>' : '');
+    var findingsLabel = this._t('overview.active_findings', 'Active Findings') + (dismissed.length ? ' <span class="dim" style="font-size:10px;text-transform:none">(' + dismissed.length + ' ' + this._t('overview.dismissed', 'dismissed') + ')</span>' : '');
+    var cvesLabel = this._t('overview.active_cves', 'Active CVEs') + (dismissedVulns ? ' <span class="dim" style="font-size:10px;text-transform:none">(' + dismissedVulns + ' ' + this._t('overview.dismissed', 'dismissed') + ')</span>' : '');
     var nvdTs = this._data && this._data.nvd_last_updated;
     var nvdTtl = (this._data && this._data.nvd_ttl_hours != null) ? this._data.nvd_ttl_hours + '\u00a0h' : '\u2014';
     var nvdTotalCves = (this._data && this._data.nvd_total_cves != null) ? this._data.nvd_total_cves : 0;
     var nvdMinYear = (this._data && this._data.nvd_min_year != null) ? this._data.nvd_min_year : null;
-    var nvdAge = nvdTs ? this._ago(nvdTs) : 'never fetched';
+    var nvdAge = nvdTs ? this._ago(nvdTs) : this._t('overview.never_fetched', 'never fetched');
     var nvdStatus = nvdTs ? ((Date.now() - new Date(nvdTs).getTime()) < 26 * 3600 * 1000 ? 'good' : 'warn') : 'warn';
 
     // Suricata stats for overview cards
@@ -1275,7 +1945,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // Baseline card
     var baseline = (this._data && this._data.baseline) || {};
     var baselineMode = baseline.mode || 'disabled';
-    var baselineModeLabel = baselineMode === 'training' ? 'Learning' : (baselineMode === 'active' ? 'Active' : 'Disabled');
+    var baselineModeLabel = baselineMode === 'training' ? this._t('overview.baseline_learning', 'Learning') : (baselineMode === 'active' ? this._t('overview.baseline_active', 'Active') : this._t('overview.baseline_disabled', 'Disabled'));
     var baselineIcon = baselineMode === 'training' ? '🧠' : (baselineMode === 'active' ? '✅' : '⏸');
     var sinceStr = baseline.baseline_completed_at ? self._ago(baseline.baseline_completed_at) : '';
     var trainingElapsed = '';
@@ -1289,66 +1959,66 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var trainingTotalMs = (endMs && startMs) ? endMs - startMs : null;
       var trainingPct = trainingTotalMs ? Math.round((elapsed / trainingTotalMs) * 100) : 0;
       trainingElapsed = '<div>' +
-        '<span style="font-size:13px">Elapsed: <b>' + self._ago(started) + '</b></span>' +
-        (trainingTotalMs ? ' &nbsp; <span style="font-size:13px">Progress: <b>' + trainingPct + '%</b></span>' : '') +
+        '<span style="font-size:13px">' + self._t('overview.elapsed', 'Elapsed') + ': <b>' + self._ago(started) + '</b></span>' +
+        (trainingTotalMs ? ' &nbsp; <span style="font-size:13px">' + self._t('overview.progress', 'Progress') + ': <b>' + trainingPct + '%</b></span>' : '') +
         '</div>';
     }
     // Action buttons
     var btns = '';
-    btns += '<button class="btn" data-baseline-action="start">Start Training</button>';
-    btns += '<button class="btn" data-baseline-action="stop">Stop Training</button>';
-    btns += '<button class="btn" data-baseline-action="retrain">Retrain</button>';
-    btns += '<button class="btn" data-baseline-action="clear">Clear</button>';
+    btns += '<button class="btn" data-baseline-action="start">' + this._t('overview.btn_start_training', 'Start Training') + '</button>';
+    btns += '<button class="btn" data-baseline-action="stop">' + this._t('overview.btn_stop_training', 'Stop Training') + '</button>';
+    btns += '<button class="btn" data-baseline-action="retrain">' + this._t('overview.btn_retrain', 'Retrain') + '</button>';
+    btns += '<button class="btn" data-baseline-action="clear">' + this._t('overview.btn_clear', 'Clear') + '</button>';
 
     var baselineCard = '<div class="card" id="baseline-card" style="margin-bottom:12px">' +
-      '<div class="card-title">Baseline <span style="font-size:18px;margin-left:6px">' + baselineIcon + '</span></div>' +
-      '<div style="margin-bottom:6px"><b>Mode:</b> ' + baselineModeLabel + '</div>' +
+      '<div class="card-title">' + this._t('overview.baseline_title', 'Baseline') + ' <span style="font-size:18px;margin-left:6px">' + baselineIcon + '</span></div>' +
+      '<div style="margin-bottom:6px"><b>' + this._t('overview.mode_label', 'Mode') + ':</b> ' + baselineModeLabel + '</div>' +
       (baselineMode === 'training' ? trainingElapsed : '') +
-      (baselineMode === 'active' && sinceStr ? '<div><b>Baseline created:</b> ' + sinceStr + '</div>' : '') +
+      (baselineMode === 'active' && sinceStr ? '<div><b>' + this._t('overview.baseline_created_label', 'Baseline created') + ':</b> ' + sinceStr + '</div>' : '') +
       '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">' + btns + '</div>' +
       '</div>';
 
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">' + this._t('page.overview', 'Overview') + '</h1></div>' +
       '<div class="stat-grid">' +
-        this._stat(s.devices || 0, 'Devices', 'success') +
-        this._stat((this._data && this._data.scan_hosts_found) != null ? this._data.scan_hosts_found : (s.scanned_devices || 0), 'Scanned', '') +
+        this._stat(s.devices || 0, this._t('overview.stat_devices', 'Devices'), 'success') +
+        this._stat((this._data && this._data.scan_hosts_found) != null ? this._data.scan_hosts_found : (s.scanned_devices || 0), this._t('overview.stat_scanned', 'Scanned'), '') +
         this._stat(s.findings || 0, findingsLabel, (s.findings || 0) > 0 ? 'danger' : '') +
         this._stat(s.vulnerability_count || 0, cvesLabel, (s.vulnerability_count || 0) > 0 ? 'warn' : '') +
-        this._stat(nvdTotalCves, 'NVD CVEs' + (nvdMinYear ? ' <span class="dim" style="font-size:10px;text-transform:none">(\u2265\u00a0' + nvdMinYear + ')</span>' : ''), '') +
-        this._stat((this._data && this._data.kev_total) || 0, 'CISA KEV', '') +
-        this._stat(this._fmtN(s.total_flows || 0), 'Flows', '') +
-        this._stat(exporters.length, 'Exporters', exporters.length > 0 ? 'success' : 'warn') +
+        this._stat(nvdTotalCves, this._t('overview.stat_nvd_cves', 'NVD CVEs') + (nvdMinYear ? ' <span class="dim" style="font-size:10px;text-transform:none">(\u2265\u00a0' + nvdMinYear + ')</span>' : ''), '') +
+        this._stat((this._data && this._data.kev_total) || 0, this._t('overview.stat_cisa_kev', 'CISA KEV'), '') +
+        this._stat(this._fmtN(s.total_flows || 0), this._t('overview.stat_flows', 'Flows'), '') +
+        this._stat(exporters.length, this._t('overview.stat_exporters', 'Exporters'), exporters.length > 0 ? 'success' : 'warn') +
         (suricataEnabledOv ? (
-          this._stat(suricataTotalOv, 'Suricata Alerts', suricataTotalOv > 0 ? 'warn' : '') +
-          this._stat(suricataCritOv, 'Critical Alerts', suricataCritOv > 0 ? 'danger' : '')
+          this._stat(suricataTotalOv, this._t('overview.stat_suricata_alerts', 'Suricata Alerts'), suricataTotalOv > 0 ? 'warn' : '') +
+          this._stat(suricataCritOv, this._t('overview.stat_critical_alerts', 'Critical Alerts'), suricataCritOv > 0 ? 'danger' : '')
         ) : '') +
       '</div>' +
       '<div class="two-col">' +
         (netflowEnabled ? ('<div class="card">' +
-          '<div class="card-title">NetFlow Listener Health</div>' +
-          this._hrow('Status', (function(){ var lf = s.last_flow_at; if (!lf) return 'No flows seen'; var age = Date.now() - new Date(lf).getTime(); return age < 90000 ? 'Receiving flows' : 'No flows (idle ' + (age < 3600000 ? Math.floor(age/60000) + 'm' : Math.floor(age/3600000) + 'h') + ')'; })(), (function(){ var lf = s.last_flow_at; return lf && (Date.now() - new Date(lf).getTime()) < 90000 ? 'good' : 'warn'; })()) +
-          this._hrow('Uptime', this._uptime(s.collector_started_at), '') +
-          this._hrow('Exporters', exporters.join(', ') || '\u2014', '') +
-          this._hrow('Flow versions', (s.versions_seen || []).join(', ') || '\u2014', '') +
-          this._hrow('Total datagrams', totalDatagrams.toLocaleString(), '') +
-          this._hrow('Parsed', parsed.toLocaleString() + ' (' + pct + '%)', pct > 90 ? 'good' : pct > 50 ? 'warn' : 'bad') +
-          this._hrow('Dropped', dropped.toLocaleString(), dropped > 0 ? 'warn' : 'good') +
-          this._hrow('Last flow', this._ago(s.last_flow_at), '') +
-          (s.last_parser_error ? this._hrow('Last error', s.last_parser_error, 'bad') : '') +
-          '<div style="margin-top:10px"><button class="btn" data-view="statistics">View Statistics →</button></div>' +
+          '<div class="card-title">' + this._t('overview.netflow_title', 'NetFlow Listener Health') + '</div>' +
+          this._hrow(this._t('overview.status_label', 'Status'), (function(){ var lf = s.last_flow_at; if (!lf) return self._t('overview.no_flows_seen', 'No flows seen'); var age = Date.now() - new Date(lf).getTime(); return age < 90000 ? self._t('overview.receiving_flows', 'Receiving flows') : self._t('overview.no_flows_idle_prefix', 'No flows (idle ') + (age < 3600000 ? Math.floor(age/60000) + 'm' : Math.floor(age/3600000) + 'h') + ')'; })(), (function(){ var lf = s.last_flow_at; return lf && (Date.now() - new Date(lf).getTime()) < 90000 ? 'good' : 'warn'; })()) +
+          this._hrow(this._t('overview.uptime_label', 'Uptime'), this._uptime(s.collector_started_at), '') +
+          this._hrow(this._t('overview.exporters_label', 'Exporters'), exporters.join(', ') || '\u2014', '') +
+          this._hrow(this._t('overview.flow_versions', 'Flow versions'), (s.versions_seen || []).join(', ') || '\u2014', '') +
+          this._hrow(this._t('overview.total_datagrams', 'Total datagrams'), totalDatagrams.toLocaleString(), '') +
+          this._hrow(this._t('overview.parsed', 'Parsed'), parsed.toLocaleString() + ' (' + pct + '%)', pct > 90 ? 'good' : pct > 50 ? 'warn' : 'bad') +
+          this._hrow(this._t('overview.dropped', 'Dropped'), dropped.toLocaleString(), dropped > 0 ? 'warn' : 'good') +
+          this._hrow(this._t('overview.last_flow', 'Last flow'), this._ago(s.last_flow_at), '') +
+          (s.last_parser_error ? this._hrow(this._t('overview.last_error', 'Last error'), s.last_parser_error, 'bad') : '') +
+          '<div style="margin-top:10px"><button class="btn" data-view="statistics">' + this._t('overview.view_statistics', 'View Statistics \u2192') + '</button></div>' +
         '</div>') : '') +
         '<div class="card"' + (!netflowEnabled ? ' style="grid-column:1/-1"' : '') + '>' +
-          '<div class="card-title">Recent Alerts</div>' +
+          '<div class="card-title">' + this._t('overview.recent_alerts', 'Recent Alerts') + '</div>' +
           (recent.length === 0
-            ? '<div class="empty-state"><div class="empty-icon">\u2713</div><p>No active high/critical findings</p></div>'
+            ? '<div class="empty-state"><div class="empty-icon">\u2713</div><p>' + self._t('overview.no_active_findings', 'No active high/critical findings') + '</p></div>'
             : recent.map(function(f) {
                 return '<div class="alert-row">' + self._sev(f.severity) +
                   '<div class="alert-body"><div class="alert-sum">' + self._esc(f.summary) + '</div>' +
                   '<div class="alert-meta"><span class="ip">' + f.source_ip + '</span> \u00B7 ' + self._ago(f.last_seen) + '</div></div></div>';
               }).join('')
           ) +
-          (findings.length > 5 ? '<button class="btn" style="margin-top:10px" data-view="findings">View all findings \u2192</button>' : '') +
+          (findings.length > 5 ? '<button class="btn" style="margin-top:10px" data-view="findings">' + self._t('overview.view_all_findings', 'View all findings \u2192') + '</button>' : '') +
         '</div>' +
       '</div>' +
       (function() {
@@ -1358,35 +2028,35 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var scanInterval = self._data && self._data.scan_interval;
         var scanResult = self._data && self._data.scan_last_status;
         var scanTargets = self._data && self._data.scan_last_targets;
-        var scanAge = scanAt ? self._ago(scanAt) : 'never';
+        var scanAge = scanAt ? self._ago(scanAt) : self._t('overview.never', 'never');
         var scanStatus = scanAt ? ((Date.now() - new Date(scanAt).getTime()) < (scanInterval || 300) * 2 * 1000 ? 'good' : 'warn') : 'warn';
         var durStr = scanDur != null ? (scanDur < 60 ? scanDur.toFixed(1) + '\u00a0s' : (scanDur / 60).toFixed(1) + '\u00a0min') : '\u2014';
         var hostsStr = scanHosts != null ? scanHosts.toLocaleString() : '\u2014';
         var intervalStr = scanInterval != null ? (scanInterval < 60 ? scanInterval + '\u00a0s' : Math.round(scanInterval / 60) + '\u00a0min') : '\u2014';
         var targetsStr = scanTargets != null ? scanTargets.toLocaleString() : '\u2014';
         var resultText = '\u2014', resultTone = '';
-        if (scanResult === 'ok') { resultText = 'Completed'; resultTone = 'good'; }
-        else if (scanResult === 'no_targets') { resultText = 'Skipped \u2014 no targets discovered yet'; resultTone = 'warn'; }
+        if (scanResult === 'ok') { resultText = self._t('overview.scan_completed', 'Completed'); resultTone = 'good'; }
+        else if (scanResult === 'no_targets') { resultText = self._t('overview.scan_skipped', 'Skipped \u2014 no targets discovered yet'); resultTone = 'warn'; }
         return '<div class="card" style="margin-top:12px">' +
-          '<div class="card-title">Active Scan</div>' +
-          self._hrow('Last scan', scanAge, scanStatus) +
-          self._hrow('Last result', resultText, resultTone) +
-          self._hrow('Duration', durStr, '') +
-          self._hrow('Hosts found', hostsStr, scanHosts > 0 ? '' : 'warn') +
-          self._hrow('Targets scanned', targetsStr, (scanTargets != null && scanTargets > 0) ? '' : 'warn') +
-          self._hrow('Scan interval', intervalStr, '') +
-          '<div style="margin-top:10px"><button class="btn" data-service-action="trigger_scan">Force hosts scan ↻</button></div>' +
+          '<div class="card-title">' + self._t('overview.active_scan_title', 'Active Scan') + '</div>' +
+          self._hrow(self._t('overview.last_scan', 'Last scan'), scanAge, scanStatus) +
+          self._hrow(self._t('overview.last_result', 'Last result'), resultText, resultTone) +
+          self._hrow(self._t('overview.duration', 'Duration'), durStr, '') +
+          self._hrow(self._t('overview.hosts_found', 'Hosts found'), hostsStr, scanHosts > 0 ? '' : 'warn') +
+          self._hrow(self._t('overview.targets_scanned', 'Targets scanned'), targetsStr, (scanTargets != null && scanTargets > 0) ? '' : 'warn') +
+          self._hrow(self._t('overview.scan_interval', 'Scan interval'), intervalStr, '') +
+          '<div style="margin-top:10px"><button class="btn" data-service-action="trigger_scan">' + self._t('overview.force_scan_btn', 'Force hosts scan \u21bb') + '</button></div>' +
         '</div>';
       })() +
       '<div class="card" style="margin-top:12px">' +
-        '<div class="card-title">Vulnerability Intelligence (NVD)</div>' +
-        this._hrow('Last database fetch', nvdAge, nvdStatus) +
-        this._hrow('Cache TTL', nvdTtl, '') +
-        this._hrow('CVEs in database', nvdTotalCves.toLocaleString(), '') +
-        this._hrow('Min publication year', nvdMinYear ? nvdMinYear : 'All years', '') +
+        '<div class="card-title">' + this._t('overview.nvd_title', 'Vulnerability Intelligence (NVD)') + '</div>' +
+        this._hrow(this._t('overview.last_db_fetch', 'Last database fetch'), nvdAge, nvdStatus) +
+        this._hrow(this._t('overview.cache_ttl', 'Cache TTL'), nvdTtl, '') +
+        this._hrow(this._t('overview.cves_in_db', 'CVEs in database'), nvdTotalCves.toLocaleString(), '') +
+        this._hrow(this._t('overview.min_pub_year', 'Min publication year'), nvdMinYear ? nvdMinYear : this._t('overview.all_years', 'All years'), '') +
         (function() {
           var kws = (self._data && self._data.nvd_keywords) || [];
-          if (!kws.length) return self._hrow('Keywords', 'None loaded yet', 'warn');
+          if (!kws.length) return self._hrow(self._t('overview.keywords_label', 'Keywords'), self._t('overview.none_loaded', 'None loaded yet'), 'warn');
           var configured = kws.filter(function(k) { return k.source === 'custom'; });
           var dynamic = kws.filter(function(k) { return k.source !== 'custom'; });
           var cfgStyle = 'background:rgba(158,150,255,.22);border-color:rgba(158,150,255,.5);color:#c4bfff';
@@ -1397,10 +2067,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
                 + self._esc(k.keyword) + ' <span style="opacity:.55;font-size:9px">(' + k.cve_count + ')</span></span>';
             }).join(' ');
           }
-          var html = '<div class="section-label" style="margin-top:10px;margin-bottom:4px">NVD Keywords (' + kws.length + ')</div>';
+          var html = '<div class="section-label" style="margin-top:10px;margin-bottom:4px">NVD ' + self._t('overview.keywords_label', 'Keywords') + ' (' + kws.length + ')</div>';
           html += '<div style="display:flex;gap:14px;align-items:center;font-size:10px;color:var(--muted);margin-bottom:6px">' +
-            '<span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(158,150,255,.7);background:rgba(158,150,255,.35)"></span> Configured</span>' +
-            '<span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(107,255,200,.6);background:rgba(107,255,200,.3)"></span> From scans</span>' +
+            '<span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(158,150,255,.7);background:rgba(158,150,255,.35)"></span> ' + self._t('overview.kw_configured', 'Configured') + '</span>' +
+            '<span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(107,255,200,.6);background:rgba(107,255,200,.3)"></span> ' + self._t('overview.kw_from_scans', 'From scans') + '</span>' +
           '</div>';
           html += '<div style="line-height:2">';
           if (configured.length) html += renderChips(configured, cfgStyle);
@@ -1409,20 +2079,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           html += '</div>';
           return html;
         })() +
-        '<div style="margin-top:10px"><button class="btn" data-view="vulnerabilities">Browse all vulnerabilities →</button>' +
-        ' <button class="btn" data-service-action="nvd_refresh">Force intelligence refresh ↻</button></div>' +
+        '<div style="margin-top:10px"><button class="btn" data-view="vulnerabilities">' + this._t('overview.browse_vulns_btn', 'Browse all vulnerabilities \u2192') + '</button>' +
+        ' <button class="btn" data-service-action="nvd_refresh">' + this._t('overview.force_nvd_refresh_btn', 'Force intelligence refresh \u21bb') + '</button></div>' +
       '</div>' +
       (function() {
         var kevTotal = (self._data && self._data.kev_total != null) ? self._data.kev_total : 0;
         var kevTs = self._data && self._data.kev_last_updated;
         var kevTtl = (self._data && self._data.kev_ttl_hours != null) ? self._data.kev_ttl_hours + '\u00a0h' : '\u2014';
-        var kevAge = kevTs ? self._ago(kevTs) : 'never fetched';
+        var kevAge = kevTs ? self._ago(kevTs) : self._t('overview.never_fetched', 'never fetched');
         var kevStatus = kevTs ? ((Date.now() - new Date(kevTs).getTime()) < 26 * 3600 * 1000 ? 'good' : 'warn') : 'warn';
         return '<div class="card">' +
-          '<div class="card-title">CISA Known Exploited Vulnerabilities (KEV)</div>' +
-          self._hrow('Last catalog fetch', kevAge, kevStatus) +
-          self._hrow('Cache TTL', kevTtl, '') +
-          self._hrow('Catalog size', kevTotal.toLocaleString(), kevTotal > 0 ? '' : 'warn') +
+          '<div class="card-title">' + self._t('overview.kev_title', 'CISA Known Exploited Vulnerabilities (KEV)') + '</div>' +
+          self._hrow(self._t('overview.last_catalog_fetch', 'Last catalog fetch'), kevAge, kevStatus) +
+          self._hrow(self._t('overview.cache_ttl', 'Cache TTL'), kevTtl, '') +
+          self._hrow(self._t('overview.catalog_size', 'Catalog size'), kevTotal.toLocaleString(), kevTotal > 0 ? '' : 'warn') +
         '</div>';
       })() +
       (function() {
@@ -1438,24 +2108,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var blTotal   = blDomains + blIPs;
         var blLoaded  = blTotal > 0;
         var blParts   = [];
-        if (blDomains > 0) blParts.push(blDomains.toLocaleString() + ' domains');
+        if (blDomains > 0) blParts.push(blDomains.toLocaleString() + ' ' + self._t('overview.dns_domains', 'domains'));
         if (blIPs > 0)     blParts.push(blIPs.toLocaleString() + ' IPs');
-        var blLabel   = blLoaded ? blParts.join(' + ') + ' blocked' : (bs.last_refresh ? '0 entries — check URLs' : 'Downloading…');
+        var blLabel   = blLoaded ? blParts.join(' + ') + ' ' + self._t('overview.dns_blocked_suffix', 'blocked') : (bs.last_refresh ? self._t('overview.dns_bl_empty', '0 entries \u2014 check URLs') : self._t('overview.dns_bl_downloading', 'Downloading\u2026'));
         var blStatus  = blLoaded ? 'good' : (bs.last_refresh ? 'bad' : '');
         return '<div class="card" style="margin-top:12px">' +
-          '<div class="card-title">DNS Proxy</div>' +
-          self._hrow('Status', 'Running', 'good') +
-          self._hrow('Port', String(dnsStats.port || '\u2014'), '') +
-          self._hrow('Upstream', String(dnsStats.upstream || '\u2014'), '') +
-          self._hrow('Blocklist', blLabel, blStatus) +
-          (bs.last_refresh ? self._hrow('Last refreshed', self._ago(bs.last_refresh), '') : '') +
-          self._hrow('Queries in log', dnsLog.length.toLocaleString(), '') +
-          self._hrow('Malicious queries', dnsMal.toLocaleString(), dnsMal > 0 ? 'bad' : 'good') +
+          '<div class="card-title">' + self._t('overview.dns_proxy_title', 'DNS Proxy') + '</div>' +
+          self._hrow(self._t('overview.status_label', 'Status'), self._t('overview.dns_running', 'Running'), 'good') +
+          self._hrow(self._t('overview.port_label', 'Port'), String(dnsStats.port || '\u2014'), '') +
+          self._hrow(self._t('overview.upstream_label', 'Upstream'), String(dnsStats.upstream || '\u2014'), '') +
+          self._hrow(self._t('overview.blocklist_label', 'Blocklist'), blLabel, blStatus) +
+          (bs.last_refresh ? self._hrow(self._t('overview.last_refreshed', 'Last refreshed'), self._ago(bs.last_refresh), '') : '') +
+          self._hrow(self._t('overview.queries_in_log', 'Queries in log'), dnsLog.length.toLocaleString(), '') +
+          self._hrow(self._t('overview.malicious_queries', 'Malicious queries'), dnsMal.toLocaleString(), dnsMal > 0 ? 'bad' : 'good') +
           (function() {
             var dnsBlocked = dnsLog.filter(function(e) { return e.status === 'blocked'; }).length;
-            return dnsBlocked > 0 ? self._hrow('Blocked queries', dnsBlocked.toLocaleString(), 'bad') : '';
+            return dnsBlocked > 0 ? self._hrow(self._t('overview.blocked_queries', 'Blocked queries'), dnsBlocked.toLocaleString(), 'bad') : '';
           })() +
-          '<div style="margin-top:10px"><button class="btn" data-view="dns">View DNS Queries →</button></div>' +
+          '<div style="margin-top:10px"><button class="btn" data-view="dns">' + self._t('overview.view_dns_btn', 'View DNS Queries \u2192') + '</button></div>' +
         '</div>';
       })() +
       (function() {
@@ -1470,15 +2140,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var sCrit    = sLog.filter(function(e) { return e.severity === 1; }).length;
         var sConns   = sStats.active_connections != null ? sStats.active_connections : 0;
         return '<div class="card" style="margin-top:12px">' +
-          '<div class="card-title">Suricata Alert Listener</div>' +
-          self._hrow('Status', sRunning ? 'Active' : 'Inactive', sRunning ? 'good' : 'warn') +
-          self._hrow('Port', String(sPort), '') +
-          self._hrow('Uptime', sUptime, '') +
-          self._hrow('Exporter IP(s)', sExporters, sConns > 0 ? 'good' : '') +
-          self._hrow('Active connections', String(sConns), sConns > 0 ? 'good' : '') +
-          self._hrow('Alerts in log', sTotal.toLocaleString(), sTotal > 0 ? 'warn' : 'good') +
-          self._hrow('Critical alerts', sCrit.toLocaleString(), sCrit > 0 ? 'bad' : 'good') +
-          '<div style="margin-top:10px"><button class="btn" data-view="suricata">View Suricata Alerts \u2192</button></div>' +
+          '<div class="card-title">' + self._t('overview.suricata_listener_title', 'Suricata Alert Listener') + '</div>' +
+          self._hrow(self._t('overview.status_label', 'Status'), sRunning ? self._t('overview.suricata_active', 'Active') : self._t('overview.suricata_inactive', 'Inactive'), sRunning ? 'good' : 'warn') +
+          self._hrow(self._t('overview.port_label', 'Port'), String(sPort), '') +
+          self._hrow(self._t('overview.uptime_label', 'Uptime'), sUptime, '') +
+          self._hrow(self._t('overview.exporter_ips_label', 'Exporter IP(s)'), sExporters, sConns > 0 ? 'good' : '') +
+          self._hrow(self._t('overview.active_connections', 'Active connections'), String(sConns), sConns > 0 ? 'good' : '') +
+          self._hrow(self._t('overview.alerts_in_log', 'Alerts in log'), sTotal.toLocaleString(), sTotal > 0 ? 'warn' : 'good') +
+          self._hrow(self._t('overview.critical_alerts_label', 'Critical alerts'), sCrit.toLocaleString(), sCrit > 0 ? 'bad' : 'good') +
+          '<div style="margin-top:10px"><button class="btn" data-view="suricata">' + self._t('overview.view_suricata_btn', 'View Suricata Alerts \u2192') + '</button></div>' +
         '</div>';
       })() +
       (baselineEnabled ? (baselineCard + self._baselineDevianceCard()) : '') +
@@ -1487,6 +2157,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   // ── Baseline deviance score card ─────────────────────────────────────
   _baselineDevianceCard() {
+    var self = this;
     var baseline = (this._data && this._data.baseline) || {};
     if ((baseline.mode || 'disabled') !== 'active') return '';
     var baselineGraph = (this._data && this._data.baseline_graph) || null;
@@ -1523,17 +2194,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // ── Band ─────────────────────────────────────────────────────────
     var band, bandColor, bandBg, bandBorder, bandDesc;
     if (score <= 20) {
-      band = 'Normal';         bandColor = '#3ddc84'; bandBg = 'rgba(61,220,132,.10)'; bandBorder = 'rgba(61,220,132,.35)';
-      bandDesc = 'Traffic closely matches your baseline. No action needed.';
+      band = this._t('overview.band_normal', 'Normal');         bandColor = '#3ddc84'; bandBg = 'rgba(61,220,132,.10)'; bandBorder = 'rgba(61,220,132,.35)';
+      bandDesc = this._t('overview.band_desc_normal', 'Traffic closely matches your baseline. No action needed.');
     } else if (score <= 50) {
-      band = 'Review';         bandColor = '#ffce54'; bandBg = 'rgba(255,206,84,.10)'; bandBorder = 'rgba(255,206,84,.35)';
-      bandDesc = 'Some deviation from baseline detected. Worth a quick look.';
+      band = this._t('overview.band_review', 'Review');         bandColor = '#ffce54'; bandBg = 'rgba(255,206,84,.10)'; bandBorder = 'rgba(255,206,84,.35)';
+      bandDesc = this._t('overview.band_desc_review', 'Some deviation from baseline detected. Worth a quick look.');
     } else if (score <= 75) {
-      band = 'Investigate';    bandColor = '#ff9640'; bandBg = 'rgba(255,150,64,.10)'; bandBorder = 'rgba(255,150,64,.35)';
-      bandDesc = 'Noticeable deviation from baseline. Review unexpected connections.';
+      band = this._t('overview.band_investigate', 'Investigate');    bandColor = '#ff9640'; bandBg = 'rgba(255,150,64,.10)'; bandBorder = 'rgba(255,150,64,.35)';
+      bandDesc = this._t('overview.band_desc_investigate', 'Noticeable deviation from baseline. Review unexpected connections.');
     } else {
-      band = 'Critical';       bandColor = '#ff5a32'; bandBg = 'rgba(255,90,50,.10)'; bandBorder = 'rgba(255,90,50,.40)';
-      bandDesc = 'Significant deviation from baseline. Investigate immediately.';
+      band = this._t('overview.band_critical', 'Critical');       bandColor = '#ff5a32'; bandBg = 'rgba(255,90,50,.10)'; bandBorder = 'rgba(255,90,50,.40)';
+      bandDesc = this._t('overview.band_desc_critical', 'Significant deviation from baseline. Investigate immediately.');
     }
 
     // ── Progress bar ─────────────────────────────────────────────────
@@ -1556,23 +2227,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (topDelta) {
       var d   = topDelta.delta;
       var abs = Math.abs(d);
-      var dir = d > 0 ? 'busier' : 'quieter';
-      var mag = abs > 10000 ? 'far' : abs > 1000 ? 'noticeably' : abs > 100 ? 'somewhat' : 'slightly';
+      var dirKey = d > 0 ? 'busier' : 'quieter';
+      var magKey = abs > 10000 ? 'far' : abs > 1000 ? 'noticeably' : abs > 100 ? 'somewhat' : 'slightly';
+      var trafficMagDir = self._t('overview.traffic_' + magKey + '_' + dirKey, magKey + ' ' + dirKey);
       var sign = d > 0 ? '+' : '';
       topDeltaHtml =
         '<div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(255,206,84,.07);border:1px solid rgba(255,206,84,.22);font-size:11px">' +
-          '<span style="color:#ffce54;font-weight:600">\u0394 Biggest traffic change</span>' +
+          '<span style="color:#ffce54;font-weight:600">' + self._t('overview.biggest_traffic_change', '\u0394 Biggest traffic change') + '</span>' +
           '<div style="margin-top:3px;color:var(--fg)">' +
             '<span style="font-family:monospace;font-size:11px">' + topDelta.source + ' \u2192 ' + topDelta.target + '</span>' +
           '</div>' +
-          '<div style="color:var(--muted);margin-top:2px">This known connection is <b style="color:var(--fg)">' + mag + ' ' + dir + '</b> than usual (' + sign + Math.round(d) + '\u00a0flows/snapshot).' +
-            (abs > 1000 ? ' Could be a file transfer, backup, or update in progress.' : '') +
+          '<div style="color:var(--muted);margin-top:2px">' + self._t('overview.traffic_change_pre', 'This known connection is') + ' <b style="color:var(--fg)">' + trafficMagDir + '</b> ' + self._t('overview.traffic_change_mid', 'than usual') + ' (' + sign + Math.round(d) + '\u00a0' + self._t('overview.traffic_change_post', 'flows/snapshot).') +
+            (abs > 1000 ? ' ' + self._t('overview.traffic_change_file_hint', 'Could be a file transfer, backup, or update in progress.') : '') +
           '</div>' +
         '</div>';
     }
 
     return '<div class="card" style="margin-top:12px">' +
-      '<div class="card-title">Network Behaviour</div>' +
+      '<div class="card-title">' + this._t('overview.network_behaviour_title', 'Network Behaviour') + '</div>' +
 
       // Score row
       '<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">' +
@@ -1595,31 +2267,30 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
       // Breakdown rows
       row('\u2191', cntNew,
-        cntNew === 1 ? 'unexpected new connection' : 'unexpected new connections',
+        cntNew === 1 ? self._t('overview.new_conn_single', 'unexpected new connection') : self._t('overview.new_conn_plural', 'unexpected new connections'),
         cntNew === 0
-          ? 'No unknown activity \u2014 all current traffic was seen during training.'
-          : 'These connections were not present during baseline training. ' + (cntNew > 5 ? 'This is the main driver of your score \u2014 investigate.' : 'Review to confirm they are expected.'),
+          ? self._t('overview.new_conn_note_none', 'No unknown activity \u2014 all current traffic was seen during training.')
+          : self._t('overview.new_conn_note_some', 'These connections were not present during baseline training.') + ' ' + (cntNew > 5 ? self._t('overview.new_conn_note_investigate', 'This is the main driver of your score \u2014 investigate.') : self._t('overview.new_conn_note_review', 'Review to confirm they are expected.')),
         cntNew === 0 ? '#3ddc84' : cntNew <= 3 ? '#ffce54' : '#ff5a32') +
 
       row('\u2193', cntMissing,
-        cntMissing === 1 ? 'baseline connection not active now' : 'baseline connections not active now',
-        'Connections seen during training that are quiet right now. ' +
-          'This is usually normal \u2014 devices don\u2019t maintain all connections at all times. ' +
+        cntMissing === 1 ? self._t('overview.missing_conn_single', 'baseline connection not active now') : self._t('overview.missing_conn_plural', 'baseline connections not active now'),
+        self._t('overview.missing_conn_note', 'Connections seen during training that are quiet right now. This is usually normal \u2014 devices don\u2019t maintain all connections at all times.') + ' ' +
           (cntMissing > totalKnown * 0.9
-            ? 'The count is very high, but your baseline likely captured many short-lived flows over a long training window.'
+            ? self._t('overview.missing_conn_note_high', 'The count is very high, but your baseline likely captured many short-lived flows over a long training window.')
             : ''),
         '#88a7c7') +
 
       row('=', cntBoth,
-        cntBoth === 1 ? 'connection matches baseline exactly' : 'connections match baseline exactly',
+        cntBoth === 1 ? self._t('overview.both_conn_single', 'connection matches baseline exactly') : self._t('overview.both_conn_plural', 'connections match baseline exactly'),
         cntBoth > 0
-          ? 'These connections are active now and were seen during training \u2014 your expected, normal traffic.'
-          : 'No currently active connections were seen in the baseline yet.',
+          ? self._t('overview.both_conn_note_some', 'These connections are active now and were seen during training \u2014 your expected, normal traffic.')
+          : self._t('overview.both_conn_note_none', 'No currently active connections were seen in the baseline yet.'),
         '#3ac5c9') +
 
       topDeltaHtml +
 
-      '<div style="margin-top:10px"><button class="btn" data-view="map" data-map-mode="compare">View on Network Map \u2192</button></div>' +
+      '<div style="margin-top:10px"><button class="btn" data-view="map" data-map-mode="compare">' + self._t('overview.view_map_btn', 'View on Network Map \u2192') + '</button></div>' +
     '</div>';
   }
 
@@ -5343,6 +6014,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _activeLocale() {
     var lang = this._langCode();
     if (lang.indexOf('fr') === 0) return 'fr';
+    if (lang.indexOf('de') === 0) return 'de';
+    if (lang.indexOf('es') === 0) return 'es';
+    if (lang.indexOf('it') === 0) return 'it';
     return 'en';
   }
 
