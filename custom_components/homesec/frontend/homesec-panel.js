@@ -20,43 +20,43 @@ const _VIEW_LABELS = {
 const _UI_I18N = {
   fr: {
     'view.overview': 'Vue d\'ensemble',
-    'view.map': 'Carte reseau',
-    'view.hosts': 'Hotes',
+    'view.map': 'Carte réseau',
+    'view.hosts': 'Hôtes',
     'view.findings': 'Constats',
     'view.external': 'IP externes',
-    'view.vulnerabilities': 'Vulnerabilites',
+    'view.vulnerabilities': 'Vulnérabilités',
     'view.statistics': 'Statistiques',
-    'view.dns': 'Requetes DNS',
+    'view.dns': 'Requêtes DNS',
     'view.suricata': 'Alertes Suricata',
     'view.recommendations': 'Recommandations',
-    'view.settings': 'Parametres',
+    'view.settings': 'Paramètres',
     'page.overview': 'Vue d\'ensemble',
     'page.findings': 'Constats',
     'page.statistics': 'Statistiques',
-    'page.dns_queries': 'Requetes DNS',
+    'page.dns_queries': 'Requêtes DNS',
     'page.suricata_alerts': 'Alertes Suricata',
     'app.title': 'Security Assistant',
-    'settings.title': 'Parametres',
-    'settings.subtitle': 'Les changements prennent effet apres le rechargement de l\'integration.',
-    'settings.loading': 'Chargement des parametres…',
+    'settings.title': 'Paramètres',
+    'settings.subtitle': 'Les changements prennent effet après le rechargement de l\'integration.',
+    'settings.loading': 'Chargement des paramètres…',
     'settings.loading_short': 'Chargement…',
     'settings.links': 'Liens',
     'settings.project': 'Projet',
     'settings.github_repo': 'Depot GitHub',
     'settings.documentation': 'Documentation',
     'settings.open_documentation': 'Ouvrir la documentation',
-    'settings.unsaved': 'Vous avez des changements non enregistres.',
-    'settings.save': 'Enregistrer les parametres',
+    'settings.unsaved': 'Vous avez des changements non enregistrés.',
+    'settings.save': 'Enregistrer les paramètres',
     'settings.reload_server': 'Recharger depuis le serveur',
-    'settings.failed_load': 'Echec du chargement des parametres : ',
-    'settings.failed_save': 'Echec de l\'enregistrement des parametres : ',
-    'settings.saved_reload': 'Parametres enregistres. L\'integration va se recharger pour appliquer les changements.',
-    'settings.unsaved_title': 'Modifications non enregistrees',
-    'settings.unsaved_body': 'Vous avez des changements de parametres non enregistres. Si vous quittez maintenant, ils seront perdus.',
-    'settings.stay': 'Rester sur Parametres',
+    'settings.failed_load': 'Échec du chargement des paramètres : ',
+    'settings.failed_save': 'Échec de l\'enregistrement des paramètres : ',
+    'settings.saved_reload': 'Paramètres enregistrés. L\'integration va se recharger pour appliquer les changements.',
+    'settings.unsaved_title': 'Modifications non enregistrées',
+    'settings.unsaved_body': 'Vous avez des changements de paramètres non enregistrés. Si vous quittez maintenant, ils seront perdus.',
+    'settings.stay': 'Rester sur Paramètres',
     'settings.discard_leave': 'Ignorer et quitter',
-    'settings.beforeunload': 'Vous avez des changements non enregistres dans les parametres. Quitter et les ignorer ?',
-    'sidebar.tagline': 'Telemetrie reseau de securite avec contexte de flux en direct',
+    'settings.beforeunload': 'Vous avez des changements non enregistrés dans les paramètres. Quitter et les ignorer ?',
+    'sidebar.tagline': 'Télémétrie réseau de sécurité avec contexte de flux en direct',
     'sidebar.collector_active': 'Collecteur actif',
     'sidebar.awaiting_flows': 'En attente de flux',
     // ── Overview page ────────────────────────────────────────────────
@@ -731,6 +731,1233 @@ const _UI_I18N = {
     'overview.view_map_btn': 'Vedi sulla mappa di rete \u2192',
   }
 };
+
+const _UI_I18N_EXTRA = {
+  fr: {
+    'common.allowed': 'Autorisé',
+    'common.blocked': 'Bloqué',
+    'common.rows': 'Lignes',
+    'common.previous': 'Précédent',
+    'common.next': 'Suivant',
+    'common.search_enter': 'Rechercher + Entrée',
+    'suricata.sev_critical': 'Critique',
+    'suricata.sev_major': 'Majeur',
+    'suricata.sev_minor': 'Mineur',
+    'suricata.sev_unknown': 'Inconnu',
+    'suricata.filter_placeholder': 'Filtrer par IP, signature…',
+    'suricata.all_severities': 'Toutes les sévérités',
+    'suricata.all_actions': 'Toutes les actions',
+    'suricata.entries': 'entrées',
+    'suricata.showing': 'Affichage',
+    'suricata.col_time': 'Heure',
+    'suricata.col_src_ip': 'IP source',
+    'suricata.col_dest_ip': 'IP dest.',
+    'suricata.col_proto': 'Proto',
+    'suricata.col_signature': 'Signature',
+    'suricata.col_category': 'Catégorie',
+    'suricata.col_severity': 'Sévérité',
+    'suricata.col_action': 'Action',
+    'suricata.click_details': 'Cliquer pour les détails',
+    'suricata.badge_blocked': '🚫 Bloqué',
+    'suricata.badge_allowed': '✓ Autorisé',
+    'suricata.critical_badge': 'critique',
+    'suricata.detail_title': 'Détail de l’alerte',
+    'suricata.alert_info': 'Informations sur l’alerte',
+    'suricata.timestamp': 'Horodatage',
+    'suricata.flow': 'Flux',
+    'suricata.protocol': 'Protocole',
+    'suricata.interface': 'Interface',
+    'suricata.signature_id': 'ID signature',
+    'suricata.source_host': 'Hôte source',
+    'suricata.destination_host': 'Hôte destination',
+    'suricata.host_info': 'Infos hôte',
+    'common.close': 'Fermer'
+  },
+  de: {
+    'common.allowed': 'Erlaubt',
+    'common.blocked': 'Blockiert',
+    'common.rows': 'Zeilen',
+    'common.previous': 'Zurück',
+    'common.next': 'Weiter',
+    'common.search_enter': 'Suchen + Enter',
+    'suricata.sev_critical': 'Kritisch',
+    'suricata.sev_major': 'Hoch',
+    'suricata.sev_minor': 'Niedrig',
+    'suricata.sev_unknown': 'Unbekannt',
+    'suricata.filter_placeholder': 'Nach IP, Signatur filtern…',
+    'suricata.all_severities': 'Alle Schweregrade',
+    'suricata.all_actions': 'Alle Aktionen',
+    'suricata.entries': 'Einträge',
+    'suricata.showing': 'Anzeige',
+    'suricata.col_time': 'Zeit',
+    'suricata.col_src_ip': 'Quell-IP',
+    'suricata.col_dest_ip': 'Ziel-IP',
+    'suricata.col_proto': 'Proto',
+    'suricata.col_signature': 'Signatur',
+    'suricata.col_category': 'Kategorie',
+    'suricata.col_severity': 'Schweregrad',
+    'suricata.col_action': 'Aktion',
+    'suricata.click_details': 'Für Details klicken',
+    'suricata.badge_blocked': '🚫 Blockiert',
+    'suricata.badge_allowed': '✓ Erlaubt',
+    'suricata.critical_badge': 'kritisch',
+    'suricata.detail_title': 'Alarmdetails',
+    'suricata.alert_info': 'Alarminfo',
+    'suricata.timestamp': 'Zeitstempel',
+    'suricata.flow': 'Flow',
+    'suricata.protocol': 'Protokoll',
+    'suricata.interface': 'Schnittstelle',
+    'suricata.signature_id': 'Signatur-ID',
+    'suricata.source_host': 'Quellhost',
+    'suricata.destination_host': 'Zielhost',
+    'suricata.host_info': 'Host-Infos',
+    'common.close': 'Schließen'
+  },
+  es: {
+    'common.allowed': 'Permitido',
+    'common.blocked': 'Bloqueado',
+    'common.rows': 'Filas',
+    'common.previous': 'Anterior',
+    'common.next': 'Siguiente',
+    'common.search_enter': 'Buscar + Enter',
+    'suricata.sev_critical': 'Crítico',
+    'suricata.sev_major': 'Alto',
+    'suricata.sev_minor': 'Menor',
+    'suricata.sev_unknown': 'Desconocido',
+    'suricata.filter_placeholder': 'Filtrar por IP, firma…',
+    'suricata.all_severities': 'Todas las severidades',
+    'suricata.all_actions': 'Todas las acciones',
+    'suricata.entries': 'entradas',
+    'suricata.showing': 'Mostrando',
+    'suricata.col_time': 'Hora',
+    'suricata.col_src_ip': 'IP origen',
+    'suricata.col_dest_ip': 'IP destino',
+    'suricata.col_proto': 'Proto',
+    'suricata.col_signature': 'Firma',
+    'suricata.col_category': 'Categoría',
+    'suricata.col_severity': 'Severidad',
+    'suricata.col_action': 'Acción',
+    'suricata.click_details': 'Haz clic para ver detalles',
+    'suricata.badge_blocked': '🚫 Bloqueado',
+    'suricata.badge_allowed': '✓ Permitido',
+    'suricata.critical_badge': 'crítico',
+    'suricata.detail_title': 'Detalle de alerta',
+    'suricata.alert_info': 'Información de alerta',
+    'suricata.timestamp': 'Marca de tiempo',
+    'suricata.flow': 'Flujo',
+    'suricata.protocol': 'Protocolo',
+    'suricata.interface': 'Interfaz',
+    'suricata.signature_id': 'ID de firma',
+    'suricata.source_host': 'Host origen',
+    'suricata.destination_host': 'Host destino',
+    'suricata.host_info': 'Info del host',
+    'common.close': 'Cerrar'
+  },
+  it: {
+    'common.allowed': 'Consentito',
+    'common.blocked': 'Bloccato',
+    'common.rows': 'Righe',
+    'common.previous': 'Precedente',
+    'common.next': 'Successivo',
+    'common.search_enter': 'Cerca + Invio',
+    'suricata.sev_critical': 'Critico',
+    'suricata.sev_major': 'Alto',
+    'suricata.sev_minor': 'Minore',
+    'suricata.sev_unknown': 'Sconosciuto',
+    'suricata.filter_placeholder': 'Filtra per IP, firma…',
+    'suricata.all_severities': 'Tutte le gravità',
+    'suricata.all_actions': 'Tutte le azioni',
+    'suricata.entries': 'voci',
+    'suricata.showing': 'Visualizzazione',
+    'suricata.col_time': 'Ora',
+    'suricata.col_src_ip': 'IP sorgente',
+    'suricata.col_dest_ip': 'IP destinazione',
+    'suricata.col_proto': 'Proto',
+    'suricata.col_signature': 'Firma',
+    'suricata.col_category': 'Categoria',
+    'suricata.col_severity': 'Gravità',
+    'suricata.col_action': 'Azione',
+    'suricata.click_details': 'Fai clic per i dettagli',
+    'suricata.badge_blocked': '🚫 Bloccato',
+    'suricata.badge_allowed': '✓ Consentito',
+    'suricata.critical_badge': 'critico',
+    'suricata.detail_title': 'Dettaglio avviso',
+    'suricata.alert_info': 'Informazioni avviso',
+    'suricata.timestamp': 'Timestamp',
+    'suricata.flow': 'Flusso',
+    'suricata.protocol': 'Protocollo',
+    'suricata.interface': 'Interfaccia',
+    'suricata.signature_id': 'ID firma',
+    'suricata.source_host': 'Host sorgente',
+    'suricata.destination_host': 'Host destinazione',
+    'suricata.host_info': 'Info host',
+    'common.close': 'Chiudi'
+  }
+};
+
+Object.keys(_UI_I18N_EXTRA).forEach(function(locale) {
+  Object.assign(_UI_I18N[locale], _UI_I18N_EXTRA[locale]);
+});
+
+const _UI_I18N_EXTRA_2 = {
+  fr: {
+    'map.disabled': 'Le collecteur NetFlow est désactivé.',
+    'map.enable_in': 'Activez-le dans',
+    'map.to_use': 'pour utiliser la carte réseau.',
+    'map.filter_all': 'Tous',
+    'map.filter_scanned': 'Scannés',
+    'map.filter_flow_only': 'Flux seuls',
+    'map.filter_external': 'Externes',
+    'map.mode_live': 'Live',
+    'map.mode_baseline': 'Baseline',
+    'map.mode_compare': 'Comparer',
+    'map.label_baseline_snapshot': 'Instantané de référence',
+    'map.label_live_vs_baseline': 'Temps réel vs référence',
+    'map.label_live_network': 'Carte réseau en direct',
+    'map.baseline_chip': 'Référence',
+    'map.hosts': 'hôtes',
+    'map.edges': 'liaisons',
+    'map.compare': 'Comparer :',
+    'map.new_edge_one': 'nouvelle liaison',
+    'map.new_edge_many': 'nouvelles liaisons',
+    'map.missing_edge_one': 'liaison manquante',
+    'map.missing_edge_many': 'liaisons manquantes',
+    'map.unchanged': 'inchangées',
+    'map.strongest': 'Δ le plus fort :',
+    'map.reset': '↺ Réinitialiser',
+    'map.legend_scanned': 'Scanné',
+    'map.legend_flow_only': 'Flux seul',
+    'map.legend_baseline_edge': 'Liaison de référence',
+    'map.legend_missing': 'Manquante',
+    'map.legend_new': 'Nouvelle',
+    'map.legend_at_risk': 'À risque',
+    'map.legend_gateway': 'Passerelle',
+    'map.legend_external': 'Externe',
+    'map.legend_multicast': 'Multicast',
+    'map.at_risk': 'À risque',
+    'map.multicast_note': 'Multicast · non routé sur Internet',
+    'map.sources': 'Sources',
+    'map.click_full_lookup': 'Cliquer pour la recherche complète',
+    'map.baseline_presence': 'Présence de référence',
+    'map.live_load': 'Indice de charge live',
+    'hosts.page_title': 'Hôtes réseau',
+    'hosts.alive_suffix': 'actifs',
+    'hosts.filter_placeholder': 'Filtrer par IP, nom, rôle…',
+    'hosts.no_match': 'Aucun hôte ne correspond au filtre',
+    'hosts.col_name': 'Nom',
+    'hosts.col_role': 'Rôle',
+    'hosts.col_open_ports': 'Ports ouverts',
+    'hosts.col_traffic': 'Trafic',
+    'hosts.rename': 'Renommer',
+    'hosts.manual': '(manuel)',
+    'hosts.section_open_ports': 'Ports ouverts',
+    'hosts.section_vulnerabilities': 'Vulnérabilités',
+    'hosts.no_vulnerabilities': 'Aucune vulnérabilité détectée',
+    'hosts.port': 'Port',
+    'hosts.service': 'Service',
+    'hosts.banner': 'Banner',
+    'hosts.version': 'Version',
+    'hosts.technologies': 'Technologies',
+    'hosts.fix': 'Correctif',
+    'hosts.note': 'Note',
+    'hosts.kv_hostname': 'Nom d’hôte',
+    'hosts.kv_manufacturer': 'Fabricant',
+    'hosts.kv_flows': 'Flux',
+    'hosts.kv_external_peers': 'Pairs externes',
+    'hosts.kv_last_seen': 'Dernière vue',
+    'external.page_title': 'IP externes',
+    'external.filter_placeholder': 'Filtrer par IP, nom d’hôte, pays, org…',
+    'external.col_hostname': 'Nom d’hôte',
+    'external.col_traffic_kb': 'Trafic (KB)',
+    'external.col_country': 'Pays',
+    'external.col_asn_org': 'ASN / Org',
+    'external.col_rating': 'Évaluation',
+    'external.col_vt_hits': 'Hits VT',
+    'external.col_abuse': 'Abus %',
+    'external.col_ports': 'Ports',
+    'external.col_direction': 'Direction',
+    'external.col_internal_host': 'Hôte interne',
+    'external.col_last_seen': 'Dernière vue',
+    'external.showing': 'Affichage',
+    'external.no_match': 'Aucune IP externe ne correspond au filtre',
+    'external.direction_both': '↕ Bidirectionnel',
+    'external.direction_inbound': '↓ Entrant',
+    'external.direction_outbound': '↑ Sortant',
+    'external.running_lookup': 'Recherche d’enrichissement en cours…',
+    'external.enrichment_details': 'Détails d’enrichissement',
+    'external.run_full_lookup': '🔍 Lancer une recherche complète',
+    'external.ip_info': 'Infos IP',
+    'external.traffic': 'Trafic',
+    'external.blacklisted': 'Blacklistée',
+    'external.ports_contacted': 'Ports contactés',
+    'external.internal_hosts': 'Hôtes internes',
+    'external.total_traffic': 'Trafic total',
+    'vuln.page_title': 'Navigateur de vulnérabilités',
+    'vuln.loading': 'Chargement des vulnérabilités…',
+    'vuln.search_placeholder': 'Rechercher CVE, port, service, CPE, mot-clé…',
+    'vuln.refresh': '↻ Actualiser',
+    'vuln.stat_cves_db': 'CVE dans la base',
+    'vuln.stat_detected_network': 'détectées sur le réseau',
+    'vuln.stat_in_kev': 'dans le KEV CISA',
+    'vuln.stat_matching': 'résultats correspondants',
+    'vuln.col_cve_id': 'ID CVE',
+    'vuln.col_published': 'Publication',
+    'vuln.col_cvss': 'CVSS',
+    'vuln.col_severity': 'Sévérité',
+    'vuln.col_services': 'Services',
+    'vuln.col_ports': 'Ports',
+    'vuln.col_hosts': 'Hôtes',
+    'vuln.col_kev': 'KEV',
+    'vuln.col_summary': 'Résumé',
+    'vuln.not_detected': 'non détectée',
+    'vuln.prev': '◀ Préc.',
+    'vuln.page': 'Page',
+    'vuln.of': 'sur',
+    'vuln.next': 'Suiv. ▶',
+    'vuln.not_detected_network': 'Non détectée sur ce réseau',
+    'vuln.kev_title': 'Vulnérabilité exploitée connue par la CISA',
+    'vuln.name': 'Nom',
+    'vuln.product': 'Produit',
+    'vuln.added_to_kev': 'Ajoutée au KEV',
+    'vuln.required_action': 'Action requise',
+    'vuln.summary_title': 'Résumé',
+    'vuln.affected_hosts': 'Hôtes affectés',
+    'vuln.cpe_criteria': 'Critères CPE',
+    'vuln.view_on_nvd': 'Voir sur NVD',
+    'vuln.cve_details': 'Détails CVE',
+    'vuln.no_description': 'Aucune description disponible.',
+    'dns.filter_placeholder': 'Filtrer par IP ou domaine…',
+    'dns.all_categories': 'Toutes les catégories',
+    'dns.all_status': 'Tous les statuts',
+    'dns.malicious_only': 'Malveillant uniquement',
+    'dns.showing': 'Affichage',
+    'dns.malicious_badge': 'malveillant',
+    'dns.col_time': 'Heure',
+    'dns.col_client_ip': 'IP client',
+    'dns.col_domain': 'Domaine',
+    'dns.col_type': 'Type',
+    'dns.col_category': 'Catégorie',
+    'dns.col_response': 'Réponse',
+    'dns.col_answer': 'Réponse DNS',
+    'dns.col_status': 'Statut',
+    'dns.entries': 'entrées',
+    'dns.cat.override': 'Override',
+    'recs.page_title': 'Recommandations de sécurité',
+    'recs.no_recommendations': 'Aucune recommandation pour le moment.',
+    'recs.affected_hosts': 'Hôtes affectés',
+    'recs.related_findings': 'Résultats liés'
+  },
+  de: {
+    'map.disabled': 'Der NetFlow-Listener ist deaktiviert.',
+    'map.enable_in': 'Aktiviere ihn in',
+    'map.to_use': 'um die Netzwerkkarte zu verwenden.',
+    'map.filter_all': 'Alle', 'map.filter_scanned': 'Gescannt', 'map.filter_flow_only': 'Nur Flows', 'map.filter_external': 'Extern',
+    'map.mode_live': 'Live', 'map.mode_baseline': 'Baseline', 'map.mode_compare': 'Vergleich',
+    'map.label_baseline_snapshot': 'Baseline-Snapshot', 'map.label_live_vs_baseline': 'Live vs. Baseline', 'map.label_live_network': 'Live-Netzwerkkarte',
+    'map.baseline_chip': 'Baseline', 'map.hosts': 'Hosts', 'map.edges': 'Kanten', 'map.compare': 'Vergleich:',
+    'map.new_edge_one': 'neue Kante', 'map.new_edge_many': 'neue Kanten', 'map.missing_edge_one': 'fehlende Kante', 'map.missing_edge_many': 'fehlende Kanten', 'map.unchanged': 'unverändert', 'map.strongest': 'Δ stärkste:', 'map.reset': '↺ Zurücksetzen',
+    'map.legend_scanned': 'Gescannt', 'map.legend_flow_only': 'Nur Flow', 'map.legend_baseline_edge': 'Baseline-Kante', 'map.legend_missing': 'Fehlend', 'map.legend_new': 'Neu', 'map.legend_at_risk': 'Gefährdet', 'map.legend_gateway': 'Gateway', 'map.legend_external': 'Extern', 'map.legend_multicast': 'Multicast',
+    'map.at_risk': 'Gefährdet', 'map.multicast_note': 'Multicast · nicht internetgeroutet', 'map.sources': 'Quellen', 'map.click_full_lookup': 'Für vollständige Abfrage klicken', 'map.baseline_presence': 'Baseline-Präsenz', 'map.live_load': 'Live-Lastindex',
+    'hosts.page_title': 'Netzwerk-Hosts', 'hosts.alive_suffix': 'aktiv', 'hosts.filter_placeholder': 'Nach IP, Name, Rolle filtern…', 'hosts.no_match': 'Keine Hosts entsprechen dem Filter', 'hosts.col_name': 'Name', 'hosts.col_role': 'Rolle', 'hosts.col_open_ports': 'Offene Ports', 'hosts.col_traffic': 'Traffic', 'hosts.rename': 'Umbenennen', 'hosts.manual': '(manuell)', 'hosts.section_open_ports': 'Offene Ports', 'hosts.section_vulnerabilities': 'Schwachstellen', 'hosts.no_vulnerabilities': 'Keine Schwachstellen erkannt', 'hosts.port': 'Port', 'hosts.service': 'Dienst', 'hosts.banner': 'Banner', 'hosts.version': 'Version', 'hosts.technologies': 'Technologien', 'hosts.fix': 'Fix', 'hosts.note': 'Notiz', 'hosts.kv_hostname': 'Hostname', 'hosts.kv_manufacturer': 'Hersteller', 'hosts.kv_flows': 'Flows', 'hosts.kv_external_peers': 'Externe Peers', 'hosts.kv_last_seen': 'Zuletzt gesehen',
+    'external.page_title': 'Externe IPs', 'external.filter_placeholder': 'Nach IP, Hostname, Land, Org filtern…', 'external.col_hostname': 'Hostname', 'external.col_traffic_kb': 'Traffic (KB)', 'external.col_country': 'Land', 'external.col_asn_org': 'ASN / Org', 'external.col_rating': 'Bewertung', 'external.col_vt_hits': 'VT-Treffer', 'external.col_abuse': 'Missbrauch %', 'external.col_ports': 'Ports', 'external.col_direction': 'Richtung', 'external.col_internal_host': 'Interner Host', 'external.col_last_seen': 'Zuletzt gesehen', 'external.showing': 'Anzeige', 'external.no_match': 'Keine externen IPs entsprechen dem Filter', 'external.direction_both': '↕ Beide', 'external.direction_inbound': '↓ Eingehend', 'external.direction_outbound': '↑ Ausgehend', 'external.running_lookup': 'Enrichment-Abfrage läuft…', 'external.enrichment_details': 'Enrichment-Details', 'external.run_full_lookup': '🔍 Vollständige Abfrage ausführen', 'external.ip_info': 'IP-Info', 'external.traffic': 'Traffic', 'external.blacklisted': 'Blacklisted', 'external.ports_contacted': 'Kontaktierte Ports', 'external.internal_hosts': 'Interne Hosts', 'external.total_traffic': 'Gesamtverkehr',
+    'vuln.page_title': 'Schwachstellen-Browser', 'vuln.loading': 'Schwachstellen werden geladen…', 'vuln.search_placeholder': 'Suche nach CVE, Port, Dienst, CPE, Stichwort…', 'vuln.refresh': '↻ Aktualisieren', 'vuln.stat_cves_db': 'CVEs in Datenbank', 'vuln.stat_detected_network': 'im Netzwerk erkannt', 'vuln.stat_in_kev': 'im CISA KEV', 'vuln.stat_matching': 'passende Ergebnisse', 'vuln.col_cve_id': 'CVE-ID', 'vuln.col_published': 'Veröffentlicht', 'vuln.col_cvss': 'CVSS', 'vuln.col_severity': 'Schweregrad', 'vuln.col_services': 'Dienste', 'vuln.col_ports': 'Ports', 'vuln.col_hosts': 'Hosts', 'vuln.col_kev': 'KEV', 'vuln.col_summary': 'Zusammenfassung', 'vuln.not_detected': 'nicht erkannt', 'vuln.prev': '◀ Zurück', 'vuln.page': 'Seite', 'vuln.of': 'von', 'vuln.next': 'Weiter ▶', 'vuln.not_detected_network': 'In diesem Netzwerk nicht erkannt', 'vuln.kev_title': 'CISA Known Exploited Vulnerability', 'vuln.name': 'Name', 'vuln.product': 'Produkt', 'vuln.added_to_kev': 'Zum KEV hinzugefügt', 'vuln.required_action': 'Erforderliche Aktion', 'vuln.summary_title': 'Zusammenfassung', 'vuln.affected_hosts': 'Betroffene Hosts', 'vuln.cpe_criteria': 'CPE-Kriterien', 'vuln.view_on_nvd': 'Auf NVD ansehen', 'vuln.cve_details': 'CVE-Details', 'vuln.no_description': 'Keine Beschreibung verfügbar.',
+    'dns.filter_placeholder': 'Nach IP oder Domain filtern…', 'dns.all_categories': 'Alle Kategorien', 'dns.all_status': 'Alle Status', 'dns.malicious_only': 'Nur bösartig', 'dns.showing': 'Anzeige', 'dns.malicious_badge': 'bösartig', 'dns.col_time': 'Zeit', 'dns.col_client_ip': 'Client-IP', 'dns.col_domain': 'Domain', 'dns.col_type': 'Typ', 'dns.col_category': 'Kategorie', 'dns.col_response': 'Antwortcode', 'dns.col_answer': 'Antwort', 'dns.col_status': 'Status', 'dns.entries': 'Einträge', 'dns.cat.override': 'Override',
+    'recs.page_title': 'Sicherheitsempfehlungen', 'recs.no_recommendations': 'Derzeit keine Empfehlungen.', 'recs.affected_hosts': 'Betroffene Hosts', 'recs.related_findings': 'Zugehörige Befunde'
+  },
+  es: {
+    'map.disabled': 'El receptor NetFlow está deshabilitado.', 'map.enable_in': 'Actívalo en', 'map.to_use': 'para usar el mapa de red.', 'map.filter_all': 'Todo', 'map.filter_scanned': 'Escaneados', 'map.filter_flow_only': 'Solo flujo', 'map.filter_external': 'Externos', 'map.mode_live': 'Live', 'map.mode_baseline': 'Línea base', 'map.mode_compare': 'Comparar', 'map.label_baseline_snapshot': 'Instantánea de línea base', 'map.label_live_vs_baseline': 'En vivo vs línea base', 'map.label_live_network': 'Mapa de red en vivo', 'map.baseline_chip': 'Línea base', 'map.hosts': 'hosts', 'map.edges': 'enlaces', 'map.compare': 'Comparar:', 'map.new_edge_one': 'nuevo enlace', 'map.new_edge_many': 'nuevos enlaces', 'map.missing_edge_one': 'enlace faltante', 'map.missing_edge_many': 'enlaces faltantes', 'map.unchanged': 'sin cambios', 'map.strongest': 'Δ más fuerte:', 'map.reset': '↺ Restablecer', 'map.legend_scanned': 'Escaneado', 'map.legend_flow_only': 'Solo flujo', 'map.legend_baseline_edge': 'Enlace de línea base', 'map.legend_missing': 'Faltante', 'map.legend_new': 'Nuevo', 'map.legend_at_risk': 'En riesgo', 'map.legend_gateway': 'Puerta de enlace', 'map.legend_external': 'Externo', 'map.legend_multicast': 'Multicast', 'map.at_risk': 'En riesgo', 'map.multicast_note': 'Multicast · no enrutable por Internet', 'map.sources': 'Orígenes', 'map.click_full_lookup': 'Haz clic para la consulta completa', 'map.baseline_presence': 'Presencia en línea base', 'map.live_load': 'Índice de carga live',
+    'hosts.page_title': 'Hosts de red', 'hosts.alive_suffix': 'activos', 'hosts.filter_placeholder': 'Filtrar por IP, nombre, rol…', 'hosts.no_match': 'Ningún host coincide con el filtro', 'hosts.col_name': 'Nombre', 'hosts.col_role': 'Rol', 'hosts.col_open_ports': 'Puertos abiertos', 'hosts.col_traffic': 'Tráfico', 'hosts.rename': 'Renombrar', 'hosts.manual': '(manual)', 'hosts.section_open_ports': 'Puertos abiertos', 'hosts.section_vulnerabilities': 'Vulnerabilidades', 'hosts.no_vulnerabilities': 'No se detectaron vulnerabilidades', 'hosts.port': 'Puerto', 'hosts.service': 'Servicio', 'hosts.banner': 'Banner', 'hosts.version': 'Versión', 'hosts.technologies': 'Tecnologías', 'hosts.fix': 'Corrección', 'hosts.note': 'Nota', 'hosts.kv_hostname': 'Hostname', 'hosts.kv_manufacturer': 'Fabricante', 'hosts.kv_flows': 'Flujos', 'hosts.kv_external_peers': 'Pares externos', 'hosts.kv_last_seen': 'Última vez visto',
+    'external.page_title': 'IPs externas', 'external.filter_placeholder': 'Filtrar por IP, hostname, país, org…', 'external.col_hostname': 'Hostname', 'external.col_traffic_kb': 'Tráfico (KB)', 'external.col_country': 'País', 'external.col_asn_org': 'ASN / Org', 'external.col_rating': 'Clasificación', 'external.col_vt_hits': 'Aciertos VT', 'external.col_abuse': 'Abuso %', 'external.col_ports': 'Puertos', 'external.col_direction': 'Dirección', 'external.col_internal_host': 'Host interno', 'external.col_last_seen': 'Última vez visto', 'external.showing': 'Mostrando', 'external.no_match': 'Ninguna IP externa coincide con el filtro', 'external.direction_both': '↕ Ambas', 'external.direction_inbound': '↓ Entrante', 'external.direction_outbound': '↑ Saliente', 'external.running_lookup': 'Ejecutando búsqueda de enriquecimiento…', 'external.enrichment_details': 'Detalles de enriquecimiento', 'external.run_full_lookup': '🔍 Ejecutar búsqueda completa', 'external.ip_info': 'Información IP', 'external.traffic': 'Tráfico', 'external.blacklisted': 'En lista negra', 'external.ports_contacted': 'Puertos contactados', 'external.internal_hosts': 'Hosts internos', 'external.total_traffic': 'Tráfico total',
+    'vuln.page_title': 'Explorador de vulnerabilidades', 'vuln.loading': 'Cargando vulnerabilidades…', 'vuln.search_placeholder': 'Buscar CVE, puerto, servicio, CPE, palabra clave…', 'vuln.refresh': '↻ Actualizar', 'vuln.stat_cves_db': 'CVEs en la base', 'vuln.stat_detected_network': 'detectadas en la red', 'vuln.stat_in_kev': 'en CISA KEV', 'vuln.stat_matching': 'resultados coincidentes', 'vuln.col_cve_id': 'ID CVE', 'vuln.col_published': 'Publicado', 'vuln.col_cvss': 'CVSS', 'vuln.col_severity': 'Severidad', 'vuln.col_services': 'Servicios', 'vuln.col_ports': 'Puertos', 'vuln.col_hosts': 'Hosts', 'vuln.col_kev': 'KEV', 'vuln.col_summary': 'Resumen', 'vuln.not_detected': 'no detectado', 'vuln.prev': '◀ Ant.', 'vuln.page': 'Página', 'vuln.of': 'de', 'vuln.next': 'Sig. ▶', 'vuln.not_detected_network': 'No detectado en esta red', 'vuln.kev_title': 'Vulnerabilidad explotada conocida por CISA', 'vuln.name': 'Nombre', 'vuln.product': 'Producto', 'vuln.added_to_kev': 'Añadido a KEV', 'vuln.required_action': 'Acción requerida', 'vuln.summary_title': 'Resumen', 'vuln.affected_hosts': 'Hosts afectados', 'vuln.cpe_criteria': 'Criterios CPE', 'vuln.view_on_nvd': 'Ver en NVD', 'vuln.cve_details': 'Detalles CVE', 'vuln.no_description': 'No hay descripción disponible.',
+    'dns.filter_placeholder': 'Filtrar por IP o dominio…', 'dns.all_categories': 'Todas las categorías', 'dns.all_status': 'Todos los estados', 'dns.malicious_only': 'Solo malicioso', 'dns.showing': 'Mostrando', 'dns.malicious_badge': 'malicioso', 'dns.col_time': 'Hora', 'dns.col_client_ip': 'IP cliente', 'dns.col_domain': 'Dominio', 'dns.col_type': 'Tipo', 'dns.col_category': 'Categoría', 'dns.col_response': 'Respuesta', 'dns.col_answer': 'Respuesta DNS', 'dns.col_status': 'Estado', 'dns.entries': 'entradas', 'dns.cat.override': 'Override',
+    'recs.page_title': 'Recomendaciones de seguridad', 'recs.no_recommendations': 'No hay recomendaciones en este momento.', 'recs.affected_hosts': 'Hosts afectados', 'recs.related_findings': 'Hallazgos relacionados'
+  },
+  it: {
+    'map.disabled': 'Il listener NetFlow è disattivato.', 'map.enable_in': 'Attivalo in', 'map.to_use': 'per usare la mappa di rete.', 'map.filter_all': 'Tutto', 'map.filter_scanned': 'Scansionati', 'map.filter_flow_only': 'Solo flussi', 'map.filter_external': 'Esterni', 'map.mode_live': 'Live', 'map.mode_baseline': 'Baseline', 'map.mode_compare': 'Confronta', 'map.label_baseline_snapshot': 'Snapshot baseline', 'map.label_live_vs_baseline': 'Live vs baseline', 'map.label_live_network': 'Mappa rete live', 'map.baseline_chip': 'Baseline', 'map.hosts': 'host', 'map.edges': 'connessioni', 'map.compare': 'Confronta:', 'map.new_edge_one': 'nuova connessione', 'map.new_edge_many': 'nuove connessioni', 'map.missing_edge_one': 'connessione mancante', 'map.missing_edge_many': 'connessioni mancanti', 'map.unchanged': 'immutate', 'map.strongest': 'Δ più forte:', 'map.reset': '↺ Reimposta', 'map.legend_scanned': 'Scansionato', 'map.legend_flow_only': 'Solo flusso', 'map.legend_baseline_edge': 'Connessione baseline', 'map.legend_missing': 'Mancante', 'map.legend_new': 'Nuova', 'map.legend_at_risk': 'A rischio', 'map.legend_gateway': 'Gateway', 'map.legend_external': 'Esterno', 'map.legend_multicast': 'Multicast', 'map.at_risk': 'A rischio', 'map.multicast_note': 'Multicast · non instradato su Internet', 'map.sources': 'Sorgenti', 'map.click_full_lookup': 'Clicca per la ricerca completa', 'map.baseline_presence': 'Presenza baseline', 'map.live_load': 'Indice carico live',
+    'hosts.page_title': 'Host di rete', 'hosts.alive_suffix': 'attivi', 'hosts.filter_placeholder': 'Filtra per IP, nome, ruolo…', 'hosts.no_match': 'Nessun host corrisponde al filtro', 'hosts.col_name': 'Nome', 'hosts.col_role': 'Ruolo', 'hosts.col_open_ports': 'Porte aperte', 'hosts.col_traffic': 'Traffico', 'hosts.rename': 'Rinomina', 'hosts.manual': '(manuale)', 'hosts.section_open_ports': 'Porte aperte', 'hosts.section_vulnerabilities': 'Vulnerabilità', 'hosts.no_vulnerabilities': 'Nessuna vulnerabilità rilevata', 'hosts.port': 'Porta', 'hosts.service': 'Servizio', 'hosts.banner': 'Banner', 'hosts.version': 'Versione', 'hosts.technologies': 'Tecnologie', 'hosts.fix': 'Correzione', 'hosts.note': 'Nota', 'hosts.kv_hostname': 'Hostname', 'hosts.kv_manufacturer': 'Produttore', 'hosts.kv_flows': 'Flussi', 'hosts.kv_external_peers': 'Peer esterni', 'hosts.kv_last_seen': 'Ultima vista',
+    'external.page_title': 'IP esterni', 'external.filter_placeholder': 'Filtra per IP, hostname, paese, org…', 'external.col_hostname': 'Hostname', 'external.col_traffic_kb': 'Traffico (KB)', 'external.col_country': 'Paese', 'external.col_asn_org': 'ASN / Org', 'external.col_rating': 'Valutazione', 'external.col_vt_hits': 'Hit VT', 'external.col_abuse': 'Abuso %', 'external.col_ports': 'Porte', 'external.col_direction': 'Direzione', 'external.col_internal_host': 'Host interno', 'external.col_last_seen': 'Ultima vista', 'external.showing': 'Visualizzazione', 'external.no_match': 'Nessun IP esterno corrisponde al filtro', 'external.direction_both': '↕ Entrambe', 'external.direction_inbound': '↓ In entrata', 'external.direction_outbound': '↑ In uscita', 'external.running_lookup': 'Ricerca di arricchimento in corso…', 'external.enrichment_details': 'Dettagli arricchimento', 'external.run_full_lookup': '🔍 Esegui ricerca completa', 'external.ip_info': 'Info IP', 'external.traffic': 'Traffico', 'external.blacklisted': 'In blacklist', 'external.ports_contacted': 'Porte contattate', 'external.internal_hosts': 'Host interni', 'external.total_traffic': 'Traffico totale',
+    'vuln.page_title': 'Browser vulnerabilità', 'vuln.loading': 'Caricamento vulnerabilità…', 'vuln.search_placeholder': 'Cerca CVE, porta, servizio, CPE, parola chiave…', 'vuln.refresh': '↻ Aggiorna', 'vuln.stat_cves_db': 'CVE nel database', 'vuln.stat_detected_network': 'rilevate sulla rete', 'vuln.stat_in_kev': 'nel CISA KEV', 'vuln.stat_matching': 'risultati corrispondenti', 'vuln.col_cve_id': 'ID CVE', 'vuln.col_published': 'Pubblicato', 'vuln.col_cvss': 'CVSS', 'vuln.col_severity': 'Gravità', 'vuln.col_services': 'Servizi', 'vuln.col_ports': 'Porte', 'vuln.col_hosts': 'Host', 'vuln.col_kev': 'KEV', 'vuln.col_summary': 'Riepilogo', 'vuln.not_detected': 'non rilevato', 'vuln.prev': '◀ Prec.', 'vuln.page': 'Pagina', 'vuln.of': 'di', 'vuln.next': 'Succ. ▶', 'vuln.not_detected_network': 'Non rilevato su questa rete', 'vuln.kev_title': 'Vulnerabilità nota sfruttata da CISA', 'vuln.name': 'Nome', 'vuln.product': 'Prodotto', 'vuln.added_to_kev': 'Aggiunta a KEV', 'vuln.required_action': 'Azione richiesta', 'vuln.summary_title': 'Riepilogo', 'vuln.affected_hosts': 'Host interessati', 'vuln.cpe_criteria': 'Criteri CPE', 'vuln.view_on_nvd': 'Vedi su NVD', 'vuln.cve_details': 'Dettagli CVE', 'vuln.no_description': 'Nessuna descrizione disponibile.',
+    'dns.filter_placeholder': 'Filtra per IP o dominio…', 'dns.all_categories': 'Tutte le categorie', 'dns.all_status': 'Tutti gli stati', 'dns.malicious_only': 'Solo malevole', 'dns.showing': 'Visualizzazione', 'dns.malicious_badge': 'malevole', 'dns.col_time': 'Ora', 'dns.col_client_ip': 'IP client', 'dns.col_domain': 'Dominio', 'dns.col_type': 'Tipo', 'dns.col_category': 'Categoria', 'dns.col_response': 'Risposta', 'dns.col_answer': 'Risposta DNS', 'dns.col_status': 'Stato', 'dns.entries': 'voci', 'dns.cat.override': 'Override',
+    'recs.page_title': 'Raccomandazioni di sicurezza', 'recs.no_recommendations': 'Nessuna raccomandazione al momento.', 'recs.affected_hosts': 'Host interessati', 'recs.related_findings': 'Rilevamenti correlati'
+  }
+};
+
+Object.keys(_UI_I18N_EXTRA_2).forEach(function(locale) {
+  Object.assign(_UI_I18N[locale], _UI_I18N_EXTRA_2[locale]);
+});
+
+const _UI_I18N_EXTRA_3 = {
+  fr: {
+    'time.just_now': 'à l’instant',
+    'time.minutes_ago': 'il y a {n} min',
+    'time.hours_ago': 'il y a {n} h',
+    'time.days_ago': 'il y a {n} j',
+    'recs.title_patch_vulnerable': 'Corriger les appareils vulnérables',
+    'recs.detail_patch_vulnerable': '{n} appareil(s) ont des vulnérabilités CVE connues de niveau élevé ou critique. Mettez à jour le micrologiciel / logiciel ou limitez immédiatement l’accès réseau.',
+    'recs.title_review_vulnerability_findings': 'Examiner les constats de vulnérabilité',
+    'recs.detail_review_vulnerability_findings': 'L’analyse active a trouvé des services présentant des problèmes de sécurité connus. Consultez l’onglet des constats pour les détails CVE et les étapes de correction.',
+    'recs.title_connect_exporter': 'Connecter un exporteur de flux',
+    'recs.detail_connect_exporter': 'Aucun exporteur NetFlow ou IPFIX n’a encore été observé. Configurez votre passerelle, pare-feu ou commutateur pour exporter les flux vers HomeSec.',
+    'recs.title_verify_exporter': 'Vérifier la connectivité de l’exporteur',
+    'recs.detail_verify_exporter': 'Des exporteurs sont configurés, mais HomeSec n’a encore reçu aucun datagramme. Vérifiez l’IP / le port cible, les règles du pare-feu et le réseau du conteneur.',
+    'recs.title_check_flow_format': 'Vérifier le format d’export des flux',
+    'recs.detail_check_flow_format': 'Les datagrammes arrivent, mais aucun n’a produit d’enregistrements. Confirmez que l’exporteur utilise NetFlow v5/v9/IPFIX avec des champs IPv4 et des modèles valides.',
+    'recs.title_restrict_risky_ports': 'Limiter les ports sortants risqués',
+    'recs.detail_restrict_risky_ports': 'Au moins un appareil a contacté un port externe souvent abusé, comme Telnet ou RDP. Bloquez ou surveillez ces ports à la passerelle et corrigez l’appareil source.',
+    'recs.title_isolate_scanning_hosts': 'Isoler les hôtes qui scannent',
+    'recs.detail_isolate_scanning_hosts': 'Un appareil touche de nombreux ports sur une courte période. Placez-le sur un VLAN isolé ou un réseau invité jusqu’à confirmation du comportement attendu.',
+    'recs.title_review_high_egress_devices': 'Examiner les appareils à fort trafic sortant',
+    'recs.detail_review_high_egress_devices': 'Un ou plusieurs appareils ont dépassé le seuil de données sortantes. Vérifiez si le trafic correspond à des sauvegardes, caméras ou envois de médias plutôt qu’à un logiciel malveillant ou à de l’exfiltration.',
+    'recs.title_improve_device_identity_coverage': 'Améliorer la couverture d’identité des appareils',
+    'recs.detail_improve_device_identity_coverage': '{n} appareil(s) ont encore un rôle inconnu. Ajoutez des intégrations routeur, DHCP ou tracker pour permettre à HomeSec de corréler noms, adresses MAC et noms d’hôte.',
+    'recs.title_enable_device_tracker_enrichment': 'Activer l’enrichissement des traceurs d’appareils',
+    'recs.detail_enable_device_tracker_enrichment': 'HomeSec voit des appareils, mais aucun n’a été enrichi à partir des traceurs Home Assistant. Ajouter des intégrations routeur ou présence rendra le tableau de bord beaucoup plus lisible.',
+    'recs.title_stabilize_exporter_templates': 'Stabiliser les modèles de l’exporteur',
+    'recs.detail_stabilize_exporter_templates': 'Certains datagrammes de flux ont été perdus ou sont arrivés avant leurs modèles. Réduisez les redémarrages de l’exporteur ou raccourcissez les intervalles d’actualisation des modèles.',
+    'findings.pattern': '🗑 Motif…', 'findings.security': 'Constats de sécurité', 'findings.actionable': 'actionnables', 'findings.shown': 'affichés', 'findings.dismissed': 'ignorés', 'findings.baseline': 'Anomalies de référence', 'findings.dismissed_title': 'Ignorés', 'findings.by_category': 'Par catégorie', 'findings.by_host': 'Par hôte', 'findings.by_severity': 'Par sévérité', 'findings.flat': 'À plat', 'findings.no_results': 'Aucun résultat pour', 'findings.no_active': 'Aucun constat actif élevé ou critique.', 'findings.host_one': 'hôte', 'findings.host_many': 'hôtes', 'findings.finding_one': 'constat', 'findings.finding_many': 'constats', 'findings.total': 'total', 'findings.latest': 'Dernier :', 'findings.restore': 'Restaurer', 'findings.dismiss': 'Ignorer', 'findings.restore_all': 'Tout restaurer', 'findings.dismiss_all': 'Tout ignorer', 'findings.category': 'Catégorie', 'findings.source': 'Source', 'findings.port': 'Port', 'findings.seen': 'vus', 'findings.remediation': 'Correction', 'findings.note': 'Note', 'findings.baseline_badge': 'Référence', 'findings.cat_new_host': 'Nouvel hôte détecté', 'findings.cat_new_peer': 'Nouveau pair externe', 'findings.cat_new_port': 'Nouveau port ouvert', 'findings.cat_new_dns_domain': 'Nouveau domaine DNS', 'findings.cat_new_dns_category': 'Nouvelle catégorie DNS', 'findings.cat_missing_host': 'Hôte connu manquant', 'findings.cat_missing_peer': 'Pair connu manquant', 'findings.cat_vulnerability': 'Vulnérabilité / CVE', 'findings.cat_port_scan': 'Scan de ports', 'findings.cat_suspicious_port': 'Port ouvert suspect', 'findings.cat_high_egress': 'Trafic sortant élevé', 'findings.sev_critical': 'Critique', 'findings.sev_high': 'Élevée', 'findings.sev_medium': 'Moyenne', 'findings.sev_low': 'Faible', 'findings.sev_info': 'Info',
+    'stats.activity_timeline': 'CHRONOLOGIE D’ACTIVITÉ', 'stats.public_ips_per_hour': 'IP publiques vues par heure (24 h)', 'stats.no_public_ips': 'Aucune IP publique suivie pour le moment', 'stats.hosts_per_hour': 'Hôtes par heure (24 h)', 'stats.no_host_data': 'Aucune donnée d’hôte pour le moment', 'stats.hosts_seen': 'Hôtes vus', 'stats.scanned_alive': 'Scannés actifs', 'stats.pie': 'Camembert', 'stats.list': 'Liste', 'stats.no_external_flow_data': 'Aucune donnée de flux externe pour le moment', 'stats.ranked_by_flow_count': 'Classé par nombre de flux', 'stats.view_all_external_ips': 'Voir toutes les IP externes →', 'stats.no_country_data': 'Aucune donnée pays pour le moment', 'stats.no_traffic_data': 'Aucune donnée trafic pour le moment', 'stats.ranked_by_total_traffic': 'Classé par trafic total', 'stats.view_all_hosts': 'Voir tous les hôtes →', 'stats.no_enrichment_data': 'Aucune donnée d’enrichissement', 'stats.provider': 'Fournisseur', 'stats.used_today': 'Utilisé aujourd’hui', 'stats.daily_budget': 'Budget journalier', 'stats.usage': 'Utilisation', 'stats.status': 'Statut', 'stats.errors_notes': 'Erreurs / Notes', 'stats.not_configured': 'non configuré', 'stats.exhausted': 'épuisé', 'stats.unlimited': '∞ illimité', 'stats.ok': 'ok', 'stats.high': 'élevé', 'stats.no_threat_ips': 'Aucune IP suspecte ou malveillante détectée', 'stats.malicious_first': 'Malveillantes d’abord, puis par nombre de flux', 'stats.no_dns_queries': 'Aucune requête DNS enregistrée', 'stats.total': 'Total', 'stats.blocked': 'Bloqué', 'stats.malicious': 'Malveillant', 'stats.no_dns_detected': 'Aucune requête DNS malveillante ou bloquée détectée', 'stats.view_dns_log': 'Voir le journal DNS →', 'stats.no_blocked_yet': 'Aucune requête DNS bloquée ou malveillante pour le moment', 'stats.no_blocked_clients': 'Aucune requête client bloquée ou malveillante pour le moment', 'stats.no_deviance': 'Aucune donnée d’écart pour le moment — les données s’accumulent toutes les 5 min', 'stats.normal': '≤20% Normal', 'stats.review': '≤50% À revoir', 'stats.investigate': '≤75% À investiguer', 'stats.critical': '>75% Critique', 'stats.no_findings': 'Aucun constat enregistré pour le moment', 'stats.no_ext_peers': 'Aucun nouveau pair externe dans les écarts de référence', 'stats.baseline_deviance_hourly': 'Écart à la référence par heure (24 h)', 'stats.dns_queries_hourly': 'Requêtes DNS par heure (24 h)', 'stats.top_public_ips': 'Top {n} IP publiques', 'stats.top_countries': 'Top {n} pays', 'stats.top_internal_talkers': 'Top {n} émetteurs internes', 'stats.top_threat_ips': 'Top {n} IP menaçantes', 'stats.blocked_dns_by_category': 'Requêtes DNS bloquées par catégorie', 'stats.top_blocked_by_client': 'Top {n} requêtes bloquées par client', 'stats.top_hosts_deviations': 'Top {n} hôtes en écart', 'stats.top_ext_deviations': 'Top {n} IP externes en écart', 'stats.suricata_by_severity': 'Alertes Suricata — par sévérité', 'stats.suricata_by_category': 'Alertes Suricata — par catégorie', 'stats.suricata_top_source': 'Alertes Suricata — Top {n} IP source', 'stats.top_blocked_domains': 'Top {n} domaines bloqués / malveillants', 'stats.enrichment_budget': 'Budget d’enrichissement (aujourd’hui)', 'stats.no_alerts': 'Aucune alerte pour le moment', 'stats.no_data': 'Aucune donnée', 'external.modal_hostname': 'Nom d’hôte', 'external.modal_country': 'Pays', 'external.modal_asn': 'ASN', 'external.modal_org_isp': 'Org / FAI', 'external.modal_vt': 'VirusTotal', 'external.modal_abuse': 'Score d’abus', 'external.modal_direction': 'Direction', 'external.modal_reports': 'Rapports', 'external.modal_internal_host': 'Hôte interne', 'external.modal_data_sources': 'Sources de données', 'external.modal_enriched_at': 'Enrichi le', 'external.modal_last_seen': 'Dernière vue', 'external.modal_yes': 'Oui', 'external.modal_no': 'Non', 'external.modal_error': 'Erreur d’enrichissement :'
+  },
+  de: {
+    'time.just_now': 'gerade eben',
+    'time.minutes_ago': 'vor {n} Min.',
+    'time.hours_ago': 'vor {n} Std.',
+    'time.days_ago': 'vor {n} Tg.',
+    'recs.title_patch_vulnerable': 'Verwundbare Geräte patchen',
+    'recs.detail_patch_vulnerable': '{n} Gerät(e) haben bekannte CVE-Schwachstellen mit hohem oder kritischem Schweregrad. Aktualisieren Sie Firmware/Software oder beschränken Sie sofort den Netzwerkzugriff.',
+    'recs.title_review_vulnerability_findings': 'Schwachstellenbefunde prüfen',
+    'recs.detail_review_vulnerability_findings': 'Der aktive Scan hat Dienste mit bekannten Sicherheitsproblemen gefunden. Prüfen Sie den Befunde-Tab für CVE-Details und Behebungsschritte.',
+    'recs.title_connect_exporter': 'Einen Flow-Exporter verbinden',
+    'recs.detail_connect_exporter': 'Es wurden noch keine NetFlow- oder IPFIX-Exporter beobachtet. Konfigurieren Sie Ihr Gateway, Ihre Firewall oder Ihren Switch so, dass Flows an HomeSec exportiert werden.',
+    'recs.title_verify_exporter': 'Exporter-Erreichbarkeit prüfen',
+    'recs.detail_verify_exporter': 'Exporter sind konfiguriert, aber HomeSec hat noch keine Datagramme empfangen. Prüfen Sie Ziel-IP/-Port, Firewall-Regeln und das Containernetzwerk.',
+    'recs.title_check_flow_format': 'Flow-Exportformat prüfen',
+    'recs.detail_check_flow_format': 'Datagramme treffen ein, aber keine erzeugten Datensätze. Stellen Sie sicher, dass der Exporter NetFlow v5/v9/IPFIX mit IPv4-Feldern und gültigen Templates verwendet.',
+    'recs.title_restrict_risky_ports': 'Riskante ausgehende Ports einschränken',
+    'recs.detail_restrict_risky_ports': 'Mindestens ein Gerät hat einen häufig missbrauchten externen Port wie Telnet oder RDP erreicht. Blockieren oder überwachen Sie diese Ports am Gateway und patchen Sie das Quellgerät.',
+    'recs.title_isolate_scanning_hosts': 'Scannende Hosts isolieren',
+    'recs.detail_isolate_scanning_hosts': 'Ein Gerät spricht in kurzer Zeit viele Ports an. Verschieben Sie es in ein isoliertes VLAN oder Gastnetz, bis das Verhalten geklärt ist.',
+    'recs.title_review_high_egress_devices': 'Geräte mit hohem ausgehendem Traffic prüfen',
+    'recs.detail_review_high_egress_devices': 'Ein oder mehrere Geräte haben den Schwellenwert für ausgehende Daten überschritten. Prüfen Sie, ob der Traffic zu Backups, Kameras oder Medien-Uploads statt zu Malware oder Exfiltration passt.',
+    'recs.title_improve_device_identity_coverage': 'Geräteidentität verbessern',
+    'recs.detail_improve_device_identity_coverage': '{n} Gerät(e) haben noch eine unbekannte Rolle. Fügen Sie Router-, DHCP- oder Tracker-Integrationen hinzu, damit HomeSec Namen, MAC-Adressen und Hostnamen korrelieren kann.',
+    'recs.title_enable_device_tracker_enrichment': 'Enrichment für Gerätetracker aktivieren',
+    'recs.detail_enable_device_tracker_enrichment': 'HomeSec sieht Geräte, aber keine wurden aus Home-Assistant-Trackern angereichert. Router- oder Präsenzintegrationen machen das Dashboard deutlich lesbarer.',
+    'recs.title_stabilize_exporter_templates': 'Exporter-Templates stabilisieren',
+    'recs.detail_stabilize_exporter_templates': 'Einige Flow-Datagramme wurden verworfen oder trafen vor ihren Templates ein. Reduzieren Sie Neustarts des Exporters oder verkürzen Sie die Template-Aktualisierungsintervalle.',
+    'findings.pattern': '🗑 Muster…', 'findings.security': 'Sicherheitsbefunde', 'findings.actionable': 'bearbeitbar', 'findings.shown': 'angezeigt', 'findings.dismissed': 'ausgeblendet', 'findings.baseline': 'Baseline-Anomalien', 'findings.dismissed_title': 'Ausgeblendet', 'findings.by_category': 'Nach Kategorie', 'findings.by_host': 'Nach Host', 'findings.by_severity': 'Nach Schweregrad', 'findings.flat': 'Flach', 'findings.no_results': 'Keine Ergebnisse für', 'findings.no_active': 'Keine aktiven hohen oder kritischen Befunde.', 'findings.host_one': 'Host', 'findings.host_many': 'Hosts', 'findings.finding_one': 'Befund', 'findings.finding_many': 'Befunde', 'findings.total': 'gesamt', 'findings.latest': 'Neueste:', 'findings.restore': 'Wiederherstellen', 'findings.dismiss': 'Ausblenden', 'findings.restore_all': 'Alle wiederherstellen', 'findings.dismiss_all': 'Alle ausblenden', 'findings.category': 'Kategorie', 'findings.source': 'Quelle', 'findings.port': 'Port', 'findings.seen': 'gesehen', 'findings.remediation': 'Behebung', 'findings.note': 'Notiz', 'findings.baseline_badge': 'Baseline', 'findings.cat_new_host': 'Neuer Host erkannt', 'findings.cat_new_peer': 'Neuer externer Peer', 'findings.cat_new_port': 'Neuer offener Port', 'findings.cat_new_dns_domain': 'Neue DNS-Domain', 'findings.cat_new_dns_category': 'Neue DNS-Kategorie', 'findings.cat_missing_host': 'Bekannter Host fehlt', 'findings.cat_missing_peer': 'Bekannter Peer fehlt', 'findings.cat_vulnerability': 'Schwachstelle / CVE', 'findings.cat_port_scan': 'Portscan', 'findings.cat_suspicious_port': 'Verdächtiger offener Port', 'findings.cat_high_egress': 'Hoher ausgehender Traffic', 'findings.sev_critical': 'Kritisch', 'findings.sev_high': 'Hoch', 'findings.sev_medium': 'Mittel', 'findings.sev_low': 'Niedrig', 'findings.sev_info': 'Info',
+    'stats.activity_timeline': 'AKTIVITÄTSZEITLEISTE', 'stats.public_ips_per_hour': 'Öffentliche IPs pro Stunde (24 h)', 'stats.no_public_ips': 'Noch keine öffentlichen IPs verfolgt', 'stats.hosts_per_hour': 'Hosts pro Stunde (24 h)', 'stats.no_host_data': 'Noch keine Host-Daten', 'stats.hosts_seen': 'Gesehene Hosts', 'stats.scanned_alive': 'Lebend gescannt', 'stats.pie': 'Kreis', 'stats.list': 'Liste', 'stats.no_external_flow_data': 'Noch keine externen Flow-Daten', 'stats.ranked_by_flow_count': 'Nach Flow-Anzahl sortiert', 'stats.view_all_external_ips': 'Alle externen IPs anzeigen →', 'stats.no_country_data': 'Noch keine Länderdaten', 'stats.no_traffic_data': 'Noch keine Traffic-Daten', 'stats.ranked_by_total_traffic': 'Nach Gesamttraffic sortiert', 'stats.view_all_hosts': 'Alle Hosts anzeigen →', 'stats.no_enrichment_data': 'Keine Enrichment-Daten', 'stats.provider': 'Anbieter', 'stats.used_today': 'Heute genutzt', 'stats.daily_budget': 'Tagesbudget', 'stats.usage': 'Nutzung', 'stats.status': 'Status', 'stats.errors_notes': 'Fehler / Hinweise', 'stats.not_configured': 'nicht konfiguriert', 'stats.exhausted': 'erschöpft', 'stats.unlimited': '∞ unbegrenzt', 'stats.ok': 'ok', 'stats.high': 'hoch', 'stats.no_threat_ips': 'Keine verdächtigen oder bösartigen IPs erkannt', 'stats.malicious_first': 'Zuerst bösartig, dann nach Flow-Anzahl', 'stats.no_dns_queries': 'Keine DNS-Anfragen aufgezeichnet', 'stats.total': 'Gesamt', 'stats.blocked': 'Blockiert', 'stats.malicious': 'Bösartig', 'stats.no_dns_detected': 'Keine bösartigen oder blockierten DNS-Anfragen erkannt', 'stats.view_dns_log': 'DNS-Protokoll anzeigen →', 'stats.no_blocked_yet': 'Noch keine blockierten oder bösartigen DNS-Anfragen', 'stats.no_blocked_clients': 'Noch keine blockierten oder bösartigen Client-Anfragen', 'stats.no_deviance': 'Noch keine Abweichungsdaten — Daten sammeln sich alle 5 Min. an', 'stats.normal': '≤20% Normal', 'stats.review': '≤50% Prüfen', 'stats.investigate': '≤75% Untersuchen', 'stats.critical': '>75% Kritisch', 'stats.no_findings': 'Noch keine Befunde erfasst', 'stats.no_ext_peers': 'Keine neuen externen Peers in Baseline-Abweichungen', 'stats.baseline_deviance_hourly': 'Baseline-Abweichung pro Stunde (24 h)', 'stats.dns_queries_hourly': 'DNS-Anfragen pro Stunde (24 h)', 'stats.top_public_ips': 'Top {n} öffentliche IPs', 'stats.top_countries': 'Top {n} Länder', 'stats.top_internal_talkers': 'Top {n} interne Sprecher', 'stats.top_threat_ips': 'Top {n} Bedrohungs-IPs', 'stats.blocked_dns_by_category': 'Blockierte DNS-Anfragen nach Kategorie', 'stats.top_blocked_by_client': 'Top {n} blockierte Anfragen nach Client', 'stats.top_hosts_deviations': 'Top {n} Hosts in Abweichungen', 'stats.top_ext_deviations': 'Top {n} externe IPs in Abweichungen', 'stats.suricata_by_severity': 'Suricata-Warnungen — nach Schweregrad', 'stats.suricata_by_category': 'Suricata-Warnungen — nach Kategorie', 'stats.suricata_top_source': 'Suricata-Warnungen — Top {n} Quell-IPs', 'stats.top_blocked_domains': 'Top {n} blockierte / bösartige Domains', 'stats.enrichment_budget': 'Enrichment-Budget (heute)', 'stats.no_alerts': 'Noch keine Warnungen', 'stats.no_data': 'Keine Daten', 'external.modal_hostname': 'Hostname', 'external.modal_country': 'Land', 'external.modal_asn': 'ASN', 'external.modal_org_isp': 'Org / ISP', 'external.modal_vt': 'VirusTotal', 'external.modal_abuse': 'Missbrauchswert', 'external.modal_direction': 'Richtung', 'external.modal_reports': 'Berichte', 'external.modal_internal_host': 'Interner Host', 'external.modal_data_sources': 'Datenquellen', 'external.modal_enriched_at': 'Angereichert am', 'external.modal_last_seen': 'Zuletzt gesehen', 'external.modal_yes': 'Ja', 'external.modal_no': 'Nein', 'external.modal_error': 'Anreicherungsfehler:'
+  },
+  es: {
+    'time.just_now': 'ahora mismo',
+    'time.minutes_ago': 'hace {n} min',
+    'time.hours_ago': 'hace {n} h',
+    'time.days_ago': 'hace {n} d',
+    'recs.title_patch_vulnerable': 'Corregir dispositivos vulnerables',
+    'recs.detail_patch_vulnerable': '{n} dispositivo(s) tienen vulnerabilidades CVE conocidas de nivel alto o crítico. Actualice firmware/software o restrinja el acceso de red de inmediato.',
+    'recs.title_review_vulnerability_findings': 'Revisar hallazgos de vulnerabilidad',
+    'recs.detail_review_vulnerability_findings': 'El análisis activo encontró servicios con problemas de seguridad conocidos. Consulte la pestaña de hallazgos para ver los detalles CVE y los pasos de remediación.',
+    'recs.title_connect_exporter': 'Conectar un exportador de flujo',
+    'recs.detail_connect_exporter': 'Aún no se ha observado ningún exportador NetFlow o IPFIX. Configure su puerta de enlace, firewall o switch para exportar flujos a HomeSec.',
+    'recs.title_verify_exporter': 'Verificar la conectividad del exportador',
+    'recs.detail_verify_exporter': 'Hay exportadores configurados, pero HomeSec aún no ha recibido ningún datagrama. Compruebe la IP/puerto destino, las reglas del firewall y la red del contenedor.',
+    'recs.title_check_flow_format': 'Comprobar el formato de exportación de flujos',
+    'recs.detail_check_flow_format': 'Llegan datagramas, pero ninguno ha producido registros. Confirme que el exportador usa NetFlow v5/v9/IPFIX con campos IPv4 y plantillas válidas.',
+    'recs.title_restrict_risky_ports': 'Restringir puertos salientes de riesgo',
+    'recs.detail_restrict_risky_ports': 'Al menos un dispositivo contactó un puerto externo muy abusado como Telnet o RDP. Bloquee o alerte sobre estos puertos en la puerta de enlace y aplique parches al dispositivo origen.',
+    'recs.title_isolate_scanning_hosts': 'Aislar hosts que escanean',
+    'recs.detail_isolate_scanning_hosts': 'Un dispositivo está tocando muchos puertos en poco tiempo. Muévalo a una VLAN aislada o red de invitados hasta confirmar que el comportamiento es esperado.',
+    'recs.title_review_high_egress_devices': 'Revisar dispositivos con alto tráfico saliente',
+    'recs.detail_review_high_egress_devices': 'Uno o más dispositivos superaron el umbral de datos salientes. Compruebe si el tráfico corresponde a copias de seguridad, cámaras o subidas de medios en lugar de malware o exfiltración.',
+    'recs.title_improve_device_identity_coverage': 'Mejorar la cobertura de identidad de dispositivos',
+    'recs.detail_improve_device_identity_coverage': '{n} dispositivo(s) aún tienen un rol desconocido. Añada integraciones de router, DHCP o rastreo para que HomeSec pueda correlacionar nombres, direcciones MAC y nombres de host.',
+    'recs.title_enable_device_tracker_enrichment': 'Activar enriquecimiento de rastreadores de dispositivos',
+    'recs.detail_enable_device_tracker_enrichment': 'HomeSec ve dispositivos, pero ninguno se enriqueció desde rastreadores de Home Assistant. Añadir integraciones de router o presencia hará que el panel sea mucho más legible.',
+    'recs.title_stabilize_exporter_templates': 'Estabilizar plantillas del exportador',
+    'recs.detail_stabilize_exporter_templates': 'Algunos datagramas de flujo se descartaron o llegaron antes de sus plantillas. Reduzca los reinicios del exportador o acorte los intervalos de actualización de plantillas.',
+    'findings.pattern': '🗑 Patrón…', 'findings.security': 'Hallazgos de seguridad', 'findings.actionable': 'accionables', 'findings.shown': 'mostrados', 'findings.dismissed': 'descartados', 'findings.baseline': 'Anomalías de línea base', 'findings.dismissed_title': 'Descartados', 'findings.by_category': 'Por categoría', 'findings.by_host': 'Por host', 'findings.by_severity': 'Por severidad', 'findings.flat': 'Plano', 'findings.no_results': 'Sin resultados para', 'findings.no_active': 'No hay hallazgos activos altos o críticos.', 'findings.host_one': 'host', 'findings.host_many': 'hosts', 'findings.finding_one': 'hallazgo', 'findings.finding_many': 'hallazgos', 'findings.total': 'total', 'findings.latest': 'Último:', 'findings.restore': 'Restaurar', 'findings.dismiss': 'Descartar', 'findings.restore_all': 'Restaurar todo', 'findings.dismiss_all': 'Descartar todo', 'findings.category': 'Categoría', 'findings.source': 'Origen', 'findings.port': 'Puerto', 'findings.seen': 'visto', 'findings.remediation': 'Remediación', 'findings.note': 'Nota', 'findings.baseline_badge': 'Línea base', 'findings.cat_new_host': 'Nuevo host detectado', 'findings.cat_new_peer': 'Nuevo par externo', 'findings.cat_new_port': 'Nuevo puerto abierto', 'findings.cat_new_dns_domain': 'Nuevo dominio DNS', 'findings.cat_new_dns_category': 'Nueva categoría DNS', 'findings.cat_missing_host': 'Falta host conocido', 'findings.cat_missing_peer': 'Falta par conocido', 'findings.cat_vulnerability': 'Vulnerabilidad / CVE', 'findings.cat_port_scan': 'Escaneo de puertos', 'findings.cat_suspicious_port': 'Puerto abierto sospechoso', 'findings.cat_high_egress': 'Tráfico saliente alto', 'findings.sev_critical': 'Crítico', 'findings.sev_high': 'Alto', 'findings.sev_medium': 'Medio', 'findings.sev_low': 'Bajo', 'findings.sev_info': 'Info',
+    'stats.activity_timeline': 'LÍNEA DE TIEMPO DE ACTIVIDAD', 'stats.public_ips_per_hour': 'IPs públicas vistas por hora (24 h)', 'stats.no_public_ips': 'Aún no hay IPs públicas rastreadas', 'stats.hosts_per_hour': 'Hosts por hora (24 h)', 'stats.no_host_data': 'Aún no hay datos de hosts', 'stats.hosts_seen': 'Hosts vistos', 'stats.scanned_alive': 'Analizados activos', 'stats.pie': 'Tarta', 'stats.list': 'Lista', 'stats.no_external_flow_data': 'Aún no hay datos de flujo externo', 'stats.ranked_by_flow_count': 'Clasificado por número de flujos', 'stats.view_all_external_ips': 'Ver todas las IPs externas →', 'stats.no_country_data': 'Aún no hay datos de países', 'stats.no_traffic_data': 'Aún no hay datos de tráfico', 'stats.ranked_by_total_traffic': 'Clasificado por tráfico total', 'stats.view_all_hosts': 'Ver todos los hosts →', 'stats.no_enrichment_data': 'Sin datos de enriquecimiento', 'stats.provider': 'Proveedor', 'stats.used_today': 'Usado hoy', 'stats.daily_budget': 'Presupuesto diario', 'stats.usage': 'Uso', 'stats.status': 'Estado', 'stats.errors_notes': 'Errores / Notas', 'stats.not_configured': 'no configurado', 'stats.exhausted': 'agotado', 'stats.unlimited': '∞ ilimitado', 'stats.ok': 'ok', 'stats.high': 'alto', 'stats.no_threat_ips': 'No se detectaron IPs sospechosas o maliciosas', 'stats.malicious_first': 'Primero maliciosas, luego por número de flujos', 'stats.no_dns_queries': 'No se registraron consultas DNS', 'stats.total': 'Total', 'stats.blocked': 'Bloqueado', 'stats.malicious': 'Malicioso', 'stats.no_dns_detected': 'No se detectaron consultas DNS maliciosas o bloqueadas', 'stats.view_dns_log': 'Ver registro DNS →', 'stats.no_blocked_yet': 'Aún no hay consultas DNS bloqueadas o maliciosas', 'stats.no_blocked_clients': 'Aún no hay consultas cliente bloqueadas o maliciosas', 'stats.no_deviance': 'Aún no hay datos de desviación — los datos se acumulan cada 5 min', 'stats.normal': '≤20% Normal', 'stats.review': '≤50% Revisar', 'stats.investigate': '≤75% Investigar', 'stats.critical': '>75% Crítico', 'stats.no_findings': 'Aún no hay hallazgos registrados', 'stats.no_ext_peers': 'No hay nuevos pares externos en desviaciones de línea base', 'stats.baseline_deviance_hourly': 'Desviación de línea base por hora (24 h)', 'stats.dns_queries_hourly': 'Consultas DNS por hora (24 h)', 'stats.top_public_ips': 'Top {n} IPs públicas', 'stats.top_countries': 'Top {n} países', 'stats.top_internal_talkers': 'Top {n} emisores internos', 'stats.top_threat_ips': 'Top {n} IPs de amenaza', 'stats.blocked_dns_by_category': 'Consultas DNS bloqueadas por categoría', 'stats.top_blocked_by_client': 'Top {n} consultas bloqueadas por cliente', 'stats.top_hosts_deviations': 'Top {n} hosts en desviaciones', 'stats.top_ext_deviations': 'Top {n} IPs externas en desviaciones', 'stats.suricata_by_severity': 'Alertas Suricata — por severidad', 'stats.suricata_by_category': 'Alertas Suricata — por categoría', 'stats.suricata_top_source': 'Alertas Suricata — Top {n} IPs origen', 'stats.top_blocked_domains': 'Top {n} dominios bloqueados / maliciosos', 'stats.enrichment_budget': 'Presupuesto de enriquecimiento (hoy)', 'stats.no_alerts': 'Aún no hay alertas', 'stats.no_data': 'Sin datos', 'external.modal_hostname': 'Nombre de host', 'external.modal_country': 'País', 'external.modal_asn': 'ASN', 'external.modal_org_isp': 'Org / ISP', 'external.modal_vt': 'VirusTotal', 'external.modal_abuse': 'Nivel de abuso', 'external.modal_direction': 'Dirección', 'external.modal_reports': 'Informes', 'external.modal_internal_host': 'Host interno', 'external.modal_data_sources': 'Fuentes de datos', 'external.modal_enriched_at': 'Enriquecido el', 'external.modal_last_seen': 'Última vez visto', 'external.modal_yes': 'Sí', 'external.modal_no': 'No', 'external.modal_error': 'Error de enriquecimiento:'
+  },
+  it: {
+    'time.just_now': 'proprio ora',
+    'time.minutes_ago': 'fa {n} min',
+    'time.hours_ago': 'fa {n} h',
+    'time.days_ago': 'fa {n} g',
+    'recs.title_patch_vulnerable': 'Correggi i dispositivi vulnerabili',
+    'recs.detail_patch_vulnerable': '{n} dispositivo/i hanno vulnerabilità CVE note di livello alto o critico. Aggiorna firmware/software o limita subito l’accesso alla rete.',
+    'recs.title_review_vulnerability_findings': 'Esamina i rilevamenti di vulnerabilità',
+    'recs.detail_review_vulnerability_findings': 'La scansione attiva ha trovato servizi con problemi di sicurezza noti. Controlla la scheda dei rilevamenti per i dettagli CVE e i passaggi di rimedio.',
+    'recs.title_connect_exporter': 'Collega un esportatore di flussi',
+    'recs.detail_connect_exporter': 'Non è ancora stato osservato alcun esportatore NetFlow o IPFIX. Configura gateway, firewall o switch per esportare i flussi verso HomeSec.',
+    'recs.title_verify_exporter': 'Verifica la raggiungibilità dell’esportatore',
+    'recs.detail_verify_exporter': 'Gli esportatori sono configurati, ma HomeSec non ha ancora ricevuto datagrammi. Controlla IP/porta di destinazione, regole firewall e rete del contenitore.',
+    'recs.title_check_flow_format': 'Controlla il formato di esportazione dei flussi',
+    'recs.detail_check_flow_format': 'I datagrammi arrivano, ma nessuno ha prodotto record. Conferma che l’esportatore usi NetFlow v5/v9/IPFIX con campi IPv4 e template validi.',
+    'recs.title_restrict_risky_ports': 'Limita le porte in uscita rischiose',
+    'recs.detail_restrict_risky_ports': 'Almeno un dispositivo ha contattato una porta esterna spesso abusata, come Telnet o RDP. Blocca o segnala queste porte sul gateway e correggi il dispositivo sorgente.',
+    'recs.title_isolate_scanning_hosts': 'Isola gli host che eseguono scansioni',
+    'recs.detail_isolate_scanning_hosts': 'Un dispositivo sta toccando molte porte in poco tempo. Spostalo in una VLAN isolata o rete guest finché non confermi che il comportamento è previsto.',
+    'recs.title_review_high_egress_devices': 'Esamina i dispositivi con traffico in uscita elevato',
+    'recs.detail_review_high_egress_devices': 'Uno o più dispositivi hanno superato la soglia dei dati in uscita. Verifica se il traffico corrisponde a backup, telecamere o upload multimediali invece che a malware o esfiltrazione.',
+    'recs.title_improve_device_identity_coverage': 'Migliora la copertura dell’identità dei dispositivi',
+    'recs.detail_improve_device_identity_coverage': '{n} dispositivo/i hanno ancora un ruolo sconosciuto. Aggiungi integrazioni router, DHCP o tracker così HomeSec può correlare nomi, indirizzi MAC e hostname.',
+    'recs.title_enable_device_tracker_enrichment': 'Abilita l’arricchimento dei tracker dei dispositivi',
+    'recs.detail_enable_device_tracker_enrichment': 'HomeSec vede i dispositivi, ma nessuno è stato arricchito dai tracker di Home Assistant. Aggiungere integrazioni router o di presenza renderà la dashboard molto più leggibile.',
+    'recs.title_stabilize_exporter_templates': 'Stabilizza i template dell’esportatore',
+    'recs.detail_stabilize_exporter_templates': 'Alcuni datagrammi di flusso sono stati scartati o arrivati prima dei loro template. Riduci i riavvii dell’esportatore o accorcia gli intervalli di aggiornamento dei template.',
+    'findings.pattern': '🗑 Pattern…', 'findings.security': 'Rilevamenti di sicurezza', 'findings.actionable': 'azionabili', 'findings.shown': 'mostrati', 'findings.dismissed': 'ignorati', 'findings.baseline': 'Anomalie baseline', 'findings.dismissed_title': 'Ignorati', 'findings.by_category': 'Per categoria', 'findings.by_host': 'Per host', 'findings.by_severity': 'Per gravità', 'findings.flat': 'Piatto', 'findings.no_results': 'Nessun risultato per', 'findings.no_active': 'Nessun rilevamento attivo alto o critico.', 'findings.host_one': 'host', 'findings.host_many': 'host', 'findings.finding_one': 'rilevamento', 'findings.finding_many': 'rilevamenti', 'findings.total': 'totale', 'findings.latest': 'Ultimo:', 'findings.restore': 'Ripristina', 'findings.dismiss': 'Ignora', 'findings.restore_all': 'Ripristina tutto', 'findings.dismiss_all': 'Ignora tutto', 'findings.category': 'Categoria', 'findings.source': 'Sorgente', 'findings.port': 'Porta', 'findings.seen': 'visto', 'findings.remediation': 'Rimedio', 'findings.note': 'Nota', 'findings.baseline_badge': 'Baseline', 'findings.cat_new_host': 'Nuovo host rilevato', 'findings.cat_new_peer': 'Nuovo peer esterno', 'findings.cat_new_port': 'Nuova porta aperta', 'findings.cat_new_dns_domain': 'Nuovo dominio DNS', 'findings.cat_new_dns_category': 'Nuova categoria DNS', 'findings.cat_missing_host': 'Host noto mancante', 'findings.cat_missing_peer': 'Peer noto mancante', 'findings.cat_vulnerability': 'Vulnerabilità / CVE', 'findings.cat_port_scan': 'Scansione porte', 'findings.cat_suspicious_port': 'Porta aperta sospetta', 'findings.cat_high_egress': 'Traffico in uscita elevato', 'findings.sev_critical': 'Critico', 'findings.sev_high': 'Alto', 'findings.sev_medium': 'Medio', 'findings.sev_low': 'Basso', 'findings.sev_info': 'Info',
+    'stats.activity_timeline': 'CRONOLOGIA ATTIVITÀ', 'stats.public_ips_per_hour': 'IP pubblici visti per ora (24 h)', 'stats.no_public_ips': 'Nessun IP pubblico tracciato per ora', 'stats.hosts_per_hour': 'Host per ora (24 h)', 'stats.no_host_data': 'Nessun dato host ancora', 'stats.hosts_seen': 'Host visti', 'stats.scanned_alive': 'Scansionati attivi', 'stats.pie': 'Torta', 'stats.list': 'Lista', 'stats.no_external_flow_data': 'Nessun dato di flusso esterno ancora', 'stats.ranked_by_flow_count': 'Ordinato per numero di flussi', 'stats.view_all_external_ips': 'Vedi tutti gli IP esterni →', 'stats.no_country_data': 'Nessun dato paese ancora', 'stats.no_traffic_data': 'Nessun dato traffico ancora', 'stats.ranked_by_total_traffic': 'Ordinato per traffico totale', 'stats.view_all_hosts': 'Vedi tutti gli host →', 'stats.no_enrichment_data': 'Nessun dato di arricchimento', 'stats.provider': 'Provider', 'stats.used_today': 'Usato oggi', 'stats.daily_budget': 'Budget giornaliero', 'stats.usage': 'Utilizzo', 'stats.status': 'Stato', 'stats.errors_notes': 'Errori / Note', 'stats.not_configured': 'non configurato', 'stats.exhausted': 'esaurito', 'stats.unlimited': '∞ illimitato', 'stats.ok': 'ok', 'stats.high': 'alto', 'stats.no_threat_ips': 'Nessun IP sospetto o malevolo rilevato', 'stats.malicious_first': 'Prima i malevoli, poi per numero di flussi', 'stats.no_dns_queries': 'Nessuna query DNS registrata', 'stats.total': 'Totale', 'stats.blocked': 'Bloccato', 'stats.malicious': 'Malevolo', 'stats.no_dns_detected': 'Nessuna query DNS malevola o bloccata rilevata', 'stats.view_dns_log': 'Vedi log DNS →', 'stats.no_blocked_yet': 'Nessuna query DNS bloccata o malevola per ora', 'stats.no_blocked_clients': 'Nessuna query client bloccata o malevola per ora', 'stats.no_deviance': 'Nessun dato di deviazione ancora — i dati si accumulano ogni 5 min', 'stats.normal': '≤20% Normale', 'stats.review': '≤50% Rivedi', 'stats.investigate': '≤75% Indaga', 'stats.critical': '>75% Critico', 'stats.no_findings': 'Nessun rilevamento registrato ancora', 'stats.no_ext_peers': 'Nessun nuovo peer esterno nelle deviazioni baseline', 'stats.baseline_deviance_hourly': 'Deviazione baseline per ora (24 h)', 'stats.dns_queries_hourly': 'Query DNS per ora (24 h)', 'stats.top_public_ips': 'Top {n} IP pubblici', 'stats.top_countries': 'Top {n} paesi', 'stats.top_internal_talkers': 'Top {n} interlocutori interni', 'stats.top_threat_ips': 'Top {n} IP di minaccia', 'stats.blocked_dns_by_category': 'Query DNS bloccate per categoria', 'stats.top_blocked_by_client': 'Top {n} query bloccate per client', 'stats.top_hosts_deviations': 'Top {n} host in deviazione', 'stats.top_ext_deviations': 'Top {n} IP esterni in deviazione', 'stats.suricata_by_severity': 'Avvisi Suricata — per gravità', 'stats.suricata_by_category': 'Avvisi Suricata — per categoria', 'stats.suricata_top_source': 'Avvisi Suricata — Top {n} IP sorgente', 'stats.top_blocked_domains': 'Top {n} domini bloccati / malevoli', 'stats.enrichment_budget': 'Budget arricchimento (oggi)', 'stats.no_alerts': 'Nessun avviso ancora', 'stats.no_data': 'Nessun dato', 'external.modal_hostname': 'Hostname', 'external.modal_country': 'Paese', 'external.modal_asn': 'ASN', 'external.modal_org_isp': 'Org / ISP', 'external.modal_vt': 'VirusTotal', 'external.modal_abuse': 'Livello abuso', 'external.modal_direction': 'Direzione', 'external.modal_reports': 'Report', 'external.modal_internal_host': 'Host interno', 'external.modal_data_sources': 'Sorgenti dati', 'external.modal_enriched_at': 'Arricchito il', 'external.modal_last_seen': 'Ultima vista', 'external.modal_yes': 'Sì', 'external.modal_no': 'No', 'external.modal_error': 'Errore di arricchimento:'
+  }
+};
+
+Object.keys(_UI_I18N_EXTRA_3).forEach(function(locale) {
+  Object.assign(_UI_I18N[locale], _UI_I18N_EXTRA_3[locale]);
+});
+
+const _SETTINGS_SCHEMA_I18N = {
+  fr: {
+    sections: {
+      'Network & NetFlow': 'Réseau et NetFlow',
+      'Threat Detection': 'Détection des menaces',
+      'Active Scanner': 'Scanner actif',
+      'DNS & Threat Intelligence': 'DNS et renseignement sur les menaces',
+      'DNS Proxy': 'Proxy DNS',
+      'External IP Enrichment': 'Enrichissement des IP externes',
+      'NVD Vulnerability Intelligence': 'Renseignement vulnérabilités NVD',
+      'Baseline & Behaviour Analysis': 'Baseline et analyse comportementale',
+      'Display': 'Affichage',
+      'Suricata Alert Listener': 'Récepteur d\'alertes Suricata',
+    },
+    labels: {
+      bind_host: 'Hôte d\'écoute NetFlow',
+      bind_port: 'Port d\'écoute NetFlow',
+      enable_netflow_listener: 'Activer l\'écouteur NetFlow',
+      internal_networks: 'Réseaux internes',
+      scan_window_seconds: 'Fenêtre de scan de ports (s)',
+      scan_port_threshold: 'Seuil de scan de ports',
+      high_egress_threshold: 'Seuil de trafic sortant élevé (octets)',
+      enable_scanner: 'Activer le scanner',
+      scan_interval: 'Intervalle de scan (s)',
+      scan_ports: 'Ports à scanner',
+      scan_exceptions: 'Exceptions de scan',
+      enable_dns_resolution: 'Activer la résolution DNS',
+      blacklist_urls: 'URLs de blacklist',
+      dns_proxy_enabled: 'Activer le proxy DNS',
+      dns_proxy_bind_host: 'Hôte d\'écoute du proxy DNS',
+      dns_proxy_port: 'Port du proxy DNS',
+      dns_proxy_upstream: 'Serveur DNS amont',
+      dns_log_retention_hours: 'Rétention des journaux DNS (h)',
+      dns_warn_blocked_logs: 'Journaux d\'alerte pour domaines bloqués',
+      dns_blocked_categories: 'Catégories DNS bloquées',
+      dns_overrides: 'Overrides DNS locaux',
+      virustotal_api_key: 'Clé API VirusTotal',
+      abuseipdb_api_key: 'Clé API AbuseIPDB',
+      vt_abuseipdb_threshold: 'Seuil de score de menace (%)',
+      virustotal_daily_budget: 'Budget quotidien VirusTotal',
+      abuseipdb_daily_budget: 'Budget quotidien AbuseIPDB',
+      enrichment_ttl_minutes: 'TTL du cache d\'enrichissement (min)',
+      external_ip_retention_hours: 'Rétention des IP externes (h)',
+      retention_suspicious_hours: 'Rétention des IP suspectes (h)',
+      retention_malicious_hours: 'Rétention des IP malveillantes (h)',
+      nvd_api_url: 'URL API NVD',
+      nvd_ttl_hours: 'TTL du cache NVD (h)',
+      nvd_min_year: 'Année minimale CVE',
+      nvd_keywords: 'Mots-clés NVD',
+      baseline_enabled: 'Activer la baseline',
+      baseline_training_hours: 'Durée d\'apprentissage (h)',
+      baseline_min_observations: 'Observations minimales',
+      baseline_egress_multiplier: 'Multiplicateur d\'anomalie sortante',
+      webui_require_admin: 'Le panneau latéral requiert un admin',
+      stats_top_n: 'Top N des statistiques',
+      suricata_listener_enabled: 'Activer le récepteur Suricata',
+      suricata_listener_host: 'Hôte d\'écoute du récepteur',
+      suricata_listener_port: 'Port TCP du récepteur',
+      suricata_log_retention_hours: 'Rétention des journaux d\'alertes (h)',
+    },
+    helps: {
+      bind_host: 'Adresse IP sur laquelle écouter les datagrammes NetFlow UDP (utilisez 0.0.0.0 pour toutes les interfaces).',
+      bind_port: 'Port UDP pour les datagrammes NetFlow v5/v9/IPFIX (2055 par défaut).',
+      enable_netflow_listener: 'Active l\'écoute UDP NetFlow/IPFIX et l\'ingestion des flux.',
+      internal_networks: 'Plages CIDR séparées par des virgules considérées comme internes (ex. 192.168.0.0/16,10.0.0.0/8).',
+      scan_window_seconds: 'Fenêtre temporelle en secondes pour détecter les scans de ports.',
+      scan_port_threshold: 'Nombre de ports distincts contactés dans la fenêtre pour déclencher une alerte de scan de ports.',
+      high_egress_threshold: 'Volume d\'octets envoyés vers l\'extérieur pour déclencher une alerte de trafic sortant élevé.',
+      enable_scanner: 'Active le scan actif périodique des hôtes internes.',
+      scan_interval: 'Nombre de secondes entre deux cycles de scan actif.',
+      scan_ports: 'Ports à scanner (plages et virgules autorisées, ex. 22,80,443,8080-8090).',
+      scan_exceptions: 'IPs à exclure du scan actif, séparées par des virgules.',
+      enable_dns_resolution: 'Résout les noms d\'hôte pour les IP externes et les vérifie dans les blacklists.',
+      blacklist_urls: 'URLs de listes de blocage threat-intel, séparées par virgules ou retours à la ligne.',
+      dns_proxy_enabled: 'Lance un proxy DNS qui journalise et peut bloquer les requêtes.',
+      dns_proxy_bind_host: 'Adresse d\'écoute du proxy DNS (recommandé : 127.0.0.1 ou une IP LAN spécifique).',
+      dns_proxy_port: 'Port UDP du proxy DNS (53 par défaut, nécessite root/CAP_NET_BIND_SERVICE).',
+      dns_proxy_upstream: 'IP du résolveur DNS amont (ex. 1.1.1.1).',
+      dns_log_retention_hours: 'Nombre d\'heures de conservation des entrées de journal DNS (0 = illimité).',
+      dns_warn_blocked_logs: 'Écrit un journal de niveau warning pour chaque requête DNS bloquée (désactivé par défaut pour limiter le bruit).',
+      dns_blocked_categories: 'Noms de catégories à bloquer, séparés par virgules ou retours à la ligne (ex. ads,malware,tracking).',
+      dns_overrides: 'Overrides DNS locaux, une entrée par ligne : hostname=IP (ex. myhost.local=192.168.1.5).',
+      virustotal_api_key: 'Clé API VirusTotal optionnelle pour l\'évaluation de réputation des IP externes.',
+      abuseipdb_api_key: 'Clé API AbuseIPDB optionnelle pour l\'évaluation de réputation des IP externes.',
+      vt_abuseipdb_threshold: 'Score de confiance d\'abus minimal (0-100) pour marquer une IP comme suspecte.',
+      virustotal_daily_budget: 'Nombre maximal de requêtes API VirusTotal par jour.',
+      abuseipdb_daily_budget: 'Nombre maximal de requêtes API AbuseIPDB par jour.',
+      enrichment_ttl_minutes: 'Nombre de minutes avant de réinterroger les APIs d\'enrichissement pour une IP connue.',
+      external_ip_retention_hours: 'Nombre d\'heures de conservation des IP externes propres dans le tableau de bord.',
+      retention_suspicious_hours: 'Nombre d\'heures de conservation des IP suspectes.',
+      retention_malicious_hours: 'Nombre d\'heures de conservation des IP malveillantes.',
+      nvd_api_url: 'URL du point de terminaison de l\'API CVE NVD.',
+      nvd_ttl_hours: 'Nombre d\'heures avant rafraîchissement du cache CVE NVD.',
+      nvd_min_year: 'Afficher uniquement les CVE publiées à partir de cette année.',
+      nvd_keywords: 'Mots-clés produits séparés par des virgules à précharger depuis NVD (ex. OpenSSH,nginx,Samba).',
+      baseline_enabled: 'Active l\'apprentissage de baseline comportementale et la détection d\'anomalies.',
+      baseline_training_hours: 'Nombre d\'heures de trafic à observer avant de considérer la baseline entraînée.',
+      baseline_min_observations: 'Nombre minimal d\'observations de flux avant de considérer un motif comme normal.',
+      baseline_egress_multiplier: 'Nombre de fois où le trafic sortant baseline d\'un appareil doit être dépassé avant signalement.',
+      webui_require_admin: 'Quand activé, seuls les utilisateurs administrateurs Home Assistant peuvent voir le panneau latéral Security Assistant.',
+      stats_top_n: 'Nombre d\'entrées principales à afficher dans les graphiques de statistiques.',
+      suricata_listener_enabled: 'Accepte les alertes Suricata EVE JSON sur TCP depuis suricata_pusher.py.',
+      suricata_listener_host: 'Adresse IP d\'écoute du récepteur TCP (0.0.0.0 pour toutes les interfaces).',
+      suricata_listener_port: 'Port TCP auquel le pusher Suricata se connecte (6343 par défaut).',
+      suricata_log_retention_hours: 'Nombre d\'heures de conservation des entrées de journal d\'alertes Suricata (0 = illimité).',
+    },
+  },
+  de: {
+    sections: {
+      'Network & NetFlow': 'Netzwerk und NetFlow',
+      'Threat Detection': 'Bedrohungserkennung',
+      'Active Scanner': 'Aktiver Scanner',
+      'DNS & Threat Intelligence': 'DNS und Threat Intelligence',
+      'DNS Proxy': 'DNS-Proxy',
+      'External IP Enrichment': 'Externe IP-Anreicherung',
+      'NVD Vulnerability Intelligence': 'NVD-Schwachstelleninformationen',
+      'Baseline & Behaviour Analysis': 'Baseline und Verhaltensanalyse',
+      'Display': 'Anzeige',
+      'Suricata Alert Listener': 'Suricata-Alarm-Listener',
+    },
+    labels: {
+      bind_host: 'NetFlow-Bind-Host',
+      bind_port: 'NetFlow-Bind-Port',
+      enable_netflow_listener: 'NetFlow-Listener aktivieren',
+      internal_networks: 'Interne Netzwerke',
+      scan_window_seconds: 'Portscan-Fenster (s)',
+      scan_port_threshold: 'Portscan-Schwelle',
+      high_egress_threshold: 'Schwelle für hohen ausgehenden Traffic (Bytes)',
+      enable_scanner: 'Scanner aktivieren',
+      scan_interval: 'Scan-Intervall (s)',
+      scan_ports: 'Zu scannende Ports',
+      scan_exceptions: 'Scan-Ausnahmen',
+      enable_dns_resolution: 'DNS-Auflösung aktivieren',
+      blacklist_urls: 'Blacklist-URLs',
+      dns_proxy_enabled: 'DNS-Proxy aktivieren',
+      dns_proxy_bind_host: 'DNS-Proxy-Bind-Host',
+      dns_proxy_port: 'DNS-Proxy-Port',
+      dns_proxy_upstream: 'Upstream-DNS-Server',
+      dns_log_retention_hours: 'DNS-Log-Aufbewahrung (h)',
+      dns_warn_blocked_logs: 'Warn-Logs für blockierte Domains',
+      dns_blocked_categories: 'Blockierte DNS-Kategorien',
+      dns_overrides: 'Lokale DNS-Overrides',
+      virustotal_api_key: 'VirusTotal-API-Schlüssel',
+      abuseipdb_api_key: 'AbuseIPDB-API-Schlüssel',
+      vt_abuseipdb_threshold: 'Threat-Score-Schwelle (%)',
+      virustotal_daily_budget: 'VirusTotal-Tagesbudget',
+      abuseipdb_daily_budget: 'AbuseIPDB-Tagesbudget',
+      enrichment_ttl_minutes: 'TTL für Anreicherungs-Cache (min)',
+      external_ip_retention_hours: 'Aufbewahrung externer IPs (h)',
+      retention_suspicious_hours: 'Aufbewahrung verdächtiger IPs (h)',
+      retention_malicious_hours: 'Aufbewahrung bösartiger IPs (h)',
+      nvd_api_url: 'NVD-API-URL',
+      nvd_ttl_hours: 'NVD-Cache-TTL (h)',
+      nvd_min_year: 'CVE-Mindestjahr',
+      nvd_keywords: 'NVD-Schlüsselwörter',
+      baseline_enabled: 'Baseline aktivieren',
+      baseline_training_hours: 'Trainingsdauer (h)',
+      baseline_min_observations: 'Minimale Beobachtungen',
+      baseline_egress_multiplier: 'Egress-Anomalie-Multiplikator',
+      webui_require_admin: 'Seitenleistenpanel erfordert Admin',
+      stats_top_n: 'Statistik Top N',
+      suricata_listener_enabled: 'Suricata-Listener aktivieren',
+      suricata_listener_host: 'Listener-Bind-Host',
+      suricata_listener_port: 'Listener-TCP-Port',
+      suricata_log_retention_hours: 'Aufbewahrung Alarm-Logs (h)',
+    },
+    helps: {
+      bind_host: 'IP-Adresse für den NetFlow-UDP-Listener (0.0.0.0 für alle Interfaces).',
+      bind_port: 'UDP-Port für NetFlow-v5/v9/IPFIX-Datagramme (Standard 2055).',
+      enable_netflow_listener: 'Aktiviert den UDP-NetFlow/IPFIX-Listener und die Flow-Erfassung.',
+      internal_networks: 'Kommagetrennte CIDR-Bereiche, die als intern gelten (z. B. 192.168.0.0/16,10.0.0.0/8).',
+      scan_window_seconds: 'Zeitfenster in Sekunden für die Portscan-Erkennung.',
+      scan_port_threshold: 'Anzahl unterschiedlicher Ports im Fenster, um einen Portscan-Alarm auszulösen.',
+      high_egress_threshold: 'Ausgehend gesendete Bytes für einen High-Egress-Alarm.',
+      enable_scanner: 'Aktiviert periodisches aktives Port-Scanning interner Hosts.',
+      scan_interval: 'Sekunden zwischen aktiven Scan-Zyklen.',
+      scan_ports: 'Zu scannende Ports (Bereiche und Kommas erlaubt, z. B. 22,80,443,8080-8090).',
+      scan_exceptions: 'Kommagetrennte IPs, die vom aktiven Scan ausgeschlossen werden.',
+      enable_dns_resolution: 'Löst Hostnamen für externe IPs auf und prüft sie gegen Blacklists.',
+      blacklist_urls: 'Komma- oder zeilengetrennte URLs von Threat-Intel-Blocklisten zum Herunterladen.',
+      dns_proxy_enabled: 'Startet einen DNS-Proxy, der Anfragen protokolliert und optional blockiert.',
+      dns_proxy_bind_host: 'Bind-Adresse des DNS-Proxys (empfohlen: 127.0.0.1 oder eine spezifische LAN-IP).',
+      dns_proxy_port: 'UDP-Port für den DNS-Proxy-Listener (Standard 53, benötigt root/CAP_NET_BIND_SERVICE).',
+      dns_proxy_upstream: 'IP des Upstream-DNS-Resolvers (z. B. 1.1.1.1).',
+      dns_log_retention_hours: 'Wie viele Stunden DNS-Logeinträge aufbewahrt werden (0 = unbegrenzt).',
+      dns_warn_blocked_logs: 'Schreibt Warn-Logs für jede blockierte DNS-Anfrage (standardmäßig aus, um Log-Rauschen zu reduzieren).',
+      dns_blocked_categories: 'Komma- oder zeilengetrennte Kategorienamen zum Blockieren (z. B. ads,malware,tracking).',
+      dns_overrides: 'Lokale DNS-Overrides, eine Zeile pro Eintrag: hostname=IP (z. B. myhost.local=192.168.1.5).',
+      virustotal_api_key: 'Optionaler VirusTotal-API-Schlüssel für Reputationsabfragen externer IPs.',
+      abuseipdb_api_key: 'Optionaler AbuseIPDB-API-Schlüssel für Reputationsabfragen externer IPs.',
+      vt_abuseipdb_threshold: 'Mindest-Missbrauchsscore (0-100), um eine IP als verdächtig zu markieren.',
+      virustotal_daily_budget: 'Maximale Anzahl VirusTotal-API-Abfragen pro Tag.',
+      abuseipdb_daily_budget: 'Maximale Anzahl AbuseIPDB-API-Abfragen pro Tag.',
+      enrichment_ttl_minutes: 'Minuten bis zur erneuten Abfrage von Anreicherungs-APIs für bekannte IPs.',
+      external_ip_retention_hours: 'Stunden zur Aufbewahrung unauffälliger externer IPs im Dashboard.',
+      retention_suspicious_hours: 'Stunden zur Aufbewahrung verdächtiger IPs.',
+      retention_malicious_hours: 'Stunden zur Aufbewahrung bösartiger IPs.',
+      nvd_api_url: 'URL des NVD-CVE-API-Endpunkts.',
+      nvd_ttl_hours: 'Stunden bis zur Aktualisierung des NVD-CVE-Caches.',
+      nvd_min_year: 'Nur CVEs anzeigen, die in oder nach diesem Jahr veröffentlicht wurden.',
+      nvd_keywords: 'Kommagetrennte Produkt-Schlüsselwörter zum Vorababruf aus NVD (z. B. OpenSSH,nginx,Samba).',
+      baseline_enabled: 'Aktiviert lernende Verhaltens-Baseline und Anomalieerkennung.',
+      baseline_training_hours: 'Stunden Traffic-Beobachtung, bevor die Baseline als trainiert gilt.',
+      baseline_min_observations: 'Minimale Anzahl an Flow-Beobachtungen, bevor ein Muster als normal gilt.',
+      baseline_egress_multiplier: 'Wie oft die Baseline-Egress eines Geräts überschritten werden muss, bevor es markiert wird.',
+      webui_require_admin: 'Wenn aktiviert, sehen nur Home-Assistant-Administratoren das Security-Assistant-Seitenpanel.',
+      stats_top_n: 'Wie viele Top-Einträge in Statistikdiagrammen gezeigt werden.',
+      suricata_listener_enabled: 'Akzeptiert Suricata-EVE-JSON-Alarme per TCP von suricata_pusher.py.',
+      suricata_listener_host: 'IP-Adresse für den TCP-Listener (0.0.0.0 für alle Interfaces).',
+      suricata_listener_port: 'TCP-Port, mit dem sich der Suricata-Pusher verbindet (Standard 6343).',
+      suricata_log_retention_hours: 'Stunden zur Aufbewahrung von Suricata-Alarm-Logeinträgen (0 = unbegrenzt).',
+    },
+  },
+  es: {
+    sections: {
+      'Network & NetFlow': 'Red y NetFlow',
+      'Threat Detection': 'Detección de amenazas',
+      'Active Scanner': 'Escáner activo',
+      'DNS & Threat Intelligence': 'DNS e inteligencia de amenazas',
+      'DNS Proxy': 'Proxy DNS',
+      'External IP Enrichment': 'Enriquecimiento de IP externa',
+      'NVD Vulnerability Intelligence': 'Inteligencia de vulnerabilidades NVD',
+      'Baseline & Behaviour Analysis': 'Línea base y análisis de comportamiento',
+      'Display': 'Visualización',
+      'Suricata Alert Listener': 'Receptor de alertas Suricata',
+    },
+    labels: {
+      bind_host: 'Host de enlace NetFlow',
+      bind_port: 'Puerto de enlace NetFlow',
+      enable_netflow_listener: 'Activar receptor NetFlow',
+      internal_networks: 'Redes internas',
+      scan_window_seconds: 'Ventana de escaneo de puertos (s)',
+      scan_port_threshold: 'Umbral de escaneo de puertos',
+      high_egress_threshold: 'Umbral de tráfico saliente alto (bytes)',
+      enable_scanner: 'Activar escáner',
+      scan_interval: 'Intervalo de escaneo (s)',
+      scan_ports: 'Puertos a escanear',
+      scan_exceptions: 'Excepciones de escaneo',
+      enable_dns_resolution: 'Activar resolución DNS',
+      blacklist_urls: 'URLs de blacklist',
+      dns_proxy_enabled: 'Activar proxy DNS',
+      dns_proxy_bind_host: 'Host de enlace del proxy DNS',
+      dns_proxy_port: 'Puerto del proxy DNS',
+      dns_proxy_upstream: 'Servidor DNS upstream',
+      dns_log_retention_hours: 'Retención de logs DNS (h)',
+      dns_warn_blocked_logs: 'Logs de aviso para dominios bloqueados',
+      dns_blocked_categories: 'Categorías DNS bloqueadas',
+      dns_overrides: 'Overrides DNS locales',
+      virustotal_api_key: 'Clave API de VirusTotal',
+      abuseipdb_api_key: 'Clave API de AbuseIPDB',
+      vt_abuseipdb_threshold: 'Umbral de puntuación de amenaza (%)',
+      virustotal_daily_budget: 'Presupuesto diario de VirusTotal',
+      abuseipdb_daily_budget: 'Presupuesto diario de AbuseIPDB',
+      enrichment_ttl_minutes: 'TTL de caché de enriquecimiento (min)',
+      external_ip_retention_hours: 'Retención de IP externas (h)',
+      retention_suspicious_hours: 'Retención de IP sospechosas (h)',
+      retention_malicious_hours: 'Retención de IP maliciosas (h)',
+      nvd_api_url: 'URL de API NVD',
+      nvd_ttl_hours: 'TTL de caché NVD (h)',
+      nvd_min_year: 'Año mínimo CVE',
+      nvd_keywords: 'Palabras clave NVD',
+      baseline_enabled: 'Activar línea base',
+      baseline_training_hours: 'Duración del entrenamiento (h)',
+      baseline_min_observations: 'Observaciones mínimas',
+      baseline_egress_multiplier: 'Multiplicador de anomalía de egreso',
+      webui_require_admin: 'El panel lateral requiere admin',
+      stats_top_n: 'Top N de estadísticas',
+      suricata_listener_enabled: 'Activar receptor Suricata',
+      suricata_listener_host: 'Host de enlace del receptor',
+      suricata_listener_port: 'Puerto TCP del receptor',
+      suricata_log_retention_hours: 'Retención de logs de alertas (h)',
+    },
+    helps: {
+      bind_host: 'Dirección IP para enlazar el receptor UDP de NetFlow (use 0.0.0.0 para todas las interfaces).',
+      bind_port: 'Puerto UDP para datagramas NetFlow v5/v9/IPFIX (2055 por defecto).',
+      enable_netflow_listener: 'Activa el receptor UDP NetFlow/IPFIX y la ingesta de flujos.',
+      internal_networks: 'Rangos CIDR separados por comas que se consideran internos (p. ej. 192.168.0.0/16,10.0.0.0/8).',
+      scan_window_seconds: 'Ventana temporal en segundos para detectar escaneo de puertos.',
+      scan_port_threshold: 'Número de puertos distintos contactados en la ventana para activar una alerta de escaneo.',
+      high_egress_threshold: 'Bytes enviados al exterior para activar una alerta de tráfico saliente alto.',
+      enable_scanner: 'Activa el escaneo activo periódico de hosts internos.',
+      scan_interval: 'Segundos entre ciclos de escaneo activo.',
+      scan_ports: 'Puertos a escanear (rangos y comas permitidos, p. ej. 22,80,443,8080-8090).',
+      scan_exceptions: 'IPs separadas por comas a excluir del escaneo activo.',
+      enable_dns_resolution: 'Resuelve nombres de host para IP externas y los comprueba contra blacklists.',
+      blacklist_urls: 'URLs separadas por comas o saltos de línea de blocklists de inteligencia de amenazas para descargar.',
+      dns_proxy_enabled: 'Ejecuta un proxy DNS que registra y opcionalmente bloquea consultas.',
+      dns_proxy_bind_host: 'Dirección de enlace del proxy DNS (recomendado: 127.0.0.1 o una IP LAN específica).',
+      dns_proxy_port: 'Puerto UDP para el receptor del proxy DNS (53 por defecto, requiere root/CAP_NET_BIND_SERVICE).',
+      dns_proxy_upstream: 'IP del resolvedor DNS upstream (p. ej. 1.1.1.1).',
+      dns_log_retention_hours: 'Cuántas horas conservar entradas del registro DNS (0 = ilimitado).',
+      dns_warn_blocked_logs: 'Escribe logs de advertencia para cada consulta DNS bloqueada (desactivado por defecto para reducir ruido).',
+      dns_blocked_categories: 'Nombres de categorías separados por comas o saltos de línea para bloquear (p. ej. ads,malware,tracking).',
+      dns_overrides: 'Overrides DNS locales, una por línea: hostname=IP (p. ej. myhost.local=192.168.1.5).',
+      virustotal_api_key: 'Clave API opcional de VirusTotal para reputación de IP externas.',
+      abuseipdb_api_key: 'Clave API opcional de AbuseIPDB para reputación de IP externas.',
+      vt_abuseipdb_threshold: 'Puntuación mínima de confianza de abuso (0-100) para marcar una IP como sospechosa.',
+      virustotal_daily_budget: 'Máximo de consultas API de VirusTotal por día.',
+      abuseipdb_daily_budget: 'Máximo de consultas API de AbuseIPDB por día.',
+      enrichment_ttl_minutes: 'Minutos antes de volver a consultar APIs de enriquecimiento para una IP conocida.',
+      external_ip_retention_hours: 'Horas para conservar IP externas limpias en el panel.',
+      retention_suspicious_hours: 'Horas para conservar IP sospechosas.',
+      retention_malicious_hours: 'Horas para conservar IP maliciosas.',
+      nvd_api_url: 'URL del endpoint de la API CVE de NVD.',
+      nvd_ttl_hours: 'Horas antes de refrescar la caché CVE de NVD.',
+      nvd_min_year: 'Mostrar solo CVE publicadas en o después de este año.',
+      nvd_keywords: 'Palabras clave de productos separadas por comas para precargar desde NVD (p. ej. OpenSSH,nginx,Samba).',
+      baseline_enabled: 'Activa el aprendizaje de línea base de comportamiento y la detección de anomalías.',
+      baseline_training_hours: 'Horas de tráfico a observar antes de considerar entrenada la línea base.',
+      baseline_min_observations: 'Número mínimo de observaciones de flujo antes de tratar un patrón como normal.',
+      baseline_egress_multiplier: 'Cuántas veces debe superarse el egreso de línea base de un dispositivo para marcarlo.',
+      webui_require_admin: 'Cuando está activado, solo los usuarios administradores de Home Assistant pueden ver el panel lateral de Security Assistant.',
+      stats_top_n: 'Cuántas entradas principales mostrar en los gráficos de estadísticas.',
+      suricata_listener_enabled: 'Acepta alertas Suricata EVE JSON por TCP desde suricata_pusher.py.',
+      suricata_listener_host: 'Dirección IP para enlazar el receptor TCP (0.0.0.0 para todas las interfaces).',
+      suricata_listener_port: 'Puerto TCP para conectar el pusher de Suricata (6343 por defecto).',
+      suricata_log_retention_hours: 'Horas para conservar entradas del log de alertas de Suricata (0 = ilimitado).',
+    },
+  },
+  it: {
+    sections: {
+      'Network & NetFlow': 'Rete e NetFlow',
+      'Threat Detection': 'Rilevamento minacce',
+      'Active Scanner': 'Scanner attivo',
+      'DNS & Threat Intelligence': 'DNS e threat intelligence',
+      'DNS Proxy': 'Proxy DNS',
+      'External IP Enrichment': 'Arricchimento IP esterni',
+      'NVD Vulnerability Intelligence': 'Intelligence vulnerabilità NVD',
+      'Baseline & Behaviour Analysis': 'Baseline e analisi comportamentale',
+      'Display': 'Visualizzazione',
+      'Suricata Alert Listener': 'Listener avvisi Suricata',
+    },
+    labels: {
+      bind_host: 'Host di bind NetFlow',
+      bind_port: 'Porta di bind NetFlow',
+      enable_netflow_listener: 'Abilita listener NetFlow',
+      internal_networks: 'Reti interne',
+      scan_window_seconds: 'Finestra scansione porte (s)',
+      scan_port_threshold: 'Soglia scansione porte',
+      high_egress_threshold: 'Soglia traffico in uscita elevato (byte)',
+      enable_scanner: 'Abilita scanner',
+      scan_interval: 'Intervallo scansione (s)',
+      scan_ports: 'Porte da scansionare',
+      scan_exceptions: 'Eccezioni scansione',
+      enable_dns_resolution: 'Abilita risoluzione DNS',
+      blacklist_urls: 'URL blacklist',
+      dns_proxy_enabled: 'Abilita proxy DNS',
+      dns_proxy_bind_host: 'Host di bind proxy DNS',
+      dns_proxy_port: 'Porta proxy DNS',
+      dns_proxy_upstream: 'Server DNS upstream',
+      dns_log_retention_hours: 'Conservazione log DNS (h)',
+      dns_warn_blocked_logs: 'Log di avviso per domini bloccati',
+      dns_blocked_categories: 'Categorie DNS bloccate',
+      dns_overrides: 'Override DNS locali',
+      virustotal_api_key: 'Chiave API VirusTotal',
+      abuseipdb_api_key: 'Chiave API AbuseIPDB',
+      vt_abuseipdb_threshold: 'Soglia punteggio minaccia (%)',
+      virustotal_daily_budget: 'Budget giornaliero VirusTotal',
+      abuseipdb_daily_budget: 'Budget giornaliero AbuseIPDB',
+      enrichment_ttl_minutes: 'TTL cache arricchimento (min)',
+      external_ip_retention_hours: 'Conservazione IP esterni (h)',
+      retention_suspicious_hours: 'Conservazione IP sospetti (h)',
+      retention_malicious_hours: 'Conservazione IP malevoli (h)',
+      nvd_api_url: 'URL API NVD',
+      nvd_ttl_hours: 'TTL cache NVD (h)',
+      nvd_min_year: 'Anno minimo CVE',
+      nvd_keywords: 'Parole chiave NVD',
+      baseline_enabled: 'Abilita baseline',
+      baseline_training_hours: 'Durata training (h)',
+      baseline_min_observations: 'Osservazioni minime',
+      baseline_egress_multiplier: 'Moltiplicatore anomalia egress',
+      webui_require_admin: 'Il pannello sidebar richiede admin',
+      stats_top_n: 'Top N statistiche',
+      suricata_listener_enabled: 'Abilita listener Suricata',
+      suricata_listener_host: 'Host di bind listener',
+      suricata_listener_port: 'Porta TCP listener',
+      suricata_log_retention_hours: 'Conservazione log avvisi (h)',
+    },
+    helps: {
+      bind_host: 'Indirizzo IP su cui collegare il listener UDP NetFlow (usa 0.0.0.0 per tutte le interfacce).',
+      bind_port: 'Porta UDP per datagrammi NetFlow v5/v9/IPFIX (default 2055).',
+      enable_netflow_listener: 'Abilita listener UDP NetFlow/IPFIX e ingestione dei flussi.',
+      internal_networks: 'Intervalli CIDR separati da virgola considerati interni (es. 192.168.0.0/16,10.0.0.0/8).',
+      scan_window_seconds: 'Finestra temporale in secondi per il rilevamento scansione porte.',
+      scan_port_threshold: 'Numero di porte distinte contattate nella finestra per generare un avviso di scansione porte.',
+      high_egress_threshold: 'Byte inviati in uscita per generare un avviso di traffico elevato.',
+      enable_scanner: 'Abilita la scansione attiva periodica delle porte sugli host interni.',
+      scan_interval: 'Secondi tra i cicli di scansione attiva.',
+      scan_ports: 'Porte da scansionare (range e virgole consentiti, es. 22,80,443,8080-8090).',
+      scan_exceptions: 'IP separate da virgole da escludere dalla scansione attiva.',
+      enable_dns_resolution: 'Risolvi hostname per IP esterni e confrontali con le blacklist.',
+      blacklist_urls: 'URL di blocklist threat-intel separati da virgole o nuove righe da scaricare.',
+      dns_proxy_enabled: 'Esegue un proxy DNS che registra e opzionalmente blocca le query.',
+      dns_proxy_bind_host: 'Indirizzo di bind per il proxy DNS (consigliato: 127.0.0.1 o un IP LAN specifico).',
+      dns_proxy_port: 'Porta UDP del listener proxy DNS (default 53, richiede root/CAP_NET_BIND_SERVICE).',
+      dns_proxy_upstream: 'IP del resolver DNS upstream (es. 1.1.1.1).',
+      dns_log_retention_hours: 'Quante ore mantenere le voci del log query DNS (0 = illimitato).',
+      dns_warn_blocked_logs: 'Scrive log di warning per ogni query DNS bloccata (disabilitato per default per ridurre rumore).',
+      dns_blocked_categories: 'Nomi categoria separati da virgole o nuove righe da bloccare (es. ads,malware,tracking).',
+      dns_overrides: 'Override DNS locali, una riga per voce: hostname=IP (es. myhost.local=192.168.1.5).',
+      virustotal_api_key: 'Chiave API VirusTotal opzionale per reputazione IP esterne.',
+      abuseipdb_api_key: 'Chiave API AbuseIPDB opzionale per reputazione IP esterne.',
+      vt_abuseipdb_threshold: 'Punteggio minimo di confidenza abuso (0-100) per segnalare un IP come sospetto.',
+      virustotal_daily_budget: 'Massimo numero di lookup API VirusTotal al giorno.',
+      abuseipdb_daily_budget: 'Massimo numero di lookup API AbuseIPDB al giorno.',
+      enrichment_ttl_minutes: 'Minuti prima di interrogare di nuovo le API di arricchimento per un IP noto.',
+      external_ip_retention_hours: 'Ore per mantenere IP esterni puliti nella dashboard.',
+      retention_suspicious_hours: 'Ore per mantenere IP sospetti.',
+      retention_malicious_hours: 'Ore per mantenere IP malevoli.',
+      nvd_api_url: 'URL endpoint API CVE NVD.',
+      nvd_ttl_hours: 'Ore prima di aggiornare la cache CVE NVD.',
+      nvd_min_year: 'Mostra solo CVE pubblicate da questo anno in poi.',
+      nvd_keywords: 'Parole chiave prodotto separate da virgole da prelevare da NVD (es. OpenSSH,nginx,Samba).',
+      baseline_enabled: 'Abilita apprendimento baseline comportamentale e rilevamento anomalie.',
+      baseline_training_hours: 'Ore di traffico da osservare prima di considerare la baseline addestrata.',
+      baseline_min_observations: 'Numero minimo di osservazioni di flusso prima di considerare un pattern normale.',
+      baseline_egress_multiplier: 'Quante volte l\'egress baseline di un dispositivo deve essere superato prima della segnalazione.',
+      webui_require_admin: 'Se abilitato, solo gli utenti admin Home Assistant possono vedere il pannello sidebar Security Assistant.',
+      stats_top_n: 'Quante voci principali mostrare nei grafici statistici.',
+      suricata_listener_enabled: 'Accetta avvisi Suricata EVE JSON via TCP da suricata_pusher.py.',
+      suricata_listener_host: 'Indirizzo IP su cui collegare il listener TCP (0.0.0.0 per tutte le interfacce).',
+      suricata_listener_port: 'Porta TCP a cui si connette il pusher Suricata (default 6343).',
+      suricata_log_retention_hours: 'Ore di conservazione voci log avvisi Suricata (0 = illimitato).',
+    },
+  },
+  de: {
+    sections: {
+      'Network & NetFlow': 'Netzwerk und NetFlow',
+      'Threat Detection': 'Bedrohungserkennung',
+      'Active Scanner': 'Aktiver Scanner',
+      'DNS & Threat Intelligence': 'DNS und Threat Intelligence',
+      'DNS Proxy': 'DNS-Proxy',
+      'External IP Enrichment': 'Externe IP-Anreicherung',
+      'NVD Vulnerability Intelligence': 'NVD-Schwachstelleninformationen',
+      'Baseline & Behaviour Analysis': 'Baseline- und Verhaltensanalyse',
+      'Display': 'Anzeige',
+      'Suricata Alert Listener': 'Suricata-Alarm-Listener',
+    },
+    labels: {
+      bind_host: 'NetFlow-Bind-Host',
+      bind_port: 'NetFlow-Bind-Port',
+      enable_netflow_listener: 'NetFlow-Listener aktivieren',
+      internal_networks: 'Interne Netzwerke',
+      scan_window_seconds: 'Portscan-Fenster (s)',
+      scan_port_threshold: 'Portscan-Schwellenwert',
+      high_egress_threshold: 'Schwellenwert hoher Egress-Traffic (Bytes)',
+      enable_scanner: 'Scanner aktivieren',
+      scan_interval: 'Scan-Intervall (s)',
+      scan_ports: 'Zu scannende Ports',
+      scan_exceptions: 'Scan-Ausnahmen',
+      enable_dns_resolution: 'DNS-Auflösung aktivieren',
+      blacklist_urls: 'Blacklist-URLs',
+      dns_proxy_enabled: 'DNS-Proxy aktivieren',
+      dns_proxy_bind_host: 'DNS-Proxy-Bind-Host',
+      dns_proxy_port: 'DNS-Proxy-Port',
+      dns_proxy_upstream: 'Upstream-DNS-Server',
+      dns_log_retention_hours: 'DNS-Log-Aufbewahrung (h)',
+      dns_warn_blocked_logs: 'Warn-Logs für blockierte Domains',
+      dns_blocked_categories: 'Blockierte DNS-Kategorien',
+      dns_overrides: 'Lokale DNS-Overrides',
+      virustotal_api_key: 'VirusTotal-API-Schlüssel',
+      abuseipdb_api_key: 'AbuseIPDB-API-Schlüssel',
+      vt_abuseipdb_threshold: 'Bedrohungsscore-Schwelle (%)',
+      virustotal_daily_budget: 'VirusTotal-Tagesbudget',
+      abuseipdb_daily_budget: 'AbuseIPDB-Tagesbudget',
+      enrichment_ttl_minutes: 'Anreicherungs-Cache-TTL (min)',
+      external_ip_retention_hours: 'Externe-IP-Aufbewahrung (h)',
+      retention_suspicious_hours: 'Aufbewahrung verdächtiger IPs (h)',
+      retention_malicious_hours: 'Aufbewahrung bösartiger IPs (h)',
+      nvd_api_url: 'NVD-API-URL',
+      nvd_ttl_hours: 'NVD-Cache-TTL (h)',
+      nvd_min_year: 'CVE-Mindestjahr',
+      nvd_keywords: 'NVD-Schlüsselwörter',
+      baseline_enabled: 'Baseline aktivieren',
+      baseline_training_hours: 'Trainingsdauer (h)',
+      baseline_min_observations: 'Minimale Beobachtungen',
+      baseline_egress_multiplier: 'Egress-Anomalie-Multiplikator',
+      webui_require_admin: 'Sidebar-Panel erfordert Admin',
+      stats_top_n: 'Statistiken Top N',
+      suricata_listener_enabled: 'Suricata-Listener aktivieren',
+      suricata_listener_host: 'Listener-Bind-Host',
+      suricata_listener_port: 'Listener-TCP-Port',
+      suricata_log_retention_hours: 'Alarm-Log-Aufbewahrung (h)',
+    },
+    helps: {
+      bind_host: 'IP-Adresse, an die der NetFlow-UDP-Listener gebunden wird (0.0.0.0 für alle Interfaces).',
+      bind_port: 'UDP-Port für NetFlow-v5/v9/IPFIX-Datagramme (Standard: 2055).',
+      enable_netflow_listener: 'Aktiviert den UDP-NetFlow/IPFIX-Listener und die Flow-Erfassung.',
+      internal_networks: 'Kommagetrennte CIDR-Bereiche, die als intern gelten (z. B. 192.168.0.0/16,10.0.0.0/8).',
+      scan_window_seconds: 'Zeitfenster in Sekunden für die Portscan-Erkennung.',
+      scan_port_threshold: 'Anzahl unterschiedlicher Ports im Fenster, um einen Portscan-Alarm auszulösen.',
+      high_egress_threshold: 'Ausgehend gesendete Bytes, um einen High-Egress-Alarm auszulösen.',
+      enable_scanner: 'Aktiviert periodische aktive Portscans interner Hosts.',
+      scan_interval: 'Sekunden zwischen aktiven Scan-Zyklen.',
+      scan_ports: 'Zu scannende Ports (Bereiche und Kommas erlaubt, z. B. 22,80,443,8080-8090).',
+      scan_exceptions: 'Kommagetrennte IPs, die vom aktiven Scan ausgeschlossen werden.',
+      enable_dns_resolution: 'Löst Hostnamen für externe IPs auf und prüft sie gegen Blacklists.',
+      blacklist_urls: 'URL-Liste von Threat-Intel-Blocklisten, getrennt durch Komma oder Zeilenumbruch.',
+      dns_proxy_enabled: 'Startet einen DNS-Proxy, der Anfragen protokolliert und optional blockiert.',
+      dns_proxy_bind_host: 'Bind-Adresse für den DNS-Proxy (empfohlen: 127.0.0.1 oder eine spezifische LAN-IP).',
+      dns_proxy_port: 'UDP-Port des DNS-Proxy-Listeners (Standard 53, benötigt root/CAP_NET_BIND_SERVICE).',
+      dns_proxy_upstream: 'IP des Upstream-DNS-Resolvers (z. B. 1.1.1.1).',
+      dns_log_retention_hours: 'Stunden, wie lange DNS-Logeinträge aufbewahrt werden (0 = unbegrenzt).',
+      dns_warn_blocked_logs: 'Schreibt Warn-Logs für jede blockierte DNS-Anfrage (standardmäßig aus, um Log-Rauschen zu reduzieren).',
+      dns_blocked_categories: 'Kategorie-Namen zum Blockieren, per Komma oder Zeilenumbruch getrennt (z. B. ads,malware,tracking).',
+      dns_overrides: 'Lokale DNS-Overrides, eine Zeile pro Eintrag: hostname=IP (z. B. myhost.local=192.168.1.5).',
+      virustotal_api_key: 'Optionaler VirusTotal-API-Schlüssel für externe IP-Reputationsabfragen.',
+      abuseipdb_api_key: 'Optionaler AbuseIPDB-API-Schlüssel für externe IP-Reputationsabfragen.',
+      vt_abuseipdb_threshold: 'Minimaler Abuse-Confidence-Score (0-100), um eine IP als verdächtig zu markieren.',
+      virustotal_daily_budget: 'Maximale Anzahl VirusTotal-API-Abfragen pro Tag.',
+      abuseipdb_daily_budget: 'Maximale Anzahl AbuseIPDB-API-Abfragen pro Tag.',
+      enrichment_ttl_minutes: 'Minuten bis zur erneuten Abfrage von Anreicherungs-APIs für eine bekannte IP.',
+      external_ip_retention_hours: 'Stunden zur Aufbewahrung unauffälliger externer IPs im Dashboard.',
+      retention_suspicious_hours: 'Stunden zur Aufbewahrung verdächtiger IPs.',
+      retention_malicious_hours: 'Stunden zur Aufbewahrung bösartiger IPs.',
+      nvd_api_url: 'NVD-CVE-API-Endpunkt-URL.',
+      nvd_ttl_hours: 'Stunden bis zur Aktualisierung des NVD-CVE-Caches.',
+      nvd_min_year: 'Zeigt nur CVEs, die in oder nach diesem Jahr veröffentlicht wurden.',
+      nvd_keywords: 'Kommagetrennte Produkt-Schlüsselwörter zum Vorabruf aus NVD (z. B. OpenSSH,nginx,Samba).',
+      baseline_enabled: 'Aktiviert Verhaltens-Baseline-Lernen und Anomalieerkennung.',
+      baseline_training_hours: 'Stunden Traffic-Beobachtung, bevor die Baseline als trainiert gilt.',
+      baseline_min_observations: 'Minimale Anzahl Flow-Beobachtungen, bevor ein Muster als normal gilt.',
+      baseline_egress_multiplier: 'Faktor, um den Baseline-Egress eines Geräts überschritten werden muss, bevor es markiert wird.',
+      webui_require_admin: 'Wenn aktiviert, können nur Home-Assistant-Admins das Security-Assistant-Sidebar-Panel sehen.',
+      stats_top_n: 'Anzahl der Top-Einträge in Statistikdiagrammen.',
+      suricata_listener_enabled: 'Akzeptiert Suricata-EVE-JSON-Alarme per TCP von suricata_pusher.py.',
+      suricata_listener_host: 'IP-Adresse zum Binden des TCP-Listeners (0.0.0.0 für alle Interfaces).',
+      suricata_listener_port: 'TCP-Port, mit dem sich der Suricata-Pusher verbindet (Standard: 6343).',
+      suricata_log_retention_hours: 'Stunden zur Aufbewahrung von Suricata-Alarm-Logs (0 = unbegrenzt).',
+    },
+  },
+  es: {
+    sections: {
+      'Network & NetFlow': 'Red y NetFlow',
+      'Threat Detection': 'Detección de amenazas',
+      'Active Scanner': 'Escáner activo',
+      'DNS & Threat Intelligence': 'DNS e inteligencia de amenazas',
+      'DNS Proxy': 'Proxy DNS',
+      'External IP Enrichment': 'Enriquecimiento de IP externas',
+      'NVD Vulnerability Intelligence': 'Inteligencia de vulnerabilidades NVD',
+      'Baseline & Behaviour Analysis': 'Línea base y análisis de comportamiento',
+      'Display': 'Visualización',
+      'Suricata Alert Listener': 'Receptor de alertas Suricata',
+    },
+    labels: {
+      bind_host: 'Host de enlace NetFlow',
+      bind_port: 'Puerto de enlace NetFlow',
+      enable_netflow_listener: 'Activar receptor NetFlow',
+      internal_networks: 'Redes internas',
+      scan_window_seconds: 'Ventana de escaneo de puertos (s)',
+      scan_port_threshold: 'Umbral de escaneo de puertos',
+      high_egress_threshold: 'Umbral de tráfico saliente alto (bytes)',
+      enable_scanner: 'Activar escáner',
+      scan_interval: 'Intervalo de escaneo (s)',
+      scan_ports: 'Puertos a escanear',
+      scan_exceptions: 'Excepciones de escaneo',
+      enable_dns_resolution: 'Activar resolución DNS',
+      blacklist_urls: 'URLs de blacklist',
+      dns_proxy_enabled: 'Activar proxy DNS',
+      dns_proxy_bind_host: 'Host de enlace del proxy DNS',
+      dns_proxy_port: 'Puerto del proxy DNS',
+      dns_proxy_upstream: 'Servidor DNS ascendente',
+      dns_log_retention_hours: 'Retención de logs DNS (h)',
+      dns_warn_blocked_logs: 'Logs de advertencia para dominios bloqueados',
+      dns_blocked_categories: 'Categorías DNS bloqueadas',
+      dns_overrides: 'Overrides DNS locales',
+      virustotal_api_key: 'Clave API de VirusTotal',
+      abuseipdb_api_key: 'Clave API de AbuseIPDB',
+      vt_abuseipdb_threshold: 'Umbral de puntuación de amenaza (%)',
+      virustotal_daily_budget: 'Presupuesto diario de VirusTotal',
+      abuseipdb_daily_budget: 'Presupuesto diario de AbuseIPDB',
+      enrichment_ttl_minutes: 'TTL de caché de enriquecimiento (min)',
+      external_ip_retention_hours: 'Retención de IP externas (h)',
+      retention_suspicious_hours: 'Retención de IP sospechosas (h)',
+      retention_malicious_hours: 'Retención de IP maliciosas (h)',
+      nvd_api_url: 'URL de API NVD',
+      nvd_ttl_hours: 'TTL de caché NVD (h)',
+      nvd_min_year: 'Año mínimo CVE',
+      nvd_keywords: 'Palabras clave NVD',
+      baseline_enabled: 'Activar línea base',
+      baseline_training_hours: 'Duración de entrenamiento (h)',
+      baseline_min_observations: 'Observaciones mínimas',
+      baseline_egress_multiplier: 'Multiplicador de anomalía de salida',
+      webui_require_admin: 'El panel lateral requiere admin',
+      stats_top_n: 'Top N de estadísticas',
+      suricata_listener_enabled: 'Activar receptor Suricata',
+      suricata_listener_host: 'Host de enlace del receptor',
+      suricata_listener_port: 'Puerto TCP del receptor',
+      suricata_log_retention_hours: 'Retención de logs de alertas (h)',
+    },
+    helps: {
+      bind_host: 'Dirección IP donde enlazar el receptor UDP NetFlow (usa 0.0.0.0 para todas las interfaces).',
+      bind_port: 'Puerto UDP para datagramas NetFlow v5/v9/IPFIX (2055 por defecto).',
+      enable_netflow_listener: 'Activa el receptor UDP NetFlow/IPFIX y la ingesta de flujos.',
+      internal_networks: 'Rangos CIDR separados por comas considerados internos (p. ej. 192.168.0.0/16,10.0.0.0/8).',
+      scan_window_seconds: 'Ventana temporal en segundos para detección de escaneo de puertos.',
+      scan_port_threshold: 'Número de puertos distintos contactados en la ventana para disparar una alerta de escaneo.',
+      high_egress_threshold: 'Bytes enviados al exterior para disparar una alerta de alto tráfico saliente.',
+      enable_scanner: 'Activa el escaneo activo periódico de hosts internos.',
+      scan_interval: 'Segundos entre ciclos de escaneo activo.',
+      scan_ports: 'Puertos a escanear (se permiten rangos y comas, p. ej. 22,80,443,8080-8090).',
+      scan_exceptions: 'IPs separadas por comas que se excluirán del escaneo activo.',
+      enable_dns_resolution: 'Resuelve nombres de host para IPs externas y los verifica contra blacklists.',
+      blacklist_urls: 'URLs de listas de bloqueo threat-intel separadas por coma o salto de línea.',
+      dns_proxy_enabled: 'Ejecuta un proxy DNS que registra y opcionalmente bloquea consultas.',
+      dns_proxy_bind_host: 'Dirección de enlace del proxy DNS (recomendado: 127.0.0.1 o una IP LAN específica).',
+      dns_proxy_port: 'Puerto UDP del receptor del proxy DNS (53 por defecto; requiere root/CAP_NET_BIND_SERVICE).',
+      dns_proxy_upstream: 'IP del resolvedor DNS ascendente (p. ej. 1.1.1.1).',
+      dns_log_retention_hours: 'Cuántas horas conservar entradas del log DNS (0 = ilimitado).',
+      dns_warn_blocked_logs: 'Escribe logs de advertencia por cada consulta DNS bloqueada (desactivado por defecto para reducir ruido).',
+      dns_blocked_categories: 'Categorías a bloquear separadas por coma o salto de línea (p. ej. ads,malware,tracking).',
+      dns_overrides: 'Overrides DNS locales, una por línea: hostname=IP (p. ej. myhost.local=192.168.1.5).',
+      virustotal_api_key: 'Clave API opcional de VirusTotal para reputación de IPs externas.',
+      abuseipdb_api_key: 'Clave API opcional de AbuseIPDB para reputación de IPs externas.',
+      vt_abuseipdb_threshold: 'Puntuación mínima de confianza de abuso (0-100) para marcar una IP como sospechosa.',
+      virustotal_daily_budget: 'Máximo de consultas API de VirusTotal por día.',
+      abuseipdb_daily_budget: 'Máximo de consultas API de AbuseIPDB por día.',
+      enrichment_ttl_minutes: 'Minutos antes de volver a consultar APIs de enriquecimiento para una IP conocida.',
+      external_ip_retention_hours: 'Horas para retener IPs externas limpias en el panel.',
+      retention_suspicious_hours: 'Horas para retener IPs sospechosas.',
+      retention_malicious_hours: 'Horas para retener IPs maliciosas.',
+      nvd_api_url: 'URL del endpoint API CVE de NVD.',
+      nvd_ttl_hours: 'Horas antes de refrescar la caché CVE de NVD.',
+      nvd_min_year: 'Mostrar solo CVEs publicadas en o después de este año.',
+      nvd_keywords: 'Palabras clave de productos separadas por comas para precargar desde NVD (p. ej. OpenSSH,nginx,Samba).',
+      baseline_enabled: 'Activa el aprendizaje de línea base de comportamiento y detección de anomalías.',
+      baseline_training_hours: 'Horas de tráfico a observar antes de considerar entrenada la línea base.',
+      baseline_min_observations: 'Número mínimo de observaciones de flujo antes de tratar un patrón como normal.',
+      baseline_egress_multiplier: 'Cuántas veces debe superar un dispositivo su tráfico saliente de línea base para marcarse.',
+      webui_require_admin: 'Si está activado, solo usuarios administradores de Home Assistant podrán ver el panel lateral de Security Assistant.',
+      stats_top_n: 'Cuántas entradas superiores mostrar en los gráficos de estadísticas.',
+      suricata_listener_enabled: 'Acepta alertas Suricata EVE JSON por TCP desde suricata_pusher.py.',
+      suricata_listener_host: 'Dirección IP para enlazar el receptor TCP (0.0.0.0 para todas las interfaces).',
+      suricata_listener_port: 'Puerto TCP al que se conecta el pusher de Suricata (6343 por defecto).',
+      suricata_log_retention_hours: 'Horas para conservar entradas de log de alertas Suricata (0 = ilimitado).',
+    },
+  },
+  it: {
+    sections: {
+      'Network & NetFlow': 'Rete e NetFlow',
+      'Threat Detection': 'Rilevamento minacce',
+      'Active Scanner': 'Scanner attivo',
+      'DNS & Threat Intelligence': 'DNS e threat intelligence',
+      'DNS Proxy': 'Proxy DNS',
+      'External IP Enrichment': 'Arricchimento IP esterni',
+      'NVD Vulnerability Intelligence': 'Intelligence vulnerabilità NVD',
+      'Baseline & Behaviour Analysis': 'Baseline e analisi comportamentale',
+      'Display': 'Visualizzazione',
+      'Suricata Alert Listener': 'Listener allerte Suricata',
+    },
+    labels: {
+      bind_host: 'Host bind NetFlow',
+      bind_port: 'Porta bind NetFlow',
+      enable_netflow_listener: 'Abilita listener NetFlow',
+      internal_networks: 'Reti interne',
+      scan_window_seconds: 'Finestra scansione porte (s)',
+      scan_port_threshold: 'Soglia scansione porte',
+      high_egress_threshold: 'Soglia traffico uscente elevato (byte)',
+      enable_scanner: 'Abilita scanner',
+      scan_interval: 'Intervallo scansione (s)',
+      scan_ports: 'Porte da scansionare',
+      scan_exceptions: 'Eccezioni scansione',
+      enable_dns_resolution: 'Abilita risoluzione DNS',
+      blacklist_urls: 'URL blacklist',
+      dns_proxy_enabled: 'Abilita proxy DNS',
+      dns_proxy_bind_host: 'Host bind proxy DNS',
+      dns_proxy_port: 'Porta proxy DNS',
+      dns_proxy_upstream: 'Server DNS upstream',
+      dns_log_retention_hours: 'Retention log DNS (h)',
+      dns_warn_blocked_logs: 'Log warning per domini bloccati',
+      dns_blocked_categories: 'Categorie DNS bloccate',
+      dns_overrides: 'Override DNS locali',
+      virustotal_api_key: 'Chiave API VirusTotal',
+      abuseipdb_api_key: 'Chiave API AbuseIPDB',
+      vt_abuseipdb_threshold: 'Soglia punteggio minaccia (%)',
+      virustotal_daily_budget: 'Budget giornaliero VirusTotal',
+      abuseipdb_daily_budget: 'Budget giornaliero AbuseIPDB',
+      enrichment_ttl_minutes: 'TTL cache arricchimento (min)',
+      external_ip_retention_hours: 'Retention IP esterni (h)',
+      retention_suspicious_hours: 'Retention IP sospetti (h)',
+      retention_malicious_hours: 'Retention IP malevoli (h)',
+      nvd_api_url: 'URL API NVD',
+      nvd_ttl_hours: 'TTL cache NVD (h)',
+      nvd_min_year: 'Anno minimo CVE',
+      nvd_keywords: 'Parole chiave NVD',
+      baseline_enabled: 'Abilita baseline',
+      baseline_training_hours: 'Durata training (h)',
+      baseline_min_observations: 'Osservazioni minime',
+      baseline_egress_multiplier: 'Moltiplicatore anomalia egress',
+      webui_require_admin: 'Il pannello sidebar richiede admin',
+      stats_top_n: 'Statistiche Top N',
+      suricata_listener_enabled: 'Abilita listener Suricata',
+      suricata_listener_host: 'Host bind listener',
+      suricata_listener_port: 'Porta TCP listener',
+      suricata_log_retention_hours: 'Retention log allerte (h)',
+    },
+    helps: {
+      bind_host: 'Indirizzo IP su cui fare bind del listener NetFlow UDP (usa 0.0.0.0 per tutte le interfacce).',
+      bind_port: 'Porta UDP per datagrammi NetFlow v5/v9/IPFIX (default 2055).',
+      enable_netflow_listener: 'Abilita listener UDP NetFlow/IPFIX e ingestione flussi.',
+      internal_networks: 'Intervalli CIDR separati da virgola considerati interni (es. 192.168.0.0/16,10.0.0.0/8).',
+      scan_window_seconds: 'Finestra temporale in secondi per rilevamento scansione porte.',
+      scan_port_threshold: 'Numero di porte distinte contattate nella finestra per attivare un alert di scansione porte.',
+      high_egress_threshold: 'Byte inviati in uscita per attivare un alert di traffico uscente elevato.',
+      enable_scanner: 'Abilita scansione attiva periodica delle porte degli host interni.',
+      scan_interval: 'Secondi tra i cicli di scansione attiva.',
+      scan_ports: 'Porte da scansionare (range e virgole consentiti, es. 22,80,443,8080-8090).',
+      scan_exceptions: 'IP separati da virgole da escludere dalla scansione attiva.',
+      enable_dns_resolution: 'Risolvi hostname per IP esterni e verifica contro blacklist.',
+      blacklist_urls: 'URL di blocklist threat-intel separati da virgola o nuova riga.',
+      dns_proxy_enabled: 'Esegue un proxy DNS che registra e opzionalmente blocca query.',
+      dns_proxy_bind_host: 'Indirizzo bind del proxy DNS (consigliato: 127.0.0.1 o IP LAN specifico).',
+      dns_proxy_port: 'Porta UDP per listener proxy DNS (default 53, richiede root/CAP_NET_BIND_SERVICE).',
+      dns_proxy_upstream: 'IP del resolver DNS upstream (es. 1.1.1.1).',
+      dns_log_retention_hours: 'Ore di conservazione delle voci del log DNS (0 = illimitato).',
+      dns_warn_blocked_logs: 'Scrive log warning per ogni query DNS bloccata (disabilitato di default per ridurre rumore).',
+      dns_blocked_categories: 'Nomi categoria da bloccare, separati da virgola o nuova riga (es. ads,malware,tracking).',
+      dns_overrides: 'Override DNS locali, una riga per voce: hostname=IP (es. myhost.local=192.168.1.5).',
+      virustotal_api_key: 'Chiave API VirusTotal opzionale per lookup reputazione IP esterni.',
+      abuseipdb_api_key: 'Chiave API AbuseIPDB opzionale per lookup reputazione IP esterni.',
+      vt_abuseipdb_threshold: 'Punteggio minimo di abuso (0-100) per contrassegnare un IP come sospetto.',
+      virustotal_daily_budget: 'Numero massimo di lookup API VirusTotal al giorno.',
+      abuseipdb_daily_budget: 'Numero massimo di lookup API AbuseIPDB al giorno.',
+      enrichment_ttl_minutes: 'Minuti prima di interrogare di nuovo le API di arricchimento per un IP noto.',
+      external_ip_retention_hours: 'Ore di conservazione degli IP esterni puliti nella dashboard.',
+      retention_suspicious_hours: 'Ore di conservazione degli IP sospetti.',
+      retention_malicious_hours: 'Ore di conservazione degli IP malevoli.',
+      nvd_api_url: 'URL endpoint API CVE NVD.',
+      nvd_ttl_hours: 'Ore prima di aggiornare la cache CVE NVD.',
+      nvd_min_year: 'Mostra solo CVE pubblicate da questo anno in poi.',
+      nvd_keywords: 'Parole chiave prodotto separate da virgola da prelevare da NVD (es. OpenSSH,nginx,Samba).',
+      baseline_enabled: 'Abilita apprendimento baseline comportamentale e rilevamento anomalie.',
+      baseline_training_hours: 'Ore di traffico da osservare prima di considerare la baseline addestrata.',
+      baseline_min_observations: 'Numero minimo di osservazioni di flusso prima di considerare normale un pattern.',
+      baseline_egress_multiplier: 'Quante volte il traffico egress baseline di un dispositivo deve essere superato prima di segnalarlo.',
+      webui_require_admin: 'Se abilitato, solo gli utenti admin Home Assistant possono vedere il pannello sidebar Security Assistant.',
+      stats_top_n: 'Quante voci principali mostrare nei grafici statistici.',
+      suricata_listener_enabled: 'Accetta alert Suricata EVE JSON via TCP da suricata_pusher.py.',
+      suricata_listener_host: 'Indirizzo IP su cui fare bind del listener TCP (0.0.0.0 per tutte le interfacce).',
+      suricata_listener_port: 'Porta TCP a cui si connette il pusher Suricata (default 6343).',
+      suricata_log_retention_hours: 'Ore di conservazione delle voci di log allerte Suricata (0 = illimitato).',
+    },
+  },
+};
+
 const _VIEW_ICONS = {
   overview:        `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>`,
   map:             `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>`,
@@ -1384,9 +2611,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // Severity colour helpers
     var SEV_COLORS = { 1:'rgba(255,77,109,1)', 2:'rgba(255,179,71,1)', 3:'rgba(107,255,200,1)' };
-    var SEV_LABELS = { 1:'Critical', 2:'Major', 3:'Minor' };
+    var SEV_LABELS = {
+      1:self._t('suricata.sev_critical', 'Critical'),
+      2:self._t('suricata.sev_major', 'Major'),
+      3:self._t('suricata.sev_minor', 'Minor')
+    };
     function sevColor(s) { return SEV_COLORS[s] || 'rgba(90,106,128,1)'; }
-    function sevLabel(s) { return SEV_LABELS[s] || 'Unknown'; }
+    function sevLabel(s) { return SEV_LABELS[s] || self._t('suricata.sev_unknown', 'Unknown'); }
     function sevBadge(s) {
       var c = sevColor(s); var l = sevLabel(s);
       return '<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:' +
@@ -1397,20 +2628,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     // ── filter bar ────────────────────────────────────────────────────────────
     var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
-      '<input class="search-bar" id="suricata-search" placeholder="Filter by IP, signature…" style="width:230px" ' +
+      '<input class="search-bar" id="suricata-search" placeholder="' + self._esc(self._t('suricata.filter_placeholder', 'Filter by IP, signature…')) + '" style="width:230px" ' +
         'value="' + self._esc(this._suricataSearch) + '" onkeydown="if(event.key===\'Enter\')this.getRootNode().host._suricataFilter()" />' +
       '<select id="suricata-sev-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
         'onchange="this.getRootNode().host._suricataFilter()">' +
-        '<option value="">All severities</option>' +
+        '<option value="">' + self._t('suricata.all_severities', 'All severities') + '</option>' +
         [1,2,3].map(function(s){ return '<option value="'+s+'"'+(self._suricataSeverityFilter===String(s)?' selected':'')+'>'+sevLabel(s)+'</option>'; }).join('') +
       '</select>' +
       '<select id="suricata-action-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
         'onchange="this.getRootNode().host._suricataFilter()">' +
-        '<option value="">All actions</option>' +
-        '<option value="allowed"'+(self._suricataActionFilter==='allowed'?' selected':'')+'>Allowed</option>' +
-        '<option value="blocked"'+(self._suricataActionFilter==='blocked'?' selected':'')+'>Blocked</option>' +
+        '<option value="">' + self._t('suricata.all_actions', 'All actions') + '</option>' +
+        '<option value="allowed"'+(self._suricataActionFilter==='allowed'?' selected':'')+'>' + self._t('common.allowed', 'Allowed') + '</option>' +
+        '<option value="blocked"'+(self._suricataActionFilter==='blocked'?' selected':'')+'>' + self._t('common.blocked', 'Blocked') + '</option>' +
       '</select>' +
-      '<span style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' entries</span>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' ' + self._t('suricata.entries', 'entries') + '</span>' +
     '</div>';
 
     // ── table ─────────────────────────────────────────────────────────────────
@@ -1423,27 +2654,27 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var pageEnd = Math.min(sortedLog.length, (page + 1) * PAGE_SIZE);
 
     var topPagination = '<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
-      '<div class="row-gap" style="font-size:11px;color:var(--muted)">Showing ' + pageStart + '\u2013' + pageEnd + ' of ' + sortedLog.length + '</div>' +
+      '<div class="row-gap" style="font-size:11px;color:var(--muted)">' + self._t('suricata.showing', 'Showing') + ' ' + pageStart + '\u2013' + pageEnd + ' of ' + sortedLog.length + '</div>' +
       '<div class="row-gap" style="gap:6px">' +
-        '<label class="dim" style="font-size:11px">Rows</label>' +
+        '<label class="dim" style="font-size:11px">' + self._t('common.rows', 'Rows') + '</label>' +
         '<select id="hsa-suricata-pagesize" class="role-select">' +
           [10,25,50,100].map(function(n){return '<option value="'+n+'"'+(n===PAGE_SIZE?' selected':'')+'>'+n+'</option>';}).join('') +
         '</select>' +
-        '<button class="btn" data-suricata-page="'+(page-1)+'"'+(page<=0?' disabled':'')+'>Previous</button>' +
+        '<button class="btn" data-suricata-page="'+(page-1)+'"'+(page<=0?' disabled':'')+'>' + self._t('common.previous', 'Previous') + '</button>' +
         '<span class="dim" style="font-size:11px;min-width:70px;text-align:center">'+(page+1)+' / '+totalPages+'</span>' +
-        '<button class="btn" data-suricata-page="'+(page+1)+'"'+(page>=totalPages-1?' disabled':'')+'>Next</button>' +
+        '<button class="btn" data-suricata-page="'+(page+1)+'"'+(page>=totalPages-1?' disabled':'')+'>' + self._t('common.next', 'Next') + '</button>' +
       '</div>' +
     '</div>';
 
     var SORT_COLS = [
-      { key:'time',      label:'Time' },
-      { key:'src_ip',    label:'Src IP' },
-      { key:'dest_ip',   label:'Dest IP' },
-      { key:'proto',     label:'Proto' },
-      { key:'signature', label:'Signature' },
-      { key:'category',  label:'Category' },
-      { key:'severity',  label:'Severity' },
-      { key:'action',    label:'Action' },
+      { key:'time',      label:self._t('suricata.col_time', 'Time') },
+      { key:'src_ip',    label:self._t('suricata.col_src_ip', 'Src IP') },
+      { key:'dest_ip',   label:self._t('suricata.col_dest_ip', 'Dest IP') },
+      { key:'proto',     label:self._t('suricata.col_proto', 'Proto') },
+      { key:'signature', label:self._t('suricata.col_signature', 'Signature') },
+      { key:'category',  label:self._t('suricata.col_category', 'Category') },
+      { key:'severity',  label:self._t('suricata.col_severity', 'Severity') },
+      { key:'action',    label:self._t('suricata.col_action', 'Action') },
     ];
     var thead = '<table class="data-table" style="min-width:960px"><thead><tr>' +
       SORT_COLS.map(function(c) {
@@ -1463,12 +2694,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var action = (e.action || 'allowed').toLowerCase();
 
       var actionBadge = action === 'blocked'
-        ? '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">\uD83D\uDEAB Blocked</span>'
-        : '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">\u2713 Allowed</span>';
+        ? '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">' + self._t('suricata.badge_blocked', '🚫 Blocked') + '</span>'
+        : '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">' + self._t('suricata.badge_allowed', '✓ Allowed') + '</span>';
 
       var rowBg = sev === 1 ? 'rgba(255,77,109,.06)' : sev === 2 ? 'rgba(255,179,71,.04)' : '';
       var rowStyle = 'cursor:pointer' + (rowBg ? ';background:' + rowBg : '');
-      return '<tr style="' + rowStyle + '" data-suricata-alert-idx="' + rowIdx + '" title="Click for details">' +
+      return '<tr style="' + rowStyle + '" data-suricata-alert-idx="' + rowIdx + '" title="' + self._esc(self._t('suricata.click_details', 'Click for details')) + '">' +
         '<td class="mono" style="white-space:nowrap;font-size:11px">' + ts + '</td>' +
         '<td class="mono ip">' + sip + '</td>' +
         '<td class="mono ip">' + dip + '</td>' +
@@ -1481,7 +2712,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }).join('');
 
     var critBadge = critCount > 0
-      ? '<span class="badge badge-malicious" style="margin-left:8px">' + critCount + ' critical</span>'
+      ? '<span class="badge badge-malicious" style="margin-left:8px">' + critCount + ' ' + self._t('suricata.critical_badge', 'critical') + '</span>'
       : '';
 
     return '<div>' +
@@ -2498,7 +3729,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var SUC_SEV_COLORS = ['rgba(255,77,109,1)','rgba(255,179,71,1)','rgba(107,255,200,1)'];
     var SUC_CAT_PALETTE = ['rgba(255,77,109,1)','rgba(255,179,71,1)','rgba(107,255,200,1)','rgba(98,232,255,1)','rgba(191,111,255,1)','rgba(59,178,255,1)','rgba(72,199,142,1)','rgba(255,159,67,1)'];
     var SUC_SRC_PALETTE = ['rgba(98,232,255,1)','rgba(59,178,255,1)','rgba(72,199,142,1)','rgba(191,111,255,1)','rgba(255,179,71,1)','rgba(255,77,109,1)','rgba(107,255,200,1)','rgba(155,135,245,1)'];
-    var sucSevLabels = { 1:'Critical', 2:'Major', 3:'Minor' };
+    var sucSevLabels = { 1:this._t('suricata.sev_critical', 'Critical'), 2:this._t('suricata.sev_major', 'Major'), 3:this._t('suricata.sev_minor', 'Minor') };
     var sucSevData = [1,2,3].filter(function(s){return suricataLogStats.some(function(e){return e.severity===s;});}).map(function(s){return{label:sucSevLabels[s],value:suricataLogStats.filter(function(e){return e.severity===s;}).length};});
     var sucCatCounts = {}; var sucCatColors = [];
     suricataLogStats.forEach(function(e){var c=e.category||'Other';sucCatCounts[c]=(sucCatCounts[c]||0)+1;});
@@ -2531,11 +3762,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var timelineHtml = '<div class="stat-card" style="grid-column:1/-1">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
-        '<span class="card-title" style="margin-bottom:0">ACTIVITY TIMELINE</span>' +
+        '<span class="card-title" style="margin-bottom:0">' + this._t('stats.activity_timeline', 'ACTIVITY TIMELINE') + '</span>' +
       '</div>' +
       '<div style="margin-bottom:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
-          '<span style="font-size:10px;color:var(--muted)">Public IPs seen per hour (last 24h)</span>' +
+          '<span style="font-size:10px;color:var(--muted)">' + this._t('stats.public_ips_per_hour', 'Public IPs seen per hour (last 24h)') + '</span>' +
           extIpsBadges +
         '</div>' +
         (function() {
@@ -2563,13 +3794,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             var lhour = new Date(nowMs - (EXT_H - 1 - li) * 3600000).getHours();
             labels += '<text x="' + lx + '" y="' + (CHART_H + LABEL_H - 3) + '" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">' + lhour + 'h</text>';
           }
-          if (!_extIpsList.length) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No public IPs tracked yet</div>';
+          if (!_extIpsList.length) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">' + self._t('stats.no_public_ips', 'No public IPs tracked yet') + '</div>';
           return '<svg viewBox="0 0 ' + svgW + ' ' + (CHART_H + LABEL_H) + '" width="100%" height="' + (CHART_H + LABEL_H) + '" preserveAspectRatio="none" style="display:block">' + bars + labels + '</svg>';
         })() +
       '</div>' +
       '<div style="margin-top:16px">' +
         '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">' +
-          '<span style="font-size:10px;color:var(--muted)">Hosts per hour (last 24h)</span>' +
+          '<span style="font-size:10px;color:var(--muted)">' + this._t('stats.hosts_per_hour', 'Hosts per hour (last 24h)') + '</span>' +
         '</div>' +
         (function() {
           var H_HOURS = 24, H_BAR_W = 18, H_BAR_GAP = 3, H_CHART = 60, H_LABEL = 16;
@@ -2589,7 +3820,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             hostBkts.unshift(mxH);
             scannedBkts.unshift(mxS);
           }
-          if (!allPoints.length) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No host data yet</div>';
+          if (!allPoints.length) return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">' + self._t('stats.no_host_data', 'No host data yet') + '</div>';
           var mxAll = Math.max.apply(null, hostBkts) || 1;
           var hSvgW = H_HOURS * (H_BAR_W + H_BAR_GAP);
           var hBars = hostBkts.map(function(h, i) {
@@ -2610,8 +3841,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           }
           return '<svg viewBox="0 0 ' + hSvgW + ' ' + (H_CHART + H_LABEL) + '" width="100%" height="' + (H_CHART + H_LABEL) + '" preserveAspectRatio="none" style="display:block">' + hBars + hLabels + '</svg>' +
             '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
-              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(58,197,201,.45);display:inline-block;border-radius:2px"></span>Hosts seen</span>' +
-              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(107,255,200,.75);display:inline-block;border-radius:2px"></span>Scanned alive</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(58,197,201,.45);display:inline-block;border-radius:2px"></span>' + self._t('stats.hosts_seen', 'Hosts seen') + '</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(107,255,200,.75);display:inline-block;border-radius:2px"></span>' + self._t('stats.scanned_alive', 'Scanned alive') + '</span>' +
             '</div>';
         })() +
       '</div>';
@@ -2620,9 +3851,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     function toggleBtns(id, current) {
       return '<span style="display:flex;gap:4px;flex-shrink:0">' +
         '<button class="btn' + (current === 'pie' ? ' active' : '') + '" style="padding:3px 8px;font-size:10px" data-statstoggle="' + id + ':pie">' +
-        '<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M7 1.07A7 7 0 1 0 15 9H7V1.07z"/><path d="M8.5.5v7h7A7.5 7.5 0 0 0 8.5.5z"/></svg>Pie</button>' +
+        '<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M7 1.07A7 7 0 1 0 15 9H7V1.07z"/><path d="M8.5.5v7h7A7.5 7.5 0 0 0 8.5.5z"/></svg>' + self._t('stats.pie', 'Pie') + '</button>' +
         '<button class="btn' + (current === 'list' ? ' active' : '') + '" style="padding:3px 8px;font-size:10px" data-statstoggle="' + id + ':list">' +
-        '<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>List</button>' +
+        '<svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>' + self._t('stats.list', 'List') + '</button>' +
       '</span>';
     }
 
@@ -2636,15 +3867,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var topIPs = (this._data && this._data.top_public_ips) || [];
     var ipsSection;
     if (!topIPs.length) {
-      ipsSection = '<div class="empty-state"><p style="margin:12px 0">No external flow data yet</p></div>';
+      ipsSection = '<div class="empty-state"><p style="margin:12px 0">' + this._t('stats.no_external_flow_data', 'No external flow data yet') + '</p></div>';
     } else if (modes.public_ips === 'pie') {
       ipsSection = chartSection(
         self._pieSvg(topIPs, function(e) { return e.flows; }, function(e) { return (e.hostname || e.org || e.ip) + (e.country ? ' [' + e.country + ']' : ''); }, COLORS),
         self._statsLegend(topIPs, function(e) { return e.flows; }, function(e) {
           return (e.hostname || e.org || e.ip) + (e.country ? ' [' + e.country + ']' : '') + (e.blacklisted ? ' \u26a0' : '');
         }, COLORS) +
-        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Ranked by flow count</div>' +
-        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs \u2192</button>'
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">' + this._t('stats.ranked_by_flow_count', 'Ranked by flow count') + '</div>' +
+        '<button class="btn" style="margin-top:8px" data-view="external">' + this._t('stats.view_all_external_ips', 'View all external IPs →') + '</button>'
       );
     } else {
       ipsSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
@@ -2665,21 +3896,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '<td><span class="badge ' + bc + '">' + self._esc(e.blacklisted ? 'malicious' : (e.rating || 'ok')) + '</span></td></tr>';
         }).join('') +
         '</tbody></table>' +
-        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs \u2192</button>';
+        '<button class="btn" style="margin-top:8px" data-view="external">' + this._t('stats.view_all_external_ips', 'View all external IPs →') + '</button>';
     }
 
     // ── Top countries ─────────────────────────────────────────────────
     var topC = (this._data && this._data.top_countries) || [];
     var countriesSection;
     if (!topC.length) {
-      countriesSection = '<div class="empty-state"><p style="margin:12px 0">No country data yet</p></div>';
+      countriesSection = '<div class="empty-state"><p style="margin:12px 0">' + this._t('stats.no_country_data', 'No country data yet') + '</p></div>';
     } else if (modes.countries === 'pie') {
       countriesSection = chartSection(
         self._pieSvg(topC, function(c) { return c.flow_count; }, function(c) { return (c.country_name || c.country) + ' (' + c.ip_count + ' IPs)'; }, COLORS),
         self._statsLegend(topC, function(c) { return c.flow_count; }, function(c) {
           return (c.country_name || c.country || '\u2014') + ' (' + c.ip_count + ' IPs)';
         }, COLORS) +
-        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Ranked by flow count</div>'
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">' + this._t('stats.ranked_by_flow_count', 'Ranked by flow count') + '</div>'
       );
     } else {
       var maxFlows = topC[0] ? topC[0].flow_count : 1;
@@ -2705,15 +3936,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var topT = (this._data && this._data.top_internal_talkers) || [];
     var talkersSection;
     if (!topT.length) {
-      talkersSection = '<div class="empty-state"><p style="margin:12px 0">No traffic data yet</p></div>';
+      talkersSection = '<div class="empty-state"><p style="margin:12px 0">' + this._t('stats.no_traffic_data', 'No traffic data yet') + '</p></div>';
     } else if (modes.talkers === 'pie') {
       talkersSection = chartSection(
         self._pieSvg(topT, function(d) { return d.total_octets; }, function(d) { return d.display_name || d.ip; }, COLORS),
         self._statsLegend(topT, function(d) { return d.total_octets; }, function(d) {
           return (d.display_name || d.ip) + ' \u00b7 ' + self._bytes(d.total_octets);
         }, COLORS) +
-        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Ranked by total traffic</div>' +
-        '<button class="btn" style="margin-top:8px" data-view="hosts">View all hosts \u2192</button>'
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">' + this._t('stats.ranked_by_total_traffic', 'Ranked by total traffic') + '</div>' +
+        '<button class="btn" style="margin-top:8px" data-view="hosts">' + this._t('stats.view_all_hosts', 'View all hosts →') + '</button>'
       );
     } else {
       var maxOct = topT[0] ? topT[0].total_octets : 1;
@@ -2730,17 +3961,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '<td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:' + pct + '%;background:#3ac5c9;border-radius:3px;height:8px"></div></div></td></tr>';
         }).join('') +
         '</tbody></table>' +
-        '<button class="btn" style="margin-top:8px" data-view="hosts">View all hosts \u2192</button>';
+        '<button class="btn" style="margin-top:8px" data-view="hosts">' + this._t('stats.view_all_hosts', 'View all hosts →') + '</button>';
     }
 
     // ── Enrichment budget (table only) ────────────────────────────────
     var eStats = (this._data && this._data.enrichment_stats) || [];
     var enrichSection;
     if (!eStats.length) {
-      enrichSection = '<div class="empty-state"><p style="margin:12px 0">No enrichment data</p></div>';
+      enrichSection = '<div class="empty-state"><p style="margin:12px 0">' + this._t('stats.no_enrichment_data', 'No enrichment data') + '</p></div>';
     } else {
       enrichSection = '<div style="overflow-x:auto"><table class="data-table" style="width:100%;min-width:480px"><thead><tr>' +
-        '<th>Provider</th><th style="width:80px;text-align:right">Used today</th><th style="width:90px;text-align:right">Daily budget</th><th style="width:110px">Usage</th><th style="width:80px">Status</th><th>Errors / Notes</th>' +
+        '<th>' + this._t('stats.provider', 'Provider') + '</th><th style="width:80px;text-align:right">' + this._t('stats.used_today', 'Used today') + '</th><th style="width:90px;text-align:right">' + this._t('stats.daily_budget', 'Daily budget') + '</th><th style="width:110px">' + this._t('stats.usage', 'Usage') + '</th><th style="width:80px">' + this._t('stats.status', 'Status') + '</th><th>' + this._t('stats.errors_notes', 'Errors / Notes') + '</th>' +
         '</tr></thead><tbody>' +
         eStats.map(function(s) {
           var PROV_LABELS = { ipwho: 'ipwho.is', virustotal: 'VirusTotal', abuseipdb: 'AbuseIPDB' };
@@ -2748,10 +3979,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var unlimited = s.budget === null || s.budget === undefined;
           var pct = (!unlimited && s.budget > 0) ? Math.min(100, Math.round((s.used / s.budget) * 100)) : 0;
           var barColor = s.exhausted ? '#ff4d6d' : (unlimited || pct <= 80 ? '#6bffc8' : '#ffc107');
-          var badge = !s.configured ? '<span class="badge badge-dim">not configured</span>' :
-            (s.exhausted ? '<span class="badge badge-critical">exhausted</span>' :
-            (unlimited ? '<span class="badge badge-ok">\u221e unlimited</span>' :
-            (pct > 80 ? '<span class="badge badge-warn">high</span>' : '<span class="badge badge-ok">ok</span>')));
+          var badge = !s.configured ? '<span class="badge badge-dim">' + self._t('stats.not_configured', 'not configured') + '</span>' :
+            (s.exhausted ? '<span class="badge badge-critical">' + self._t('stats.exhausted', 'exhausted') + '</span>' :
+            (unlimited ? '<span class="badge badge-ok">' + self._t('stats.unlimited', '∞ unlimited') + '</span>' :
+            (pct > 80 ? '<span class="badge badge-warn">' + self._t('stats.high', 'high') + '</span>' : '<span class="badge badge-ok">' + self._t('stats.ok', 'ok') + '</span>')));
           var errCell = '';
           if (s.last_error) {
             var errStr = String(s.last_error);
@@ -2775,7 +4006,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var topThr = (this._data && this._data.top_threat_ips) || [];
     var threatSection;
     if (!topThr.length) {
-      threatSection = '<div class="empty-state"><div class="empty-icon" style="font-size:24px">✅</div><p style="margin:8px 0">No suspicious or malicious IPs detected</p></div>';
+      threatSection = '<div class="empty-state"><div class="empty-icon" style="font-size:24px">✅</div><p style="margin:8px 0">' + this._t('stats.no_threat_ips', 'No suspicious or malicious IPs detected') + '</p></div>';
     } else if (modes.threat_ips === 'pie') {
       threatSection = chartSection(
         self._pieSvg(topThr, function(e) { return Math.max(e.flows, 1); }, function(e) {
@@ -2785,8 +4016,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var label = e.hostname || e.org || e.ip;
           return label + ' · ' + e.rating + (e.flows ? ' · ' + e.flows.toLocaleString() + ' flows' : '');
         }, THREAT_COLORS) +
-        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">Malicious first, then by flow count</div>' +
-        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs →</button>'
+        '<div style="margin-top:8px;font-size:10px;color:var(--muted)">' + this._t('stats.malicious_first', 'Malicious first, then by flow count') + '</div>' +
+        '<button class="btn" style="margin-top:8px" data-view="external">' + this._t('stats.view_all_external_ips', 'View all external IPs →') + '</button>'
       );
     } else {
       threatSection = '<table class="data-table" style="width:100%;margin-top:8px"><thead><tr>' +
@@ -2812,7 +4043,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '<td style="font-size:10px;color:var(--muted)">' + details.join(', ') + '</td></tr>';
         }).join('') +
         '</tbody></table>' +
-        '<button class="btn" style="margin-top:8px" data-view="external">View all external IPs →</button>';
+        '<button class="btn" style="margin-top:8px" data-view="external">' + this._t('stats.view_all_external_ips', 'View all external IPs →') + '</button>';
     }
 
     // ── DNS activity ──────────────────────────────────────────────────
@@ -2866,7 +4097,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             }
           }
           var hasAny = dnsBuckets.some(function(b) { return b.total > 0; });
-          if (!hasAny) return '<div class="empty-state"><p style="margin:12px 0">No DNS queries recorded</p></div>';
+          if (!hasAny) return '<div class="empty-state"><p style="margin:12px 0">' + self._t('stats.no_dns_queries', 'No DNS queries recorded') + '</p></div>';
           var maxDns = 1;
           for (var mi = 0; mi < dnsBuckets.length; mi++) {
             if (dnsBuckets[mi].total > maxDns) maxDns = dnsBuckets[mi].total;
@@ -2893,9 +4124,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           }
           return '<svg viewBox="0 0 ' + dSvgW + ' ' + (D_CHART + D_LABEL) + '" width="100%" height="' + (D_CHART + D_LABEL) + '" preserveAspectRatio="none" style="display:block">' + dBars + dLabels + '</svg>' +
             '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px">' +
-              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.35);display:inline-block;border-radius:2px"></span>Total</span>' +
-              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>Blocked</span>' +
-              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>Malicious</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.35);display:inline-block;border-radius:2px"></span>' + self._t('stats.total', 'Total') + '</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>' + self._t('stats.blocked', 'Blocked') + '</span>' +
+              '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>' + self._t('stats.malicious', 'Malicious') + '</span>' +
             '</div>';
         })();
 
@@ -2922,7 +4153,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var dnsTopMalHtml;
     if (!topMalDomains.length) {
-      dnsTopMalHtml = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No malicious or blocked DNS queries detected</p></div>';
+      dnsTopMalHtml = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">' + this._t('stats.no_dns_detected', 'No malicious or blocked DNS queries detected') + '</p></div>';
     } else {
       var DNS_CAT_COLORS_STAT = {
         malware:'rgba(255,77,109,1)', adult:'rgba(191,111,255,1)', gambling:'rgba(255,179,71,1)',
@@ -2945,7 +4176,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             '<td style="text-align:right"><span class="badge badge-malicious">' + d.count + '</span></td></tr>';
         }).join('') +
         '</tbody></table>' +
-        '<button class="btn" style="margin-top:8px" data-view="dns">View DNS log \u2192</button>';
+        '<button class="btn" style="margin-top:8px" data-view="dns">' + this._t('stats.view_dns_log', 'View DNS log →') + '</button>';
     }
 
     // ── DNS blocked-by-category pie chart ────────────────────────────
@@ -2975,7 +4206,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var _dnsCatTotal = _dnsCatItems.reduce(function(s, x) { return s + x.count; }, 0);
     var dnsCatSection;
     if (!_dnsCatTotal) {
-      dnsCatSection = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No blocked or malicious DNS queries yet</p></div>';
+      dnsCatSection = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">' + this._t('stats.no_blocked_yet', 'No blocked or malicious DNS queries yet') + '</p></div>';
     } else if (modes.dns_categories === 'pie') {
       var _dnsCatPieColors = _dnsCatItems.map(function(x) { return _STAT_CAT_COLORS[x.cat] || _STAT_CAT_COLORS['other']; });
       var _dnsCatPieSvg = self._pieSvg(_dnsCatItems, function(x) { return x.count; }, function(x) { return (_STAT_CAT_LABELS[x.cat] || x.cat) + ': ' + x.count; }, _dnsCatPieColors);
@@ -3025,7 +4256,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var _dnsClientTotal = _dnsClientItems.reduce(function(s, x) { return s + x.count; }, 0);
     var dnsClientSection;
     if (!_dnsClientTotal) {
-      dnsClientSection = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">No blocked or malicious client queries yet</p></div>';
+      dnsClientSection = '<div class="empty-state"><div class="empty-icon" style="font-size:22px">\u2705</div><p style="margin:8px 0">' + this._t('stats.no_blocked_clients', 'No blocked or malicious client queries yet') + '</p></div>';
     } else if (modes.dns_clients === 'pie') {
       var _dnsClientColors = ['#ff4d6d','#ff8c42','#ffc107','#f472b6','#fb923c','#ff6b6b','#e879f9','#facc15','#fd8dac','#ffb347','#6bffc8','#5baaec'];
       var _dnsClientPieSvg = self._pieSvg(
@@ -3080,7 +4311,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         if (dvBkts[dbi] === null || dvpt.deviance_score > dvBkts[dbi]) dvBkts[dbi] = dvpt.deviance_score;
       }
       if (!dvBkts.some(function(v) { return v !== null; })) {
-        return '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">No deviance data yet \u2014 data accumulates every 5\u202fmin</div>';
+        return '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">' + self._t('stats.no_deviance', 'No deviance data yet — data accumulates every 5 min') + '</div>';
       }
       var dvSvgW = DV_H * (DV_BAR_W + DV_GAP);
       var dvGuides = [25, 50, 75].map(function(g) {
@@ -3102,10 +4333,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }
       return '<svg viewBox="0 0 ' + dvSvgW + ' ' + (DV_CHART + DV_LABEL) + '" width="100%" height="' + (DV_CHART + DV_LABEL) + '" preserveAspectRatio="none" style="display:block">' + dvGuides + dvBars + dvLabels + '</svg>' +
         '<div style="display:flex;gap:12px;margin-top:4px;font-size:10px;flex-wrap:wrap">' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6bffc8;display:inline-block;border-radius:2px"></span>\u226420% Normal</span>' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ffc107;display:inline-block;border-radius:2px"></span>\u226450% Review</span>' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff8c42;display:inline-block;border-radius:2px"></span>\u226475% Investigate</span>' +
-          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff4d6d;display:inline-block;border-radius:2px"></span>&gt;75% Critical</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6bffc8;display:inline-block;border-radius:2px"></span>' + self._t('stats.normal', '≤20% Normal') + '</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ffc107;display:inline-block;border-radius:2px"></span>' + self._t('stats.review', '≤50% Review') + '</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff8c42;display:inline-block;border-radius:2px"></span>' + self._t('stats.investigate', '≤75% Investigate') + '</span>' +
+          '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff4d6d;display:inline-block;border-radius:2px"></span>' + self._t('stats.critical', '>75% Critical') + '</span>' +
         '</div>';
     })();
 
@@ -3126,7 +4357,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var _hfColors = ['#ff8c42','#ffc107','#ff4d6d','#8f86ff','#3ac5c9','#6bffc8','#f472b6','#fb923c','#a78bfa','#22d3ee'];
     var hostFindingsSection;
     if (!_hostFindTotal) {
-      hostFindingsSection = '<div class="empty-state"><p style="margin:12px 0">No findings recorded yet</p></div>';
+      hostFindingsSection = '<div class="empty-state"><p style="margin:12px 0">' + this._t('stats.no_findings', 'No findings recorded yet') + '</p></div>';
     } else if (modes.host_findings === 'pie') {
       var _hfPieSvg = self._pieSvg(_hostFindItems, function(x) { return x.count; }, function(x) {
         var d = _devicesMap[x.ip]; return ((d && (d.name || d.hostname)) || x.ip) + ': ' + x.count;
@@ -3178,7 +4409,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var _edColors = ['#ff4d6d','#ff8c42','#ffc107','#f472b6','#fb923c','#ff6b6b','#e879f9','#facc15','#fd8dac','#ffb347'];
     var extIpDeviationSection;
     if (!_extDevTotal) {
-      extIpDeviationSection = '<div class="empty-state"><p style="margin:12px 0">No new external peers in baseline deviations</p></div>';
+      extIpDeviationSection = '<div class="empty-state"><p style="margin:12px 0">' + this._t('stats.no_ext_peers', 'No new external peers in baseline deviations') + '</p></div>';
     } else if (modes.ext_deviations === 'pie') {
       var _edPieSvg = self._pieSvg(_extDevItems, function(x) { return x.count; }, function(x) {
         var enr = _extIpEnrich[x.ip];
@@ -3216,37 +4447,37 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     return '<div>' +
       '<div class="page-header"><h1 class="page-title">' + this._t('page.statistics', 'Statistics') + ' <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">\u2014 top\u00a0' + topN + '</span></h1></div>' +
       timelineHtml +
-      (devianceChartHtml ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Baseline Deviance per hour (last 24\u202fh)</div>' + devianceChartHtml + '</div>' : '') +
-      (dnsProxyEnabled ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">DNS Queries per hour (last 24\u202fh)</div>' + dnsChartHtml + '</div>' : '') + '</div>' +
+      (devianceChartHtml ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">' + this._t('stats.baseline_deviance_hourly', 'Baseline Deviance per hour (last 24 h)') + '</div>' + devianceChartHtml + '</div>' : '') +
+      (dnsProxyEnabled ? '<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">' + this._t('stats.dns_queries_hourly', 'DNS Queries per hour (last 24 h)') + '</div>' + dnsChartHtml + '</div>' : '') + '</div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Public IPs' + toggleBtns('public_ips', modes.public_ips) + '</div>' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' + this._t('stats.top_public_ips', 'Top {n} Public IPs').replace('{n}', topN) + toggleBtns('public_ips', modes.public_ips) + '</div>' +
           ipsSection +
         '</div>' +
         '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Countries' + toggleBtns('countries', modes.countries) + '</div>' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' + this._t('stats.top_countries', 'Top {n} Countries').replace('{n}', topN) + toggleBtns('countries', modes.countries) + '</div>' +
           countriesSection +
         '</div>' +
       '</div>' +
       '<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Internal Talkers' + toggleBtns('talkers', modes.talkers) + '</div>' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' + this._t('stats.top_internal_talkers', 'Top {n} Internal Talkers').replace('{n}', topN) + toggleBtns('talkers', modes.talkers) + '</div>' +
           talkersSection +
         '</div>' +
         '<div class="card stats-panel-card">' +
           '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
-          (topThr.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Threat IPs <span class="badge badge-critical" style="font-size:9px">' + topThr.length + '</span></span>' : 'Top\u00a0' + topN + ' Threat IPs') +
+          (topThr.length ? '<span style="display:flex;align-items:center;gap:6px">' + this._t('stats.top_threat_ips', 'Top {n} Threat IPs').replace('{n}', topN) + ' <span class="badge badge-critical" style="font-size:9px">' + topThr.length + '</span></span>' : this._t('stats.top_threat_ips', 'Top {n} Threat IPs').replace('{n}', topN)) +
           toggleBtns('threat_ips', modes.threat_ips) + '</div>' +
           threatSection +
         '</div>' +
       '</div>' +
       (dnsProxyEnabled ? ('<div class="two-col stats-two-col" style="margin-top:12px">' +
         '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Blocked DNS Queries by Category' + toggleBtns('dns_categories', modes.dns_categories) + '</div>' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' + this._t('stats.blocked_dns_by_category', 'Blocked DNS Queries by Category') + toggleBtns('dns_categories', modes.dns_categories) + '</div>' +
           dnsCatSection +
         '</div>' +
         '<div class="card stats-panel-card">' +
-          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Blocked Queries by Client' + toggleBtns('dns_clients', modes.dns_clients) + '</div>' +
+          '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' + this._t('stats.top_blocked_by_client', 'Top {n} Blocked Queries by Client').replace('{n}', topN) + toggleBtns('dns_clients', modes.dns_clients) + '</div>' +
           dnsClientSection +
         '</div>' +
       '</div>') : '') +
@@ -3255,11 +4486,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var blMode = (self._data && self._data.baseline && self._data.baseline.mode) || 'disabled';
           if (blMode !== 'active') return '';
           return '<div class="card stats-panel-card">' +
-              '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' Hosts in Deviations' + toggleBtns('host_findings', modes.host_findings) + '</div>' +
+              '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' + self._t('stats.top_hosts_deviations', 'Top {n} Hosts in Deviations').replace('{n}', topN) + toggleBtns('host_findings', modes.host_findings) + '</div>' +
               hostFindingsSection +
             '</div>' +
             '<div class="card stats-panel-card">' +
-              '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">Top\u00a0' + topN + ' External IPs in Deviations' + toggleBtns('ext_deviations', modes.ext_deviations) + '</div>' +
+              '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">' + self._t('stats.top_ext_deviations', 'Top {n} External IPs in Deviations').replace('{n}', topN) + toggleBtns('ext_deviations', modes.ext_deviations) + '</div>' +
               extIpDeviationSection +
             '</div>';
         })()) +
@@ -3297,33 +4528,33 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             data.map(function(item,i){return '<tr><td style="color:var(--muted)">'+(i+1)+'</td><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+colors[i%colors.length]+';margin-right:5px;vertical-align:middle"></span>'+self._esc(item.label)+'</td><td style="text-align:right">'+item.value+'</td></tr>';}).join('') +
             '</tbody></table>';
           var toggleHtml = '<div style="display:flex;gap:4px">' +
-            '<button class="btn'+(mode==='pie'?' active':'')+'" style="padding:2px 8px;font-size:10px" data-statstoggle="'+key+':pie">Pie</button>' +
-            '<button class="btn'+(mode==='bar'?' active':'')+'" style="padding:2px 8px;font-size:10px" data-statstoggle="'+key+':bar">List</button>' +
+            '<button class="btn'+(mode==='pie'?' active':'')+'" style="padding:2px 8px;font-size:10px" data-statstoggle="'+key+':pie">' + self._t('stats.pie', 'Pie') + '</button>' +
+            '<button class="btn'+(mode==='bar'?' active':'')+'" style="padding:2px 8px;font-size:10px" data-statstoggle="'+key+':bar">' + self._t('stats.list', 'List') + '</button>' +
           '</div>';
           var content = (mode === 'pie' && total > 0)
             ? '<div class="stats-chart-row"><svg width="'+SIZE+'" height="'+SIZE+'" viewBox="0 0 '+SIZE+' '+SIZE+'" style="flex-shrink:0">'+pieSvg+'</svg><div class="stats-chart-legend" style="min-width:0;flex:1">'+legend+'</div></div>'
             : tableHtml;
           return '<div class="card stats-panel-card">' +
             '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center">'+title+toggleHtml+'</div>' +
-            (total === 0 ? '<div style="color:var(--muted);font-size:12px;padding:8px 0">'+(noDataMsg||'No data')+'</div>' : content) +
+            (total === 0 ? '<div style="color:var(--muted);font-size:12px;padding:8px 0">'+(noDataMsg||self._t('stats.no_data', 'No data'))+'</div>' : content) +
           '</div>';
         }
         return '<div class="two-col stats-two-col" style="margin-top:12px">' +
-          _sucPie(sucSevData, SUC_SEV_COLORS, 'suricata_severity', 'Suricata Alerts \u2014 By Severity', 'No alerts yet') +
-          _sucPie(sucCatData, sucCatColors.length ? sucCatColors : SUC_CAT_PALETTE, 'suricata_category', 'Suricata Alerts \u2014 By Category', 'No alerts yet') +
+          _sucPie(sucSevData, SUC_SEV_COLORS, 'suricata_severity', self._t('stats.suricata_by_severity', 'Suricata Alerts — By Severity'), self._t('stats.no_alerts', 'No alerts yet')) +
+          _sucPie(sucCatData, sucCatColors.length ? sucCatColors : SUC_CAT_PALETTE, 'suricata_category', self._t('stats.suricata_by_category', 'Suricata Alerts — By Category'), self._t('stats.no_alerts', 'No alerts yet')) +
         '</div>' +
         '<div class="two-col stats-two-col" style="margin-top:12px">' +
-          _sucPie(sucSrcData, SUC_SRC_PALETTE, 'suricata_src', 'Suricata Alerts \u2014 Top\u00a0' + topN + ' Source IPs', 'No alerts yet') +
+          _sucPie(sucSrcData, SUC_SRC_PALETTE, 'suricata_src', self._t('stats.suricata_top_source', 'Suricata Alerts — Top {n} Source IPs').replace('{n}', topN), self._t('stats.no_alerts', 'No alerts yet')) +
         '</div>';
       })() : '') +
       (dnsProxyEnabled ? '<div class="card" style="margin-top:12px">' +
         '<div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-        (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">Top\u00a0' + topN + ' Blocked / Malicious Domains <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : 'Top\u00a0' + topN + ' Blocked / Malicious Domains') +
+        (topMalDomains.length ? '<span style="display:flex;align-items:center;gap:6px">' + this._t('stats.top_blocked_domains', 'Top {n} Blocked / Malicious Domains').replace('{n}', topN) + ' <span class="badge badge-critical" style="font-size:9px">' + topMalDomains.length + '</span></span>' : this._t('stats.top_blocked_domains', 'Top {n} Blocked / Malicious Domains').replace('{n}', topN)) +
         '</div>' +
         dnsTopMalHtml +
       '</div>' : '') +
       '<div class="card" style="margin-top:12px">' +
-        '<div class="card-title">Enrichment Budget (Today)</div>' +
+        '<div class="card-title">' + this._t('stats.enrichment_budget', 'Enrichment Budget (Today)') + '</div>' +
         enrichSection +
       '</div>' +
     '</div>';
@@ -3333,7 +4564,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
     var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     if (!netflowEnabled) {
-      container.innerHTML = '<div class="state-box"><div class="state-icon">\u23f8</div><p>NetFlow listener is disabled. Enable it in <button class="btn" style="display:inline;padding:2px 10px;font-size:11px" data-view="settings">Settings</button> to use the Network Map.</p></div>';
+      container.innerHTML = '<div class="state-box"><div class="state-icon">\u23f8</div><p>' + this._t('map.disabled', 'NetFlow listener is disabled.') + ' ' + this._t('map.enable_in', 'Enable it in') + ' <button class="btn" style="display:inline;padding:2px 10px;font-size:11px" data-view="settings">' + this._t('view.settings', 'Settings') + '</button> ' + this._t('map.to_use', 'to use the Network Map.') + '</p></div>';
       return;
     }
     var baselineEnabledRaw = this._data && this._data.baseline_enabled;
@@ -3352,29 +4583,29 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (m !== 'live' && !hasBaselineGraph) m = 'live';
     this._mapMode = m;
     var filters = [
-      { id: 'all',      label: 'All' },
-      { id: 'scanned',  label: 'Scanned' },
-      { id: 'flow',     label: 'Flow only' },
-      { id: 'external', label: 'External', hide: !netflowEnabled },
+      { id: 'all',      label: this._t('map.filter_all', 'All') },
+      { id: 'scanned',  label: this._t('map.filter_scanned', 'Scanned') },
+      { id: 'flow',     label: this._t('map.filter_flow_only', 'Flow only') },
+      { id: 'external', label: this._t('map.filter_external', 'External'), hide: !netflowEnabled },
     ].filter(function(b) { return !b.hide; });
     var filterBtns = filters.map(function(b) {
       return '<button class="btn map-fbtn' + (f === b.id ? ' active' : '') + '" data-mapfilter="' + b.id + '">' + b.label + '</button>';
     }).join('');
     var mapModes = [
-      { id: 'live', label: 'Live' },
-      { id: 'baseline', label: 'Baseline', disabled: !hasBaselineGraph || !baselineEnabled },
-      { id: 'compare', label: 'Compare', disabled: !hasBaselineGraph || !baselineEnabled },
+      { id: 'live', label: this._t('map.mode_live', 'Live') },
+      { id: 'baseline', label: this._t('map.mode_baseline', 'Baseline'), disabled: !hasBaselineGraph || !baselineEnabled },
+      { id: 'compare', label: this._t('map.mode_compare', 'Compare'), disabled: !hasBaselineGraph || !baselineEnabled },
     ];
     var modeBtns = baselineEnabled ? mapModes.map(function(mm) {
       var disabledAttr = mm.disabled ? ' disabled' : '';
       return '<button class="btn map-mbtn' + (m === mm.id ? ' active' : '') + '" data-mapmode="' + mm.id + '"' + disabledAttr + '>' + mm.label + '</button>';
     }).join('') : '';
-    var modeLabel = m === 'baseline' ? 'Baseline Snapshot' : (m === 'compare' ? 'Live vs Baseline' : 'Live Network Map');
+    var modeLabel = m === 'baseline' ? this._t('map.label_baseline_snapshot', 'Baseline Snapshot') : (m === 'compare' ? this._t('map.label_live_vs_baseline', 'Live vs Baseline') : this._t('map.label_live_network', 'Live Network Map'));
     var baselineInfo = '';
     if (hasBaselineGraph) {
       var edgeCount = (baselineGraph.edges || []).length;
       var hostCount = (baselineGraph.hosts || []).length;
-      baselineInfo = '<span class="chip" style="margin-left:6px">Baseline ' + hostCount + ' hosts \u00B7 ' + edgeCount + ' edges</span>';
+      baselineInfo = '<span class="chip" style="margin-left:6px">' + this._t('map.baseline_chip', 'Baseline') + ' ' + hostCount + ' ' + this._t('map.hosts', 'hosts') + ' \u00B7 ' + edgeCount + ' ' + this._t('map.edges', 'edges') + '</span>';
     }
     // ── Compare summary chips ─────────────────────────────────────────
     var compareSummaryHtml = '';
@@ -3397,24 +4628,24 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }
       compareSummaryHtml =
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:11px">' +
-          '<span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em">Compare:</span>' +
+          '<span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em">' + this._t('map.compare', 'Compare:') + '</span>' +
           '<span style="background:rgba(50,255,120,.12);border:1px solid rgba(50,255,120,.35);border-radius:100px;padding:2px 10px;color:#32ff78">' +
-            '\u2191 ' + _cntNew + ' new edge' + (_cntNew !== 1 ? 's' : '') +
+            '\u2191 ' + _cntNew + ' ' + this._t(_cntNew === 1 ? 'map.new_edge_one' : 'map.new_edge_many', _cntNew === 1 ? 'new edge' : 'new edges') +
           '</span>' +
           '<span style="background:rgba(255,90,50,.12);border:1px solid rgba(255,90,50,.35);border-radius:100px;padding:2px 10px;color:#ff5a32">' +
-            '\u2193 ' + _cntMissing + ' missing edge' + (_cntMissing !== 1 ? 's' : '') +
+            '\u2193 ' + _cntMissing + ' ' + this._t(_cntMissing === 1 ? 'map.missing_edge_one' : 'map.missing_edge_many', _cntMissing === 1 ? 'missing edge' : 'missing edges') +
           '</span>' +
           '<span style="background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.2);border-radius:100px;padding:2px 10px;color:var(--accent)">' +
-            _cntBoth + ' unchanged' +
+            _cntBoth + ' ' + this._t('map.unchanged', 'unchanged') +
           '</span>' +
-          (_topDeltaLabel ? '<span style="background:rgba(255,206,84,.08);border:1px solid rgba(255,206,84,.25);border-radius:100px;padding:2px 10px;color:#ffce54;font-size:10px">\u0394 strongest: ' + _topDeltaLabel + '</span>' : '') +
+          (_topDeltaLabel ? '<span style="background:rgba(255,206,84,.08);border:1px solid rgba(255,206,84,.25);border-radius:100px;padding:2px 10px;color:#ffce54;font-size:10px">' + this._t('map.strongest', 'Δ strongest:') + ' ' + _topDeltaLabel + '</span>' : '') +
         '</div>';
     }
     container.innerHTML =
       '<div><div class="view-header"><h1>' + modeLabel + baselineInfo + '</h1>' +
       '<div class="row-gap"><span id="map-stats" style="font-size:11px;color:var(--muted)">' +
       allDevices.length + ' internal \u00B7 ' + extIPs.length + ' external' + (mcIPs.length ? ' \u00B7 ' + mcIPs.length + ' multicast' : '') + ' \u00B7 ' + this._fmtN(flows) + ' flows</span>' +
-      '<button class="btn" id="map-reset-btn">\u21BA Reset</button></div></div>' +
+      '<button class="btn" id="map-reset-btn">' + this._t('map.reset', '↺ Reset') + '</button></div></div>' +
       '<div class="map-filter-bar" style="display:flex;justify-content:space-between;align-items:center">' +
         '<div style="display:flex;gap:4px">' + filterBtns + '</div>' +
         '<div style="display:flex;gap:4px">' + modeBtns + '</div>' +
@@ -3423,15 +4654,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="map-wrap"><canvas id="hsa-map-canvas"></canvas>' +
       '<div class="map-tooltip" id="hsa-map-tip" style="display:none"></div>' +
       '<div class="map-legend">' +
-        '<div class="legend-item"><div class="ldot" style="background:#8f86ff"></div>Scanned</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#3ac5c9"></div>Flow only</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#88a7c7"></div>Baseline edge</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#ff5a32"></div>Missing</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#32ff78"></div>New</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#ff4d6d"></div>At risk</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#6bffc8"></div>Gateway</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#5a6a80"></div>External</div>' +
-        '<div class="legend-item"><div class="ldot" style="background:#d4a843"></div>Multicast</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#8f86ff"></div>' + this._t('map.legend_scanned', 'Scanned') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#3ac5c9"></div>' + this._t('map.legend_flow_only', 'Flow only') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#88a7c7"></div>' + this._t('map.legend_baseline_edge', 'Baseline edge') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#ff5a32"></div>' + this._t('map.legend_missing', 'Missing') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#32ff78"></div>' + this._t('map.legend_new', 'New') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#ff4d6d"></div>' + this._t('map.legend_at_risk', 'At risk') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#6bffc8"></div>' + this._t('map.legend_gateway', 'Gateway') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#5a6a80"></div>' + this._t('map.legend_external', 'External') + '</div>' +
+        '<div class="legend-item"><div class="ldot" style="background:#d4a843"></div>' + this._t('map.legend_multicast', 'Multicast') + '</div>' +
       '</div></div></div>';
     var self = this;
     requestAnimationFrame(function() {
@@ -4258,7 +5489,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       if (Math.sqrt((mx - n.x) * (mx - n.x) + (my - n.y) * (my - n.y)) <= n.r + 5) {
         var lbl  = n.display_name || n.hostname || ip;
         var role = n.probable_role ? '<br><span style="color:#8a9dbf">' + n.probable_role + '</span>' : '';
-        var risk = n.at_risk  ? '<br><span style="color:#ff4d6d">\u26A0 At risk</span>' : '';
+        var risk = n.at_risk  ? '<br><span style="color:#ff4d6d">\u26A0 ' + this._t('map.at_risk', 'At risk') + '</span>' : '';
         var baselineStats = (this._data && this._data.baseline) || {};
         var baselineSnapshots = ((baselineStats.training_stats || {}).snapshots_seen || 0);
         var flagEmoji = n.country ? this._countryFlag(n.country) : '';
@@ -4267,8 +5498,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         var extra = '';
         if (n.type === 'multicast') {
           if (n.label && n.label !== ip) extra += '<br><span style="color:#d4a843;font-size:10px">' + this._esc(n.label) + '</span>';
-          extra += '<br><span style="color:#8a9dbf;font-size:10px">Multicast \u00B7 not internet-routed</span>';
-          if (n.internal_sources && n.internal_sources.length) extra += '<br><span style="color:#8a9dbf;font-size:9px">Sources: ' + n.internal_sources.join(', ') + '</span>';
+          extra += '<br><span style="color:#8a9dbf;font-size:10px">' + this._t('map.multicast_note', 'Multicast · not internet-routed') + '</span>';
+          if (n.internal_sources && n.internal_sources.length) extra += '<br><span style="color:#8a9dbf;font-size:9px">' + this._t('map.sources', 'Sources') + ': ' + n.internal_sources.join(', ') + '</span>';
         } else if (n.type === 'external') {
           if (n.org) extra += '<br><span style="color:#8a9dbf;font-size:10px">' + this._esc(n.org.substring(0, 40)) + '</span>';
           if (n.rating) extra += '<br>' + this._rating(n.rating);
@@ -4276,7 +5507,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var abLine = n.abuse_confidence != null ? 'Abuse: ' + n.abuse_confidence + '%' : '';
           var intelParts = [vtLine, abLine].filter(Boolean).join(' \u00B7 ');
           if (intelParts) extra += '<br><span style="color:#8a9dbf;font-size:9px">' + intelParts + '</span>';
-          extra += '<br><span style="color:var(--accent);font-size:9px;opacity:.6">Click for full lookup</span>';
+          extra += '<br><span style="color:var(--accent);font-size:9px;opacity:.6">' + this._t('map.click_full_lookup', 'Click for full lookup') + '</span>';
         } else {
           if (this._mapMode !== 'live') {
             var obs = n.baseline_observation_count || 0;
@@ -4284,9 +5515,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             var presencePct = Math.round(presence * 100);
             var liveLoad = Math.min(1, Math.log10((n.total_octets || 0) + 1) / 8);
             var livePct = Math.round(liveLoad * 100);
-            extra += '<br><span style="color:#8a9dbf;font-size:9px">Baseline presence: ' + presencePct + '%</span>';
+            extra += '<br><span style="color:#8a9dbf;font-size:9px">' + this._t('map.baseline_presence', 'Baseline presence') + ': ' + presencePct + '%</span>';
             extra += '<div style="margin-top:2px;height:4px;background:rgba(136,167,199,.18);border-radius:3px;overflow:hidden"><div style="height:4px;width:' + presencePct + '%;background:#88a7c7"></div></div>';
-            extra += '<br><span style="color:#8a9dbf;font-size:9px">Live load index: ' + livePct + '%</span>';
+            extra += '<br><span style="color:#8a9dbf;font-size:9px">' + this._t('map.live_load', 'Live load index') + ': ' + livePct + '%</span>';
             extra += '<div style="margin-top:2px;height:4px;background:rgba(0,224,255,.15);border-radius:3px;overflow:hidden"><div style="height:4px;width:' + livePct + '%;background:#00e0ff"></div></div>';
           }
         }
@@ -4308,14 +5539,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === 'true' || netflowEnabledRaw === 1 || netflowEnabledRaw === '1';
     var cols = [
       { key: 'ip', label: 'IP' },
-      { key: 'name', label: 'Name' },
+      { key: 'name', label: this._t('hosts.col_name', 'Name') },
       { key: 'os', label: 'OS' },
-      { key: 'role', label: 'Role' },
-      { key: null, label: 'Open ports' },
+      { key: 'role', label: this._t('hosts.col_role', 'Role') },
+      { key: null, label: this._t('hosts.col_open_ports', 'Open ports') },
       { key: 'cve', label: 'CVEs' },
       { key: 'ping', label: 'Ping' },
     ];
-    if (netflowEnabled) cols.push({ key: 'traffic', label: 'Traffic' });
+    if (netflowEnabled) cols.push({ key: 'traffic', label: this._t('hosts.col_traffic', 'Traffic') });
     return '<tr>' + cols.map(function(c) {
       if (!c.key) return '<th>' + c.label + '</th>';
       var arrow = self._hostSort === c.key ? (self._hostSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
@@ -4327,8 +5558,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var aliveDevices = ((this._data && this._data.devices) || []).filter(function(d) { return d.alive; });
     var cnt = aliveDevices.length;
     return '<div>' +
-      '<div class="view-header"><h1>Network Hosts <span class="dim">(' + cnt + ' alive)</span></h1>' +
-      '<input id="hsa-host-filter" class="search-bar" type="search" placeholder="Filter by IP, name, role\u2026" value="' + this._esc(this._hostFilter) + '"></div>' +
+      '<div class="view-header"><h1>' + this._t('hosts.page_title', 'Network Hosts') + ' <span class="dim">(' + cnt + ' ' + this._t('hosts.alive_suffix', 'alive') + ')</span></h1>' +
+      '<input id="hsa-host-filter" class="search-bar" type="search" placeholder="' + this._esc(this._t('hosts.filter_placeholder', 'Filter by IP, name, role…')) + '" value="' + this._esc(this._hostFilter) + '"></div>' +
       '<div class="card table-card"><table class="data-table">' +
         '<thead id="hsa-host-thead">' + this._hostThead() + '</thead>' +
         '<tbody id="hsa-host-tbody">' + this._hostRows() + '</tbody>' +
@@ -4347,7 +5578,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         (d.hostname || '').toLowerCase().indexOf(q) >= 0 ||
         (d.probable_role || '').indexOf(q) >= 0;
     });
-    if (!devices.length) return '<tr><td colspan="' + colCount + '"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No hosts match the filter</p></div></td></tr>';
+    if (!devices.length) return '<tr><td colspan="' + colCount + '"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>' + this._t('hosts.no_match', 'No hosts match the filter') + '</p></div></td></tr>';
     var sortKey = this._hostSort;
     var sortDir = this._hostSortDir;
     devices.sort(function(a, b) {
@@ -4406,10 +5637,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       if (isCustom && knownCustomRoles.indexOf(curRole) === -1) roleOpts += '<option value="' + curRole + '" selected>' + curRole.replace(/_/g, ' ') + '</option>';
       roleOpts += '<option value="__custom__">custom\u2026</option>';
       var roleSelect = '<select class="role-select" data-roleip="' + d.ip + '" title="Click to change role">' + roleOpts + '</select>' +
-        (isOverride ? ' <span class="dim" style="font-size:9px">(manual)</span>' : '');
+        (isOverride ? ' <span class="dim" style="font-size:9px">' + self._t('hosts.manual', '(manual)') + '</span>' : '');
       var nameCell = (name ? '<strong>' + self._esc(name) + '</strong>' : '<span class="dim">\u2014</span>') +
-        ' <button class="btn" data-editname="' + d.ip + '">Rename</button>' +
-        (isNameOverride ? ' <span class="dim" style="font-size:9px">(manual)</span>' : '');
+        ' <button class="btn" data-editname="' + d.ip + '">' + self._t('hosts.rename', 'Rename') + '</button>' +
+        (isNameOverride ? ' <span class="dim" style="font-size:9px">' + self._t('hosts.manual', '(manual)') + '</span>' : '');
       return '<tr class="expandable" data-ip="' + d.ip + '">' +
         '<td><span style="color:' + alive + ';font-size:8px">\u25CF</span> <span class="ip">' + d.ip + '</span></td>' +
         '<td>' + nameCell + '</td>' +
@@ -4448,10 +5679,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var isDismissed = Object.prototype.hasOwnProperty.call(dismissedMap, key);
       var note = isDismissed ? dismissedMap[key] : '';
       var dismissedBadge = isDismissed
-        ? ' <span class="chip" style="background:#444;color:#999;font-size:9px">dismissed</span>'
+        ? ' <span class="chip" style="background:#444;color:#999;font-size:9px">' + self._t('findings.dismissed', 'dismissed') + '</span>'
         : '';
       var noteHtml = (isDismissed && note)
-        ? '<div class="dim" style="font-size:10px;margin-top:4px;font-style:italic">Note: ' + self._esc(note) + '</div>'
+        ? '<div class="dim" style="font-size:10px;margin-top:4px;font-style:italic">' + self._t('hosts.note', 'Note') + ': ' + self._esc(note) + '</div>'
         : '';
       return '<div class="finding-card sev-' + v.severity + '" style="margin-bottom:6px;padding:10px' + (isDismissed ? ';opacity:0.45' : '') + '">' +
         '<div class="finding-header">' + self._sev(v.severity) +
@@ -4459,28 +5690,28 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<span class="dim" style="font-size:10px">CVSS ' + (v.cvss || '?') + '</span>' +
         dismissedBadge + '</div>' +
         '<div class="finding-body">' + self._esc(v.summary || '') + '</div>' +
-        (v.remediation ? '<div class="fix-hint">Fix: ' + self._esc(v.remediation) + '</div>' : '') +
+        (v.remediation ? '<div class="fix-hint">' + self._t('hosts.fix', 'Fix') + ': ' + self._esc(v.remediation) + '</div>' : '') +
         noteHtml +
         '</div>';
     }).join('');
     return '<div class="host-detail-wrap">' +
       '<div>' +
-        this._kv('IP', d.ip) + this._kv('Hostname', d.hostname || '\u2014') +
-        this._kv('MAC', d.mac_address || '\u2014') + this._kv('Manufacturer', d.manufacturer || '\u2014') +
+        this._kv('IP', d.ip) + this._kv(this._t('hosts.kv_hostname', 'Hostname'), d.hostname || '\u2014') +
+        this._kv('MAC', d.mac_address || '\u2014') + this._kv(this._t('hosts.kv_manufacturer', 'Manufacturer'), d.manufacturer || '\u2014') +
         this._kv('OS', d.os_guess ? d.os_guess + ' (' + d.os_confidence + ')' : '\u2014') +
         this._kv('Ping', d.ping_ms != null ? d.ping_ms.toFixed(1) + ' ms' : (d.alive ? 'alive' : 'no response')) +
-        this._kv('Flows', (d.total_flows || 0).toLocaleString()) +
+        this._kv(this._t('hosts.kv_flows', 'Flows'), (d.total_flows || 0).toLocaleString()) +
         this._kv('Traffic', this._bytes(d.total_octets)) +
-        this._kv('External peers', (d.external_peers || []).length) +
-        this._kv('Last seen', this._ago(d.last_seen)) +
-        (svcs.length ? '<div style="margin-top:12px"><div class="section-label">Open Ports</div>' +
-          '<table class="data-table" style="font-size:11px"><thead><tr><th>Port</th><th>Service</th><th>Banner</th><th>Version</th><th>Technologies</th></tr></thead>' +
+        this._kv(this._t('hosts.kv_external_peers', 'External peers'), (d.external_peers || []).length) +
+        this._kv(this._t('hosts.kv_last_seen', 'Last seen'), this._ago(d.last_seen)) +
+        (svcs.length ? '<div style="margin-top:12px"><div class="section-label">' + this._t('hosts.section_open_ports', 'Open Ports') + '</div>' +
+          '<table class="data-table" style="font-size:11px"><thead><tr><th>' + this._t('hosts.port', 'Port') + '</th><th>' + this._t('hosts.service', 'Service') + '</th><th>' + this._t('hosts.banner', 'Banner') + '</th><th>' + this._t('hosts.version', 'Version') + '</th><th>' + this._t('hosts.technologies', 'Technologies') + '</th></tr></thead>' +
           '<tbody>' + svcRows + '</tbody></table></div>' : '') +
       '</div>' +
       '<div>' +
         (vulns.length
-          ? '<div class="section-label" style="margin-bottom:8px">Vulnerabilities</div>' + vulnCards
-          : '<div class="empty-state" style="margin-top:20px"><div class="empty-icon">\u2713</div><p>No vulnerabilities detected</p></div>') +
+          ? '<div class="section-label" style="margin-bottom:8px">' + this._t('hosts.section_vulnerabilities', 'Vulnerabilities') + '</div>' + vulnCards
+          : '<div class="empty-state" style="margin-top:20px"><div class="empty-icon">\u2713</div><p>' + this._t('hosts.no_vulnerabilities', 'No vulnerabilities detected') + '</p></div>') +
       '</div></div>';
   }
 
@@ -4533,7 +5764,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px">' +
         '<div class="page-header" style="margin:0"><h1 class="page-title">' + this._t('page.findings', 'Findings') + '</h1></div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
-          '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">\uD83D\uDDD1\u00A0Pattern\u2026</button>' +
+          '<button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">' + this._t('findings.pattern', '🗑 Pattern…') + '</button>' +
         '</div>' +
       '</div>';
 
@@ -4545,25 +5776,25 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
         .map(function(k) { return '<dt>' + k + ':</dt> <dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
       var noteHtml = (isDismissed && f.dismiss_note)
-        ? '<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>Note:</strong> ' + self._esc(f.dismiss_note) + '</div>'
+        ? '<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>' + self._t('findings.note', 'Note') + ':</strong> ' + self._esc(f.dismiss_note) + '</div>'
         : '';
-      var baselineBadge = isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">Baseline</span>' : '';
+      var baselineBadge = isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">' + self._t('findings.baseline_badge', 'Baseline') + '</span>' : '';
       return '<div class="finding-card sev-' + f.severity + '"' + (isDismissed ? ' style="opacity:.55"' : '') + '>' +
         '<div class="finding-header">' + self._sev(f.severity) + cve + portChip +
           '<span class="finding-title">' + self._esc(f.summary) + baselineBadge + '</span>' +
           (isDismissed
-            ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore finding">Restore</button>'
-            : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss finding">Dismiss</button>') +
+            ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore finding">' + self._t('findings.restore', 'Restore') + '</button>'
+            : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss finding">' + self._t('findings.dismiss', 'Dismiss') + '</button>') +
         '</div>' +
         '<div class="finding-meta">' +
-          '<span>Source: <span class="ip">' + f.source_ip + '</span></span>' +
-          (det.port ? '<span>Port: <strong>' + det.port + '</strong></span>' : '') +
-          '<span>Category: ' + self._esc(FINDING_CAT_LABELS[f.category] || f.category || '') + '</span>' +
-          (f.count ? '<span>' + f.count + '\u00D7 seen</span>' : '') +
+          '<span>' + self._t('findings.source', 'Source') + ': <span class="ip">' + f.source_ip + '</span></span>' +
+          (det.port ? '<span>' + self._t('findings.port', 'Port') + ': <strong>' + det.port + '</strong></span>' : '') +
+          '<span>' + self._t('findings.category', 'Category') + ': ' + self._esc(FINDING_CAT_LABELS[f.category] || f.category || '') + '</span>' +
+          (f.count ? '<span>' + f.count + '\u00D7 ' + self._t('findings.seen', 'seen') + '</span>' : '') +
           '<span>' + self._ago(f.last_seen) + '</span>' +
         '</div>' +
         (detRows ? '<div class="finding-detail"><dl>' + detRows + '</dl></div>' : '') +
-        (det.remediation ? '<div class="fix-hint">Remediation: ' + self._esc(det.remediation) + '</div>' : '') +
+        (det.remediation ? '<div class="fix-hint">' + self._t('findings.remediation', 'Remediation') + ': ' + self._esc(det.remediation) + '</div>' : '') +
         noteHtml +
       '</div>';
     };
@@ -4593,21 +5824,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var cve = det0.cve_id ? '<span class="chip">' + det0.cve_id + '</span>' : '';
           var portChip = det0.port ? '<span class="chip">port ' + det0.port + '</span>' : '';
           var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
-            g.findings.length + (g.findings.length === 1 ? ' host' : ' hosts') + '</span>';
-          var blBadge = g.isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">Baseline</span>' : '';
+            g.findings.length + (g.findings.length === 1 ? ' ' + self._t('findings.host_one', 'host') : ' ' + self._t('findings.host_many', 'hosts')) + '</span>';
+          var blBadge = g.isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">' + self._t('findings.baseline_badge', 'Baseline') + '</span>' : '';
           var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
           var groupActionBtn = isDismissed
-            ? '<button class="btn" data-undismiss-group="' + self._esc(g.summary) + '">Restore' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>'
-            : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">Dismiss' + (g.findings.length > 1 ? ' all\u00A0' + g.findings.length : '') + '</button>';
+            ? '<button class="btn" data-undismiss-group="' + self._esc(g.summary) + '">' + self._t('findings.restore', 'Restore') + (g.findings.length > 1 ? ' ' + self._t('findings.restore_all', 'all') + '\u00A0' + g.findings.length : '') + '</button>'
+            : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(g.summary) + '">' + self._t('findings.dismiss', 'Dismiss') + (g.findings.length > 1 ? ' ' + self._t('findings.dismiss_all', 'all') + '\u00A0' + g.findings.length : '') + '</button>';
           var header = '<div class="finding-card sev-' + g.severity + ' finding-group-card" data-expand-group="' + self._esc(g.summary) + '">' +
             '<div class="finding-header">' + self._sev(g.severity) + cve + portChip + countBadge + blBadge +
               '<span class="finding-title">' + self._esc(g.summary) + '</span>' +
               groupActionBtn + chevron +
             '</div>' +
             '<div class="finding-meta">' +
-              '<span>Category: ' + self._esc(g.category || '\u2014') + '</span>' +
-              '<span>' + totalCount + '\u00D7 total</span>' +
-              '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
+              '<span>' + self._t('findings.category', 'Category') + ': ' + self._esc(g.category || '\u2014') + '</span>' +
+              '<span>' + totalCount + '\u00D7 ' + self._t('findings.total', 'total') + '</span>' +
+              '<span>' + self._t('findings.latest', 'Latest:') + ' ' + self._ago(latestSeen) + '</span>' +
             '</div>' +
           '</div>';
           var rows = '';
@@ -4618,13 +5849,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
                 var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
                   .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
                 var rowActionBtn = isDismissed
-                  ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore this finding">Restore</button>'
-                  : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">Dismiss</button>';
+                  ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore this finding">' + self._t('findings.restore', 'Restore') + '</button>'
+                  : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">' + self._t('findings.dismiss', 'Dismiss') + '</button>';
                 return '<div class="finding-row">' +
                   '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
                   (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
                   '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
-                  (det.remediation ? '<span style="font-size:10px;color:var(--success);flex:1">Fix: ' + self._esc(det.remediation) + '</span>' : '<span style="flex:1"></span>') +
+                  (det.remediation ? '<span style="font-size:10px;color:var(--success);flex:1">' + self._t('hosts.fix', 'Fix') + ': ' + self._esc(det.remediation) + '</span>' : '<span style="flex:1"></span>') +
                   (detRows ? '<div class="finding-detail" style="margin:4px 0;width:100%"><dl>' + detRows + '</dl></div>' : '') +
                   rowActionBtn +
                 '</div>';
@@ -4646,7 +5877,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           '<span style="flex:1;font-size:12px">' + self._esc(f.summary) + '</span>' +
           (det.port ? '<span class="chip" style="font-size:9px">:' + det.port + '</span>' : '') +
           '<span class="dim" style="font-size:10px;flex-shrink:0">' + self._ago(f.last_seen) + '</span>' +
-          '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss">Dismiss</button>' +
+          '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss">' + self._t('findings.dismiss', 'Dismiss') + '</button>' +
         '</div>';
       }).join('');
     };
@@ -4654,13 +5885,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var renderBaselineByCategory = function(list) {
       if (!list.length) return '';
       var BL_CAT_LABELS = {
-        anomaly_new_host: 'New Host Detected',
-        anomaly_new_peer: 'New External Peer',
-        anomaly_new_port: 'New Open Port',
-        anomaly_new_dns_domain: 'New DNS Domain',
-        anomaly_new_dns_category: 'New DNS Category',
-        anomaly_missing_host: 'Known Host Missing',
-        anomaly_missing_peer: 'Known Peer Missing',
+        anomaly_new_host: self._t('findings.cat_new_host', 'New Host Detected'),
+        anomaly_new_peer: self._t('findings.cat_new_peer', 'New External Peer'),
+        anomaly_new_port: self._t('findings.cat_new_port', 'New Open Port'),
+        anomaly_new_dns_domain: self._t('findings.cat_new_dns_domain', 'New DNS Domain'),
+        anomaly_new_dns_category: self._t('findings.cat_new_dns_category', 'New DNS Category'),
+        anomaly_missing_host: self._t('findings.cat_missing_host', 'Known Host Missing'),
+        anomaly_missing_peer: self._t('findings.cat_missing_peer', 'Known Peer Missing'),
       };
       var catMap = {};
       list.forEach(function(f) {
@@ -4682,15 +5913,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           c.findings.forEach(function(f) { uniqueHosts[f.source_ip] = true; });
           var hostCount = Object.keys(uniqueHosts).length;
           var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
-            c.findings.length + ' findings \u00B7 ' + hostCount + ' host' + (hostCount !== 1 ? 's' : '') + '</span>';
+            c.findings.length + ' ' + (c.findings.length === 1 ? self._t('findings.finding_one', 'finding') : self._t('findings.finding_many', 'findings')) + ' \u00B7 ' + hostCount + ' ' + (hostCount === 1 ? self._t('findings.host_one', 'host') : self._t('findings.host_many', 'hosts')) + '</span>';
           var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
-          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all ' + c.findings.length + '</button>';
+          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">' + self._t('findings.dismiss_all', 'Dismiss all') + ' ' + c.findings.length + '</button>';
           var header = '<div class="finding-card sev-' + c.maxSev + ' finding-group-card" data-expand-baseline-group="' + self._esc(gkey) + '">' +
             '<div class="finding-header">' + self._sev(c.maxSev) + countBadge +
               '<span class="finding-title">' + self._esc(BL_CAT_LABELS[c.category] || c.category) + '</span>' +
               dismissAllBtn + chevron +
             '</div>' +
-            '<div class="finding-meta"><span>Latest: ' + self._ago(latestSeen) + '</span></div>' +
+            '<div class="finding-meta"><span>' + self._t('findings.latest', 'Latest:') + ' ' + self._ago(latestSeen) + '</span></div>' +
           '</div>';
           var sortedByCategory = c.findings.slice().sort(function(a, b) {
             return _sevRank(a.severity) - _sevRank(b.severity);
@@ -4728,15 +5959,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             return '<span class="chip" style="font-size:9px">' + self._esc(c) + ' (' + catCounts[c] + ')</span>';
           }).join(' ');
           var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
-            h.findings.length + ' finding' + (h.findings.length !== 1 ? 's' : '') + '</span>';
+            h.findings.length + ' ' + (h.findings.length === 1 ? self._t('findings.finding_one', 'finding') : self._t('findings.finding_many', 'findings')) + '</span>';
           var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
-          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all ' + h.findings.length + '</button>';
+          var dismissAllBtn = '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">' + self._t('findings.dismiss_all', 'Dismiss all') + ' ' + h.findings.length + '</button>';
           var header = '<div class="finding-card sev-' + h.maxSev + ' finding-group-card" data-expand-baseline-group="' + self._esc(gkey) + '">' +
             '<div class="finding-header">' + self._sev(h.maxSev) + countBadge +
               '<span class="finding-title" style="font-family:monospace">' + self._esc(h.ip) + '</span>' +
               dismissAllBtn + chevron +
             '</div>' +
-            '<div class="finding-meta">' + catChips + '<span style="flex-shrink:0">Latest: ' + self._ago(latestSeen) + '</span></div>' +
+            '<div class="finding-meta">' + catChips + '<span style="flex-shrink:0">' + self._t('findings.latest', 'Latest:') + ' ' + self._ago(latestSeen) + '</span></div>' +
           '</div>';
           var rows = isExpanded
             ? '<div class="finding-group-rows">' + _baselineExpandRows(h.findings) + '</div>'
@@ -4752,19 +5983,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var totalCount = itemList.reduce(function(s, f) { return s + (f.count || 1); }, 0);
       var latestSeen = itemList.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
       var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
-        itemList.length + (itemList.length === 1 ? ' finding' : ' findings') + '</span>';
+        itemList.length + ' ' + (itemList.length === 1 ? self._t('findings.finding_one', 'finding') : self._t('findings.finding_many', 'findings')) + '</span>';
       var chevron = '<span class="finding-group-chevron" style="transform:rotate(' + (isExpanded ? '90' : '0') + 'deg)">\u25B6</span>';
       var actionBtn = isDismissed
-        ? '<button class="btn" data-undismiss-group="' + self._esc(gkey) + '">Restore all\u00A0' + itemList.length + '</button>'
-        : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">Dismiss all\u00A0' + itemList.length + '</button>';
+        ? '<button class="btn" data-undismiss-group="' + self._esc(gkey) + '">' + self._t('findings.restore_all', 'Restore all') + '\u00A0' + itemList.length + '</button>'
+        : '<button class="btn btn-dismiss" data-dismiss-group="' + self._esc(gkey) + '">' + self._t('findings.dismiss_all', 'Dismiss all') + '\u00A0' + itemList.length + '</button>';
       var header = '<div class="finding-card sev-' + sev + ' finding-group-card" data-expand-group="' + self._esc(expandKey) + '">' +
         '<div class="finding-header">' + self._sev(sev) + countBadge +
           '<span class="finding-title">' + label + '</span>' +
           actionBtn + chevron +
         '</div>' +
         '<div class="finding-meta">' +
-          '<span>' + totalCount + '\u00D7 total</span>' +
-          '<span>Latest: ' + self._ago(latestSeen) + '</span>' +
+          '<span>' + totalCount + '\u00D7 ' + self._t('findings.total', 'total') + '</span>' +
+          '<span>' + self._t('findings.latest', 'Latest:') + ' ' + self._ago(latestSeen) + '</span>' +
         '</div>' +
       '</div>';
       var rows = '';
@@ -4775,10 +6006,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
               var det = f.details || {};
               var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
                 .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
-              var blBadge = f._isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">Baseline</span>' : '';
+              var blBadge = f._isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">' + self._t('findings.baseline_badge', 'Baseline') + '</span>' : '';
               var rowActionBtn = isDismissed
-                ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Restore</button>'
-                : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">Dismiss</button>';
+                ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">' + self._t('findings.restore', 'Restore') + '</button>'
+                : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">' + self._t('findings.dismiss', 'Dismiss') + '</button>';
               return '<div class="finding-row">' +
                 self._sev(f.severity) +
                 '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
@@ -4796,10 +6027,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     };
 
     var FINDING_CAT_LABELS = {
-      vulnerability:   'Vulnerability / CVE',
-      port_scan:       'Port Scan',
-      suspicious_port: 'Suspicious Open Port',
-      high_egress:     'High Egress Traffic',
+      vulnerability:   self._t('findings.cat_vulnerability', 'Vulnerability / CVE'),
+      port_scan:       self._t('findings.cat_port_scan', 'Port Scan'),
+      suspicious_port: self._t('findings.cat_suspicious_port', 'Suspicious Open Port'),
+      high_egress:     self._t('findings.cat_high_egress', 'High Egress Traffic'),
     };
 
     var renderFindingsByCategory = function(list, isDismissed) {
@@ -4843,7 +6074,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         }).join('');
     };
 
-    var SEV_LABELS = { critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low', info: 'Info' };
+    var SEV_LABELS = { critical: self._t('findings.sev_critical', 'Critical'), high: self._t('findings.sev_high', 'High'), medium: self._t('findings.sev_medium', 'Medium'), low: self._t('findings.sev_low', 'Low'), info: self._t('findings.sev_info', 'Info') };
     var renderFindingsBySeverity = function(list, isDismissed) {
       if (!list.length) return '';
       var sevMap = {};
@@ -4877,9 +6108,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">';
       var blToolbar =
         '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
-          blModeBtn('category', 'By Category') +
-          blModeBtn('host',     'By Host') +
-          blModeBtn('flat',     'Flat') +
+          blModeBtn('category', self._t('findings.by_category', 'By Category')) +
+          blModeBtn('host',     self._t('findings.by_host', 'By Host')) +
+          blModeBtn('flat',     self._t('findings.flat', 'Flat')) +
           '<span style="flex:1"></span>' + blSearchInput +
         '</div>';
 
@@ -4889,13 +6120,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       else                                      blCards = renderBaselineByCategory(filteredBaseline);
 
       var blContent = (baselineQ && !filteredBaseline.length)
-        ? '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(baselineQ) + '&rdquo;.</p></div>'
+        ? '<div class="empty-state card" style="height:100px"><p>' + self._t('findings.no_results', 'No results for') + ' &ldquo;' + self._esc(baselineQ) + '&rdquo;.</p></div>'
         : blCards;
 
       baselineSection =
         '<div style="margin-bottom:28px">' +
-          '<div class="view-header"><h1>Baseline Anomalies <span class="dim">(' + baselineAnomalies.length +
-            (baselineQ && filteredBaseline.length !== baselineAnomalies.length ? ', ' + filteredBaseline.length + ' shown' : '') +
+          '<div class="view-header"><h1>' + this._t('findings.baseline', 'Baseline Anomalies') + ' <span class="dim">(' + baselineAnomalies.length +
+            (baselineQ && filteredBaseline.length !== baselineAnomalies.length ? ', ' + filteredBaseline.length + ' ' + this._t('findings.shown', 'shown') : '') +
           ')</span></h1></div>' +
           blToolbar + blContent +
         '</div>';
@@ -4905,21 +6136,21 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var cards = _renderFindingCards(filteredFindings, false, findingsGroupMode);
 
     var findingsHeader = findings.length
-      ? 'Security Findings <span class="dim">(' + findings.length + ' actionable' +
-          (findingsQ && filteredFindings.length !== findings.length ? ', ' + filteredFindings.length + ' shown' : '') +
-          (allDismissedList.length ? ', ' + allDismissedList.length + ' dismissed' : '') + ')</span>'
-      : 'Security Findings' + (allDismissedList.length ? ' <span class="dim">(' + allDismissedList.length + ' dismissed)</span>' : '');
+        ? this._t('findings.security', 'Security Findings') + ' <span class="dim">(' + findings.length + ' ' + this._t('findings.actionable', 'actionable') +
+          (findingsQ && filteredFindings.length !== findings.length ? ', ' + filteredFindings.length + ' ' + this._t('findings.shown', 'shown') : '') +
+          (allDismissedList.length ? ', ' + allDismissedList.length + ' ' + this._t('findings.dismissed', 'dismissed') : '') + ')</span>'
+        : this._t('findings.security', 'Security Findings') + (allDismissedList.length ? ' <span class="dim">(' + allDismissedList.length + ' ' + this._t('findings.dismissed', 'dismissed') + ')</span>' : '');
     var _fModeBtn = function(mode, label) {
       return '<button class="btn' + (findingsGroupMode === mode ? ' active' : '') + '" data-findings-group-mode="' + mode + '" style="font-size:10px;padding:3px 8px">' + label + '</button>';
     };
     var findingsToggle =
       '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
-        _fModeBtn('category', 'By Category') +
-        _fModeBtn('host',     'By Host') +
-        _fModeBtn('severity', 'By Severity') +
-        _fModeBtn('flat',     'Flat') +
+        _fModeBtn('category', this._t('findings.by_category', 'By Category')) +
+        _fModeBtn('host',     this._t('findings.by_host', 'By Host')) +
+        _fModeBtn('severity', this._t('findings.by_severity', 'By Severity')) +
+        _fModeBtn('flat',     this._t('findings.flat', 'Flat')) +
         '<span style="flex:1"></span>' +
-        '<input type="search" data-findings-search placeholder="Search + Enter" value="' + self._esc(self._findingsSearch || '') + '" ' +
+        '<input type="search" data-findings-search placeholder="' + self._esc(self._t('common.search_enter', 'Search + Enter')) + '" value="' + self._esc(self._findingsSearch || '') + '" ' +
           'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
       '</div>';
 
@@ -4929,8 +6160,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         (findings.length
           ? (filteredFindings.length
               ? cards
-              : '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(findingsQ) + '&rdquo;.</p></div>')
-          : '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No active high or critical findings.</p></div>') +
+                : '<div class="empty-state card" style="height:100px"><p>' + self._t('findings.no_results', 'No results for') + ' &ldquo;' + self._esc(findingsQ) + '&rdquo;.</p></div>')
+              : '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>' + this._t('findings.no_active', 'No active high or critical findings.') + '</p></div>') +
       '</div>';
 
     // ── Dismissed section (security + baseline combined) ─────────────
@@ -4940,23 +6171,23 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     };
     var dismissedToggle =
       '<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
-        _dModeBtn('category', 'By Category') +
-        _dModeBtn('host',     'By Host') +
-        _dModeBtn('severity', 'By Severity') +
-        _dModeBtn('flat',     'Flat') +
+        _dModeBtn('category', this._t('findings.by_category', 'By Category')) +
+        _dModeBtn('host',     this._t('findings.by_host', 'By Host')) +
+        _dModeBtn('severity', this._t('findings.by_severity', 'By Severity')) +
+        _dModeBtn('flat',     this._t('findings.flat', 'Flat')) +
         '<span style="flex:1"></span>' +
-        '<input type="search" data-dismissed-search placeholder="Search + Enter" value="' + self._esc(self._dismissedSearch || '') + '" ' +
+        '<input type="search" data-dismissed-search placeholder="' + self._esc(self._t('common.search_enter', 'Search + Enter')) + '" value="' + self._esc(self._dismissedSearch || '') + '" ' +
           'style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">' +
       '</div>';
     var dismissedSection = allDismissedList.length
       ? '<div style="margin-top:28px;opacity:.7">' +
-          '<div class="view-header"><h1>Dismissed <span class="dim">(' + allDismissedList.length +
-            (dismissedQ && filteredDismissed.length !== allDismissedList.length ? ', ' + filteredDismissed.length + ' shown' : '') +
+          '<div class="view-header"><h1>' + this._t('findings.dismissed_title', 'Dismissed') + ' <span class="dim">(' + allDismissedList.length +
+            (dismissedQ && filteredDismissed.length !== allDismissedList.length ? ', ' + filteredDismissed.length + ' ' + this._t('findings.shown', 'shown') : '') +
           ')</span></h1></div>' +
           dismissedToggle +
           (filteredDismissed.length
             ? dismissedCards
-            : '<div class="empty-state card" style="height:100px"><p>No results for &ldquo;' + self._esc(dismissedQ) + '&rdquo;.</p></div>') +
+            : '<div class="empty-state card" style="height:100px"><p>' + self._t('findings.no_results', 'No results for') + ' &ldquo;' + self._esc(dismissedQ) + '&rdquo;.</p></div>') +
         '</div>'
       : '';
 
@@ -4967,17 +6198,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var self = this;
     var cols = [
       { key: 'ip',       label: 'IP' },
-      { key: 'hostname', label: 'Hostname' },
-      { key: 'traffic_kb', label: 'Traffic (KB)' },
-      { key: 'country',  label: 'Country' },
-      { key: 'org',      label: 'ASN / Org' },
-      { key: 'rating',   label: 'Rating' },
-      { key: 'vt',       label: 'VT hits' },
-      { key: 'abuse',    label: 'Abuse%' },
-      { key: null,        label: 'Ports' },
-      { key: 'direction',  label: 'Direction' },
-      { key: null,         label: 'Internal host' },
-      { key: 'last_seen',  label: 'Last seen' },
+      { key: 'hostname', label: this._t('external.col_hostname', 'Hostname') },
+      { key: 'traffic_kb', label: this._t('external.col_traffic_kb', 'Traffic (KB)') },
+      { key: 'country',  label: this._t('external.col_country', 'Country') },
+      { key: 'org',      label: this._t('external.col_asn_org', 'ASN / Org') },
+      { key: 'rating',   label: this._t('external.col_rating', 'Rating') },
+      { key: 'vt',       label: this._t('external.col_vt_hits', 'VT hits') },
+      { key: 'abuse',    label: this._t('external.col_abuse', 'Abuse%') },
+      { key: null,        label: this._t('external.col_ports', 'Ports') },
+      { key: 'direction',  label: this._t('external.col_direction', 'Direction') },
+      { key: null,         label: this._t('external.col_internal_host', 'Internal host') },
+      { key: 'last_seen',  label: this._t('external.col_last_seen', 'Last seen') },
     ];
     return '<tr>' + cols.map(function(c) {
       if (!c.key) return '<th>' + c.label + '</th>';
@@ -5059,15 +6290,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var start = total === 0 ? 0 : ((page - 1) * this._extPageSize + 1);
     var end = Math.min(total, page * this._extPageSize);
     return '<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
-      '<div class="row-gap" style="font-size:11px;color:var(--muted)">Showing ' + start + '-' + end + ' of ' + total + '</div>' +
+      '<div class="row-gap" style="font-size:11px;color:var(--muted)">' + this._t('external.showing', 'Showing') + ' ' + start + '-' + end + ' of ' + total + '</div>' +
       '<div class="row-gap" style="gap:6px">' +
-        '<label class="dim" style="font-size:11px">Rows</label>' +
+        '<label class="dim" style="font-size:11px">' + this._t('common.rows', 'Rows') + '</label>' +
         '<select id="hsa-ext-pagesize" class="role-select">' +
           [10,25,50,100].map((n) => '<option value="' + n + '"' + (n === this._extPageSize ? ' selected' : '') + '>' + n + '</option>').join('') +
         '</select>' +
-        '<button class="btn" data-extpage="prev"' + (page <= 1 ? ' disabled' : '') + '>Previous</button>' +
+        '<button class="btn" data-extpage="prev"' + (page <= 1 ? ' disabled' : '') + '>' + this._t('common.previous', 'Previous') + '</button>' +
         '<span class="dim" style="font-size:11px;min-width:70px;text-align:center">' + page + ' / ' + totalPages + '</span>' +
-        '<button class="btn" data-extpage="next"' + (page >= totalPages ? ' disabled' : '') + '>Next</button>' +
+        '<button class="btn" data-extpage="next"' + (page >= totalPages ? ' disabled' : '') + '>' + this._t('common.next', 'Next') + '</button>' +
       '</div>' +
     '</div>';
   }
@@ -5078,7 +6309,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._extPage = Math.min(Math.max(1, this._extPage), totalPages);
     var start = (this._extPage - 1) * this._extPageSize;
     extIPs = extIPs.slice(start, start + this._extPageSize);
-    if (!extIPs.length) return '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>No external IPs match the filter</p></div></td></tr>';
+    if (!extIPs.length) return '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>' + this._t('external.no_match', 'No external IPs match the filter') + '</p></div></td></tr>';
     var self = this;
     return extIPs.map(function(e) {
       var rating = e.rating || (e.blacklisted ? 'malicious' : '');
@@ -5094,14 +6325,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         : '<span class="dim">\u2014</span>';
       var dir = e.direction || 'outbound';
       var directionHtml = dir === 'both'
-        ? '<span style="color:#a78bfa;font-size:11px">\u2195 Both' +
+        ? '<span style="color:#a78bfa;font-size:11px">' + self._t('external.direction_both', '↕ Both') +
             (e.direction_alert
               ? ' <span title="Different internal hosts involved in each direction \u2014 an external IP contacted a server that did not initiate the outbound relationship. Review recommended." style="cursor:help;color:#f59e0b">\u26A0</span>'
               : '') +
             '</span>'
         : dir === 'inbound'
-          ? '<span style="color:#fb923c;font-size:11px">\u2193 Inbound</span>'
-          : '<span style="color:#34d399;font-size:11px">\u2191 Outbound</span>';
+          ? '<span style="color:#fb923c;font-size:11px">' + self._t('external.direction_inbound', '↓ Inbound') + '</span>'
+          : '<span style="color:#34d399;font-size:11px">' + self._t('external.direction_outbound', '↑ Outbound') + '</span>';
       var sources = e.internal_sources || e.sources || [];
       var sourcesHtml = sources.length
         ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
@@ -5128,8 +6359,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _viewExternal() {
     var totalCount = ((this._data && this._data.external_ips) || []).length;
     return '<div>' +
-      '<div class="view-header"><h1>External IPs <span class="dim">(' + totalCount + ')</span></h1>' +
-      '<input id="hsa-ext-filter" class="search-bar" type="search" placeholder="Filter by IP, hostname, country, org\u2026" value="' + this._esc(this._extFilter) + '"></div>' +
+      '<div class="view-header"><h1>' + this._t('external.page_title', 'External IPs') + ' <span class="dim">(' + totalCount + ')</span></h1>' +
+      '<input id="hsa-ext-filter" class="search-bar" type="search" placeholder="' + this._esc(this._t('external.filter_placeholder', 'Filter by IP, hostname, country, org…')) + '" value="' + this._esc(this._extFilter) + '"></div>' +
       '<div id="hsa-ext-pagebar">' + this._extPageBar() + '</div>' +
       '<div class="card table-card"><table class="data-table">' +
         '<thead id="hsa-ext-thead">' + this._extThead() + '</thead>' +
@@ -5139,33 +6370,33 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _ipDetail(d, internalSources, direction) {
     var ip = d.ip || '';
+    var self = this;
     var reportLinks = ip ? [
       ['ipwho.is', 'https://ipwho.is/' + encodeURIComponent(ip)],
       ['AbuseIPDB', 'https://www.abuseipdb.com/check/' + encodeURIComponent(ip)],
       ['VirusTotal', 'https://www.virustotal.com/gui/ip-address/' + encodeURIComponent(ip)],
     ] : [];
     var pairs = [
-      ['Hostname',   d.hostname],
-      ['Country',    d.country_name || d.country],
-      ['ASN',        d.asn],
-      ['ISP / Org',  d.org || d.isp],
-      ['City',       d.city],
-      ['Timezone',   d.timezone],
-      ['VirusTotal', d.vt_malicious != null ? d.vt_malicious + ' malicious, ' + d.vt_suspicious + ' suspicious, ' + d.vt_harmless + ' harmless' : null],
-      ['VT Reputation', d.vt_reputation != null ? String(d.vt_reputation) : null],
-      ['Abuse score',  d.abuse_confidence != null ? d.abuse_confidence + '% (' + d.abuse_total_reports + ' reports)' : null],
-      ['Rating source', d.rating_source || null],
-      ['Blacklisted',  d.blacklisted ? 'Yes \u2013 ' + ((d.blacklist_info && d.blacklist_info.source) || 'threat_intel') : 'No'],
-      ['Direction',    (function(dir) { return dir.charAt(0).toUpperCase() + dir.slice(1); })(direction || d.direction || 'outbound')],
-      ['Data sources', (d.sources && d.sources.join(', ')) || '\u2014'],
-      ['Enriched at',  d.enriched_at ? this._ago(d.enriched_at) : null],
+      [this._t('external.modal_hostname', 'Hostname'),   d.hostname],
+      [this._t('external.modal_country', 'Country'),    d.country_name || d.country],
+      [this._t('external.modal_asn', 'ASN'),        d.asn],
+      [this._t('external.modal_org_isp', 'ISP / Org'),  d.org || d.isp],
+      [this._t('external.modal_city', 'City'),       d.city],
+      [this._t('external.modal_timezone', 'Timezone'),   d.timezone],
+      [this._t('external.modal_vt', 'VirusTotal'), d.vt_malicious != null ? d.vt_malicious + ' ' + self._t('external.modal_malicious', 'malicious') + ', ' + d.vt_suspicious + ' ' + self._t('external.modal_suspicious', 'suspicious') + ', ' + d.vt_harmless + ' ' + self._t('external.modal_harmless', 'harmless') : null],
+      [this._t('external.modal_vt_rep', 'VT Reputation'), d.vt_reputation != null ? String(d.vt_reputation) : null],
+      [this._t('external.modal_abuse', 'Abuse score'),  d.abuse_confidence != null ? d.abuse_confidence + '% (' + d.abuse_total_reports + ' ' + self._t('external.modal_reports', 'reports') + ')' : null],
+      [this._t('external.modal_rating_source', 'Rating source'), d.rating_source || null],
+      [this._t('external.blacklisted', 'Blacklisted'),  d.blacklisted ? self._t('external.modal_yes', 'Yes') + ' \u2013 ' + ((d.blacklist_info && d.blacklist_info.source) || 'threat_intel') : self._t('external.modal_no', 'No')],
+      [this._t('external.modal_direction', 'Direction'),    (function(dir) { return dir.charAt(0).toUpperCase() + dir.slice(1); })(direction || d.direction || 'outbound')],
+      [this._t('external.modal_data_sources', 'Data sources'), (d.sources && d.sources.join(', ')) || '\u2014'],
+      [this._t('external.modal_enriched_at', 'Enriched at'),  d.enriched_at ? this._ago(d.enriched_at) : null],
     ].filter(function(p) { return p[1] != null && p[1] !== ''; });
-    var self = this;
     var pairsHtml = pairs.map(function(p) {
       return '<div class="detail-pair"><span class="detail-key">' + p[0] + '</span><span class="detail-val">' + self._esc(String(p[1])) + '</span></div>';
     }).join('');
     var linksHtml = reportLinks.length
-      ? '<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">Reports</span><span class="detail-val">' +
+      ? '<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">' + this._t('external.modal_reports', 'Reports') + '</span><span class="detail-val">' +
           reportLinks.map(function(item) {
             return '<a class="ext-report-link" href="' + item[1] + '" target="_blank" rel="noopener noreferrer">' + self._esc(item[0]) + '</a>';
           }).join(' ') +
@@ -5173,14 +6404,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       : '';
     var sources = internalSources || d.internal_sources || [];
     var sourcesHtml = sources.length
-      ? '<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">Internal host</span><span class="detail-val">'+
+      ? '<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">' + this._t('external.modal_internal_host', 'Internal host') + '</span><span class="detail-val">'+
           sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ') +
         '</span></div>'
       : '';
 
     return '<div class="ip-detail-panel"><h3>\uD83D\uDD0D ' + d.ip + ' ' + (d.rating ? this._rating(d.rating) : '') + '</h3>' +
       '<div class="detail-grid">' + pairsHtml + linksHtml + sourcesHtml + '</div>' +
-      (d.error ? '<div style="color:var(--danger);margin-top:8px;font-size:11px">\u26A0 Enrichment error: ' + this._esc(d.error) + '</div>' : '') +
+        (d.error ? '<div style="color:var(--danger);margin-top:8px;font-size:11px">\u26A0 ' + this._t('external.modal_error', 'Enrichment error:') + ' ' + this._esc(d.error) + '</div>' : '') +
       '</div>';
   }
 
@@ -5214,12 +6445,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         self._vulnData = { vulnerabilities: [], total: 0, detected_cves: 0, kev_matches: 0, kev_total: 0 };
         self._render();
       });
-      return '<div><div class="view-header"><h1>Vulnerability Browser</h1></div>' +
-        '<div class="state-box"><div class="loader"></div><p>Loading vulnerabilities\u2026</p></div></div>';
+      return '<div><div class="view-header"><h1>' + this._t('vuln.page_title', 'Vulnerability Browser') + '</h1></div>' +
+        '<div class="state-box"><div class="loader"></div><p>' + this._t('vuln.loading', 'Loading vulnerabilities…') + '</p></div></div>';
     }
     if (this._vulnLoading) {
-      return '<div><div class="view-header"><h1>Vulnerability Browser</h1></div>' +
-        '<div class="state-box"><div class="loader"></div><p>Loading vulnerabilities\u2026</p></div></div>';
+      return '<div><div class="view-header"><h1>' + this._t('vuln.page_title', 'Vulnerability Browser') + '</h1></div>' +
+        '<div class="state-box"><div class="loader"></div><p>' + this._t('vuln.loading', 'Loading vulnerabilities…') + '</p></div></div>';
     }
     var d = this._vulnData || { vulnerabilities: [], total: 0, detected_cves: 0, kev_matches: 0, kev_total: 0 };
     var allVulns = d.vulnerabilities || [];
@@ -5272,36 +6503,36 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var html = '<div>' +
       '<div class="view-header">' +
-        '<h1>Vulnerability Browser</h1>' +
+        '<h1>' + this._t('vuln.page_title', 'Vulnerability Browser') + '</h1>' +
         '<div class="row-gap">' +
-          '<input class="search-bar" type="text" placeholder="Search CVE, port, service, CPE, keyword\u2026" value="' + self._esc(this._vulnFilter) + '" data-vuln-search />' +
-          '<button class="btn" data-vuln-refresh>\u21BB Refresh</button>' +
+          '<input class="search-bar" type="text" placeholder="' + self._esc(this._t('vuln.search_placeholder', 'Search CVE, port, service, CPE, keyword…')) + '" value="' + self._esc(this._vulnFilter) + '" data-vuln-search />' +
+          '<button class="btn" data-vuln-refresh>' + this._t('vuln.refresh', '↻ Refresh') + '</button>' +
         '</div>' +
       '</div>' +
       '<div class="tldr-bar">' +
-        '<span><strong>' + d.total + '</strong> CVEs in database</span>' +
-        '<span><strong>' + (d.detected_cves || 0) + '</strong> detected on network</span>' +
-        '<span><strong>' + d.kev_matches + '</strong> in CISA KEV</span>' +
-        '<span><strong>' + total + '</strong> matching results</span>' +
+        '<span><strong>' + d.total + '</strong> ' + this._t('vuln.stat_cves_db', 'CVEs in database') + '</span>' +
+        '<span><strong>' + (d.detected_cves || 0) + '</strong> ' + this._t('vuln.stat_detected_network', 'detected on network') + '</span>' +
+        '<span><strong>' + d.kev_matches + '</strong> ' + this._t('vuln.stat_in_kev', 'in CISA KEV') + '</span>' +
+        '<span><strong>' + total + '</strong> ' + this._t('vuln.stat_matching', 'matching results') + '</span>' +
       '</div>' +
       '<div class="card table-card">' +
         '<table class="data-table">' +
           '<thead><tr>' +
             (function() {
               var cols = [
-                {key:'cve_id', label:'CVE ID'},
-                {key:'published', label:'Published'},
-                {key:'cvss', label:'CVSS'},
-                {key:'severity', label:'Severity'},
-                {key:'services', label:'Services'},
-                {key:'ports', label:'Ports'},
-                {key:'hosts', label:'Hosts'},
+                {key:'cve_id', label:self._t('vuln.col_cve_id', 'CVE ID')},
+                {key:'published', label:self._t('vuln.col_published', 'Published')},
+                {key:'cvss', label:self._t('vuln.col_cvss', 'CVSS')},
+                {key:'severity', label:self._t('vuln.col_severity', 'Severity')},
+                {key:'services', label:self._t('vuln.col_services', 'Services')},
+                {key:'ports', label:self._t('vuln.col_ports', 'Ports')},
+                {key:'hosts', label:self._t('vuln.col_hosts', 'Hosts')},
                 {key:'kev', label:'KEV'},
               ];
               return cols.map(function(c) {
                 var arrow = self._vulnSort === c.key ? (self._vulnSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
                 return '<th class="sortable-th" data-vulnsort="' + c.key + '">' + c.label + '<span class="sort-arrow">' + arrow + '</span></th>';
-              }).join('') + '<th style="min-width:320px">Summary</th>';
+              }).join('') + '<th style="min-width:320px">' + self._t('vuln.col_summary', 'Summary') + '</th>';
             })() +
           '</tr></thead><tbody>';
 
@@ -5313,7 +6544,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var services = (v.services || []).map(function(s) { return '<span class="chip">' + self._esc(s) + '</span>'; }).join('') || '\u2014';
       var ports = (v.ports || []).map(function(p) { return '<span class="chip">' + p + '</span>'; }).join('') || '\u2014';
       var hosts = (v.affected_hosts || []).length;
-      var hostsStr = hosts > 0 ? '<span class="ip-chip">' + hosts + ' host' + (hosts > 1 ? 's' : '') + '</span>' : '<span class="dim" style="font-size:10px">not detected</span>';
+      var hostsStr = hosts > 0 ? '<span class="ip-chip">' + hosts + ' host' + (hosts > 1 ? 's' : '') + '</span>' : '<span class="dim" style="font-size:10px">' + self._t('vuln.not_detected', 'not detected') + '</span>';
       var summary = self._esc((v.summary || '').substring(0, 200));
       if ((v.summary || '').length > 200) summary += '\u2026';
       var cveBtn = cid ? '<a class="ext-report-link" style="cursor:pointer" data-vuln-detail="' + cid + '" title="View details">' + cid + '</a>' : cid;
@@ -5336,9 +6567,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // Pagination
     if (pages > 1) {
       html += '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px">';
-      html += '<button class="btn" data-vuln-page="' + Math.max(1, this._vulnPage - 1) + '"' + (this._vulnPage <= 1 ? ' disabled' : '') + '>\u25C0 Prev</button>';
-      html += '<span class="dim" style="font-size:12px">Page ' + this._vulnPage + ' of ' + pages + '</span>';
-      html += '<button class="btn" data-vuln-page="' + Math.min(pages, this._vulnPage + 1) + '"' + (this._vulnPage >= pages ? ' disabled' : '') + '>Next \u25B6</button>';
+      html += '<button class="btn" data-vuln-page="' + Math.max(1, this._vulnPage - 1) + '"' + (this._vulnPage <= 1 ? ' disabled' : '') + '>' + this._t('vuln.prev', '◀ Prev') + '</button>';
+      html += '<span class="dim" style="font-size:12px">' + this._t('vuln.page', 'Page') + ' ' + this._vulnPage + ' ' + this._t('vuln.of', 'of') + ' ' + pages + '</span>';
+      html += '<button class="btn" data-vuln-page="' + Math.min(pages, this._vulnPage + 1) + '"' + (this._vulnPage >= pages ? ' disabled' : '') + '>' + this._t('vuln.next', 'Next ▶') + '</button>';
       html += '</div>';
     }
 
@@ -5364,7 +6595,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var sc = sevClass(cvss);
     var services = (v.services || []).map(function(s) { return '<span class="chip">' + self._esc(s) + '</span>'; }).join(' ') || '\u2014';
     var ports = (v.ports || []).map(function(p) { return '<span class="chip">' + p + '</span>'; }).join(' ') || '\u2014';
-    var hosts = (v.affected_hosts || []).map(function(h) { return '<span class="ip-chip">' + h + '</span>'; }).join(' ') || '<span class="dim">Not detected on this network</span>';
+    var hosts = (v.affected_hosts || []).map(function(h) { return '<span class="ip-chip">' + h + '</span>'; }).join(' ') || '<span class="dim">' + this._t('vuln.not_detected_network', 'Not detected on this network') + '</span>';
     var cpes = (v.cpe_criteria || []).slice(0, 10).map(function(c) { return '<div class="mono" style="font-size:10px;color:var(--muted);word-break:break-all">' + self._esc(c) + '</div>'; }).join('');
     if ((v.cpe_criteria || []).length > 10) cpes += '<div class="dim" style="font-size:10px">+' + (v.cpe_criteria.length - 10) + ' more</div>';
     if (!cpes) cpes = '<span class="dim">\u2014</span>';
@@ -5372,11 +6603,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var kevSection = '';
     if (v.in_kev) {
       kevSection = '<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.25)">' +
-        '<div style="font-size:11px;font-weight:700;color:#ff4d6d;margin-bottom:6px">\u26A0 CISA Known Exploited Vulnerability</div>' +
-        (v.kev_name ? '<div style="font-size:11px;margin-bottom:4px"><strong>Name:</strong> ' + self._esc(v.kev_name) + '</div>' : '') +
-        (v.kev_vendor || v.kev_product ? '<div style="font-size:11px;margin-bottom:4px"><strong>Product:</strong> ' + self._esc((v.kev_vendor || '') + (v.kev_vendor && v.kev_product ? ' / ' : '') + (v.kev_product || '')) + '</div>' : '') +
-        (v.kev_date_added ? '<div style="font-size:11px;margin-bottom:4px"><strong>Added to KEV:</strong> ' + self._esc(v.kev_date_added) + '</div>' : '') +
-        (v.kev_action ? '<div style="font-size:11px"><strong>Required action:</strong> ' + self._esc(v.kev_action) + '</div>' : '') +
+        '<div style="font-size:11px;font-weight:700;color:#ff4d6d;margin-bottom:6px">\u26A0 ' + this._t('vuln.kev_title', 'CISA Known Exploited Vulnerability') + '</div>' +
+        (v.kev_name ? '<div style="font-size:11px;margin-bottom:4px"><strong>' + this._t('vuln.name', 'Name') + ':</strong> ' + self._esc(v.kev_name) + '</div>' : '') +
+        (v.kev_vendor || v.kev_product ? '<div style="font-size:11px;margin-bottom:4px"><strong>' + this._t('vuln.product', 'Product') + ':</strong> ' + self._esc((v.kev_vendor || '') + (v.kev_vendor && v.kev_product ? ' / ' : '') + (v.kev_product || '')) + '</div>' : '') +
+        (v.kev_date_added ? '<div style="font-size:11px;margin-bottom:4px"><strong>' + this._t('vuln.added_to_kev', 'Added to KEV') + ':</strong> ' + self._esc(v.kev_date_added) + '</div>' : '') +
+        (v.kev_action ? '<div style="font-size:11px"><strong>' + this._t('vuln.required_action', 'Required action') + ':</strong> ' + self._esc(v.kev_action) + '</div>' : '') +
       '</div>';
     }
 
@@ -5384,28 +6615,28 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="card" style="width:min(680px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(98,232,255,.26)">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
           '<h1 style="font-size:16px;color:var(--accent)">' + cid + '</h1>' +
-          '<button class="btn" data-vuln-close="1">\u2715 Close</button>' +
+          '<button class="btn" data-vuln-close="1">\u2715 ' + this._t('common.close', 'Close') + '</button>' +
         '</div>' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">' +
           '<span class="badge badge-' + sc + '" style="font-size:12px;padding:3px 10px">CVSS ' + cvss.toFixed(1) + '</span>' +
           this._sev(v.severity || sc) +
-          (v.published ? '<span class="dim" style="font-size:11px">Published: ' + self._esc(v.published) + '</span>' : '') +
+          (v.published ? '<span class="dim" style="font-size:11px">' + this._t('vuln.col_published', 'Published') + ': ' + self._esc(v.published) + '</span>' : '') +
           (v.in_kev ? '<span class="badge badge-critical">KEV</span>' : '') +
         '</div>' +
-        '<div class="card-title">Summary</div>' +
-        '<div style="font-size:12px;line-height:1.6;color:var(--text);margin-bottom:14px">' + this._esc(v.summary || 'No description available.') + '</div>' +
+        '<div class="card-title">' + this._t('vuln.summary_title', 'Summary') + '</div>' +
+        '<div style="font-size:12px;line-height:1.6;color:var(--text);margin-bottom:14px">' + this._esc(v.summary || this._t('vuln.no_description', 'No description available.')) + '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">' +
-          '<div><div class="card-title">Services</div><div>' + services + '</div></div>' +
-          '<div><div class="card-title">Ports</div><div>' + ports + '</div></div>' +
+          '<div><div class="card-title">' + this._t('vuln.col_services', 'Services') + '</div><div>' + services + '</div></div>' +
+          '<div><div class="card-title">' + this._t('vuln.col_ports', 'Ports') + '</div><div>' + ports + '</div></div>' +
         '</div>' +
-        '<div class="card-title">Affected Hosts</div>' +
+        '<div class="card-title">' + this._t('vuln.affected_hosts', 'Affected Hosts') + '</div>' +
         '<div style="margin-bottom:14px;font-size:12px">' + hosts + '</div>' +
-        '<div class="card-title">CPE Criteria</div>' +
+        '<div class="card-title">' + this._t('vuln.cpe_criteria', 'CPE Criteria') + '</div>' +
         '<div style="margin-bottom:14px">' + cpes + '</div>' +
         kevSection +
         '<div style="margin-top:14px;display:flex;gap:8px">' +
-          '<a href="https://nvd.nist.gov/vuln/detail/' + cid + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">View on NVD</a>' +
-          '<a href="https://www.cvedetails.com/cve/' + cid + '/" target="_blank" rel="noopener noreferrer" class="ext-report-link">CVE Details</a>' +
+          '<a href="https://nvd.nist.gov/vuln/detail/' + cid + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">' + this._t('vuln.view_on_nvd', 'View on NVD') + '</a>' +
+          '<a href="https://www.cvedetails.com/cve/' + cid + '/" target="_blank" rel="noopener noreferrer" class="ext-report-link">' + this._t('vuln.cve_details', 'CVE Details') + '</a>' +
         '</div>' +
       '</div>' +
     '</div>';
@@ -5416,16 +6647,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (!a) return '';
     var self = this;
     var SEV_COLORS = { 1:'rgba(255,77,109,1)', 2:'rgba(255,179,71,1)', 3:'rgba(107,255,200,1)' };
-    var SEV_LABELS = { 1:'Critical', 2:'Major', 3:'Minor' };
+    var SEV_LABELS = { 1:this._t('suricata.sev_critical', 'Critical'), 2:this._t('suricata.sev_major', 'Major'), 3:this._t('suricata.sev_minor', 'Minor') };
     var sev = parseInt(a.severity) || 3;
     var sevColor = SEV_COLORS[sev] || 'rgba(90,106,128,1)';
-    var sevLabel = SEV_LABELS[sev] || 'Unknown';
+    var sevLabel = SEV_LABELS[sev] || this._t('suricata.sev_unknown', 'Unknown');
     var sevBadge = '<span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;background:' +
       sevColor.replace(',1)',',0.18)') + ';color:' + sevColor + ';border:1px solid ' + sevColor.replace(',1)',',0.4)') + '">' + sevLabel + '</span>';
     var action = (a.action || 'allowed').toLowerCase();
     var actionBadge = action === 'blocked'
-      ? '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">\uD83D\uDEAB Blocked</span>'
-      : '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">\u2713 Allowed</span>';
+      ? '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">' + this._t('suricata.badge_blocked', '🚫 Blocked') + '</span>'
+      : '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">' + this._t('suricata.badge_allowed', '✓ Allowed') + '</span>';
 
     // Source host lookup
     var allHosts = (this._data && this._data.devices) || [];
@@ -5476,30 +6707,30 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     return '<div id="hsa-suricata-detail-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" data-suricata-close="1">' +
       '<div class="card" style="width:min(660px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(255,77,109,.26)">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
-          '<h1 style="font-size:15px;color:var(--accent);margin:0">Alert Detail</h1>' +
-          '<button class="btn" data-suricata-close="1">\u2715 Close</button>' +
+          '<h1 style="font-size:15px;color:var(--accent);margin:0">' + this._t('suricata.detail_title', 'Alert Detail') + '</h1>' +
+          '<button class="btn" data-suricata-close="1">\u2715 ' + this._t('common.close', 'Close') + '</button>' +
         '</div>' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">' +
           sevBadge + ' ' + actionBadge +
           (sigId ? '<span class="dim" style="font-size:11px">SID\u00a0' + sigId + '</span>' : '') +
         '</div>' +
-        '<div class="card-title" style="margin-bottom:6px">Alert Info</div>' +
-        row('Timestamp', self._esc(ts)) +
-        row('Flow', flow) +
-        row('Protocol', proto || '\u2014') +
-        row('Interface', self._esc(a.in_iface || '\u2014')) +
+        '<div class="card-title" style="margin-bottom:6px">' + this._t('suricata.alert_info', 'Alert Info') + '</div>' +
+        row(this._t('suricata.timestamp', 'Timestamp'), self._esc(ts)) +
+        row(this._t('suricata.flow', 'Flow'), flow) +
+        row(this._t('suricata.protocol', 'Protocol'), proto || '\u2014') +
+        row(this._t('suricata.interface', 'Interface'), self._esc(a.in_iface || '\u2014')) +
         row('Signature', '<span style="font-weight:600">' + self._esc(a.signature || '\u2014') + '</span>') +
-        (sigId ? row('Signature ID', String(sigId)) : '') +
-        row('Category', self._esc(a.category || '\u2014')) +
-        row('Severity', sevBadge) +
-        row('Action', actionBadge) +
+        (sigId ? row(this._t('suricata.signature_id', 'Signature ID'), String(sigId)) : '') +
+        row(this._t('suricata.col_category', 'Category'), self._esc(a.category || '\u2014')) +
+        row(this._t('suricata.col_severity', 'Severity'), sevBadge) +
+        row(this._t('suricata.col_action', 'Action'), actionBadge) +
         (a.flow_id ? row('Flow ID', self._esc(String(a.flow_id))) : '') +
-        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Source Host</div>' +
+        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">' + this._t('suricata.source_host', 'Source Host') + '</div>' +
         row('IP', '<span class="mono">' + self._esc(a.src_ip || '\u2014') + '</span>') +
-        row('Host info', hostInfo(srcHost)) +
-        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Destination Host</div>' +
+        row(this._t('suricata.host_info', 'Host info'), hostInfo(srcHost)) +
+        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">' + this._t('suricata.destination_host', 'Destination Host') + '</div>' +
         row('IP', '<span class="mono">' + self._esc(a.dest_ip || '\u2014') + '</span>') +
-        row('Host info', hostInfo(destHost)) +
+        row(this._t('suricata.host_info', 'Host info'), hostInfo(destHost)) +
         sigLinks +
       '</div>' +
     '</div>';
@@ -5527,22 +6758,22 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var countryDisplay = (countryFlag ? '<span style="font-size:15px">' + countryFlag + '</span> ' : '') + self._esc(e.country_name || e.country || '\u2014');
 
     var vtHtml = e.vt_malicious != null
-      ? (e.vt_malicious + '/' + ((e.vt_malicious||0) + (e.vt_suspicious||0) + (e.vt_harmless||0)) + ' malicious')
+      ? (e.vt_malicious + '/' + ((e.vt_malicious||0) + (e.vt_suspicious||0) + (e.vt_harmless||0)) + ' ' + self._t('external.modal_malicious', 'malicious'))
       : '\u2014';
     var abuseHtml = e.abuse_confidence != null
-      ? (e.abuse_confidence + '%' + (e.abuse_total_reports ? ' (' + e.abuse_total_reports + ' reports)' : ''))
+      ? (e.abuse_confidence + '%' + (e.abuse_total_reports ? ' (' + e.abuse_total_reports + ' ' + self._t('external.modal_reports', 'reports') + ')' : ''))
       : '\u2014';
 
     var blacklistHtml = e.blacklisted
-      ? '<span style="color:#ff4d6d">\u26A0 Yes' + (e.blacklist_info && e.blacklist_info.source ? ' \u2013 ' + self._esc(e.blacklist_info.source) : '') + '</span>'
-      : '<span style="color:#6bffc8">No</span>';
+      ? '<span style="color:#ff4d6d">\u26A0 ' + self._t('external.modal_yes', 'Yes') + (e.blacklist_info && e.blacklist_info.source ? ' \u2013 ' + self._esc(e.blacklist_info.source) : '') + '</span>'
+      : '<span style="color:#6bffc8">' + self._t('external.modal_no', 'No') + '</span>';
 
     var dir = e.direction || 'outbound';
     var directionHtml = dir === 'both'
-      ? '<span style="color:#a78bfa">\u2195 Both</span>'
+      ? '<span style="color:#a78bfa">\u2195 ' + self._t('external.direction_both', 'Both') + '</span>'
       : dir === 'inbound'
-        ? '<span style="color:#fb923c">\u2193 Inbound</span>'
-        : '<span style="color:#34d399">\u2191 Outbound</span>';
+        ? '<span style="color:#fb923c">\u2193 ' + self._t('external.direction_inbound', 'Inbound') + '</span>'
+        : '<span style="color:#34d399">\u2191 ' + self._t('external.direction_outbound', 'Outbound') + '</span>';
 
     var dstPorts = (e.dst_ports || []).slice(0, 16);
     var portsHtml = dstPorts.length
@@ -5559,22 +6790,22 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // Enrichment section
     var enrichSection = '';
     if (isLooking) {
-      enrichSection = '<div style="display:flex;align-items:center;gap:8px;padding:12px 0;color:var(--muted);font-size:12px"><span class="spin"></span> Running enrichment lookup\u2026</div>';
+      enrichSection = '<div style="display:flex;align-items:center;gap:8px;padding:12px 0;color:var(--muted);font-size:12px"><span class="spin"></span> ' + this._t('external.running_lookup', 'Running enrichment lookup…') + '</div>';
     } else if (enriched) {
       var enrichPairs = [
-        ['City',          enriched.city],
-        ['Timezone',      enriched.timezone],
-        ['ISP',           enriched.isp],
-        ['VT Reputation', enriched.vt_reputation != null ? String(enriched.vt_reputation) : null],
-        ['Enriched at',   enriched.enriched_at ? self._ago(enriched.enriched_at) : null],
+        [self._t('external.modal_city', 'City'),          enriched.city],
+        [self._t('external.modal_timezone', 'Timezone'),   enriched.timezone],
+        [self._t('external.modal_isp', 'ISP'),           enriched.isp],
+        [self._t('external.modal_vt_rep', 'VT Reputation'), enriched.vt_reputation != null ? String(enriched.vt_reputation) : null],
+        [self._t('external.modal_enriched_at', 'Enriched at'),   enriched.enriched_at ? self._ago(enriched.enriched_at) : null],
       ].filter(function(p) { return p[1] != null && p[1] !== ''; });
       if (enrichPairs.length || enriched.error) {
-        enrichSection = '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Enrichment Details</div>' +
+        enrichSection = '<div class="card-title" style="margin-top:14px;margin-bottom:6px">' + this._t('external.enrichment_details', 'Enrichment Details') + '</div>' +
           enrichPairs.map(function(p) { return row(p[0], self._esc(String(p[1]))); }).join('') +
           (enriched.error ? '<div style="color:var(--danger);font-size:11px;margin-top:6px">\u26A0 ' + self._esc(enriched.error) + '</div>' : '');
       }
     } else {
-      enrichSection = '<div style="margin-top:10px"><button class="btn" data-ext-lookup="' + self._esc(ip) + '">\uD83D\uDD0D Run Full Lookup</button></div>';
+      enrichSection = '<div style="margin-top:10px"><button class="btn" data-ext-lookup="' + self._esc(ip) + '">' + this._t('external.run_full_lookup', '🔍 Run Full Lookup') + '</button></div>';
     }
 
     // External links
@@ -5589,26 +6820,26 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<div class="card" style="width:min(620px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(98,232,255,.26)">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
           '<h1 style="font-size:15px;color:var(--accent);margin:0;font-family:monospace">' + self._esc(ip) + '</h1>' +
-          '<button class="btn" data-ext-close="1">\u2715 Close</button>' +
+          '<button class="btn" data-ext-close="1">\u2715 ' + this._t('common.close', 'Close') + '</button>' +
         '</div>' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">' +
           ratingBadge +
-          (e.blacklisted ? ' <span class="badge badge-critical">\u26A0 Blacklisted</span>' : '') +
+          (e.blacklisted ? ' <span class="badge badge-critical">\u26A0 ' + this._t('external.blacklisted', 'Blacklisted') + '</span>' : '') +
         '</div>' +
-        '<div class="card-title" style="margin-bottom:6px">IP Info</div>' +
-        row('Hostname',    self._esc(e.hostname || '\u2014')) +
-        row('Country',     countryDisplay) +
-        row('ASN',         self._esc(e.asn || '\u2014')) +
-        row('Org / ISP',   self._esc(e.org || e.isp || '\u2014')) +
-        row('VirusTotal',  vtHtml) +
-        row('Abuse score', abuseHtml) +
-        row('Blacklisted', blacklistHtml) +
-        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">Traffic</div>' +
-        row('Direction',       directionHtml) +
-        row('Ports contacted', portsHtml) +
-        row('Internal hosts',  sourcesHtml) +
-        row('Total traffic',   trafficKb) +
-        row('Last seen',       self._ago(e.last_seen)) +
+        '<div class="card-title" style="margin-bottom:6px">' + this._t('external.ip_info', 'IP Info') + '</div>' +
+        row(this._t('external.modal_hostname', 'Hostname'),    self._esc(e.hostname || '\u2014')) +
+        row(this._t('external.modal_country', 'Country'),     countryDisplay) +
+        row(this._t('external.modal_asn', 'ASN'),         self._esc(e.asn || '\u2014')) +
+        row(this._t('external.modal_org_isp', 'Org / ISP'),   self._esc(e.org || e.isp || '\u2014')) +
+        row(this._t('external.modal_vt', 'VirusTotal'),  vtHtml) +
+        row(this._t('external.modal_abuse', 'Abuse score'), abuseHtml) +
+        row(this._t('external.blacklisted', 'Blacklisted'), blacklistHtml) +
+        '<div class="card-title" style="margin-top:14px;margin-bottom:6px">' + this._t('external.traffic', 'Traffic') + '</div>' +
+        row(this._t('external.modal_direction', 'Direction'),       directionHtml) +
+        row(this._t('external.ports_contacted', 'Ports contacted'), portsHtml) +
+        row(this._t('external.internal_hosts', 'Internal hosts'),  sourcesHtml) +
+        row(this._t('external.total_traffic', 'Total traffic'),   trafficKb) +
+        row(this._t('external.modal_last_seen', 'Last seen'),       self._ago(e.last_seen)) +
         enrichSection +
         linksHtml +
       '</div>' +
@@ -5634,27 +6865,27 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       malware:'Malware', adult:'Adult', gambling:'Gambling', ads:'Ads',
       tracking:'Tracking', social:'Social', gaming:'Gaming', streaming:'Streaming', news:'News',
       cdn:'CDN', cloud:'Cloud', iot:'IoT', tech:'Tech', intel:'Threat Intel',
-      override:'Override', other:'Other'
+      override:self._t('dns.cat.override', 'Override'), other:'Other'
     };
 
     var filterBar = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">' +
-      '<input class="search-bar" id="dns-search" placeholder="Filter by IP or domain…" style="width:220px" ' +
+      '<input class="search-bar" id="dns-search" placeholder="' + self._esc(self._t('dns.filter_placeholder', 'Filter by IP or domain…')) + '" style="width:220px" ' +
         'value="' + self._esc(this._dnsSearch) + '" onkeydown="if(event.key===\'Enter\')this.getRootNode().host._dnsFilter()" />' +
       '<select id="dns-cat-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
         'onchange="this.getRootNode().host._dnsFilter()">' +
-        '<option value="">All categories</option>' +
+        '<option value="">' + self._t('dns.all_categories', 'All categories') + '</option>' +
         CATEGORIES.map(function(c) { return '<option value="' + c + '"' + (self._dnsCategoryFilter === c ? ' selected' : '') + '>' + CAT_LABELS[c] + '</option>'; }).join('') +
       '</select>' +
       '<select id="dns-status-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" ' +
         'onchange="this.getRootNode().host._dnsFilter()">' +
-        '<option value="">All status</option>' +
-        '<option value="allowed"' + (self._dnsStatusFilter === 'allowed' ? ' selected' : '') + '>Allowed</option>' +
-        '<option value="blocked"' + (self._dnsStatusFilter === 'blocked' ? ' selected' : '') + '>Blocked</option>' +
+        '<option value="">' + self._t('dns.all_status', 'All status') + '</option>' +
+        '<option value="allowed"' + (self._dnsStatusFilter === 'allowed' ? ' selected' : '') + '>' + self._t('common.allowed', 'Allowed') + '</option>' +
+        '<option value="blocked"' + (self._dnsStatusFilter === 'blocked' ? ' selected' : '') + '>' + self._t('common.blocked', 'Blocked') + '</option>' +
       '</select>' +
       '<label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer">' +
-        '<input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()"' + (self._dnsMaliciousOnly ? ' checked' : '') + '> Malicious only' +
+        '<input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()"' + (self._dnsMaliciousOnly ? ' checked' : '') + '> ' + self._t('dns.malicious_only', 'Malicious only') +
       '</label>' +
-      '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' entries</span>' +
+      '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' ' + self._t('dns.entries', 'entries') + '</span>' +
     '</div>';
 
     // Table
@@ -5667,28 +6898,28 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var dnsPageEnd = Math.min(sortedLog.length, (dnsPage + 1) * DNS_PAGE_SIZE);
     var topPaginationHtml =
       '<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap">' +
-        '<div class="row-gap" style="font-size:11px;color:var(--muted)">Showing ' + dnsPageStart + '\u2013' + dnsPageEnd + ' of ' + sortedLog.length + '</div>' +
+        '<div class="row-gap" style="font-size:11px;color:var(--muted)">' + self._t('dns.showing', 'Showing') + ' ' + dnsPageStart + '\u2013' + dnsPageEnd + ' of ' + sortedLog.length + '</div>' +
         '<div class="row-gap" style="gap:6px">' +
-          '<label class="dim" style="font-size:11px">Rows</label>' +
+          '<label class="dim" style="font-size:11px">' + self._t('common.rows', 'Rows') + '</label>' +
           '<select id="hsa-dns-pagesize" class="role-select">' +
             [10,25,50,100].map(function(n) { return '<option value="' + n + '"' + (n === DNS_PAGE_SIZE ? ' selected' : '') + '>' + n + '</option>'; }).join('') +
           '</select>' +
-          '<button class="btn" data-dns-page="' + (dnsPage - 1) + '"' + (dnsPage <= 0 ? ' disabled' : '') + '>Previous</button>' +
+          '<button class="btn" data-dns-page="' + (dnsPage - 1) + '"' + (dnsPage <= 0 ? ' disabled' : '') + '>' + self._t('common.previous', 'Previous') + '</button>' +
           '<span class="dim" style="font-size:11px;min-width:70px;text-align:center">' + (dnsPage + 1) + ' / ' + totalDnsPages + '</span>' +
-          '<button class="btn" data-dns-page="' + (dnsPage + 1) + '"' + (dnsPage >= totalDnsPages - 1 ? ' disabled' : '') + '>Next</button>' +
+          '<button class="btn" data-dns-page="' + (dnsPage + 1) + '"' + (dnsPage >= totalDnsPages - 1 ? ' disabled' : '') + '>' + self._t('common.next', 'Next') + '</button>' +
         '</div>' +
       '</div>';
     var maliciousCount = log.filter(function(e) { return e.malicious; }).length;
     var summaryBadge = maliciousCount > 0
-      ? '<span class="badge badge-malicious" style="margin-left:8px">' + maliciousCount + ' malicious</span>'
+      ? '<span class="badge badge-malicious" style="margin-left:8px">' + maliciousCount + ' ' + self._t('dns.malicious_badge', 'malicious') + '</span>'
       : '';
 
     var dnsSortCols = [
-      { key: 'time', label: 'Time' },
-      { key: 'client_ip', label: 'Client IP' },
-      { key: 'domain', label: 'Domain' },
-      { key: 'type', label: 'Type' },
-      { key: 'category', label: 'Category' },
+      { key: 'time', label: self._t('dns.col_time', 'Time') },
+      { key: 'client_ip', label: self._t('dns.col_client_ip', 'Client IP') },
+      { key: 'domain', label: self._t('dns.col_domain', 'Domain') },
+      { key: 'type', label: self._t('dns.col_type', 'Type') },
+      { key: 'category', label: self._t('dns.col_category', 'Category') },
     ];
     var tableHead = '<table class="data-table" id="dns-table" style="min-width:900px">' +
       '<thead><tr>' +
@@ -5696,10 +6927,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var arrow = self._dnsSort === c.key ? (self._dnsSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
           return '<th class="sortable-th" data-dnssort="' + c.key + '">' + c.label + '<span class="sort-arrow">' + arrow + '</span></th>';
         }).join('') +
-        '<th>Response</th><th>Answer</th>' +
+        '<th>' + self._t('dns.col_response', 'Response') + '</th><th>' + self._t('dns.col_answer', 'Answer') + '</th>' +
         (function() {
           var arrow = self._dnsSort === 'status' ? (self._dnsSortDir > 0 ? ' \u25B2' : ' \u25BC') : '';
-          return '<th class="sortable-th" data-dnssort="status">Status<span class="sort-arrow">' + arrow + '</span></th>';
+          return '<th class="sortable-th" data-dnssort="status">' + self._t('dns.col_status', 'Status') + '<span class="sort-arrow">' + arrow + '</span></th>';
         })() +
       '</tr></thead><tbody>';
 
@@ -5724,9 +6955,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
       var statusBadge;
       if (status === 'blocked') {
-        statusBadge = '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">\uD83D\uDEAB Blocked</span>';
+        statusBadge = '<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">🚫 ' + self._t('common.blocked', 'Blocked') + '</span>';
       } else {
-        statusBadge = '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">\u2713 Allowed</span>';
+        statusBadge = '<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">✓ ' + self._t('common.allowed', 'Allowed') + '</span>';
       }
 
       var rowBg = status === 'blocked' ? 'rgba(255,77,109,.06)' : mal ? 'rgba(255,77,109,.03)' : '';
@@ -5863,10 +7094,80 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   _viewRecs() {
     var recs = (this._data && this._data.recommendations) || [];
-    if (!recs.length) return '<div><div class="view-header"><h1>Security Recommendations</h1></div>' +
-      '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>No recommendations at this time.</p></div></div>';
+    if (!recs.length) return '<div><div class="view-header"><h1>' + this._t('recs.page_title', 'Security Recommendations') + '</h1></div>' +
+      '<div class="empty-state card" style="height:180px"><div class="empty-icon">\u2713</div><p>' + this._t('recs.no_recommendations', 'No recommendations at this time.') + '</p></div></div>';
     var icons = { critical: '\uD83D\uDEA8', high: '\u26A0\uFE0F', medium: '\uD83D\uDCA1', low: '\u2139\uFE0F' };
     var self = this;
+
+    function _formatTemplate(template, values) {
+      return template.replace(/\{([a-zA-Z0-9_]+)\}/g, function(_, key) {
+        return values[key] != null ? String(values[key]) : '';
+      });
+    }
+
+    function _localizedRec(r) {
+      var countHosts = (r.hosts && r.hosts.length) || 0;
+      var countFindings = (r.findings_refs && r.findings_refs.length) || 0;
+      switch (r.category) {
+        case 'patch_vulnerable':
+          return {
+            title: self._t('recs.title_patch_vulnerable', 'Patch vulnerable devices'),
+            detail: _formatTemplate(self._t('recs.detail_patch_vulnerable', '{n} device(s) have known high or critical CVE vulnerabilities. Update firmware/software or restrict network access immediately.'), { n: countHosts || 1 }),
+          };
+        case 'vulnerability':
+          return {
+            title: self._t('recs.title_review_vulnerability_findings', 'Review vulnerability findings'),
+            detail: self._t('recs.detail_review_vulnerability_findings', 'Active scanning found services with known security issues. Check the findings tab for CVE details and remediation steps.'),
+          };
+        case 'no_exporter':
+          return {
+            title: self._t('recs.title_connect_exporter', 'Connect a flow exporter'),
+            detail: self._t('recs.detail_connect_exporter', 'No NetFlow or IPFIX exporters have been observed yet. Configure your gateway, firewall, or switch to export flows to HomeSec.'),
+          };
+        case 'exporter_unreachable':
+          return {
+            title: self._t('recs.title_verify_exporter', 'Verify exporter reachability'),
+            detail: self._t('recs.detail_verify_exporter', 'Exporters are configured but HomeSec has not received any datagrams yet. Check exporter target IP/port, firewall rules, and container networking.'),
+          };
+        case 'bad_flow_format':
+          return {
+            title: self._t('recs.title_check_flow_format', 'Check flow export format'),
+            detail: self._t('recs.detail_check_flow_format', 'Datagrams are arriving but none produced records. Confirm exporter uses NetFlow v5/v9/IPFIX with IPv4 fields and valid templates.'),
+          };
+        case 'suspicious_port':
+          return {
+            title: self._t('recs.title_restrict_risky_ports', 'Restrict risky outbound ports'),
+            detail: self._t('recs.detail_restrict_risky_ports', 'At least one device reached a commonly abused external port such as Telnet or RDP. Block or alert on these ports at the gateway and patch the source device.'),
+          };
+        case 'port_scan':
+          return {
+            title: self._t('recs.title_isolate_scanning_hosts', 'Isolate scanning hosts'),
+            detail: self._t('recs.detail_isolate_scanning_hosts', 'A device is touching many ports in a short time window. Move it to an isolated VLAN or guest network until you confirm the behavior is expected.'),
+          };
+        case 'high_egress':
+          return {
+            title: self._t('recs.title_review_high_egress_devices', 'Review high egress devices'),
+            detail: self._t('recs.detail_review_high_egress_devices', 'One or more devices exceeded the outbound data threshold. Confirm whether the traffic matches backups, cameras, or media uploads instead of malware or exfiltration.'),
+          };
+        case 'unknown_roles':
+          return {
+            title: self._t('recs.title_improve_device_identity_coverage', 'Improve device identity coverage'),
+            detail: _formatTemplate(self._t('recs.detail_improve_device_identity_coverage', '{n} devices still have unknown roles. Add router, DHCP, or tracker integrations so HomeSec can correlate names, MAC addresses, and hostnames.'), { n: countHosts || 1 }),
+          };
+        case 'no_tracker':
+          return {
+            title: self._t('recs.title_enable_device_tracker_enrichment', 'Enable device tracker enrichment'),
+            detail: self._t('recs.detail_enable_device_tracker_enrichment', 'HomeSec is seeing devices but none were enriched from Home Assistant trackers. Adding router or presence integrations will make the dashboard much more readable.'),
+          };
+        case 'dropped_datagrams':
+          return {
+            title: self._t('recs.title_stabilize_exporter_templates', 'Stabilize exporter templates'),
+            detail: self._t('recs.detail_stabilize_exporter_templates', 'Some flow datagrams were dropped or arrived before their templates. Reduce exporter restarts or shorten template refresh intervals on the exporter.'),
+          };
+        default:
+          return { title: r.title, detail: r.detail };
+      }
+    }
 
     function _recDetail(r) {
       var hosts = r.hosts || [];
@@ -5875,7 +7176,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var html = '<div class="rec-expand-panel">';
 
       if (hosts.length) {
-        html += '<div class="rec-expand-section"><div class="rec-expand-label">Affected hosts (' + hosts.length + ')</div><div class="rec-expand-rows">';
+        html += '<div class="rec-expand-section"><div class="rec-expand-label">' + self._t('recs.affected_hosts', 'Affected hosts') + ' (' + hosts.length + ')</div><div class="rec-expand-rows">';
         hosts.forEach(function(h) {
           var nameHtml = (h.name && h.name !== h.ip)
             ? '<span style="color:rgba(140,200,255,.85);font-weight:600;margin-left:6px">' + self._esc(h.name) + '</span>' : '';
@@ -5898,7 +7199,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }
 
       if (frefs.length) {
-        html += '<div class="rec-expand-section"><div class="rec-expand-label">Related findings (' + frefs.length + ')</div><div class="rec-expand-rows">';
+        html += '<div class="rec-expand-section"><div class="rec-expand-label">' + self._t('recs.related_findings', 'Related findings') + ' (' + frefs.length + ')</div><div class="rec-expand-rows">';
         frefs.forEach(function(f) {
           var det = f.detail || {};
           var port = det.port ? '<span class="chip" style="margin-left:6px">port ' + det.port + '</span>' : '';
@@ -5917,10 +7218,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       return html;
     }
 
-    return '<div><div class="view-header"><h1>Security Recommendations</h1></div>' +
+    return '<div><div class="view-header"><h1>' + this._t('recs.page_title', 'Security Recommendations') + '</h1></div>' +
       recs.map(function(r, idx) {
         var expanded = (self._expandedRec === idx);
         var hasDetail = (r.hosts && r.hosts.length) || (r.findings_refs && r.findings_refs.length);
+        var text = _localizedRec(r);
         var chevron = hasDetail
           ? '<span style="margin-left:auto;font-size:11px;color:var(--muted);transition:transform .15s;display:inline-block;transform:rotate(' + (expanded ? '90' : '0') + 'deg)">\u25B6</span>'
           : '';
@@ -5928,8 +7230,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             (hasDetail ? 'data-rec-idx="' + idx + '"' : '') + '>' +
           '<div class="rec-icon">' + (icons[r.priority] || '\uD83D\uDCA1') + '</div>' +
           '<div style="flex:1;min-width:0">' +
-            '<div class="rec-title">' + self._esc(r.title) + ' ' + self._sev(r.priority) + chevron + '</div>' +
-            '<div class="rec-detail">' + self._esc(r.detail) + '</div>' +
+            '<div class="rec-title">' + self._esc(text.title) + ' ' + self._sev(r.priority) + chevron + '</div>' +
+            '<div class="rec-detail">' + self._esc(text.detail) + '</div>' +
             (expanded ? _recDetail(r) : '') +
           '</div>' +
         '</div>';
@@ -5994,10 +7296,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _ago(iso) {
     if (!iso) return 'never';
     var d = Date.now() - new Date(iso).getTime();
-    if (d < 60000)    return 'just now';
-    if (d < 3600000)  return Math.floor(d/60000) + 'm ago';
-    if (d < 86400000) return Math.floor(d/3600000) + 'h ago';
-    return Math.floor(d/86400000) + 'd ago';
+    if (d < 60000)    return this._t('time.just_now', 'just now');
+    if (d < 3600000)  return this._t('time.minutes_ago', '{n}m ago').replace('{n}', Math.floor(d/60000));
+    if (d < 86400000) return this._t('time.hours_ago', '{n}h ago').replace('{n}', Math.floor(d/3600000));
+    return this._t('time.days_ago', '{n}d ago').replace('{n}', Math.floor(d/86400000));
   }
   _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -6041,6 +7343,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _viewSettings() {
     var self = this;
     var docsUrl = this._docsUrlForLanguage();
+    var schemaLocale = _SETTINGS_SCHEMA_I18N[this._activeLocale()] || null;
     if (!this._settingsData && !this._settingsLoading) {
       this._settingsLoading = true;
       this._settingsRetries = (this._settingsRetries || 0);
@@ -6117,14 +7420,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         }
         return '<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(98,232,255,.04)">' +
           '<div style="flex:0 0 240px;min-width:0">' +
-            '<div style="font-size:12px;font-weight:600;color:var(--text)">' + self._esc(f.label) + '</div>' +
-            (f.help ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4">' + self._esc(f.help) + '</div>' : '') +
+            '<div style="font-size:12px;font-weight:600;color:var(--text)">' + self._esc((schemaLocale && schemaLocale.labels && schemaLocale.labels[f.key]) || f.label) + '</div>' +
+            (f.help ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4">' + self._esc((schemaLocale && schemaLocale.helps && schemaLocale.helps[f.key]) || f.help) + '</div>' : '') +
           '</div>' +
           '<div style="flex:1;min-width:0">' + inputHtml + '</div>' +
         '</div>';
       }).join('');
       return '<div class="card" style="margin-bottom:12px">' +
-        '<div class="card-title">' + self._esc(section.section) + '</div>' +
+        '<div class="card-title">' + self._esc((schemaLocale && schemaLocale.sections && schemaLocale.sections[section.section]) || section.section) + '</div>' +
         rows +
       '</div>';
     }).join('');

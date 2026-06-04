@@ -1,48 +1,48 @@
 Security Assistant
 
-Security Assistant est une integration personnalisee Home Assistant pour la
-surveillance de securite du reseau domestique. Elle combine l'analyse passive
-du trafic NetFlow/IPFIX, le scan actif des hotes, la verification DNS via
-listes de menace, l'enrichissement des IP externes et la visibilite CVE dans
-un tableau de bord lateral unique.
+Security Assistant est une intégration personnalisée Home Assistant pour la
+surveillance de sécurité du réseau domestique. Elle combine l'analyse passive
+du trafic NetFlow/IPFIX, le scan actif des hôtes, la vérification DNS via
+listes de menace, l'enrichissement des IP externes et la visibilité CVE dans
+un tableau de bord latéral unique.
 
 Site web
 - https://domotic.monster/homesec.html
 
-Depot GitHub
+Dépôt GitHub
 - https://github.com/domo-monster/HomeSecurityAssistant
 
 Documentation par langue
 - Anglais : https://domotic.monster/homesec.html
-- Francais : https://domotic.monster/homesec_fr.html
+- Français : https://domotic.monster/homesec_fr.html
 - Allemand : https://domotic.monster/homesec_de.html
 
 Version
 - 0.9.1
 
-Fonctionnalites principales
-- Ecoute NetFlow v5/v9/IPFIX avec classification trafic interne/externe.
-- Scanner actif (optionnel) : disponibilite des hotes, ports ouverts,
-  services detectes, empreintes legeres.
-- Renseignement IP externe via ipwho.is (par defaut), VirusTotal et AbuseIPDB
+Fonctionnalités principales
+- Écoute NetFlow v5/v9/IPFIX avec classification du trafic interne/externe.
+- Scanner actif (optionnel) : disponibilité des hôtes, ports ouverts,
+  services détectés, empreintes légères.
+- Renseignement IP externe via ipwho.is (par défaut), VirusTotal et AbuseIPDB
   en option.
-- Fonctionnalites DNS proxy + blacklist avec journalisation des requetes.
-- Visibilite vulnerabilites avec NVD et correlation CISA KEV.
-- Findings, recommandations et detection d'anomalies via baseline.
+- Fonctionnalités DNS proxy + blacklist avec journalisation des requêtes.
+- Visibilité des vulnérabilités avec NVD et corrélation CISA KEV.
+- Findings, recommandations et détection d'anomalies via baseline.
 - Panneau frontend multi-vues : Overview, Network Map, Hosts, Findings,
   External IPs, Vulnerabilities, Statistics, DNS, Suricata,
   Recommendations, Settings.
 
-Nouveautes 0.9.1
+Nouveautés 0.9.1
 - Application des options en place (moins de rechargements complets perturbants).
-- Enregistrement des parametres en mode non bloquant.
-- Journaux de timing demarrage/rechargement pour profiler les lenteurs.
+- Enregistrement des paramètres en mode non bloquant.
+- Journaux de timing démarrage/rechargement pour profiler les lenteurs.
 - Carte de liens en bas de la page Settings (GitHub + documentation selon langue).
-- Lien copyright lateral mis a jour vers https://domotic.monster.
+- Lien copyright latéral mis à jour vers https://domotic.monster.
 - Correction du lien deep-link HACS dans le README principal.
 - Ajout de visuels Suricata dans les sections de documentation.
-- Ajout de l'option de visibilite du panneau sidebar pour les non-admins dans Settings.
-- Localisation francaise du frontend (menu, page Settings, en-tetes de vues).
+- Ajout de l'option de visibilité du panneau sidebar pour les non-admins dans Settings.
+- Localisation française du frontend (menu, page Settings, en-têtes de vues).
 
 Visuels du baseline
 - Comparaison Live vs Baseline :
@@ -53,9 +53,9 @@ Visuels du baseline
   ![Deviation baseline](custom_components/homesec/hsa_baseline_deviation.png)
 
 Suricata - Flux des alertes
-- **Ecouteur d'alertes Suricata EVE** - Home Security Assistant peut recevoir les alertes Suricata via TCP et les integrer au tableau de bord lateral ainsi qu'au journal d'alertes.
-- **Script d'envoi accompagne** - le script `suricata_pusher.py` fourni lit en continu le fichier JSON EVE de Suricata et envoie chaque ligne d'alerte au listener.
-- **Visibilite des alertes** - les alertes Suricata apparaissent dans le tableau de bord lateral et sont conservees avec les autres journaux d'execution apres redemarrage.
+- **Écouteur d'alertes Suricata EVE** - Home Security Assistant peut recevoir les alertes Suricata via TCP et les intégrer au tableau de bord latéral ainsi qu'au journal d'alertes.
+- **Script d'envoi accompagné** - le script `suricata_pusher.py` fourni lit en continu le fichier JSON EVE de Suricata et envoie chaque ligne d'alerte au listener.
+- **Visibilité des alertes** - les alertes Suricata apparaissent dans le tableau de bord latéral et sont conservées avec les autres journaux d'exécution après redémarrage.
 
 Visuels Suricata
 - Vue d'ensemble :
@@ -74,13 +74,13 @@ Installation (HACS)
 1. Ouvrir HACS -> Integrations -> Custom Repositories.
 2. Ajouter : https://github.com/domo-monster/HomeSecurityAssistant
 3. Installer Security Assistant.
-4. Redemarrer Home Assistant.
-5. Ajouter l'integration dans Settings -> Devices & Services.
+4. Redémarrer Home Assistant.
+5. Ajouter l'intégration dans Settings -> Devices & Services.
 
 Installation manuelle
 1. Copier custom_components/homesec dans custom_components de Home Assistant.
-2. Redemarrer Home Assistant.
-3. Ajouter l'integration dans Settings -> Devices & Services.
+2. Redémarrer Home Assistant.
+3. Ajouter l'intégration dans Settings -> Devices & Services.
 
 Services principaux
 - homesec.trigger_scan
@@ -92,14 +92,14 @@ Services principaux
 - homesec.clear_baseline
 
 Notes importantes
-- L'analyse de flux repose sur des metadonnees (pas inspection complete du payload).
-- Les empreintes et roles sont heuristiques.
-- La qualite d'enrichissement externe depend des cles API optionnelles.
+- L'analyse de flux repose sur des métadonnées (pas d'inspection complète du payload).
+- Les empreintes et rôles sont heuristiques.
+- La qualité d'enrichissement externe dépend des clés API optionnelles.
 
 Fichiers persistants
-L'integration stocke etat et configuration en YAML dans /config, notamment
+L'intégration stocke état et configuration en YAML dans /config, notamment
 homesec.yaml, homesec_hosts.yaml, homesec_dns_log.yaml, homesec_ext_ips.yaml,
-homesec_baseline.yaml et fichiers associes.
+homesec_baseline.yaml et fichiers associés.
 
 Historique des versions
-- Voir changelog.txt dans ce depot.
+- Voir changelog.txt dans ce dépôt.

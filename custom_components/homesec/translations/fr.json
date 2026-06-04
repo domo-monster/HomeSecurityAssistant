@@ -3,12 +3,12 @@
     "step": {
       "user": {
         "title": "Security Assistant — Configuration",
-        "description": "Saisissez l'adresse d'ecoute NetFlow et vos plages reseau internes. Tous les parametres avances peuvent etre configures depuis le panneau Security Assistant apres l'installation.",
+        "description": "Saisissez l'adresse d'écoute NetFlow et vos plages réseau internes. Tous les paramètres avancés peuvent être configurés depuis le panneau Security Assistant après l'installation.",
         "data": {
-          "bind_host": "Hote d'ecoute NetFlow (ex. 0.0.0.0)",
-          "bind_port": "Port d'ecoute NetFlow (UDP, defaut 2055)",
-          "enable_netflow_listener": "Activer l'ecouteur NetFlow",
-          "internal_networks": "Reseaux internes (CIDR separes par des virgules)"
+          "bind_host": "ôte d'écoute NetFlow (ex. 0.0.0.0)",
+          "bind_port": "Port d'écoute NetFlow (UDP, défaut 2055)",
+          "enable_netflow_listener": "Activer l'écouteur NetFlow",
+          "internal_networks": "Réseaux internes (CIDR séparés par des virgules)"
         }
       }
     }
@@ -16,45 +16,45 @@
   "options": {
     "step": {
       "init": {
-        "title": "Security Assistant — Parametres de l'ecouteur",
-        "description": "Mettez a jour l'ecouteur NetFlow et les reseaux internes. Tous les parametres avances sont disponibles dans le panneau Security Assistant.",
+        "title": "Security Assistant — Paramètres de l'écouteur",
+        "description": "Mettez à jour l'écouteur NetFlow et les réseaux internes. Tous les paramètres avancés sont disponibles dans le panneau Security Assistant.",
         "data": {
-          "bind_host": "Hote d'ecoute NetFlow",
-          "bind_port": "Port d'ecoute NetFlow (UDP)",
-          "enable_netflow_listener": "Activer l'ecouteur NetFlow",
-          "internal_networks": "Reseaux internes (CIDR separes par des virgules)"
+          "bind_host": "ôte d'écoute NetFlow",
+          "bind_port": "Port d'écoute NetFlow (UDP)",
+          "enable_netflow_listener": "Activer l'écouteur NetFlow",
+          "internal_networks": "Réseaux internes (CIDR séparés par des virgules)"
         }
       }
     }
   },
   "services": {
     "trigger_scan": {
-      "name": "Lancer un scan actif des hotes",
-      "description": "Execute immediatement un scan reseau actif complet (ping + scan de ports) pour toutes les IP connues et observees, sans attendre le prochain intervalle planifie."
+      "name": "Lancer un scan actif des hôtes",
+      "description": "Exécute immédiatement un scan réseau actif complet (ping + scan de ports) pour toutes les IP connues et observées, sans attendre le prochain intervalle planifié."
     },
     "blacklist_refresh": {
       "name": "Forcer le rafraichissement des blocklists de threat intel",
-      "description": "Vide immediatement toutes les entrees de threat intel chargees et retelcharge chaque URL de blocklist configuree."
+      "description": "Vide immédiatement toutes les entrées de threat intel chargées et retélécharge chaque URL de blocklist configurée."
     },
     "nvd_refresh": {
-      "name": "Rafraichir la base de vulnerabilites NVD",
-      "description": "Vide le cache local des CVE NVD et recupere des donnees de vulnerabilite fraiches depuis la National Vulnerability Database."
+      "name": "Rafraîchir la base de vulnérabilités NVD",
+      "description": "Vide le cache local des CVE NVD et récupère des données de vulnérabilité fraîches depuis la National Vulnerability Database."
     },
     "start_baseline_training": {
-      "name": "Demarrer l'apprentissage de baseline",
-      "description": "Demarre le mode d'apprentissage de baseline et apprend un profil d'activite normal selon la duree configuree."
+      "name": "émarrer l'apprentissage de baseline",
+      "description": "émarre le mode d'apprentissage de baseline et apprend un profil d'activité normal selon la durée configurée."
     },
     "stop_baseline_training": {
-      "name": "Arreter l'apprentissage de baseline",
-      "description": "Arrete immediatement le mode d'apprentissage de baseline et promeut l'etat appris vers la baseline active si des hotes ont ete observes."
+      "name": "Arrêter l'apprentissage de baseline",
+      "description": "Arrête immédiatement le mode d'apprentissage de baseline et promeut l'état appris vers la baseline active si des hôtes ont été observés."
     },
     "clear_baseline": {
       "name": "Effacer la baseline",
-      "description": "Supprime l'etat de baseline courant et la progression d'apprentissage du stockage persistant."
+      "description": "Supprime l'état de baseline courant et la progression d'apprentissage du stockage persistant."
     },
     "retrain_baseline": {
       "name": "Relancer l'apprentissage de baseline",
-      "description": "Efface l'etat de baseline courant et redemarre immediatement le mode d'apprentissage."
+      "description": "Efface l'état de baseline courant et redémarre immédiatement le mode d'apprentissage."
     }
   }
 }
