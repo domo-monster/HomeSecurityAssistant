@@ -1,5 +1,14 @@
 Security Assistant - Changelog
 
+0.9.2
+
+- Added sorting support for the External IPs table Internal Host column.
+- Fixed Suricata alert persistence to avoid losing alerts during unclean restart/reinstall flows.
+- Added remaining frontend UI localization coverage and settings metadata localization.
+- Updated Home Assistant translation resources (strings.json and DE/ES/IT/FR locale files).
+- Updated French README localization/docs content.
+- Bumped integration version to 0.9.2.
+
 0.9.1
 
 - Fixed the HACS add-repository deep link in README.md to the correct my.home-assistant.io redirect URL.
