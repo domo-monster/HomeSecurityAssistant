@@ -6207,7 +6207,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       { key: 'abuse',    label: this._t('external.col_abuse', 'Abuse%') },
       { key: null,        label: this._t('external.col_ports', 'Ports') },
       { key: 'direction',  label: this._t('external.col_direction', 'Direction') },
-      { key: null,         label: this._t('external.col_internal_host', 'Internal host') },
+      { key: 'internal_host', label: this._t('external.col_internal_host', 'Internal host') },
       { key: 'last_seen',  label: this._t('external.col_last_seen', 'Last seen') },
     ];
     return '<tr>' + cols.map(function(c) {
@@ -6270,6 +6270,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         va = dOrder[a.direction || 'outbound'] !== undefined ? dOrder[a.direction || 'outbound'] : 0;
         vb = dOrder[b.direction || 'outbound'] !== undefined ? dOrder[b.direction || 'outbound'] : 0;
         return (va - vb) * sortDir;
+      } else if (sortKey === 'internal_host') {
+        va = ((a.internal_sources || a.sources || []).slice().sort().join(',')).toLowerCase();
+        vb = ((b.internal_sources || b.sources || []).slice().sort().join(',')).toLowerCase();
       } else if (sortKey === 'last_seen') {
         va = a.last_seen || '';
         vb = b.last_seen || '';
