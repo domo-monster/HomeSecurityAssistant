@@ -242,6 +242,7 @@ class HomeSecCollector:
         self._timeseries_dirty: bool = False
         self._ext_state_dirty: bool = False
         self._runtime_state_last_save: datetime | None = None
+        self._suricata_log_dirty: bool = False
         self._baseline_manager = BaselineManager(
             training_hours=int(get_entry_value(entry, CONF_BASELINE_TRAINING_HOURS, DEFAULT_BASELINE_TRAINING_HOURS)),
             min_observations=int(get_entry_value(entry, CONF_BASELINE_MIN_OBSERVATIONS, DEFAULT_BASELINE_MIN_OBSERVATIONS)),
@@ -480,6 +481,7 @@ class HomeSecCollector:
             for _se in suricata_data:
                 self._suricata_log.append(_se)
             _LOGGER.info("Restored %d Suricata alert log entries", len(suricata_data))
+            self._suricata_log_dirty = False
         if self._suricata_listener is not None:
             await self._suricata_listener.async_start()
         _log_step("load suricata log and listener startup", step_started)
@@ -521,6 +523,7 @@ class HomeSecCollector:
 
     def _on_suricata_alert(self, record: dict) -> None:
         """Called when a new Suricata alert is received; fires an HA event for severity 1 alerts."""
+        self._suricata_log_dirty = True
         if record.get("severity") == 1:
             self.hass.bus.async_fire(
                 f"{DOMAIN}_suricata_alert",
@@ -1080,8 +1083,12 @@ class HomeSecCollector:
         cutoff = (
             datetime.now(timezone.utc) - timedelta(hours=self._suricata_log_retention_hours)
         ).isoformat()
+        removed = False
         while self._suricata_log and self._suricata_log[0].get("timestamp", "") < cutoff:
             self._suricata_log.popleft()
+            removed = True
+        if removed:
+            self._suricata_log_dirty = True
 
     def dns_proxy_stats(self) -> dict:
         """Return DNS proxy status stats."""
@@ -1292,7 +1299,8 @@ class HomeSecCollector:
         should_save_ext = force or self._ext_state_dirty
         should_save_enr = force or self._enricher.is_usage_state_dirty()
         should_save_baseline = force or self._baseline_manager.is_dirty
-        if not should_save_ext and not should_save_enr and not should_save_baseline:
+        should_save_suricata = force or self._suricata_log_dirty
+        if not should_save_ext and not should_save_enr and not should_save_baseline and not should_save_suricata:
             return
 
         if should_save_ext:
@@ -1312,6 +1320,12 @@ class HomeSecCollector:
                 save_baseline, self._config_dir, self._baseline_manager.export_state()
             )
             self._baseline_manager.mark_clean()
+
+        if should_save_suricata:
+            await self.hass.async_add_executor_job(
+                save_suricata_log, self._config_dir, list(self._suricata_log)
+            )
+            self._suricata_log_dirty = False
 
         self._runtime_state_last_save = now
 
