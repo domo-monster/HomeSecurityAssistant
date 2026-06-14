@@ -3732,11 +3732,19 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var sucSevLabels = { 1:this._t('suricata.sev_critical', 'Critical'), 2:this._t('suricata.sev_major', 'Major'), 3:this._t('suricata.sev_minor', 'Minor') };
     var sucSevData = [1,2,3].filter(function(s){return suricataLogStats.some(function(e){return e.severity===s;});}).map(function(s){return{label:sucSevLabels[s],value:suricataLogStats.filter(function(e){return e.severity===s;}).length};});
     var sucCatCounts = {}; var sucCatColors = [];
+    var nameMap = {};
+    ((this._data && this._data.devices) || []).forEach(function(d) {
+      nameMap[d.ip] = d.display_name || d.hostname || d.ip;
+    });
     suricataLogStats.forEach(function(e){var c=e.category||'Other';sucCatCounts[c]=(sucCatCounts[c]||0)+1;});
     var sucCatData = Object.keys(sucCatCounts).sort(function(a,b){return sucCatCounts[b]-sucCatCounts[a];}).map(function(k,i){sucCatColors.push(SUC_CAT_PALETTE[i%SUC_CAT_PALETTE.length]);return{label:k,value:sucCatCounts[k]};});
     var sucSrcCounts = {};
     suricataLogStats.forEach(function(e){var ip=e.src_ip||'unknown';sucSrcCounts[ip]=(sucSrcCounts[ip]||0)+1;});
-    var sucSrcData = Object.keys(sucSrcCounts).sort(function(a,b){return sucSrcCounts[b]-sucSrcCounts[a];}).slice(0,topN).map(function(k){return{label:k,value:sucSrcCounts[k]};});
+    var sucSrcData = Object.keys(sucSrcCounts).sort(function(a,b){return sucSrcCounts[b]-sucSrcCounts[a];}).slice(0,topN).map(function(k){
+      var name = nameMap[k] || k;
+      var label = name === k ? k : name + ' (' + k + ')';
+      return{label:label, value:sucSrcCounts[k]};
+    });
 
     // ── Timeline ─────────────────────────────────────────────────────
     var allPoints = (this._data && this._data.timeseries) || [];
@@ -4262,16 +4270,20 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var _dnsClientPieSvg = self._pieSvg(
         _dnsClientItems,
         function(x) { return x.count; },
-        function(x) { return x.ip + ': ' + x.count + ' blocked/malicious queries'; },
+        function(x) {
+          var name = nameMap[x.ip] || x.ip;
+          return name + ': ' + x.count + ' blocked/malicious queries';
+        },
         _dnsClientColors
       );
       var _dnsClientLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
         _dnsClientItems.map(function(x, i) {
           var col = _dnsClientColors[i % _dnsClientColors.length];
           var pct = Math.round((x.count / _dnsClientTotal) * 100);
+          var name = nameMap[x.ip] || x.ip;
           return '<div style="display:flex;align-items:center;gap:6px">' +
             '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + col + '"></span>' +
-            '<span class="ip" style="flex:1;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(x.ip) + '</span>' +
+            '<span class="ip" style="flex:1;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + self._esc(x.ip) + '">' + self._esc(name) + '</span>' +
             '<span style="color:var(--muted);font-variant-numeric:tabular-nums">' + x.count + ' (' + pct + '%)</span>' +
           '</div>';
         }).join('') +
@@ -4360,16 +4372,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       hostFindingsSection = '<div class="empty-state"><p style="margin:12px 0">' + this._t('stats.no_findings', 'No findings recorded yet') + '</p></div>';
     } else if (modes.host_findings === 'pie') {
       var _hfPieSvg = self._pieSvg(_hostFindItems, function(x) { return x.count; }, function(x) {
-        var d = _devicesMap[x.ip]; return ((d && (d.name || d.hostname)) || x.ip) + ': ' + x.count;
+        var name = nameMap[x.ip] || x.ip;
+        return name + ': ' + x.count;
       }, _hfColors);
       var _hfLegend = '<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">' +
         _hostFindItems.map(function(x, i) {
           var col = _hfColors[i % _hfColors.length];
-          var d = _devicesMap[x.ip];
-          var label = (d && (d.name || d.hostname)) ? (d.name || d.hostname) + ' (' + x.ip + ')' : x.ip;
+          var name = nameMap[x.ip] || x.ip;
           return '<div style="display:flex;align-items:center;gap:6px">' +
             '<span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + col + '"></span>' +
-            '<span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(label) + '</span>' +
+            '<span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + self._esc(x.ip) + '">' + self._esc(name) + '</span>' +
             '<span style="color:var(--muted)">' + x.count + '\u00a0(' + Math.round((x.count / _hostFindTotal) * 100) + '%)</span>' +
           '</div>';
         }).join('') + '</div>';
@@ -4380,7 +4392,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '</tr></thead><tbody>' +
         _hostFindItems.map(function(x, i) {
           var d = _devicesMap[x.ip];
-          var name = (d && (d.name || d.hostname)) || '';
+          var name = (d && (d.display_name || d.hostname)) || '';
           return '<tr><td style="color:var(--muted)">' + (i + 1) + '</td>' +
             '<td><span class="ip">' + self._esc(x.ip) + '</span></td>' +
             '<td>' + self._esc(name) + '</td>' +
@@ -6222,6 +6234,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var sortKey = this._extSort;
     var sortDir = this._extSortDir;
     var extIPs = ((this._data && this._data.external_ips) || []).slice();
+    var nameMap = {};
+    ((this._data && this._data.devices) || []).forEach(function(d) {
+      nameMap[d.ip] = d.display_name || d.hostname || d.ip;
+    });
     if (q) {
       extIPs = extIPs.filter(function(e) {
         return (e.ip || '').indexOf(q) >= 0 ||
@@ -6230,7 +6246,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           (e.org || e.asn || '').toLowerCase().indexOf(q) >= 0 ||
           (e.rating || '').toLowerCase().indexOf(q) >= 0 ||
           (e.direction || '').toLowerCase().indexOf(q) >= 0 ||
-          (e.internal_sources || []).some(function(s) { return s.indexOf(q) >= 0; }) ||
+          (e.internal_sources || []).some(function(s) {
+            return s.indexOf(q) >= 0 || (nameMap[s] && nameMap[s].toLowerCase().indexOf(q) >= 0);
+          }) ||
           (e.dst_ports || []).some(function(p) { return String(p).indexOf(q) >= 0; });
       });
     }
@@ -6271,8 +6289,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         vb = dOrder[b.direction || 'outbound'] !== undefined ? dOrder[b.direction || 'outbound'] : 0;
         return (va - vb) * sortDir;
       } else if (sortKey === 'internal_host') {
-        va = ((a.internal_sources || a.sources || []).slice().sort().join(',')).toLowerCase();
-        vb = ((b.internal_sources || b.sources || []).slice().sort().join(',')).toLowerCase();
+        va = (a.internal_sources || a.sources || []).map(function(s) { return nameMap[s] || s; }).sort().join(',').toLowerCase();
+        vb = (b.internal_sources || b.sources || []).map(function(s) { return nameMap[s] || s; }).sort().join(',').toLowerCase();
       } else if (sortKey === 'last_seen') {
         va = a.last_seen || '';
         vb = b.last_seen || '';
@@ -6314,6 +6332,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     extIPs = extIPs.slice(start, start + this._extPageSize);
     if (!extIPs.length) return '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">\uD83D\uDD0D</div><p>' + this._t('external.no_match', 'No external IPs match the filter') + '</p></div></td></tr>';
     var self = this;
+    var nameMap = {};
+    ((this._data && this._data.devices) || []).forEach(function(d) {
+      nameMap[d.ip] = d.display_name || d.hostname || d.ip;
+    });
     return extIPs.map(function(e) {
       var rating = e.rating || (e.blacklisted ? 'malicious' : '');
       var vt = e.vt_malicious != null
@@ -6338,7 +6360,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           : '<span style="color:#34d399;font-size:11px">' + self._t('external.direction_outbound', '↑ Outbound') + '</span>';
       var sources = e.internal_sources || e.sources || [];
       var sourcesHtml = sources.length
-        ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
+        ? sources.map(function(s) {
+            var name = nameMap[s] || s;
+            return '<span class="ip-chip" title="' + self._esc(s) + '">' + self._esc(name) + '</span>';
+          }).join(' ')
         : '<span class="dim">\u2014</span>';
       var ratingHtml = rating ? self._ratingWithSource(rating, e.rating_source) : '<span class="dim">\u2014</span>';
       var countryFlag = self._countryFlag(e.country);
@@ -6743,6 +6768,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var e = this._extIPDetail;
     if (!e) return '';
     var self = this;
+    var nameMap = {};
+    ((this._data && this._data.devices) || []).forEach(function(d) {
+      nameMap[d.ip] = d.display_name || d.hostname || d.ip;
+    });
     var ip = e.ip || '';
     var isLooking = self._lookupIP === ip && self._lookingUp;
     var enriched = (self._lookupResult && self._lookupIP === ip) ? self._lookupResult : null;
@@ -6785,7 +6814,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
     var sources = e.internal_sources || e.sources || [];
     var sourcesHtml = sources.length
-      ? sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ')
+      ? sources.map(function(s) {
+          var name = nameMap[s] || s;
+          return '<span class="ip-chip" title="' + self._esc(s) + '">' + self._esc(name) + '</span>';
+        }).join(' ')
       : '\u2014';
 
     var trafficKb = ((e.total_octets || 0) / 1024).toFixed(1) + ' KB';
