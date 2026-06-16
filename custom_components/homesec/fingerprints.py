@@ -168,6 +168,14 @@ class HomeSecurityAnalyzer:
                     last_seen=str(scan_data.get("last_scan", "")),
                 )
 
+        # Ensure devices enriched from Home Assistant trackers also have a profile
+        for ip in enrichment_by_ip:
+            if ip not in self._devices:
+                self._devices[ip] = DeviceProfile(
+                    ip=ip,
+                    last_seen="",
+                )
+
         # Apply scan data to profiles
         for ip, device in self._devices.items():
             scan_data = scan_by_ip.get(ip)
