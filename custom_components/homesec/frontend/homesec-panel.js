@@ -5567,8 +5567,8 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
 
   _viewHosts() {
-    var aliveDevices = ((this._data && this._data.devices) || []).filter(function(d) { return d.alive; });
-    var cnt = aliveDevices.length;
+    var displayDevices = ((this._data && this._data.devices) || []).filter(function(d) { return d.alive || d.enriched; });
+    var cnt = displayDevices.length;
     return '<div>' +
       '<div class="view-header"><h1>' + this._t('hosts.page_title', 'Network Hosts') + ' <span class="dim">(' + cnt + ' ' + this._t('hosts.alive_suffix', 'alive') + ')</span></h1>' +
       '<input id="hsa-host-filter" class="search-bar" type="search" placeholder="' + this._esc(this._t('hosts.filter_placeholder', 'Filter by IP, name, role…')) + '" value="' + this._esc(this._hostFilter) + '"></div>' +
@@ -5584,7 +5584,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var colCount = netflowEnabled ? 8 : 7;
     var q = this._hostFilter.toLowerCase();
     var devices = (this._data && this._data.devices || []).filter(function(d) {
-      if (!d.alive) return false;
+      if (!d.alive && !d.enriched) return false;
       return !q || (d.ip || '').indexOf(q) >= 0 ||
         (d.display_name || '').toLowerCase().indexOf(q) >= 0 ||
         (d.hostname || '').toLowerCase().indexOf(q) >= 0 ||

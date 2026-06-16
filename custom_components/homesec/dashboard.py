@@ -774,11 +774,11 @@ def _build_recommendations(
 ) -> list[dict[str, str]]:
     recommendations: list[dict[str, str]] = []
     finding_categories = {finding.get("category") for finding in findings}
-    # Use only alive devices for role/enrichment counts so the numbers match
-    # the Hosts table, which also filters to alive=True only.
-    alive_devices = [d for d in devices if d.get("alive")]
-    unknown_devices = sum(1 for device in alive_devices if device.get("probable_role") == "unknown")
-    tracker_enriched = sum(1 for device in alive_devices if device.get("enriched"))
+    # Use devices that are alive or enriched from HA trackers to match
+    # the Hosts view filtering.
+    active_devices = [d for d in devices if d.get("alive") or d.get("enriched")]
+    unknown_devices = sum(1 for device in active_devices if device.get("probable_role") == "unknown")
+    tracker_enriched = sum(1 for device in active_devices if device.get("enriched"))
     at_risk_count = sum(1 for device in devices if device.get("at_risk"))
 
     # ── helpers ──────────────────────────────────────────────────────────
@@ -867,7 +867,7 @@ def _build_recommendations(
         )
     if "suspicious_port" in finding_categories:
         sp_findings = [_finding_ref(f) for f in findings if f.get("category") == "suspicious_port"]
-        sp_hosts = [_device_ref(d) for d in alive_devices if d.get("ip") in {f["source_ip"] for f in sp_findings}]
+        sp_hosts = [_device_ref(d) for d in active_devices if d.get("ip") in {f["source_ip"] for f in sp_findings}]
         recommendations.append(
             {
                 "title": "Restrict risky outbound ports",
@@ -880,7 +880,7 @@ def _build_recommendations(
         )
     if "port_scan" in finding_categories:
         ps_findings = [_finding_ref(f) for f in findings if f.get("category") == "port_scan"]
-        ps_hosts = [_device_ref(d) for d in alive_devices if d.get("ip") in {f["source_ip"] for f in ps_findings}]
+        ps_hosts = [_device_ref(d) for d in active_devices if d.get("ip") in {f["source_ip"] for f in ps_findings}]
         recommendations.append(
             {
                 "title": "Isolate scanning hosts",
@@ -893,7 +893,7 @@ def _build_recommendations(
         )
     if "high_egress" in finding_categories:
         he_findings = [_finding_ref(f) for f in findings if f.get("category") == "high_egress"]
-        he_hosts = [_device_ref(d) for d in alive_devices if d.get("ip") in {f["source_ip"] for f in he_findings}]
+        he_hosts = [_device_ref(d) for d in active_devices if d.get("ip") in {f["source_ip"] for f in he_findings}]
         recommendations.append(
             {
                 "title": "Review high egress devices",
@@ -905,7 +905,7 @@ def _build_recommendations(
             }
         )
     if unknown_devices > 0:
-        unknown_refs = [_device_ref(d) for d in alive_devices if d.get("probable_role") == "unknown"]
+        unknown_refs = [_device_ref(d) for d in active_devices if d.get("probable_role") == "unknown"]
         recommendations.append(
             {
                 "title": "Improve device identity coverage",
@@ -916,8 +916,8 @@ def _build_recommendations(
                 "findings_refs": [],
             }
         )
-    if alive_devices and tracker_enriched == 0:
-        unenriched = [_device_ref(d) for d in alive_devices if not d.get("enriched")]
+    if active_devices and tracker_enriched == 0:
+        unenriched = [_device_ref(d) for d in active_devices if not d.get("enriched")]
         recommendations.append(
             {
                 "title": "Enable device tracker enrichment",
