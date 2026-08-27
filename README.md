@@ -3,7 +3,7 @@
 </p>
 
 
-[![Forum](https://img.shields.io/badge/Forum-Home%20Assistant-41BDF5?style=flat-square)](https://forum.hacf.fr/t/integration-posture-securite-du-reseau-informatique-domestique/78744/102) [![Forum](https://img.shields.io/badge/Forum-Home%20Assistant-41BDF5?style=flat-square)](https://community.home-assistant.io/t/custom-component-security-posture/1005268)) [![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/domo.monster)
+[![Forum FR](https://img.shields.io/badge/Forum-Home%20Assistant-41BDF5?style=flat-square)](https://forum.hacf.fr/t/integration-posture-securite-du-reseau-informatique-domestique/78744/102) [![Forum EN](https://img.shields.io/badge/Forum-Home%20Assistant-41BDF5?style=flat-square)](https://community.home-assistant.io/t/custom-component-security-posture/1005268) [![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/domo.monster)
 
 # Security Assistant
 
