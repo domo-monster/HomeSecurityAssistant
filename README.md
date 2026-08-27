@@ -2,6 +2,14 @@
   <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/brand/logo%402x.png" alt="Security Assistant" width="200">
 </p>
 
+[![Test](https://github.com/domo-monster/HomeSecurityAssistant/actions/workflows/test.yml/badge.svg)](https://github.com/domo-monster/HomeSecurityAssistant/actions)
+
+[![Forum](https://img.shields.io/badge/Forum-Home%20Assistant-41BDF5?style=flat-square)](https://forum.hacf.fr/t/integration-posture-securite-du-reseau-informatique-domestique/78744/102)
+
+[![Forum](https://img.shields.io/badge/Forum-Home%20Assistant-41BDF5?style=flat-square)](https://community.home-assistant.io/t/custom-component-security-posture/1005268))
+
+[![Donate](https://img.shields.io/badge/Donate-Buy%20Me%20a%20Coffee-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/domo.monster)
+
 # Security Assistant
 
 Security Assistant is a custom Home Assistant integration that provides real-time network security monitoring for your home. It combines passive NetFlow/IPFIX traffic analysis with active network scanning, external IP threat intelligence, DNS blacklist checks, and vulnerability detection — all presented through a dedicated multi-view sidebar dashboard.
