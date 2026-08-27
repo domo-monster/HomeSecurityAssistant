@@ -456,6 +456,20 @@ homesec_dismissed.yaml — the first time you dismiss a finding in the Findings 
 homesec_dns_log.yaml / homesec_ext_ips.yaml / homesec_timeseries.yaml — after corresponding runtime data is produced
 homesec_baseline.yaml — after the first baseline training cycle completes or when training is stopped manually
 
+## ☕ Support Home Security Assistant
+
+If you find **Home Security Assistant** useful and would like to support its continued development, you can buy me a coffee.
+
+<a href="https://www.buymeacoffee.com/domo.monster" target="_blank">
+  <img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png"
+       alt="Buy Me A Coffee"
+       style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190,190,190,0.5) !important;">
+</a>
+
+Your support helps with the time and resources required to develop, test, and maintain this integration. ❤️
+
+**Donations are completely optional — Home Security Assistant will always remain free and open source.**
+
 ## FAQ
 
 ### Why does the CISA KEV match count seem low?
