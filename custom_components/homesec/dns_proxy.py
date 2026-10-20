@@ -22,8 +22,9 @@ A query arriving from a LAN client is processed as follows:
 Notes
 -----
 * No caching is done here — the upstream resolver is expected to handle that.
-* EDNS0 / TCP fallback is NOT supported; TCP DNS is out of scope for this
-  simple proxy.
+* Queries are accepted over UDP and TCP (RFC 7766), on IPv4 and, when bound
+  to 0.0.0.0, also on IPv6.  TCP queries are forwarded to the upstream over
+  TCP, so truncated UDP answers can be retried by clients.
 * PTR (reverse DNS) queries are forwarded and logged like any other query;
   they are not blacklist-checked (qnames are in-addr.arpa form).
 """
@@ -385,6 +386,56 @@ class _UpstreamProtocol(asyncio.DatagramProtocol):
             self._timeout_handle = None
 
 
+_TCP_IDLE_TIMEOUT_SECONDS = 10.0
+_MAX_TCP_CONNECTIONS = 64
+
+
+async def _read_tcp_message(reader: asyncio.StreamReader, timeout: float) -> bytes | None:
+    """Read one length-prefixed DNS message (RFC 1035 §4.2.2); None on EOF/timeout."""
+    try:
+        header = await asyncio.wait_for(reader.readexactly(2), timeout=timeout)
+        (length,) = struct.unpack("!H", header)
+        if length == 0:
+            return None
+        return await asyncio.wait_for(reader.readexactly(length), timeout=timeout)
+    except (asyncio.TimeoutError, asyncio.IncompleteReadError, ConnectionError):
+        return None
+
+
+def _frame_tcp_message(message: bytes) -> bytes:
+    return struct.pack("!H", len(message)) + message
+
+
+async def _forward_tcp(query: bytes, upstream: tuple[str, int], entry: dict) -> bytes:
+    """Relay *query* to *upstream* over TCP and return the raw response.
+
+    Returns a SERVFAIL response when the upstream is unreachable or slow.
+    """
+    writer: asyncio.StreamWriter | None = None
+    try:
+        reader, writer = await asyncio.wait_for(
+            asyncio.open_connection(upstream[0], upstream[1]),
+            timeout=_UPSTREAM_TIMEOUT_SECONDS,
+        )
+        writer.write(_frame_tcp_message(query))
+        await writer.drain()
+        response = await _read_tcp_message(reader, _UPSTREAM_TIMEOUT_SECONDS)
+    except (OSError, asyncio.TimeoutError) as exc:
+        _LOGGER.debug("DNS proxy TCP upstream error: %s", exc)
+        response = None
+    finally:
+        if writer is not None:
+            writer.close()
+    if not response:
+        entry["rcode"] = "SERVFAIL"
+        return _build_servfail_response(query)
+    entry["rcode"] = _parse_rcode(response)
+    answer = _parse_first_answer(response)
+    if answer:
+        entry["answer"] = answer
+    return response
+
+
 class DNSProxyProtocol(asyncio.DatagramProtocol):
     """asyncio UDP DatagramProtocol — one instance per bound DNS proxy socket."""
 
@@ -417,6 +468,10 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
     def connection_made(self, transport: asyncio.DatagramTransport) -> None:
         self._transport = transport
 
+    @property
+    def total_queries(self) -> int:
+        return self._total_queries
+
     def datagram_received(self, data: bytes, addr: tuple) -> None:
         task = asyncio.ensure_future(self._handle(data, addr))
         task.add_done_callback(self._on_handle_done)
@@ -431,8 +486,14 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 exc, exc_info=exc,
             )
 
-    async def _handle(self, data: bytes, addr: tuple) -> None:
-        src_ip = str(addr[0])
+    def evaluate(self, data: bytes, src_ip: str) -> tuple[bytes | None, dict | None]:
+        """Decide how to answer one query (transport independent).
+
+        Returns ``(response, None)`` when the proxy answers locally (refused,
+        override, blocked) or ``(None, log_entry)`` when the query must be
+        forwarded upstream; the caller fills ``rcode``/``answer`` in the
+        entry once the upstream reply arrives.
+        """
         self._total_queries += 1
         if self._allowed_networks is not None:
             try:
@@ -453,11 +514,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                     "answer": None,
                 }
                 self._dns_log.append(entry)
-                if self._transport and not self._transport.is_closing():
-                    resp = _build_refused_response(data)
-                    if resp:
-                        self._transport.sendto(resp, addr)
-                return
+                return _build_refused_response(data), None
 
         question = _parse_dns_question(data)
         qname = question[0] if question else ""
@@ -480,11 +537,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 "answer": override_ip,
             }
             self._dns_log.append(entry)
-            if self._transport and not self._transport.is_closing():
-                resp = _build_override_response(data, override_ip, qtype)
-                if resp:
-                    self._transport.sendto(resp, addr)
-            return
+            return _build_override_response(data, override_ip, qtype), None
 
         if qname and not qname.endswith(".in-addr.arpa") and not qname.endswith(".ip6.arpa"):
             checker_stats = self._checker.stats()
@@ -537,12 +590,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._dns_log.append(entry)
 
         if blocked:
-            # Send NXDOMAIN FIRST, before any callbacks that could raise and
-            # prevent the block from taking effect.
-            if self._transport and not self._transport.is_closing():
-                block_resp = _build_block_response(data)
-                if block_resp:
-                    self._transport.sendto(block_resp, addr)
+            block_resp = _build_block_response(data)
             entry["rcode"] = "NXDOMAIN"
             if self._warn_blocked_logs:
                 _LOGGER.warning(
@@ -556,13 +604,26 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                     self._on_malicious(src_ip, qname, qtype, hit)
                 except Exception as exc:  # noqa: BLE001
                     _LOGGER.error("HomeSec DNS proxy: on_malicious callback error: %s", exc)
-            return
+            return block_resp, None
 
-        # Forward to upstream (round-robin across configured upstreams)
+        return None, entry
+
+    def next_upstream(self) -> tuple[str, int]:
+        """Return the next upstream resolver (round-robin)."""
+        upstream = self._upstreams[self._upstream_idx % len(self._upstreams)]
+        self._upstream_idx += 1
+        return upstream
+
+    async def _handle(self, data: bytes, addr: tuple) -> None:
+        response, entry = self.evaluate(data, str(addr[0]))
         if self._transport is None or self._transport.is_closing():
             return
-        upstream_host, upstream_port = self._upstreams[self._upstream_idx % len(self._upstreams)]
-        self._upstream_idx += 1
+        if entry is None:
+            # Answered locally (sent before any slow work so blocks always apply)
+            if response:
+                self._transport.sendto(response, addr)
+            return
+        upstream_host, upstream_port = self.next_upstream()
         try:
             loop = asyncio.get_running_loop()
             await loop.create_datagram_endpoint(
@@ -570,7 +631,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 remote_addr=(upstream_host, upstream_port),
             )
         except Exception as exc:
-            _LOGGER.debug("DNS proxy forward error for %s: %s", qname, exc)
+            _LOGGER.debug("DNS proxy forward error for %s: %s", entry.get("domain"), exc)
 
     def error_received(self, exc: Exception) -> None:
         _LOGGER.debug("DNS proxy socket error: %s", exc)
@@ -609,7 +670,10 @@ class DNSProxyServer:
         self._blocked_categories = blocked_categories
         self._warn_blocked_logs = bool(warn_blocked_logs)
         self._overrides: dict[str, str] = self._parse_overrides(overrides_raw)
-        self._transport: asyncio.DatagramTransport | None = None
+        self._transports: list[asyncio.DatagramTransport] = []
+        self._tcp_servers: list[asyncio.AbstractServer] = []
+        self._tcp_clients = 0
+        self._protocols: list[DNSProxyProtocol] = []
         self._protocol: DNSProxyProtocol | None = None
         self._running = False
 
@@ -652,69 +716,141 @@ class DNSProxyServer:
             if rbracket != -1 and rbracket + 1 < len(upstream) and upstream[rbracket + 1] == ":":
                 return upstream[1:rbracket], int(upstream[rbracket + 2:])
             return upstream[1:upstream.find("]")] if rbracket != -1 else upstream, 53
+        # Bare IPv6 literal (several colons, no brackets): default port
+        if upstream.count(":") > 1:
+            return upstream, 53
         # IPv4 or hostname with port: 1.1.1.1:53
         if ":" in upstream:
             host, _, port = upstream.rpartition(":")
             return host, int(port)
         return upstream, 53
 
+    def _bind_hosts(self) -> list[str]:
+        """Addresses to listen on: the configured host, plus IPv6 any for 0.0.0.0."""
+        if self._host == "0.0.0.0":
+            return ["0.0.0.0", "::"]
+        return [self._host]
+
+    def _bind_udp(self, host: str) -> socket.socket:
+        family = socket.AF_INET6 if ":" in host else socket.AF_INET
+        sock = socket.socket(family, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if family == socket.AF_INET6 and hasattr(socket, "IPV6_V6ONLY"):
+            sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+        try:
+            sock.bind((host, self._port))
+        except OSError:
+            sock.close()
+            raise
+        sock.setblocking(False)
+        return sock
+
+    def _new_protocol(self) -> DNSProxyProtocol:
+        return DNSProxyProtocol(
+            self._upstreams,
+            self._checker,
+            self._dns_log,
+            self._on_malicious,
+            self._check_sources,
+            self._allowed_networks,
+            self._blocked_categories,
+            self._warn_blocked_logs,
+            self._overrides,
+        )
+
     async def async_start(self) -> None:
         loop = asyncio.get_running_loop()
-        try:
-            proto = DNSProxyProtocol(
-                self._upstreams,
-                self._checker,
-                self._dns_log,
-                self._on_malicious,
-                self._check_sources,
-                self._allowed_networks,
-                self._blocked_categories,
-                self._warn_blocked_logs,
-                self._overrides,
-            )
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        for index, host in enumerate(self._bind_hosts()):
+            # One protocol per socket: each keeps the transport it answers on.
+            proto = self._new_protocol()
+            # The first address is the configured one and must bind; the
+            # implicit IPv6 companion is best effort (host may lack IPv6).
             try:
-                sock.bind((self._host, self._port))
-            except OSError as bind_exc:
-                sock.close()
-                _LOGGER.error(
-                    "HomeSec DNS proxy could not bind %s:%d — %s. "
-                    "Check whether another service (e.g. systemd-resolved or AdGuard) "
-                    "already owns port %d, or change dns_proxy_port in integration options.",
-                    self._host, self._port, bind_exc, self._port,
+                sock = self._bind_udp(host)
+                transport, _ = await loop.create_datagram_endpoint(lambda: proto, sock=sock)
+            except OSError as exc:
+                if index == 0:
+                    _LOGGER.error(
+                        "HomeSec DNS proxy could not bind %s:%d — %s. "
+                        "Check whether another service (e.g. systemd-resolved or AdGuard) "
+                        "already owns port %d, or change dns_proxy_port in integration options.",
+                        host, self._port, exc, self._port,
+                    )
+                    await self.async_stop()
+                    return
+                _LOGGER.debug("HomeSec DNS proxy: IPv6 UDP bind on %s skipped: %s", host, exc)
+                continue
+            self._transports.append(transport)
+            self._protocols.append(proto)
+        # TCP clients share a separate protocol instance (no UDP transport).
+        self._protocol = self._new_protocol()
+        self._running = True
+
+        for host in self._bind_hosts():
+            try:
+                server = await asyncio.start_server(
+                    self._handle_tcp_client, host, self._port, reuse_address=True
                 )
-                return
-            sock.setblocking(False)
-            transport, _ = await loop.create_datagram_endpoint(
-                lambda: proto,
-                sock=sock,
-            )
-            self._transport = transport
-            self._protocol = proto
-            self._running = True
-            _LOGGER.info(
-                "HomeSec DNS proxy listening on %s:%d → upstream(s) %s",
-                self._host, self._port,
-                ", ".join(f"{h}:{p}" for h, p in self._upstreams),
-            )
-            if self._host == "0.0.0.0" and self._allowed_networks is None:
+            except OSError as exc:
                 _LOGGER.warning(
-                    "HomeSec DNS proxy is bound to 0.0.0.0 with no source ACL. "
-                    "Set dns_proxy_bind_host or internal networks to avoid open-resolver exposure."
+                    "HomeSec DNS proxy: TCP listener on %s:%d unavailable (%s); "
+                    "clients retrying truncated answers over TCP will fail",
+                    host, self._port, exc,
                 )
-        except OSError as exc:
-            _LOGGER.error(
-                "HomeSec DNS proxy could not bind %s:%d — %s. "
-                "Check whether another service (e.g. systemd-resolved or AdGuard) "
-                "already owns port %d, or change dns_proxy_port in integration options.",
-                self._host, self._port, exc, self._port,
+                continue
+            self._tcp_servers.append(server)
+
+        _LOGGER.info(
+            "HomeSec DNS proxy listening on %s:%d (UDP%s) → upstream(s) %s",
+            self._host, self._port,
+            "+TCP" if self._tcp_servers else "",
+            ", ".join(f"{h}:{p}" for h, p in self._upstreams),
+        )
+        if self._host == "0.0.0.0" and self._allowed_networks is None:
+            _LOGGER.warning(
+                "HomeSec DNS proxy is bound to 0.0.0.0 with no source ACL. "
+                "Set dns_proxy_bind_host or internal networks to avoid open-resolver exposure."
             )
 
+    async def _handle_tcp_client(
+        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+    ) -> None:
+        peer = writer.get_extra_info("peername") or ("", 0)
+        if self._protocol is None or self._tcp_clients >= _MAX_TCP_CONNECTIONS:
+            writer.close()
+            return
+        self._tcp_clients += 1
+        try:
+            while True:
+                query = await _read_tcp_message(reader, _TCP_IDLE_TIMEOUT_SECONDS)
+                if query is None:
+                    break
+                response, entry = self._protocol.evaluate(query, str(peer[0]))
+                if entry is not None:
+                    response = await _forward_tcp(query, self._protocol.next_upstream(), entry)
+                if not response:
+                    break
+                writer.write(_frame_tcp_message(response))
+                await writer.drain()
+        except (ConnectionError, OSError):
+            pass
+        finally:
+            self._tcp_clients -= 1
+            writer.close()
+
     async def async_stop(self) -> None:
-        if self._transport is not None:
-            self._transport.close()
-            self._transport = None
+        for transport in self._transports:
+            transport.close()
+        self._transports = []
+        for server in self._tcp_servers:
+            server.close()
+        for server in self._tcp_servers:
+            try:
+                await server.wait_closed()
+            except Exception:  # noqa: BLE001
+                pass
+        self._tcp_servers = []
+        self._protocols = []
         self._protocol = None
         self._running = False
 
@@ -723,11 +859,15 @@ class DNSProxyServer:
         return self._running
 
     def stats(self) -> dict:
-        total = self._protocol._total_queries if self._protocol is not None else 0
+        protocols = list(self._protocols)
+        if self._protocol is not None:
+            protocols.append(self._protocol)
+        total = sum(proto.total_queries for proto in protocols)
         return {
             "running": self._running,
             "host": self._host,
             "port": self._port,
             "upstream": ", ".join(f"{h}:{p}" for h, p in self._upstreams),
             "total_queries": total,
+            "tcp": bool(self._tcp_servers),
         }

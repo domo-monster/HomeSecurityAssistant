@@ -96,9 +96,18 @@ Wichtige Hinweise
 - Die Qualitat der externen Anreicherung hangt von optionalen API-Schlusseln ab.
 
 Persistente Dateien
-Die Integration speichert Zustand und Konfiguration als YAML in /config,
-einschliesslich homesec.yaml, homesec_hosts.yaml, homesec_dns_log.yaml,
-homesec_ext_ips.yaml, homesec_baseline.yaml und weiterer Dateien.
+Seit 0.10.0 wird der Zustand im Home-Assistant-Speicher (.storage/homesec.*)
+mit atomaren Schreibvorgaengen abgelegt. Alte homesec_*.yaml-Dateien werden beim
+ersten Start importiert und danach geloescht; homesec.yaml (enthielt API-Schluessel
+im Klartext) wird in den Konfigurationseintrag uebernommen und geloescht.
+
+Sicherheit
+- "Erlaubte NetFlow-Exporter" setzen (Adresse des Routers).
+- Fuer Suricata ein Auth-Token und/oder erlaubte Quellen setzen und das Skript
+  mit demselben Token starten:
+  HSA_SURICATA_TOKEN='token' python3 suricata_pusher.py --ha-host <HA_IP>
+- Jede Aenderung (Einstellungen, Befunde ausblenden, Umbenennen) erfordert einen
+  Home-Assistant-Administrator.
 
 Versionsverlauf
 - Siehe changelog.txt in diesem Repository.

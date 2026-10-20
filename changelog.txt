@@ -1,5 +1,45 @@
 Security Assistant - Changelog
 
+0.10.0
+
+Security
+- Fixed stored XSS: Suricata alert fields (notably signature_id) and external hostnames/ISP names could inject script into the panel. All panel output is now escaped and Suricata fields are type-checked and length-limited server-side; stored alerts from older versions are re-validated on load.
+- Suricata listener: optional shared auth token (suricata_pusher.py --token / HSA_SURICATA_TOKEN) and allowed-source list, connection cap, receive-time timestamps, bounded log.
+- NetFlow listener: optional exporter allowlist; template cache capped per exporter.
+- Every /api/homesec endpoint now checks permissions: changes always require an admin; reads require an admin unless "Sidebar panel requires admin" is off.
+- Regex dismiss runs off the event loop.
+- Settings are validated (types, ranges, IPs/CIDRs, HTTPS-only URLs) before they are saved; invalid stored values no longer stop the integration from loading.
+- API keys are no longer written to /config/homesec.yaml.
+- Threat-intel blocklists are swapped in atomically; a failed download keeps the previous entries instead of disabling blocking.
+- GitHub Actions pinned to commit SHAs; Dependabot added.
+
+Home Assistant integration
+- State moved from /config/homesec_*.yaml to Home Assistant storage (.storage/homesec.*) with atomic, batched writes. Old files are migrated once and deleted.
+- homesec_malicious_ip and homesec_critical_vulnerability events now fire once per new occurrence instead of every 30 seconds.
+- Uses entry.runtime_data, single_config_entry, services registered once, entry-scoped background tasks; stored data is deleted when the integration is removed.
+- Settings changes apply in place when possible, otherwise trigger one reload (previously both ran at once).
+- Options flow no longer wipes settings made in the panel; setup/options validate host and networks.
+- Removed unused requirements (python-dateutil, cachetools); minimum Home Assistant 2025.1.0.
+
+Performance
+- Dashboard API returns the latest 2,000 DNS/Suricata log entries (paginated) and no longer duplicates the whole state; chart state is written only when it changes.
+- Coordinator data no longer carries the full logs; baseline and timeseries no longer rescan the whole DNS log every refresh.
+- Bounded memory: DNS/Suricata logs (10,000), devices (2,048), peers per device, external IPs (10,000), enrichment and reverse-DNS caches (5,000).
+
+Fixes
+- blacklist_refresh no longer stops reverse DNS and periodic blocklist refreshes.
+- VirusTotal is used when it is the only reputation key configured.
+- A failed NVD fetch no longer empties CVE coverage for 12 hours.
+- DNS proxy answers over TCP and IPv6 (truncated UDP answers can now be retried); bare IPv6 upstreams parse correctly.
+- Baseline training no longer counts the same DNS queries on every refresh.
+- Idle devices expire by local receive time, not the exporter's clock.
+
+Branding
+- Brand images ship in custom_components/homesec/brand (Home Assistant 2026.3+). The HACS 2.0.x store cannot show local brand icons; Home Assistant 2026.11 (Marketplace) does.
+
+Tests
+- Added pytest suite (config flow, setup/unload, migration, API access, end-to-end traffic, parser fuzzing with Hypothesis) and Node panel escaping tests; new Tests workflow.
+
 0.9.2
 
 - Added sorting support for the External IPs table Internal Host column.

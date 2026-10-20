@@ -734,10 +734,15 @@ class NetworkScanner:
         self._last_scan_hosts: int | None = None
         self._last_scan_status: str | None = None
         self._last_scan_targets: int | None = None
+        self._scan_lock = asyncio.Lock()
 
-    def add_observed_ips(self, ips: Iterable[str]) -> None:
-        """Register IPs seen from netflow so the scanner knows what to probe."""
-        self._known_ips.update(ips)
+    def set_observed_ips(self, ips: Iterable[str]) -> None:
+        """Replace the set of IPs seen via NetFlow that the scanner should probe.
+
+        Replacing (rather than accumulating) keeps the target list bounded by
+        the analyzer's own device cap and idle expiry.
+        """
+        self._known_ips = set(ips)
 
     def get_scan_targets(self) -> list[str]:
         """Build list of IPs to scan: union of known IPs and small subnet enumeration.
@@ -814,7 +819,11 @@ class NetworkScanner:
         return self._last_scan_targets
 
     async def _run_scan(self) -> dict[str, object]:
-        """Execute one full scan cycle and return a short status payload."""
+        """Execute one full scan cycle (never two at once) and return a status payload."""
+        async with self._scan_lock:
+            return await self._run_scan_locked()
+
+    async def _run_scan_locked(self) -> dict[str, object]:
         targets = self.get_scan_targets()
         if not targets:
             now = datetime.now(UTC)

@@ -11,6 +11,14 @@
           "internal_networks": "Internal networks (comma-separated CIDRs, e.g. 192.168.0.0/16,10.0.0.0/8)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Enter a valid IP address (e.g. 0.0.0.0)",
+      "invalid_networks": "Enter one or more valid CIDR ranges separated by commas"
+    },
+    "abort": {
+      "already_configured": "Security Assistant is already configured",
+      "single_instance_allowed": "Security Assistant is already configured"
     }
   },
   "options": {
@@ -25,6 +33,10 @@
           "internal_networks": "Internal networks (comma-separated CIDRs)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Enter a valid IP address (e.g. 0.0.0.0)",
+      "invalid_networks": "Enter one or more valid CIDR ranges separated by commas"
     }
   },
   "services": {

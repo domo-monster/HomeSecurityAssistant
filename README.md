@@ -85,7 +85,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - **Three modes**: `Disabled` (no baseline), `Learning` (actively training), `Active` (baseline ready, anomaly detection enabled)
 - **Confidence scoring** — baseline is rated `low`, `medium`, or `high` based on the number of hosts and training snapshots observed
 - **Anomaly detection** — once active, flags deviations from the baseline as findings: new internal hosts, new external peers, newly opened ports, new DNS domain categories, and egress volume spikes (configurable multiplier)
-- **Persistent baseline** — learned state is saved to `homesec_baseline.yaml` and survives restarts and component updates
+- **Persistent baseline** — learned state is saved in Home Assistant storage (`.storage/homesec.baseline`) and survives restarts and component updates
 - **Network Map integration** — the Network Map gains two extra view modes: **Baseline Snapshot** (the learned graph) and **Live vs Baseline** (overlay comparison highlighting new edges in a distinct colour)
 - Controlled via four HA services: `start_baseline_training`, `stop_baseline_training`, `retrain_baseline`, and `clear_baseline`, all callable from Developer Tools → Actions or automations
 - **Overview card** — a new Baseline card in the Overview shows current mode, training progress (elapsed / remaining time), baseline creation age, confidence level, and quick-action buttons
@@ -106,6 +106,13 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - **Suricata EVE alert listener** — Home Security Assistant can receive Suricata alert events over TCP and ingest them into the sidebar dashboard and alert log.
 - **Companion pusher script** — the included `suricata_pusher.py` script tails Suricata's EVE JSON alert file and streams each alert line to the listener.
 - **Alert visibility** — Suricata alerts are shown in the sidebar dashboard and are persisted with the other runtime logs so they survive restarts.
+- **Securing the listener** — anyone who can reach the listener port can submit alerts, so set an **auth token** and/or **allowed pusher sources** in *Settings → Suricata Alert Listener*. Then start the pusher with the same token (the environment variable keeps it out of `ps` output):
+
+  ```sh
+  HSA_SURICATA_TOKEN='your-token' python3 suricata_pusher.py --ha-host 192.168.1.10 --ha-port 6343
+  ```
+
+  Every received field is type-checked and length-limited, and the stored timestamp is the time Home Assistant received the alert (the sensor's own timestamp is kept as `event_timestamp`).
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_suricata_ov.png" alt="Suricata overview" width="600">
@@ -203,6 +210,8 @@ The dashboard auto-refreshes every 30 seconds. The network map updates live with
 ### Brand Icons
 Custom integration icons (including dark mode variants) are shipped in the `brand/` subdirectory of the component. Home Assistant 2026.3+ automatically serves them through the local brands API — no external CDN or brands repository submission required.
 
+The `brands.home-assistant.io` CDN no longer hosts custom integrations, so `https://brands.home-assistant.io/_/homesec/...` returns "icon not available" by design. The HACS (2.0.x) store and search look icons up there and therefore show a placeholder for every integration that ships local brand images; this is fixed in the Marketplace integration that replaces HACS in Home Assistant 2026.11. Inside Home Assistant (Settings → Devices & services) the icon already shows on 2026.3+.
+
 ## Sensors
 
 | Sensor | Description |
@@ -262,6 +271,7 @@ Device tracker enrichment is automatic — if you have router or presence integr
 |---|---|---|
 | Bind host | `0.0.0.0` | UDP listen address |
 | Bind port | `2055` | UDP listen port |
+| Allowed NetFlow exporters | _(empty)_ | Comma-separated IPs/CIDRs allowed to send flows (e.g. your router). Empty accepts any sender — setting it is strongly recommended |
 | Internal networks | `192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, fd00::/8, fe80::/10` | Comma-separated CIDRs |
 | Port-scan detection window | `600` s | Time window for port-scan heuristic |
 | Unique ports before scan alert | `100` | Threshold for port-scan finding |
@@ -276,11 +286,11 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | Suspicious IP retention | `48` h | How long to keep external IPs rated as suspicious |
 | Malicious IP retention | `168` h | How long to keep external IPs rated as malicious (default 7 days) |
 | Enable reverse DNS | `true` | Resolve external IP hostnames |
-| Blacklist URLs | abuse.ch feeds | Comma-separated threat intel feed URLs |
+| Blacklist URLs | abuse.ch feeds | Comma-separated threat intel feed URLs (HTTPS only). On refresh, lists are swapped in only after a successful download; a failed source keeps its previous entries |
 | VirusTotal API key | _(empty)_ | Optional, enables VT lookups |
 | AbuseIPDB API key | _(empty)_ | Optional, enables abuse score lookups |
 | Enrichment cache TTL | `1440` min | Minutes before re-querying external enrichment providers |
-| AbuseIPDB confidence required before querying VirusTotal | `30` | VirusTotal is queried only when AbuseIPDB confidence meets/exceeds this threshold (0–100) |
+| AbuseIPDB confidence required before querying VirusTotal | `30` | When an AbuseIPDB key is set, VirusTotal is queried only when AbuseIPDB confidence meets/exceeds this threshold (0–100). Without an AbuseIPDB key, VirusTotal is queried directly (within its daily budget) |
 | VirusTotal daily budget | `500` | Max daily VirusTotal queries |
 | AbuseIPDB daily budget | `1000` | Max daily AbuseIPDB queries |
 | NVD cache TTL | `12` h | Hours before re-fetching CVE data from NVD |
@@ -292,14 +302,20 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | Baseline minimum observations | `3` | Minimum number of coordinator snapshots a host must appear in before it is included in the baseline |
 | Baseline egress anomaly multiplier | `2.5` | Egress volume is flagged as anomalous when it exceeds the baseline average by this factor |
 | Enable DNS proxy | `false` | Run a local DNS proxy that filters queries against threat-intel blacklists |
-| DNS proxy port | `53` | UDP port the DNS proxy listens on |
+| DNS proxy port | `53` | UDP and TCP port the DNS proxy listens on (bound on IPv4 and, for `0.0.0.0`, IPv6 too) |
 | DNS proxy upstream | `1.1.1.1` | Upstream resolver for non-blocked queries |
 | DNS proxy check sources | _(empty)_ | Comma-separated threat-feed source names to use for blocking decisions (empty = all sources). If set, matches from other feed sources are logged but not blocked. |
 | DNS blocked categories | _(empty)_ | Comma-separated feed categories to block (e.g. `malware,phishing,ads`) |
-| DNS overrides | _(empty)_ | Static `domain=ip` override rules (one per line or comma-separated). Persisted in `homesec.yaml` and restored on startup. |
-| DNS log retention | `24` h | Hours to keep DNS query log entries (0 = keep all) |
+| DNS overrides | _(empty)_ | Static `domain=ip` override rules (one per line or comma-separated) |
+| DNS log retention | `24` h | Hours to keep DNS query log entries (0 = keep up to the 10,000-entry cap) |
+| Suricata listener auth token | _(empty)_ | Shared secret the pusher must send before any alert (`--token` / `HSA_SURICATA_TOKEN`) |
+| Allowed pusher sources | _(empty)_ | Comma-separated IPs/CIDRs allowed to connect to the Suricata listener |
 
-All options can be changed after setup via **Configure** on the integration card. Changes trigger an automatic reload.
+The listener address and internal networks can be changed via **Configure** on the integration card; everything else is in the panel's **Settings** page (admin only). Values are validated before they are saved. Network listener and retention changes apply immediately; other changes reload the integration automatically.
+
+### Access control
+
+All data and actions in the panel go through `/api/homesec/*`. Changing anything (dismissing findings, renaming hosts, settings, lookups that spend API quota) always requires a Home Assistant **admin**. Reading the dashboard also requires an admin unless *Sidebar panel requires admin* is turned off.
 
 ## Recommended Exporters
 
@@ -348,116 +364,34 @@ softflowd -i br-lan -n 192.168.1.10:2055 -v 5
 
 ## Persistent Storage
 
-Home Security Assistant writes multiple plain YAML files to the Home Assistant config directory (alongside `configuration.yaml`). They survive integration updates, HA restarts, and config-entry reloads. Do not place them under version control if they contain API keys.
+Since 0.10.0, all state is kept in Home Assistant's own storage, in `.storage/` inside your configuration directory. Files are written atomically (no corruption on power loss), writes are batched, and the files are removed when the integration is deleted.
 
-### `homesec.yaml` — integration settings
-
-All user-facing configuration options are mirrored here on every reload. At startup the file is read back and merged into the active config entry so that values are never lost when the component is updated via HACS or a manual file copy. Only the keys listed below are ever written; any other keys present in the file are ignored.
-
-| Key | Description |
+| Storage file | Contents |
 |---|---|
-| `bind_host` / `bind_port` | UDP listener address and port |
-| `internal_networks` | Comma-separated internal CIDR ranges |
-| `scan_window_seconds` / `scan_port_threshold` | Port-scan detection parameters |
-| `high_egress_threshold` | Byte threshold for the high-egress finding |
-| `enable_webui` | Whether the sidebar panel is registered |
-| `enable_scanner` / `scan_interval` / `scan_exceptions` / `scan_ports` | Active scanner settings |
-| `external_ip_retention_hours` | Retention window for external IP history |
-| `enable_dns_resolution` / `blacklist_urls` | DNS resolution and threat-feed URLs |
-| `dns_proxy_enabled` / `dns_proxy_port` / `dns_proxy_upstream` | DNS proxy enable flag, port, and upstream resolver |
-| `dns_proxy_check_sources` / `dns_blocked_categories` / `dns_overrides` | DNS proxy source filter, category blocklist, and static overrides |
-| `dns_log_retention_hours` | DNS query log retention window |
-| `virustotal_api_key` / `abuseipdb_api_key` | External enrichment API credentials |
-| `vt_abuseipdb_threshold` | AbuseIPDB confidence threshold required before querying VirusTotal |
-| `enrichment_ttl_minutes` | Enrichment provider cache TTL |
-| `virustotal_daily_budget` / `abuseipdb_daily_budget` | Per-provider daily query budgets |
-| `retention_suspicious_hours` / `retention_malicious_hours` | Severity-based retention windows for external IPs |
-| `stats_top_n` | Number of top entries shown in the Statistics view |
-| `nvd_api_url` / `nvd_ttl_hours` / `nvd_min_year` | NVD CVE enrichment settings |
-| `nvd_keywords` | Comma-separated NVD search keywords |
-| `baseline_enabled` | Whether the baseline learning engine is active |
-| `baseline_training_hours` | Training duration in hours before promoting to active baseline |
-| `baseline_min_observations` | Minimum snapshots a host must appear in to be included in the baseline |
-| `baseline_egress_multiplier` | Egress volume multiplier threshold for anomaly detection |
+| `homesec.dismissed` | Dismissed findings and their notes |
+| `homesec.role_overrides` / `homesec.name_overrides` | Manual role and name overrides from the Hosts view |
+| `homesec.hosts` | Active-scanner results, so the Hosts view is populated right after a restart |
+| `homesec.dns_log` | DNS proxy query log (newest 10,000 entries, within the retention window) |
+| `homesec.suricata_log` | Suricata alert log (newest 10,000 entries, within the retention window) |
+| `homesec.ext_ips` | External IP tracking state (first/last seen, sources, ports, rating) |
+| `homesec.timeseries` | Statistics timeline (30 days at 5-minute resolution) |
+| `homesec.enrichment_state` | Per-provider daily enrichment usage counters |
+| `homesec.baseline` | Baseline learning state |
+| `homesec.chart_state` | Last top-N statistics lists (restart fallback) |
+| `homesec.event_state` | Which malicious IPs / vulnerabilities were already announced on the event bus |
 
-**Merge behaviour:** file values fill in keys that are absent or empty in the config entry — the UI always wins for keys that have a value in both places. This allows pre-seeding settings by writing the file before the integration is installed.
+Settings, including API keys and the Suricata token, live only in the config entry.
 
-### `homesec_roles.yaml` — device role overrides
+**Upgrading from 0.9.x:** on first start, the old `homesec_*.yaml` files in the config directory are imported into `.storage/` and then deleted. Settings from the old `homesec.yaml` that the config entry did not have are copied into it, and the file is deleted, because it held API keys in plain text.
 
-Stores manual role corrections made via the Hosts view dropdown. Structure is a flat `ip: role` mapping. Written every time a role is changed; read at startup so overrides are immediately applied to all hosts without waiting for a new scan cycle.
+### Events
 
-```yaml
-# Home Security Assistant — device role overrides
-192.168.1.1: gateway
-192.168.1.50: camera
-192.168.1.101: iot
-```
-
-Available roles match the fingerprinting vocabulary: `gateway`, `camera`, `iot`, `desktop`, `server`, `mobile`, `unknown`.
-
-### `homesec_hosts.yaml` — discovered hosts
-
-Written after each active-scanner cycle and reloaded at startup. Ensures the Hosts view and network map are immediately populated on restart without waiting for the first full scan. Each key is an IP address; each value is a dict of scan results (`alive`, `open_ports`, `os_guess`, `ping_ms`, etc.).
-
-This file is auto-managed — editing it manually is not recommended as it will be overwritten after the next scan.
-
-### `homesec_names.yaml` — device name overrides
-
-Stores manual host display-name overrides made in the Hosts view. Structure is a flat `ip: name` mapping.
-
-### `homesec_dismissed.yaml` — dismissed findings
-
-Written every time a finding is dismissed via the Findings dashboard view; read at startup so dismissals survive restarts and component updates. Structure is a flat YAML list of finding-key strings. You can manually remove a key from this file to restore a previously dismissed finding — it will reappear after the next coordinator refresh.
-
-```yaml
-# Home Security Assistant — dismissed findings
-- "vuln:192.168.1.50:80:CVE-2021-1234"
-- "suspicious_port:192.168.1.20"
-```
-
-### `homesec_dns_log.yaml` — DNS query log
-
-Written on integration shutdown and reloaded at startup (filtered to the configured retention window). Stores the rolling DNS proxy query log so that history survives restarts. Entries contain `timestamp`, `src_ip`, `domain`, `qtype`, `verdict`, and matched `source`. This file is auto-managed — do not edit it manually.
-
-Additional runtime state files used by recent versions:
-
-- `homesec_ext_ips.yaml` — persisted external IP state (first/last seen, sources, ports, severity)
-- `homesec_timeseries.yaml` — persisted statistics timeline points
-- `homesec_enrichment_state.yaml` — per-provider daily enrichment usage counters
-- `homesec_chart_state.yaml` — persisted top statistics chart snapshots (restart fallback)
-- `homesec_baseline.yaml` — persisted baseline learned state (hosts, edges, training metadata, confidence). Written whenever the baseline changes; read at startup to restore anomaly detection without retraining
-
-These files don't exist yet — they are created at runtime by a running Home Assistant instance, not in this development workspace. They are written to hass.config.config_dir, which is wherever your HA configuration lives (the directory containing configuration.yaml).
-
-Typical locations depending on your install type:
-
-HA install type	Config directory
-Home Assistant OS / Supervised	/config/
-Home Assistant Container (Docker)	the volume mapped to /config
-Home Assistant Core (venv)	~/.homeassistant/
-
-So the files will appear as:
-/config/homesec.yaml
-/config/homesec_roles.yaml
-/config/homesec_names.yaml
-/config/homesec_hosts.yaml
-/config/homesec_dismissed.yaml
-/config/homesec_dns_log.yaml
-/config/homesec_ext_ips.yaml
-/config/homesec_timeseries.yaml
-/config/homesec_enrichment_state.yaml
-/config/homesec_chart_state.yaml
-/config/homesec_baseline.yaml
-
-They are created:
-
-homesec.yaml — the first time the integration loads after setup
-homesec_roles.yaml — the first time you save a role override in the Hosts view
-homesec_names.yaml — the first time you save a custom host name in the Hosts view
-homesec_hosts.yaml — after the first active scanner cycle completes
-homesec_dismissed.yaml — the first time you dismiss a finding in the Findings view
-homesec_dns_log.yaml / homesec_ext_ips.yaml / homesec_timeseries.yaml — after corresponding runtime data is produced
-homesec_baseline.yaml — after the first baseline training cycle completes or when training is stopped manually
+| Event | Fired when |
+|---|---|
+| `homesec_malicious_ip` | An external IP becomes malicious or blacklisted (once; again only if it clears and recurs) |
+| `homesec_critical_vulnerability` | A new critical/high vulnerability finding appears (once per host, port and CVE) |
+| `homesec_malicious_dns` | The DNS proxy blocks a threat-intel domain (per query) |
+| `homesec_suricata_alert` | A severity-1 Suricata alert is received (per alert) |
 
 ## ☕ Support Home Security Assistant
 
@@ -494,4 +428,12 @@ Syntax check:
 
 ```sh
 python3 -m compileall custom_components/homesec
+```
+
+Tests (Python 3.13):
+
+```sh
+pip install -r requirements_test.txt
+pytest                      # integration, parser and fuzz tests
+node --test tests/js/       # panel escaping regression tests
 ```

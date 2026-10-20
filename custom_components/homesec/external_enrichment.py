@@ -14,6 +14,8 @@ _VT_URL = "https://www.virustotal.com/api/v3/ip_addresses/{ip}"
 _ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 
 _QUEUE_MAX = 500
+# Maximum enriched IPs kept in memory (oldest evicted first)
+MAX_CACHE_ENTRIES = 5000
 _WORKER_DELAY = 1.2  # seconds between API calls (rate limiting)
 
 # Human-readable notes for common HTTP error status codes
@@ -84,6 +86,7 @@ class ExternalIPEnricher:
         self._pending: asyncio.Queue[str] = asyncio.Queue(maxsize=_QUEUE_MAX)
         self._queued: set[str] = set()  # IPs currently sitting in the queue
         self._task: asyncio.Task | None = None
+        self._tier_task: asyncio.Task | None = None
         # Build effective per-provider limits (interval stays fixed, budget is configurable)
         self._limits: dict[str, tuple[float, int]] = {}
         for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
@@ -114,16 +117,29 @@ class ExternalIPEnricher:
     # Lifecycle
 
     async def async_start(self) -> None:
-        self._task = asyncio.create_task(self._worker())
-        asyncio.create_task(self._detect_tiers())
+        self._task = asyncio.create_task(self._worker(), name="homesec_enrichment_worker")
+        self._tier_task = asyncio.create_task(self._detect_tiers(), name="homesec_enrichment_tiers")
 
     async def async_stop(self) -> None:
-        if self._task:
-            self._task.cancel()
+        for task in (self._task, self._tier_task):
+            if task is None or task.done():
+                continue
+            task.cancel()
             try:
-                await self._task
+                await task
             except asyncio.CancelledError:
                 pass
+        self._task = self._tier_task = None
+
+    def _store(self, ip: str, data: dict[str, object], enriched_at: datetime) -> None:
+        """Cache *data* for *ip*, evicting the oldest entries beyond the cap."""
+        self._cache.pop(ip, None)
+        self._cache[ip] = data
+        self._enriched_at[ip] = enriched_at
+        while len(self._cache) > MAX_CACHE_ENTRIES:
+            oldest = next(iter(self._cache))
+            self._cache.pop(oldest, None)
+            self._enriched_at.pop(oldest, None)
 
     # ------------------------------------------------------------------ #
     # Public API
@@ -182,8 +198,7 @@ class ExternalIPEnricher:
         # gets location/ASN data without waiting for VT (15 s throttle) or AbuseIPDB.
         # Mark stale immediately so the background worker runs the full enrichment.
         result = await self._enrich(ip, fast_only=True)
-        self._cache[ip] = result
-        self._enriched_at[ip] = datetime.min.replace(tzinfo=UTC)
+        self._store(ip, result, datetime.min.replace(tzinfo=UTC))
         self.queue_ip(ip)
         return dict(result)
 
@@ -293,17 +308,19 @@ class ExternalIPEnricher:
             self._queued.discard(ip)
             if self._is_stale(ip):
                 try:
-                    self._cache[ip] = await self._enrich(ip)
-                    self._enriched_at[ip] = datetime.now(UTC)
+                    self._store(ip, await self._enrich(ip), datetime.now(UTC))
                 except Exception as exc:
                     _LOGGER.debug("HomeSec: enrichment error for %s: %s", ip, exc)
-                    self._cache[ip] = {
-                        "ip": ip,
-                        "error": str(exc),
-                        "enriched_at": datetime.now(UTC).isoformat(),
-                        "sources": [],
-                    }
-                    self._enriched_at[ip] = datetime.now(UTC)
+                    self._store(
+                        ip,
+                        {
+                            "ip": ip,
+                            "error": str(exc),
+                            "enriched_at": datetime.now(UTC).isoformat(),
+                            "sources": [],
+                        },
+                        datetime.now(UTC),
+                    )
             await asyncio.sleep(_WORKER_DELAY)
 
     async def _enrich(self, ip: str, fast_only: bool = False) -> dict[str, object]:
@@ -329,9 +346,14 @@ class ExternalIPEnricher:
             # fast_only: ipwho.is-only path for on-demand lookups (avoids VT 15 s throttle)
             if fast_only and name != "ipwho":
                 continue
-            # VT is expensive (quota): only query when AbuseIPDB already scored above
-            # the configured confidence threshold.
-            if name == "virustotal" and int(result.get("abuse_confidence") or 0) < self._vt_abuseipdb_threshold:
+            # VT is expensive (quota): when AbuseIPDB is configured, only query VT
+            # if AbuseIPDB already scored above the configured confidence
+            # threshold.  Without an AbuseIPDB key, VT is queried directly.
+            if (
+                name == "virustotal"
+                and self._abuse_key
+                and int(result.get("abuse_confidence") or 0) < self._vt_abuseipdb_threshold
+            ):
                 continue
             if not self._budget_ok(name):
                 _LOGGER.debug("HomeSec: %s daily budget exhausted (%d), skipping %s",

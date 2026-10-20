@@ -1,13 +1,20 @@
 {
   "domain": "homesec",
   "name": "Security Assistant",
-  "codeowners": ["@domo-monster"],
+  "codeowners": [
+    "@domo-monster"
+  ],
   "config_flow": true,
-  "dependencies": ["frontend", "http", "panel_custom"],
+  "dependencies": [
+    "frontend",
+    "http",
+    "panel_custom"
+  ],
   "documentation": "https://domotic.monster/homesec.html",
   "integration_type": "service",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/domo-monster/HomeSecurityAssistant/issues",
-  "requirements": ["python-dateutil==2.9.0.post0", "cachetools==5.5.2"],
-  "version": "0.9.4"
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.10.0"
 }

@@ -10,6 +10,13 @@ import struct
 
 _LOGGER = logging.getLogger(__name__)
 
+# Upper bound on templates kept per exporter.  Templates are keyed on values
+# chosen by the sender (source id + template id), so without a cap a single
+# host can exhaust memory by announcing endless distinct templates.
+MAX_TEMPLATES_PER_EXPORTER = 256
+# Upper bound on distinct exporter addresses remembered for statistics.
+MAX_TRACKED_EXPORTERS = 64
+
 
 @dataclass(slots=True)
 class TemplateField:
@@ -24,6 +31,8 @@ class ParserStats:
     dropped_datagrams: int = 0
     templates_registered: int = 0
     data_sets_without_template: int = 0
+    templates_rejected: int = 0
+    rejected_datagrams: int = 0
     last_error: str | None = None
     versions_seen: set[str] = field(default_factory=set)
     exporters: set[str] = field(default_factory=set)
@@ -36,6 +45,8 @@ class ParserStats:
             "templates_registered": self.templates_registered,
             "active_templates": active_templates,
             "data_sets_without_template": self.data_sets_without_template,
+            "templates_rejected": self.templates_rejected,
+            "rejected_datagrams": self.rejected_datagrams,
             "last_error": self.last_error,
             "versions_seen": sorted(self.versions_seen),
             "exporters": sorted(self.exporters),
@@ -127,11 +138,16 @@ class NetFlowParser:
     def __init__(self) -> None:
         self._v5_parser = NetFlowV5Parser()
         self._templates: dict[tuple[str, int, int, int], tuple[TemplateField, ...]] = {}
+        self._template_counts: dict[str, int] = {}
         self._stats = ParserStats()
 
     def parse(self, payload: bytes, exporter_host: str) -> list[FlowRecord]:
         self._stats.total_datagrams += 1
-        self._stats.exporters.add(exporter_host)
+        if (
+            exporter_host in self._stats.exporters
+            or len(self._stats.exporters) < MAX_TRACKED_EXPORTERS
+        ):
+            self._stats.exporters.add(exporter_host)
 
         if len(payload) < 2:
             return self._drop("Datagram shorter than version header")
@@ -158,6 +174,10 @@ class NetFlowParser:
 
     def snapshot_stats(self) -> dict[str, object]:
         return self._stats.as_dict(active_templates=len(self._templates))
+
+    def record_rejected(self) -> None:
+        """Count a datagram dropped before parsing (exporter not allowed)."""
+        self._stats.rejected_datagrams += 1
 
     def _parse_netflow_v9(self, payload: bytes, exporter_host: str) -> list[FlowRecord]:
         if len(payload) < self._V9_HEADER.size:
@@ -248,7 +268,14 @@ class NetFlowParser:
                 fields.append(TemplateField(field_type=field_type, field_length=field_length))
                 offset += self._TEMPLATE_FIELD.size
 
-            self._templates[(exporter_host, version, source_id, template_id)] = tuple(fields)
+            key = (exporter_host, version, source_id, template_id)
+            if key not in self._templates:
+                count = self._template_counts.get(exporter_host, 0)
+                if count >= MAX_TEMPLATES_PER_EXPORTER:
+                    self._stats.templates_rejected += 1
+                    continue
+                self._template_counts[exporter_host] = count + 1
+            self._templates[key] = tuple(fields)
             self._stats.templates_registered += 1
 
     def _parse_data_set(
@@ -331,13 +358,46 @@ class NetFlowParser:
         return int.from_bytes(value, byteorder="big", signed=False)
 
 
+def parse_exporter_allowlist(raw: str | None) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+    """Parse a comma/newline separated list of exporter IPs or CIDRs.
+
+    Raises ``ValueError`` on an invalid entry.  An empty list means "accept
+    datagrams from any exporter".
+    """
+    networks: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = []
+    for token in str(raw or "").replace("\n", ",").split(","):
+        token = token.strip()
+        if token:
+            networks.append(ipaddress.ip_network(token, strict=False))
+    return networks
+
+
 class NetFlowDatagramProtocol(DatagramProtocol):
-    def __init__(self, callback: Callable[[list[FlowRecord]], None]) -> None:
+    def __init__(
+        self,
+        callback: Callable[[list[FlowRecord]], None],
+        allowed_exporters: list[ipaddress.IPv4Network | ipaddress.IPv6Network] | None = None,
+    ) -> None:
         self._callback = callback
         self._parser = NetFlowParser()
         self._callback_errors: int = 0
+        self._allowed_exporters = list(allowed_exporters or [])
+
+    def _exporter_allowed(self, host: str) -> bool:
+        if not self._allowed_exporters:
+            return True
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            return False
+        if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
+            address = address.ipv4_mapped
+        return any(address in network for network in self._allowed_exporters)
 
     def datagram_received(self, data: bytes, addr: tuple[str, int]) -> None:
+        if not self._exporter_allowed(addr[0]):
+            self._parser.record_rejected()
+            return
         try:
             records = self._parser.parse(data, exporter_host=addr[0])
             if records:

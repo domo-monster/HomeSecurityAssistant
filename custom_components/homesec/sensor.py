@@ -76,7 +76,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator: HomeSecCoordinator = hass.data[DOMAIN]["entries"][entry.entry_id]["coordinator"]
+    coordinator: HomeSecCoordinator = entry.runtime_data.coordinator
     async_add_entities(HomeSecSensorEntity(coordinator, entry, description) for description in SENSORS)
 
 

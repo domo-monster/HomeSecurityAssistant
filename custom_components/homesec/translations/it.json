@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Security Assistant — Configurazione",
-        "description": "Inserire l\u2019indirizzo del listener NetFlow e gli intervalli di rete interni. Tutte le impostazioni avanzate (scanner, proxy DNS, arricchimento, baseline, ecc.) possono essere configurate dal pannello Security Assistant dopo l\u2019installazione.",
+        "description": "Inserire l’indirizzo del listener NetFlow e gli intervalli di rete interni. Tutte le impostazioni avanzate (scanner, proxy DNS, arricchimento, baseline, ecc.) possono essere configurate dal pannello Security Assistant dopo l’installazione.",
         "data": {
           "bind_host": "Host di ascolto NetFlow (es. 0.0.0.0)",
           "bind_port": "Porta di ascolto NetFlow (UDP, predefinita 2055)",
@@ -11,13 +11,21 @@
           "internal_networks": "Reti interne (CIDR separati da virgola, es. 192.168.0.0/16,10.0.0.0/8)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Inserisci un indirizzo IP valido (es. 0.0.0.0)",
+      "invalid_networks": "Inserisci uno o più intervalli CIDR validi separati da virgole"
+    },
+    "abort": {
+      "already_configured": "Security Assistant è già configurato",
+      "single_instance_allowed": "Security Assistant è già configurato"
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Security Assistant — Impostazioni listener",
-        "description": "Aggiornare l\u2019indirizzo del listener NetFlow e le reti interne. Tutte le impostazioni avanzate sono disponibili nel pannello Security Assistant \u2192 Impostazioni.",
+        "description": "Aggiornare l’indirizzo del listener NetFlow e le reti interne. Tutte le impostazioni avanzate sono disponibili nel pannello Security Assistant → Impostazioni.",
         "data": {
           "bind_host": "Host di ascolto NetFlow",
           "bind_port": "Porta di ascolto NetFlow (UDP)",
@@ -25,6 +33,10 @@
           "internal_networks": "Reti interne (CIDR separati da virgola)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Inserisci un indirizzo IP valido (es. 0.0.0.0)",
+      "invalid_networks": "Inserisci uno o più intervalli CIDR validi separati da virgole"
     }
   },
   "services": {
@@ -37,24 +49,24 @@
       "description": "Cancella immediatamente tutte le voci di threat intel caricate e riscarica ogni URL di blocklist configurato."
     },
     "nvd_refresh": {
-      "name": "Aggiorna database vulnerabilit\u00e0 NVD",
-      "description": "Svuota la cache locale dei CVE NVD e recupera dati di vulnerabilit\u00e0 aggiornati dalla National Vulnerability Database."
+      "name": "Aggiorna database vulnerabilità NVD",
+      "description": "Svuota la cache locale dei CVE NVD e recupera dati di vulnerabilità aggiornati dalla National Vulnerability Database."
     },
     "start_baseline_training": {
       "name": "Avvia addestramento baseline",
-      "description": "Avvia la modalit\u00e0 di addestramento baseline e apprende un profilo di attivit\u00e0 normale per la durata di addestramento configurata."
+      "description": "Avvia la modalità di addestramento baseline e apprende un profilo di attività normale per la durata di addestramento configurata."
     },
     "stop_baseline_training": {
       "name": "Ferma addestramento baseline",
-      "description": "Ferma immediatamente la modalit\u00e0 di addestramento baseline e promuove lo stato appreso alla baseline attiva se sono stati osservati host."
+      "description": "Ferma immediatamente la modalità di addestramento baseline e promuove lo stato appreso alla baseline attiva se sono stati osservati host."
     },
     "clear_baseline": {
       "name": "Cancella baseline",
-      "description": "Rimuove lo stato baseline corrente e il progresso dell\u2019addestramento dall\u2019archivio persistente."
+      "description": "Rimuove lo stato baseline corrente e il progresso dell’addestramento dall’archivio persistente."
     },
     "retrain_baseline": {
       "name": "Riaddestrare baseline",
-      "description": "Cancella lo stato baseline corrente e riavvia immediatamente la modalit\u00e0 di addestramento."
+      "description": "Cancella lo stato baseline corrente e riavvia immediatamente la modalità di addestramento."
     }
   }
 }

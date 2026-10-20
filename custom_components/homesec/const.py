@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
+
+_LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "homesec"
 PLATFORMS: list[Platform] = [Platform.SENSOR]
@@ -12,6 +15,7 @@ CONF_BIND_HOST = "bind_host"
 CONF_BIND_PORT = "bind_port"
 CONF_ENABLE_NETFLOW_LISTENER = "enable_netflow_listener"
 CONF_INTERNAL_NETWORKS = "internal_networks"
+CONF_NETFLOW_ALLOWED_EXPORTERS = "netflow_allowed_exporters"
 CONF_SCAN_PORT_THRESHOLD = "scan_port_threshold"
 CONF_SCAN_WINDOW_SECONDS = "scan_window_seconds"
 CONF_HIGH_EGRESS_THRESHOLD = "high_egress_threshold"
@@ -65,6 +69,7 @@ DEFAULT_BIND_HOST = "0.0.0.0"
 DEFAULT_BIND_PORT = 2055
 DEFAULT_ENABLE_NETFLOW_LISTENER = False
 DEFAULT_INTERNAL_NETWORKS = "192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,fd00::/8,fe80::/10"
+DEFAULT_NETFLOW_ALLOWED_EXPORTERS = ""  # empty = accept any exporter
 DEFAULT_SCAN_PORT_THRESHOLD = 100
 DEFAULT_SCAN_WINDOW_SECONDS = 600
 DEFAULT_HIGH_EGRESS_THRESHOLD = 50_000_000
@@ -120,11 +125,15 @@ CONF_SURICATA_LISTENER_ENABLED = "suricata_listener_enabled"
 CONF_SURICATA_LISTENER_HOST = "suricata_listener_host"
 CONF_SURICATA_LISTENER_PORT = "suricata_listener_port"
 CONF_SURICATA_LOG_RETENTION_HOURS = "suricata_log_retention_hours"
+CONF_SURICATA_AUTH_TOKEN = "suricata_auth_token"
+CONF_SURICATA_ALLOWED_SOURCES = "suricata_allowed_sources"
 
 DEFAULT_SURICATA_LISTENER_ENABLED = False
 DEFAULT_SURICATA_LISTENER_HOST = "0.0.0.0"
 DEFAULT_SURICATA_LISTENER_PORT = 6343
 DEFAULT_SURICATA_LOG_RETENTION_HOURS = 24
+DEFAULT_SURICATA_AUTH_TOKEN = ""
+DEFAULT_SURICATA_ALLOWED_SOURCES = ""  # empty = any source
 
 # DNS proxy defaults
 DEFAULT_DNS_PROXY_ENABLED = False
@@ -138,6 +147,12 @@ DEFAULT_DNS_OVERRIDES = ""  # empty = no local overrides
 
 COORDINATOR_INTERVAL_SECONDS = 30
 
+# In-memory log caps (entries).  Retention hours still apply below the cap.
+DNS_LOG_MAX_ENTRIES = 10_000
+SURICATA_LOG_MAX_ENTRIES = 10_000
+# Default number of most recent log entries returned by the dashboard API
+DASHBOARD_LOG_LIMIT = 2_000
+
 
 def get_entry_value(entry: ConfigEntry, key: str, default: Any | None = None) -> Any:
     if key in entry.options:
@@ -149,3 +164,23 @@ def get_entry_value(entry: ConfigEntry, key: str, default: Any | None = None) ->
         if value is not None and value != "":
             return value
     return default
+
+
+def get_entry_int(entry: ConfigEntry, key: str, default: int) -> int:
+    """Return an integer option, falling back to *default* if the stored value is invalid."""
+    value = get_entry_value(entry, key, default)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        _LOGGER.warning("Invalid value %r for %s; using default %r", value, key, default)
+        return int(default)
+
+
+def get_entry_float(entry: ConfigEntry, key: str, default: float) -> float:
+    """Return a float option, falling back to *default* if the stored value is invalid."""
+    value = get_entry_value(entry, key, default)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        _LOGGER.warning("Invalid value %r for %s; using default %r", value, key, default)
+        return float(default)

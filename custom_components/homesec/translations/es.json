@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Security Assistant — Configuraci\u00f3n",
-        "description": "Introduzca la direcci\u00f3n del receptor NetFlow y sus rangos de red internos. Todos los ajustes avanzados (escaner, proxy DNS, enriquecimiento, l\u00ednea base, etc.) se pueden configurar desde el panel Security Assistant tras la instalaci\u00f3n.",
+        "title": "Security Assistant — Configuración",
+        "description": "Introduzca la dirección del receptor NetFlow y sus rangos de red internos. Todos los ajustes avanzados (escaner, proxy DNS, enriquecimiento, línea base, etc.) se pueden configurar desde el panel Security Assistant tras la instalación.",
         "data": {
           "bind_host": "Host de escucha NetFlow (p.ej. 0.0.0.0)",
           "bind_port": "Puerto de escucha NetFlow (UDP, predeterminado 2055)",
@@ -11,13 +11,21 @@
           "internal_networks": "Redes internas (CIDRs separados por comas, p.ej. 192.168.0.0/16,10.0.0.0/8)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Introduce una dirección IP válida (p. ej. 0.0.0.0)",
+      "invalid_networks": "Introduce uno o más rangos CIDR válidos separados por comas"
+    },
+    "abort": {
+      "already_configured": "Security Assistant ya está configurado",
+      "single_instance_allowed": "Security Assistant ya está configurado"
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Security Assistant — Configuraci\u00f3n del receptor",
-        "description": "Actualice la direcci\u00f3n del receptor NetFlow y las redes internas. Todos los ajustes avanzados est\u00e1n disponibles en el panel Security Assistant \u2192 Configuraci\u00f3n.",
+        "title": "Security Assistant — Configuración del receptor",
+        "description": "Actualice la dirección del receptor NetFlow y las redes internas. Todos los ajustes avanzados están disponibles en el panel Security Assistant → Configuración.",
         "data": {
           "bind_host": "Host de escucha NetFlow",
           "bind_port": "Puerto de escucha NetFlow (UDP)",
@@ -25,36 +33,40 @@
           "internal_networks": "Redes internas (CIDRs separados por comas)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Introduce una dirección IP válida (p. ej. 0.0.0.0)",
+      "invalid_networks": "Introduce uno o más rangos CIDR válidos separados por comas"
     }
   },
   "services": {
     "trigger_scan": {
-      "name": "Iniciar an\u00e1lisis activo de hosts",
-      "description": "Ejecuta inmediatamente un an\u00e1lisis de red activo completo (ping + escaneo de puertos) para todas las IPs conocidas y observadas, sin esperar al pr\u00f3ximo intervalo programado."
+      "name": "Iniciar análisis activo de hosts",
+      "description": "Ejecuta inmediatamente un análisis de red activo completo (ping + escaneo de puertos) para todas las IPs conocidas y observadas, sin esperar al próximo intervalo programado."
     },
     "blacklist_refresh": {
-      "name": "Forzar actualizaci\u00f3n de listas de bloqueo de inteligencia de amenazas",
+      "name": "Forzar actualización de listas de bloqueo de inteligencia de amenazas",
       "description": "Borra inmediatamente todas las entradas de inteligencia de amenazas cargadas y vuelve a descargar cada URL de lista de bloqueo configurada."
     },
     "nvd_refresh": {
       "name": "Actualizar base de datos de vulnerabilidades NVD",
-      "description": "Vac\u00eda el cach\u00e9 local de CVE de NVD y vuelve a obtener datos de vulnerabilidades actualizados de la Base de Datos Nacional de Vulnerabilidades."
+      "description": "Vacía el caché local de CVE de NVD y vuelve a obtener datos de vulnerabilidades actualizados de la Base de Datos Nacional de Vulnerabilidades."
     },
     "start_baseline_training": {
-      "name": "Iniciar entrenamiento de l\u00ednea base",
-      "description": "Inicia el modo de entrenamiento de l\u00ednea base y aprende un perfil de actividad normal durante la duraci\u00f3n de entrenamiento configurada."
+      "name": "Iniciar entrenamiento de línea base",
+      "description": "Inicia el modo de entrenamiento de línea base y aprende un perfil de actividad normal durante la duración de entrenamiento configurada."
     },
     "stop_baseline_training": {
-      "name": "Detener entrenamiento de l\u00ednea base",
-      "description": "Detiene inmediatamente el modo de entrenamiento de l\u00ednea base y promueve el estado aprendido a la l\u00ednea base activa si se observaron hosts."
+      "name": "Detener entrenamiento de línea base",
+      "description": "Detiene inmediatamente el modo de entrenamiento de línea base y promueve el estado aprendido a la línea base activa si se observaron hosts."
     },
     "clear_baseline": {
-      "name": "Limpiar l\u00ednea base",
-      "description": "Elimina el estado de l\u00ednea base actual y el progreso del entrenamiento del almacenamiento persistente."
+      "name": "Limpiar línea base",
+      "description": "Elimina el estado de línea base actual y el progreso del entrenamiento del almacenamiento persistente."
     },
     "retrain_baseline": {
-      "name": "Reentrenar l\u00ednea base",
-      "description": "Borra el estado de l\u00ednea base actual y reinicia inmediatamente el modo de entrenamiento."
+      "name": "Reentrenar línea base",
+      "description": "Borra el estado de línea base actual y reinicia inmediatamente el modo de entrenamiento."
     }
   }
 }

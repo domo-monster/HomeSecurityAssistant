@@ -16,6 +16,9 @@ Options
     --ha-host HOST      Home Assistant hostname or IP (default: homeassistant.local)
     --ha-port PORT      HomeSec Suricata listener port (default: 6343)
     --retry-delay SECS  Seconds between reconnection attempts (default: 10)
+    --token TOKEN       Shared auth token configured in the HomeSec Suricata
+                        settings. Prefer the HSA_SURICATA_TOKEN environment
+                        variable so the token does not appear in `ps` output.
     --from-start        Re-send the entire file from the beginning on each
                         reconnect instead of only tailing new lines (useful
                         for testing; disabled by default)
@@ -29,6 +32,7 @@ Create /etc/systemd/system/suricata-pusher.service:
     After=network.target suricata.service
 
     [Service]
+    Environment=HSA_SURICATA_TOKEN=<token from the HomeSec Suricata settings>
     ExecStart=/usr/bin/python3 /opt/suricata_pusher.py --ha-host <HA_IP> --ha-port 6343
     Restart=always
     RestartSec=10
@@ -72,6 +76,8 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--ha-port", type=int, default=DEFAULT_HA_PORT, help="HomeSec listener TCP port")
     p.add_argument("--retry-delay", type=int, default=DEFAULT_RETRY_DELAY,
                 help="Seconds between reconnect attempts")
+    p.add_argument("--token", default=os.environ.get("HSA_SURICATA_TOKEN", ""),
+                help="Shared auth token (default: $HSA_SURICATA_TOKEN)")
     p.add_argument("--from-start", action="store_true",
                 help="Send entire file from the beginning on each connect (testing)")
     return p.parse_args()
@@ -85,7 +91,9 @@ def _open_connection(host: str, port: int) -> socket.socket:
     return sock
 
 
-def _tail_and_push(eve_file: str, host: str, port: int, retry_delay: int, from_start: bool) -> None:
+def _tail_and_push(
+    eve_file: str, host: str, port: int, retry_delay: int, from_start: bool, token: str = ""
+) -> None:
     """Main loop: tail the EVE file and push each alert line over TCP."""
     file_position: int = 0  # byte offset — resumes after reconnect
 
@@ -103,6 +111,15 @@ def _tail_and_push(eve_file: str, host: str, port: int, retry_delay: int, from_s
             _LOGGER.warning("Cannot connect to %s:%d — %s. Retrying in %ds", host, port, exc, retry_delay)
             time.sleep(retry_delay)
             continue
+
+        if token:
+            try:
+                sock.sendall(f"AUTH {token}\n".encode("utf-8"))
+            except OSError as exc:
+                _LOGGER.warning("Auth send failed: %s. Retrying in %ds", exc, retry_delay)
+                sock.close()
+                time.sleep(retry_delay)
+                continue
 
         _LOGGER.info("Connected to HomeSec listener at %s:%d", host, port)
 
@@ -177,6 +194,7 @@ def main() -> None:
             port=args.ha_port,
             retry_delay=args.retry_delay,
             from_start=args.from_start,
+            token=args.token,
         )
     except KeyboardInterrupt:
         _LOGGER.info("Stopped.")

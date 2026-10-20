@@ -3,3 +3,6 @@
 custom_components/homesec.tgz
 homesec.tgz
 deploy.sh
+.pytest_cache/
+.hypothesis/
+__pycache__/

@@ -19,6 +19,8 @@ from .vulnerabilities import _ver_tuple, _backport_patched
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+# Delay before retrying a keyword whose last fetch failed
+_FAILURE_RETRY = timedelta(minutes=30)
 DEFAULT_NVD_TTL_HOURS = 24
 
 _UTC = timezone.utc
@@ -611,13 +613,17 @@ class NVDClient:
         # keyword -> (fetched_at, simplified_cve_list)
         self._cache: dict[str, tuple[datetime, list[dict[str, Any]]]] = {}
         self._lock = asyncio.Lock()
+        # keyword -> time of the last failed fetch (retry after _FAILURE_RETRY)
+        self._failed_at: dict[str, datetime] = {}
         # NVD rate limits: 5 req/30 s without key, 50 req/30 s with key
         self._rate_delay = 0.6 if api_key else 6.5
 
-    async def _fetch_keyword(self, keyword: str) -> list[dict[str, Any]]:
+    async def _fetch_keyword(self, keyword: str) -> list[dict[str, Any]] | None:
         """Query NVD for CVEs matching *keyword*. Returns simplified CVE list.
 
         Paginates automatically when the total exceeds a single page.
+        Returns ``None`` when any page fails, so a partial result never
+        replaces a complete cached one.
         Filters by ``_min_year`` client-side (the NVD date-range parameters
         require both start+end and a ≤120-day window which makes server-side
         filtering impractical for multi-year ranges).
@@ -649,17 +655,17 @@ class NVDClient:
                     ) as resp:
                         if resp.status == 429:
                             _LOGGER.warning("NVD rate limit hit for keyword %r — will retry next cycle", keyword)
-                            return all_results
+                            return None
                         if resp.status in (502, 503, 504):
                             if attempt < 2:
                                 _LOGGER.debug("NVD HTTP %d for keyword %r (attempt %d/3) — retrying", resp.status, keyword, attempt + 1)
                                 await asyncio.sleep(15 * (attempt + 1))
                                 continue
                             _LOGGER.warning("NVD API HTTP %d for keyword %r after 3 attempts", resp.status, keyword)
-                            return all_results
+                            return None
                         if resp.status != 200:
                             _LOGGER.warning("NVD API HTTP %d for keyword %r", resp.status, keyword)
-                            return all_results
+                            return None
                         data = await resp.json(content_type=None)
                     break  # success
                 except Exception as exc:
@@ -669,9 +675,9 @@ class NVDClient:
                         await asyncio.sleep(10 * (attempt + 1))
                     else:
                         _LOGGER.warning("NVD fetch error for %r: %s", keyword, exc_desc)
-                        return all_results
+                        return None
             if data is None:
-                return all_results
+                return None
 
             for vuln in data.get("vulnerabilities", []):
                 cve = vuln.get("cve", {})
@@ -704,22 +710,33 @@ class NVDClient:
         return all_results
 
     async def _get_cached(self, keyword: str) -> list[dict[str, Any]]:
-        """Return cached or freshly fetched CVE list for *keyword*."""
+        """Return cached or freshly fetched CVE list for *keyword*.
+
+        A failed fetch keeps the previous cache entry (even if expired) and is
+        retried after ``_FAILURE_RETRY`` instead of waiting a full TTL.
+        """
         async with self._lock:
+            now = datetime.now(_UTC)
             entry = self._cache.get(keyword)
-            if entry:
-                age = datetime.now(_UTC) - entry[0]
-                if age < self._ttl:
-                    return entry[1]
+            if entry and now - entry[0] < self._ttl:
+                return entry[1]
+            failed_at = self._failed_at.get(keyword)
+            if failed_at and now - failed_at < _FAILURE_RETRY:
+                return entry[1] if entry else []
 
             cves = await self._fetch_keyword(keyword)
-            self._cache[keyword] = (datetime.now(_UTC), cves)
             await asyncio.sleep(self._rate_delay)
+            if cves is None:
+                self._failed_at[keyword] = datetime.now(_UTC)
+                return entry[1] if entry else []
+            self._failed_at.pop(keyword, None)
+            self._cache[keyword] = (datetime.now(_UTC), cves)
             return cves
 
     def invalidate_cache(self) -> None:
         """Clear all cached CVE data so the next lookup re-fetches from NVD."""
         self._cache.clear()
+        self._failed_at.clear()
         _LOGGER.debug("NVD cache invalidated")
 
     @property

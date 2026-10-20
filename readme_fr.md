@@ -97,9 +97,19 @@ Notes importantes
 - La qualité d'enrichissement externe dépend des clés API optionnelles.
 
 Fichiers persistants
-L'intégration stocke état et configuration en YAML dans /config, notamment
-homesec.yaml, homesec_hosts.yaml, homesec_dns_log.yaml, homesec_ext_ips.yaml,
-homesec_baseline.yaml et fichiers associés.
+Depuis la 0.10.0, l'état est conservé dans le stockage de Home Assistant
+(.storage/homesec.*), avec écritures atomiques. Les anciens fichiers
+homesec_*.yaml sont importés puis supprimés au premier démarrage ; homesec.yaml
+(qui contenait les clés API en clair) est fusionné dans l'entrée de configuration
+puis supprimé.
+
+Sécurité
+- Renseignez « Exportateurs NetFlow autorisés » (l'adresse de votre routeur).
+- Pour Suricata, définissez un jeton d'authentification et/ou les sources
+  autorisées, puis lancez le script avec le même jeton :
+  HSA_SURICATA_TOKEN='jeton' python3 suricata_pusher.py --ha-host <IP_HA>
+- Toute modification (paramètres, masquage de constats, renommage) exige un
+  administrateur Home Assistant.
 
 Historique des versions
 - Voir changelog.txt dans ce dépôt.

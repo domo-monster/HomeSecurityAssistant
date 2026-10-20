@@ -2641,7 +2641,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<option value="allowed"'+(self._suricataActionFilter==='allowed'?' selected':'')+'>' + self._t('common.allowed', 'Allowed') + '</option>' +
         '<option value="blocked"'+(self._suricataActionFilter==='blocked'?' selected':'')+'>' + self._t('common.blocked', 'Blocked') + '</option>' +
       '</select>' +
-      '<span style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' ' + self._t('suricata.entries', 'entries') + '</span>' +
+      '<span style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + Math.max(log.length, (self._data && self._data.suricata_log_total) || 0) + ' ' + self._t('suricata.entries', 'entries') + '</span>' +
     '</div>';
 
     // ── table ─────────────────────────────────────────────────────────────────
@@ -3466,7 +3466,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         '<div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(255,206,84,.07);border:1px solid rgba(255,206,84,.22);font-size:11px">' +
           '<span style="color:#ffce54;font-weight:600">' + self._t('overview.biggest_traffic_change', '\u0394 Biggest traffic change') + '</span>' +
           '<div style="margin-top:3px;color:var(--fg)">' +
-            '<span style="font-family:monospace;font-size:11px">' + topDelta.source + ' \u2192 ' + topDelta.target + '</span>' +
+            '<span style="font-family:monospace;font-size:11px">' + this._esc(topDelta.source) + ' \u2192 ' + this._esc(topDelta.target) + '</span>' +
           '</div>' +
           '<div style="color:var(--muted);margin-top:2px">' + self._t('overview.traffic_change_pre', 'This known connection is') + ' <b style="color:var(--fg)">' + trafficMagDir + '</b> ' + self._t('overview.traffic_change_mid', 'than usual') + ' (' + sign + Math.round(d) + '\u00a0' + self._t('overview.traffic_change_post', 'flows/snapshot).') +
             (abs > 1000 ? ' ' + self._t('overview.traffic_change_file_hint', 'Could be a file transfer, backup, or update in progress.') : '') +
@@ -3527,6 +3527,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   // ── SVG donut-pie chart helper ───────────────────────────────────────
   _pieSvg(items, getVal, getLabel, colors) {
+    var self = this;
     var total = items.reduce(function(s, it) { return s + getVal(it); }, 0);
     if (!total) return '<div style="text-align:center;color:var(--muted);padding:20px;font-size:11px">No data</div>';
     var size = 130, cx = 65, cy = 65, r = 52, ri = 28;
@@ -3550,7 +3551,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
               ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 +
               ' L ' + xi2 + ' ' + yi2 +
               ' A ' + ri + ' ' + ri + ' 0 ' + large + ' 0 ' + xi1 + ' ' + yi1 + ' Z';
-      paths += '<path d="' + d + '" fill="' + colors[i % colors.length] + '" opacity="0.88"><title>' + getLabel(it) + '</title></path>';
+      paths += '<path d="' + d + '" fill="' + colors[i % colors.length] + '" opacity="0.88"><title>' + self._esc(getLabel(it)) + '</title></path>';
       angle += sweep;
     });
     return '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '" style="flex-shrink:0">' + paths + '</svg>';
@@ -3558,13 +3559,14 @@ class HomeSecurityAssistantPanel extends HTMLElement {
 
   // ── Pie chart legend helper ──────────────────────────────────────────
   _statsLegend(items, getVal, getLabel, colors) {
+    var self = this;
     var total = items.reduce(function(s, it) { return s + getVal(it); }, 0);
     return items.map(function(it, i) {
       var val = getVal(it);
       var pct = total > 0 ? Math.round((val / total) * 100) : 0;
       return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:11px">' +
         '<div style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:' + colors[i % colors.length] + ';opacity:.88"></div>' +
-        '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + getLabel(it) + '</span>' +
+        '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + self._esc(getLabel(it)) + '</span>' +
         '<span style="color:var(--muted);white-space:nowrap;margin-left:4px">' + pct + '%</span>' +
       '</div>';
     }).join('');
@@ -5500,7 +5502,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var ip = r2.value[0], n = r2.value[1];
       if (Math.sqrt((mx - n.x) * (mx - n.x) + (my - n.y) * (my - n.y)) <= n.r + 5) {
         var lbl  = n.display_name || n.hostname || ip;
-        var role = n.probable_role ? '<br><span style="color:#8a9dbf">' + n.probable_role + '</span>' : '';
+        var role = n.probable_role ? '<br><span style="color:#8a9dbf">' + this._esc(n.probable_role) + '</span>' : '';
         var risk = n.at_risk  ? '<br><span style="color:#ff4d6d">\u26A0 ' + this._t('map.at_risk', 'At risk') + '</span>' : '';
         var baselineStats = (this._data && this._data.baseline) || {};
         var baselineSnapshots = ((baselineStats.training_stats || {}).snapshots_seen || 0);
@@ -5648,13 +5650,13 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       roleOpts += knownCustomRoles.map(function(r) { return '<option value="' + r + '"' + (r === curRole ? ' selected' : '') + '>' + r.replace(/_/g, ' ') + '</option>'; }).join('');
       if (isCustom && knownCustomRoles.indexOf(curRole) === -1) roleOpts += '<option value="' + curRole + '" selected>' + curRole.replace(/_/g, ' ') + '</option>';
       roleOpts += '<option value="__custom__">custom\u2026</option>';
-      var roleSelect = '<select class="role-select" data-roleip="' + d.ip + '" title="Click to change role">' + roleOpts + '</select>' +
+      var roleSelect = '<select class="role-select" data-roleip="' + self._esc(d.ip) + '" title="Click to change role">' + roleOpts + '</select>' +
         (isOverride ? ' <span class="dim" style="font-size:9px">' + self._t('hosts.manual', '(manual)') + '</span>' : '');
       var nameCell = (name ? '<strong>' + self._esc(name) + '</strong>' : '<span class="dim">\u2014</span>') +
-        ' <button class="btn" data-editname="' + d.ip + '">' + self._t('hosts.rename', 'Rename') + '</button>' +
+        ' <button class="btn" data-editname="' + self._esc(d.ip) + '">' + self._t('hosts.rename', 'Rename') + '</button>' +
         (isNameOverride ? ' <span class="dim" style="font-size:9px">' + self._t('hosts.manual', '(manual)') + '</span>' : '');
-      return '<tr class="expandable" data-ip="' + d.ip + '">' +
-        '<td><span style="color:' + alive + ';font-size:8px">\u25CF</span> <span class="ip">' + d.ip + '</span></td>' +
+      return '<tr class="expandable" data-ip="' + self._esc(d.ip) + '">' +
+        '<td><span style="color:' + alive + ';font-size:8px">\u25CF</span> <span class="ip">' + self._esc(d.ip) + '</span></td>' +
         '<td>' + nameCell + '</td>' +
         '<td><span style="font-size:11px">' + self._esc(d.os_guess || '\u2014') + '</span></td>' +
         '<td>' + roleSelect + '</td>' +
@@ -5783,10 +5785,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // ── individual card (flat mode / dismissed) ──────────────────────
     var renderCard = function(f, isDismissed, isBaseline) {
       var det = f.details || {};
-      var cve = det.cve_id ? '<span class="chip">' + det.cve_id + '</span>' : '';
+      var cve = det.cve_id ? '<span class="chip">' + self._esc(det.cve_id) + '</span>' : '';
       var portChip = det.port ? '<span class="chip">port ' + det.port + '</span>' : '';
       var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
-        .map(function(k) { return '<dt>' + k + ':</dt> <dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+        .map(function(k) { return '<dt>' + self._esc(k) + ':</dt> <dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
       var noteHtml = (isDismissed && f.dismiss_note)
         ? '<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>' + self._t('findings.note', 'Note') + ':</strong> ' + self._esc(f.dismiss_note) + '</div>'
         : '';
@@ -5833,7 +5835,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
           var totalCount = g.findings.reduce(function(s, f) { return s + (f.count || 1); }, 0);
           var latestSeen = g.findings.reduce(function(lat, f) { return (!lat || f.last_seen > lat) ? f.last_seen : lat; }, '');
           var det0 = (g.findings[0] && g.findings[0].details) || {};
-          var cve = det0.cve_id ? '<span class="chip">' + det0.cve_id + '</span>' : '';
+          var cve = det0.cve_id ? '<span class="chip">' + self._esc(det0.cve_id) + '</span>' : '';
           var portChip = det0.port ? '<span class="chip">port ' + det0.port + '</span>' : '';
           var countBadge = '<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">' +
             g.findings.length + (g.findings.length === 1 ? ' ' + self._t('findings.host_one', 'host') : ' ' + self._t('findings.host_many', 'hosts')) + '</span>';
@@ -5859,7 +5861,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
               g.findings.map(function(f) {
                 var det = f.details || {};
                 var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
-                  .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+                  .map(function(k) { return '<dt>' + self._esc(k) + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
                 var rowActionBtn = isDismissed
                   ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Restore this finding">' + self._t('findings.restore', 'Restore') + '</button>'
                   : '<button class="btn btn-dismiss" data-dismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '" title="Dismiss this finding">' + self._t('findings.dismiss', 'Dismiss') + '</button>';
@@ -6017,7 +6019,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
             .map(function(f) {
               var det = f.details || {};
               var detRows = Object.keys(det).filter(function(k) { return k !== 'cve_id' && k !== 'port' && k !== 'remediation'; })
-                .map(function(k) { return '<dt>' + k + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
+                .map(function(k) { return '<dt>' + self._esc(k) + ':</dt><dd>' + self._esc(String(det[k])) + '</dd>'; }).join(' ');
               var blBadge = f._isBaseline ? '<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">' + self._t('findings.baseline_badge', 'Baseline') + '</span>' : '';
               var rowActionBtn = isDismissed
                 ? '<button class="btn" data-undismiss="' + self._esc(f.key || f.source_ip + ':' + f.category) + '">' + self._t('findings.restore', 'Restore') + '</button>'
@@ -6369,7 +6371,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       var countryFlag = self._countryFlag(e.country);
       var countryTitle = e.country_name || e.country || '';
       return '<tr style="cursor:pointer" data-ext-ip-row="' + self._esc(e.ip) + '">' +
-        '<td>' + (e.blacklisted ? '<span style="color:#ff4d6d;margin-right:3px">\u26A0</span>' : '') + '<span class="ip">' + e.ip + '</span></td>' +
+        '<td>' + (e.blacklisted ? '<span style="color:#ff4d6d;margin-right:3px">\u26A0</span>' : '') + '<span class="ip">' + self._esc(e.ip) + '</span></td>' +
         '<td style="font-size:11px">' + (host ? self._esc(host) : '<span class="dim">\u2014</span>') + '</td>' +
         '<td style="font-family:monospace;font-size:11px;text-align:right">' + trafficKb + '</td>' +
         '<td style="font-size:11px">' + (countryFlag ? '<span title="' + self._esc(countryTitle) + '" style="font-size:15px;line-height:1">' + countryFlag + '</span>' : '<span class="dim">\u2014</span>') + '</td>' +
@@ -6433,11 +6435,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     var sources = internalSources || d.internal_sources || [];
     var sourcesHtml = sources.length
       ? '<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">' + this._t('external.modal_internal_host', 'Internal host') + '</span><span class="detail-val">'+
-          sources.map(function(s) { return '<span class="ip-chip">' + s + '</span>'; }).join(' ') +
+          sources.map(function(s) { return '<span class="ip-chip">' + self._esc(s) + '</span>'; }).join(' ') +
         '</span></div>'
       : '';
 
-    return '<div class="ip-detail-panel"><h3>\uD83D\uDD0D ' + d.ip + ' ' + (d.rating ? this._rating(d.rating) : '') + '</h3>' +
+    return '<div class="ip-detail-panel"><h3>\uD83D\uDD0D ' + this._esc(d.ip) + ' ' + (d.rating ? this._rating(d.rating) : '') + '</h3>' +
       '<div class="detail-grid">' + pairsHtml + linksHtml + sourcesHtml + '</div>' +
         (d.error ? '<div style="color:var(--danger);margin-top:8px;font-size:11px">\u26A0 ' + this._t('external.modal_error', 'Enrichment error:') + ' ' + this._esc(d.error) + '</div>' : '') +
       '</div>';
@@ -6700,15 +6702,16 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     }
 
     // Signature ID and rule links
-    var sigId = a.signature_id;
+    // signature_id is untrusted input: only ever render it as a plain number
+    var sigId = /^[0-9]{1,10}$/.test(String(a.signature_id == null ? '' : a.signature_id)) ? String(a.signature_id) : '';
     var sigLinks = '';
     if (sigId) {
       // Emerging Threats rules (SIDs typically 2000000+)
-      var etLink = '<a href="https://doc.emergingthreats.net/bin/view/Main/SidFAQ?topic=' + sigId + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Emerging Threats</a>';
+      var etLink = '<a href="https://doc.emergingthreats.net/bin/view/Main/SidFAQ?topic=' + encodeURIComponent(sigId) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Emerging Threats</a>';
       // Snort rule docs
-      var snortLink = '<a href="https://www.snort.org/rule_docs/' + sigId + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Snort Rule Docs</a>';
+      var snortLink = '<a href="https://www.snort.org/rule_docs/' + encodeURIComponent(sigId) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Snort Rule Docs</a>';
       // Generic search
-      var searchLink = '<a href="https://www.google.com/search?q=suricata+rule+sid+' + sigId + '+' + encodeURIComponent(a.signature || '') + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search</a>';
+      var searchLink = '<a href="https://www.google.com/search?q=suricata+rule+sid+' + encodeURIComponent(sigId) + '+' + encodeURIComponent(a.signature || '') + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search</a>';
       sigLinks = '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' + etLink + snortLink + searchLink + '</div>';
     } else if (a.signature) {
       var searchLink2 = '<a href="https://www.google.com/search?q=suricata+alert+' + encodeURIComponent(a.signature) + '" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search rule</a>';
@@ -6920,7 +6923,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       '<label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer">' +
         '<input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()"' + (self._dnsMaliciousOnly ? ' checked' : '') + '> ' + self._t('dns.malicious_only', 'Malicious only') +
       '</label>' +
-      '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + log.length + ' ' + self._t('dns.entries', 'entries') + '</span>' +
+      '<span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">' + sortedLog.length + ' / ' + Math.max(log.length, (self._data && self._data.dns_log_total) || 0) + ' ' + self._t('dns.entries', 'entries') + '</span>' +
     '</div>';
 
     // Table
@@ -7277,16 +7280,17 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   _stat(v, label, type) { return '<div class="stat-card ' + type + '"><div class="stat-value">' + v + '</div><div class="stat-label">' + label + '</div></div>'; }
   _hrow(k, v, cls)      { return '<div class="health-row"><span class="health-label">' + k + '</span><span class="health-value ' + cls + '">' + this._esc(String(v)) + '</span></div>'; }
   _kv(k, v)             { return '<div class="health-row"><span class="health-label">' + k + '</span><span class="health-value">' + this._esc(String(v)) + '</span></div>'; }
-  _sev(s)               { return s ? '<span class="badge badge-' + s + '">' + s + '</span>' : ''; }
-  _rating(r)            { return r ? '<span class="badge badge-' + r + '">' + r + '</span>' : ''; }
+  _sev(s)               { s = s ? this._esc(s) : s; return s ? '<span class="badge badge-' + s + '">' + s + '</span>' : ''; }
+  _rating(r)            { r = r ? this._esc(r) : r; return r ? '<span class="badge badge-' + r + '">' + r + '</span>' : ''; }
   _ratingWithSource(r, src) {
     if (!r) return '';
     var title = src ? ' title="' + this._esc(src) + '"' : '';
+    r = this._esc(r);
     return '<span class="badge badge-' + r + '"' + title + '>' + r + '</span>';
   }
   _cdot(c) {
     var col = {high:'#6bffc8',medium:'#ffce54',low:'#5a6a80'}[c] || '#5a6a80';
-    return c ? '<span title="' + c + '" style="color:' + col + ';font-size:8px">\u25CF</span>' : '';
+    return c ? '<span title="' + this._esc(c) + '" style="color:' + col + ';font-size:8px">\u25CF</span>' : '';
   }
   _nc(n) {
     if (n.at_risk || n.blacklisted) return '#ff4d6d';
@@ -7336,7 +7340,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (d < 86400000) return this._t('time.hours_ago', '{n}h ago').replace('{n}', Math.floor(d/3600000));
     return this._t('time.days_ago', '{n}d ago').replace('{n}', Math.floor(d/86400000));
   }
-  _esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  _esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   _langCode() {
     var hass = this._hass || {};
@@ -7507,7 +7511,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       });
     });
     this._hass.callApi('POST', 'homesec/settings/save', payload).then(function() {
-      self._settingsMsg = self._t('settings.saved_reload', 'Settings saved. The integration will reload in a moment to apply changes.');
+      self._settingsMsg = self._t('settings.saved_reload', 'Settings saved. Changes are applied in a moment (some require a short integration reload).');
       self._settingsMsgType = 'ok';
       self._settingsDraft = {};
       self._settingsDirty = false;
@@ -7525,7 +7529,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       } else if (e instanceof Error) {
         msg = e.message;
       } else if (e && typeof e === 'object') {
-        msg = e.message || e.error || e.body || e.detail ||
+        // Validation errors come back as HTTP 400 with {error, errors} in the body
+        msg = (e.body && typeof e.body === 'object' && e.body.error) ||
+              e.message || e.error || (typeof e.body === 'string' ? e.body : null) || e.detail ||
               (typeof e.status_code === 'number' ? 'HTTP ' + e.status_code : null) ||
               JSON.stringify(e);
       } else {

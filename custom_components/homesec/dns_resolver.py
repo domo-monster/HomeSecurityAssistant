@@ -12,6 +12,8 @@ _LOGGER = logging.getLogger(__name__)
 _REFRESH_HOURS = 6
 _LOOKUP_TIMEOUT = 3.0
 _FETCH_TIMEOUT = 120
+# Maximum reverse-DNS results kept in memory (oldest evicted first)
+MAX_HOSTNAME_CACHE = 5000
 
 # IPs used as the redirect target in hosts-file format blocklists
 _HOSTS_REDIRECTS: frozenset[str] = frozenset({"0.0.0.0", "127.0.0.1", "::", "::1"})
@@ -92,6 +94,11 @@ def _parse_blocklist_text(
     return domains, ips, source_map
 
 
+def _source_name(url: str) -> str:
+    """Short label for a blocklist URL (its host name)."""
+    return url.split("/")[2] if url.count("/") >= 2 else url
+
+
 class DNSBlacklistChecker:
     """Background reverse-DNS resolver with configurable IP/domain blacklist checking."""
 
@@ -110,7 +117,9 @@ class DNSBlacklistChecker:
         self._hostname_cache: dict[str, str | None] = {}
         self._resolve_queue: asyncio.Queue[str] = asyncio.Queue(maxsize=500)
         self._last_refresh: datetime | None = None
-        self._tasks: list[asyncio.Task] = []
+        self._refresh_task: asyncio.Task | None = None
+        self._resolve_task: asyncio.Task | None = None
+        self._fetch_task: asyncio.Task | None = None
 
     # ------------------------------------------------------------------ #
     # Lifecycle
@@ -122,20 +131,24 @@ class DNSBlacklistChecker:
                 "Add URL(s) to the 'Blacklist URLs' option in the integration settings."
             )
         else:
-            _LOGGER.warning(
+            _LOGGER.info(
                 "HomeSec: starting threat-intel fetch for %d URL(s): %s",
                 len(self._urls),
                 ", ".join(self._urls),
             )
         # Fetch blocklists in a background task so HA setup is not blocked by
         # potentially slow or large downloads (multi-MB hosts files take >15 s).
-        fetch_task = asyncio.create_task(self._fetch_all())
-        fetch_task.add_done_callback(self._on_fetch_done)
-        self._tasks = [
-            asyncio.create_task(self._refresh_loop()),
-            asyncio.create_task(self._resolve_worker()),
-            fetch_task,
-        ]
+        self._start_fetch()
+        self._refresh_task = asyncio.create_task(
+            self._refresh_loop(), name="homesec_blocklist_refresh"
+        )
+        self._resolve_task = asyncio.create_task(
+            self._resolve_worker(), name="homesec_rdns_worker"
+        )
+
+    def _start_fetch(self) -> None:
+        self._fetch_task = asyncio.create_task(self._fetch_all(), name="homesec_blocklist_fetch")
+        self._fetch_task.add_done_callback(self._on_fetch_done)
 
     @staticmethod
     def _on_fetch_done(task: asyncio.Task) -> None:
@@ -150,36 +163,26 @@ class DNSBlacklistChecker:
                 exc, exc_info=exc,
             )
 
+    @staticmethod
+    async def _cancel(task: asyncio.Task | None) -> None:
+        if task is None or task.done():
+            return
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
     async def async_stop(self) -> None:
-        for task in self._tasks:
-            task.cancel()
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
-        self._tasks = []
+        for task in (self._fetch_task, self._refresh_task, self._resolve_task):
+            await self._cancel(task)
+        self._fetch_task = self._refresh_task = self._resolve_task = None
 
     async def async_force_refresh(self) -> None:
-        """Cancel any in-flight fetch, clear all loaded entries, and re-download all URLs."""
-        # Cancel the current fetch task if it is still running
-        for task in list(self._tasks):
-            if task is not None and not task.done() and task.get_name().startswith("Task"):
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-        self._bad_ips.clear()
-        self._bad_domains.clear()
-        self._source_map.clear()
-        _LOGGER.warning("HomeSec: force-refreshing threat intel from %d URL(s)", len(self._urls))
-        fetch_task = asyncio.create_task(self._fetch_all())
-        fetch_task.add_done_callback(self._on_fetch_done)
-        # Replace the old fetch task slot; keep refresh loop and resolve worker alive
-        self._tasks = [
-            t for t in self._tasks
-            if not t.done() and t is not fetch_task
-        ] + [fetch_task]
+        """Re-download all URLs now; current lists stay active until the new ones are ready."""
+        await self._cancel(self._fetch_task)
+        _LOGGER.info("HomeSec: force-refreshing threat intel from %d URL(s)", len(self._urls))
+        self._start_fetch()
 
     # ------------------------------------------------------------------ #
     # Public API (sync, safe to call from snapshot())
@@ -236,8 +239,14 @@ class DNSBlacklistChecker:
         if ip in self._hostname_cache:
             return self._hostname_cache[ip]
         hostname = await self._rdns(ip)
-        self._hostname_cache[ip] = hostname
+        self._cache_hostname(ip, hostname)
         return hostname
+
+    def _cache_hostname(self, ip: str, hostname: str | None) -> None:
+        self._hostname_cache[ip] = hostname
+        while len(self._hostname_cache) > MAX_HOSTNAME_CACHE:
+            # dicts keep insertion order: drop the oldest entry
+            self._hostname_cache.pop(next(iter(self._hostname_cache)))
 
     # ------------------------------------------------------------------ #
     # Private helpers
@@ -257,39 +266,67 @@ class DNSBlacklistChecker:
         while True:
             ip = await self._resolve_queue.get()
             if ip not in self._hostname_cache:
-                self._hostname_cache[ip] = await self._rdns(ip)
+                self._cache_hostname(ip, await self._rdns(ip))
 
     async def _refresh_loop(self) -> None:
         while True:
             await asyncio.sleep(_REFRESH_HOURS * 3600)
-            self._bad_ips.clear()
-            self._bad_domains.clear()
-            self._source_map.clear()
-            # Keep _last_refresh at the old timestamp so the UI never
-            # regresses to "Downloading…" during a periodic re-fetch.
-            await self._fetch_all()
+            await self._cancel(self._fetch_task)
+            self._start_fetch()
+            # Wait for this cycle so refreshes never overlap
+            try:
+                await asyncio.shield(self._fetch_task)
+            except Exception:  # noqa: BLE001 - logged by _on_fetch_done
+                pass
 
     async def _fetch_all(self) -> None:
+        """Download every URL into fresh sets, then swap them in atomically.
+
+        The active lists stay in place while downloading.  If a source fails,
+        its previously loaded entries are kept so a transient outage never
+        turns blocking off.
+        """
+        new_domains: set[str] = set()
+        new_ips: set[str] = set()
+        new_sources: dict[str, str] = {}
+        failed_sources: set[str] = set()
         for url in self._urls:
-            before_d = len(self._bad_domains)
-            before_i = len(self._bad_ips)
+            source = _source_name(url)
             try:
-                await self._fetch_one(url)
-            except Exception as exc:
+                result = await self._fetch_one(url)
+            except Exception as exc:  # noqa: BLE001
                 _LOGGER.error("HomeSec: blocklist download FAILED for %s: %s", url, exc)
-                # Update timestamp even on failure so UI leaves "Downloading…" state
-                self._last_refresh = datetime.now(UTC)
+                result = None
+            if result is None:
+                failed_sources.add(source)
                 continue
-            added_d = len(self._bad_domains) - before_d
-            added_i = len(self._bad_ips) - before_i
-            # Update after every URL so partial results are visible immediately
-            self._last_refresh = datetime.now(UTC)
-            _LOGGER.warning(
-                "HomeSec: loaded %d new domains + %d new IPs from %s",
-                added_d, added_i,
-                url.split("/")[2] if url.count("/") >= 2 else url,
+            domains, ips, sources = result
+            new_domains |= domains
+            new_ips |= ips
+            for key, value in sources.items():
+                new_sources.setdefault(key, value)
+            _LOGGER.info(
+                "HomeSec: loaded %d domains + %d IPs from %s", len(domains), len(ips), source
             )
-        _LOGGER.warning(
+
+        # Carry over entries from sources that failed this time.
+        if failed_sources:
+            for indicator, source in self._source_map.items():
+                if source not in failed_sources or indicator in new_sources:
+                    continue
+                if indicator in self._bad_domains:
+                    new_domains.add(indicator)
+                elif indicator in self._bad_ips:
+                    new_ips.add(indicator)
+                else:
+                    continue
+                new_sources[indicator] = source
+
+        self._bad_domains = new_domains
+        self._bad_ips = new_ips
+        self._source_map = new_sources
+        self._last_refresh = datetime.now(UTC)
+        _LOGGER.info(
             "HomeSec: threat intel ready — %d blocked IPs, %d blocked domains from %d source(s)",
             len(self._bad_ips),
             len(self._bad_domains),
@@ -301,10 +338,12 @@ class DNSBlacklistChecker:
                 "network connectivity (Settings \u2192 System \u2192 Logs for details)"
             )
 
-    async def _fetch_one(self, url: str) -> None:
+    async def _fetch_one(
+        self, url: str
+    ) -> tuple[set[str], set[str], dict[str, str]] | None:
+        """Download and parse one blocklist; ``None`` means the download failed."""
         import aiohttp as _aiohttp  # imported here to avoid circular init issues
 
-        source = url.split("/")[2] if url.count("/") >= 2 else url
         async with self._session.get(
             url,
             timeout=_aiohttp.ClientTimeout(sock_connect=10, sock_read=_FETCH_TIMEOUT),
@@ -312,16 +351,10 @@ class DNSBlacklistChecker:
         ) as resp:
             if resp.status != 200:
                 _LOGGER.warning("HomeSec: blocklist %s returned HTTP %d", url, resp.status)
-                return
+                return None
             text = await resp.text(encoding="utf-8", errors="replace")
 
         # Parse in a thread-pool executor so large files (100k+ lines) do not
         # block the asyncio event loop and cause DNS query timeouts.
         loop = asyncio.get_running_loop()
-        new_domains, new_ips, new_sources = await loop.run_in_executor(
-            None, _parse_blocklist_text, text, source
-        )
-        self._bad_domains.update(new_domains)
-        self._bad_ips.update(new_ips)
-        for k, v in new_sources.items():
-            self._source_map.setdefault(k, v)
+        return await loop.run_in_executor(None, _parse_blocklist_text, text, _source_name(url))

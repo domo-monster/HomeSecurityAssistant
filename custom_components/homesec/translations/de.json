@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Security Assistant — Einrichtung",
-        "description": "Geben Sie die NetFlow-Listener-Adresse und Ihre internen Netzwerkbereiche ein. Alle erweiterten Einstellungen (Scanner, DNS-Proxy, Anreicherung, Baseline usw.) k\u00f6nnen nach der Einrichtung im Security-Assistant-Panel konfiguriert werden.",
+        "description": "Geben Sie die NetFlow-Listener-Adresse und Ihre internen Netzwerkbereiche ein. Alle erweiterten Einstellungen (Scanner, DNS-Proxy, Anreicherung, Baseline usw.) können nach der Einrichtung im Security-Assistant-Panel konfiguriert werden.",
         "data": {
           "bind_host": "NetFlow-Bind-Host (z.B. 0.0.0.0)",
           "bind_port": "NetFlow-Bind-Port (UDP, Standard 2055)",
@@ -11,13 +11,21 @@
           "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs, z.B. 192.168.0.0/16,10.0.0.0/8)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Gib eine gültige IP-Adresse ein (z. B. 0.0.0.0)",
+      "invalid_networks": "Gib einen oder mehrere gültige CIDR-Bereiche durch Kommas getrennt ein"
+    },
+    "abort": {
+      "already_configured": "Security Assistant ist bereits eingerichtet",
+      "single_instance_allowed": "Security Assistant ist bereits eingerichtet"
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Security Assistant — Listener-Einstellungen",
-        "description": "NetFlow-Listener-Adresse und interne Netzwerke aktualisieren. Alle erweiterten Einstellungen sind im Security-Assistant-Panel \u2192 Einstellungen verf\u00fcgbar.",
+        "description": "NetFlow-Listener-Adresse und interne Netzwerke aktualisieren. Alle erweiterten Einstellungen sind im Security-Assistant-Panel → Einstellungen verfügbar.",
         "data": {
           "bind_host": "NetFlow-Bind-Host",
           "bind_port": "NetFlow-Bind-Port (UDP)",
@@ -25,16 +33,20 @@
           "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Gib eine gültige IP-Adresse ein (z. B. 0.0.0.0)",
+      "invalid_networks": "Gib einen oder mehrere gültige CIDR-Bereiche durch Kommas getrennt ein"
     }
   },
   "services": {
     "trigger_scan": {
       "name": "Aktiven Host-Scan starten",
-      "description": "F\u00fchrt sofort einen vollst\u00e4ndigen aktiven Netzwerkscan (Ping + Port-Scan) f\u00fcr alle bekannten und beobachteten IPs durch, ohne auf das n\u00e4chste geplante Intervall zu warten."
+      "description": "Führt sofort einen vollständigen aktiven Netzwerkscan (Ping + Port-Scan) für alle bekannten und beobachteten IPs durch, ohne auf das nächste geplante Intervall zu warten."
     },
     "blacklist_refresh": {
       "name": "Threat-Intel-Blocklisten aktualisieren",
-      "description": "L\u00f6scht sofort alle geladenen Threat-Intel-Eintr\u00e4ge und l\u00e4dt jede konfigurierte Blocklisten-URL neu herunter."
+      "description": "Löscht sofort alle geladenen Threat-Intel-Einträge und lädt jede konfigurierte Blocklisten-URL neu herunter."
     },
     "nvd_refresh": {
       "name": "NVD-Schwachstellendatenbank aktualisieren",
@@ -42,19 +54,19 @@
     },
     "start_baseline_training": {
       "name": "Baseline-Training starten",
-      "description": "Startet den Baseline-Trainingsmodus und lernt f\u00fcr die konfigurierte Trainingsdauer ein normales Aktivit\u00e4tsprofil."
+      "description": "Startet den Baseline-Trainingsmodus und lernt für die konfigurierte Trainingsdauer ein normales Aktivitätsprofil."
     },
     "stop_baseline_training": {
       "name": "Baseline-Training stoppen",
-      "description": "Stoppt den Baseline-Trainingsmodus sofort und bef\u00f6rdert den gelernten Zustand zur aktiven Baseline, falls Hosts beobachtet wurden."
+      "description": "Stoppt den Baseline-Trainingsmodus sofort und befördert den gelernten Zustand zur aktiven Baseline, falls Hosts beobachtet wurden."
     },
     "clear_baseline": {
-      "name": "Baseline l\u00f6schen",
+      "name": "Baseline löschen",
       "description": "Entfernt den aktuellen Baseline-Zustand und den Trainingsfortschritt aus dem persistenten Speicher."
     },
     "retrain_baseline": {
       "name": "Baseline neu trainieren",
-      "description": "L\u00f6scht den aktuellen Baseline-Zustand und startet den Trainingsmodus sofort neu."
+      "description": "Löscht den aktuellen Baseline-Zustand und startet den Trainingsmodus sofort neu."
     }
   }
 }

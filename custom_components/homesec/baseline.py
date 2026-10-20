@@ -37,6 +37,8 @@ class BaselineManager:
     def get_anomalies(self, devices, dns_log, scan_results, vulnerabilities, now=None):
         """
         Compare current snapshot to baseline and return anomaly findings.
+
+        *dns_log* is the full retained log (anomalies cover the retention window).
         """
         if self._mode != BASELINE_MODE_ACTIVE or not self._hosts:
             self._last_anomalies = []
@@ -45,6 +47,20 @@ class BaselineManager:
         anomalies = []
         # Build lookup tables for baseline
         baseline_hosts = self._hosts
+        # Group DNS activity per source once (instead of rescanning the whole
+        # log for every device).
+        dns_by_ip: dict[str, tuple[set[str], set[str]]] = {}
+        for entry in dns_log:
+            src = str(entry.get("src_ip", entry.get("source_ip", "")))
+            if src not in baseline_hosts:
+                continue
+            domains_seen, categories_seen = dns_by_ip.setdefault(src, (set(), set()))
+            domain = entry.get("domain") or entry.get("qname")
+            if domain:
+                domains_seen.add(domain)
+            cat = entry.get("category")
+            if cat:
+                categories_seen.add(cat)
         baseline_ips = set(baseline_hosts.keys())
         # --- New host anomaly ---
         for device in devices:
@@ -94,16 +110,7 @@ class BaselineManager:
                         "last_seen": now.isoformat(),
                     })
             # DNS domains
-            domains_now = set()
-            categories_now = set()
-            for entry in dns_log:
-                if str(entry.get("src_ip", entry.get("source_ip", ""))) == ip:
-                    domain = entry.get("domain") or entry.get("qname")
-                    if domain:
-                        domains_now.add(domain)
-                    cat = entry.get("category")
-                    if cat:
-                        categories_now.add(cat)
+            domains_now, categories_now = dns_by_ip.get(ip, (set(), set()))
             domains_baseline = set(bhost.get("dns_domains", []))
             for domain in domains_now:
                 if domain not in domains_baseline:
@@ -136,11 +143,16 @@ class BaselineManager:
         devices: list[dict[str, Any]],
         dns_log: list[dict[str, Any]],
         scan_results: list[dict[str, Any]],
-        vulnerabilities: list[dict[str, Any]] = None,
+        vulnerabilities: list[dict[str, Any]] | None = None,
         connections: list[dict[str, Any]] | None = None,
         now: datetime | None = None,
         **kwargs,
     ) -> None:
+        """Learn from one snapshot while training.
+
+        *dns_log* must contain only the DNS entries logged since the previous
+        call, so each query is counted once.
+        """
         now = now or datetime.now(timezone.utc)
         if self._mode != BASELINE_MODE_TRAINING:
             return
@@ -230,21 +242,27 @@ class BaselineManager:
             learned["flows_total"] = int(learned.get("flows_total", 0) or 0) + int(edge["flows"])
             learned["last_seen"] = self._iso(now)
         # Learn DNS domains and categories
+        learned_dns: dict[str, tuple[set[str], set[str]]] = {}
         for entry in dns_log:
             ip = str(entry.get("src_ip", entry.get("source_ip", "")))
             if not ip or ip not in self._hosts:
                 continue
-            host = self._hosts[ip]
-            domains = set(host.get("dns_domains", []))
+            if ip not in learned_dns:
+                host = self._hosts[ip]
+                learned_dns[ip] = (
+                    set(host.get("dns_domains", [])),
+                    set(host.get("dns_categories", [])),
+                )
+            domains, categories = learned_dns[ip]
             domain = entry.get("domain") or entry.get("qname")
             if domain:
                 domains.add(domain)
-            host["dns_domains"] = sorted(domains)
-            categories = set(host.get("dns_categories", []))
             cat = entry.get("category")
             if cat:
                 categories.add(cat)
-            host["dns_categories"] = sorted(categories)
+        for ip, (domains, categories) in learned_dns.items():
+            self._hosts[ip]["dns_domains"] = sorted(domains)
+            self._hosts[ip]["dns_categories"] = sorted(categories)
         # Learn vulnerabilities (future: for vuln delta anomalies)
         # Not implemented in V1
         if self._training_ends_at is not None and now >= self._training_ends_at:

@@ -17,6 +17,14 @@ IPAddress = ipaddress.IPv4Address | ipaddress.IPv6Address
 
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "low": 4, "info": 5}
 
+# Memory bounds.  Flow data is untrusted (any host that can reach the NetFlow
+# port can send it), so every per-address structure is capped.
+MAX_DEVICES = 2048
+MAX_EXTERNAL_PEERS_PER_DEVICE = 512
+MAX_EXPOSED_PORTS_PER_DEVICE = 256
+# Flow-only devices not seen for this long are forgotten
+DEVICE_IDLE_EXPIRY = timedelta(days=7)
+
 
 @dataclass(slots=True)
 class DeviceProfile:
@@ -34,6 +42,8 @@ class DeviceProfile:
     os_confidence: str = ""
     scanned_services: list[dict[str, object]] = field(default_factory=list)
     vulnerabilities: list[dict[str, object]] = field(default_factory=list)
+    # Local time of the last flow for this device (exporter clocks can be wrong)
+    received_at: datetime | None = None
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -106,6 +116,7 @@ class HomeSecurityAnalyzer:
         self._interval_egress: dict[str, int] = defaultdict(int)
         self._connections: dict[str, NetworkConnection] = {}
         self._total_flows = 0
+        self._device_updates_dropped = 0
         self._last_flow_at: datetime | None = None
 
     def ingest(self, records: Iterable[FlowRecord]) -> None:
@@ -150,6 +161,7 @@ class HomeSecurityAnalyzer:
         vuln_findings = vuln_findings or []
         alive_hosts = alive_hosts or []
         self._expire_stale_findings()
+        self._expire_idle_devices(set(enrichment_by_ip), {str(h["ip"]) for h in scan_results if h.get("alive")})
 
         # Merge scan results into device profiles
         scan_by_ip: dict[str, dict[str, object]] = {str(h["ip"]): h for h in scan_results}
@@ -220,6 +232,7 @@ class HomeSecurityAnalyzer:
         tracker_enriched_devices = sum(1 for device in devices if device["enriched"])
 
         payload = {
+            "device_updates_dropped": self._device_updates_dropped,
             "active_devices": len(self._devices),
             "total_flows": self._total_flows,
             "open_findings": actionable_count,
@@ -307,12 +320,17 @@ class HomeSecurityAnalyzer:
         if record.dst_port >= 32768:
             return
         device = self._device_for(record.dst_ip, record.timestamp)
-        device.exposed_ports.add(record.dst_port)
+        if (
+            record.dst_port in device.exposed_ports
+            or len(device.exposed_ports) < MAX_EXPOSED_PORTS_PER_DEVICE
+        ):
+            device.exposed_ports.add(record.dst_port)
         device.probable_role, device.confidence = self._infer_role(device.exposed_ports)
 
     def _observe_external_egress(self, record: FlowRecord) -> None:
         device = self._device_for(record.src_ip, record.timestamp)
-        device.external_peers.add(str(record.dst_ip))
+        if len(device.external_peers) < MAX_EXTERNAL_PEERS_PER_DEVICE:
+            device.external_peers.add(str(record.dst_ip))
         self._interval_egress[str(record.src_ip)] += record.octets
 
         if record.dst_port in SUSPICIOUS_PORTS:
@@ -347,11 +365,17 @@ class HomeSecurityAnalyzer:
     def _device_for(self, address: IPAddress, when: datetime) -> DeviceProfile:
         key = str(address)
         device = self._devices.get(key)
+        received_at = datetime.now(timezone.utc)
         if device is None:
-            device = DeviceProfile(ip=key, last_seen=when.isoformat())
+            device = DeviceProfile(ip=key, last_seen=when.isoformat(), received_at=received_at)
+            if len(self._devices) >= MAX_DEVICES:
+                # Over the cap: account this observation to a throwaway profile.
+                self._device_updates_dropped += 1
+                return device
             self._devices[key] = device
         else:
             device.last_seen = when.isoformat()
+            device.received_at = received_at
         return device
 
     def _observe_connection(self, record: FlowRecord, src_internal: bool, dst_internal: bool, dst_multicast: bool = False) -> None:
@@ -473,6 +497,29 @@ class HomeSecurityAnalyzer:
             if f"vuln:{device.ip}:{v.get('port', 0)}:{v.get('cve_id', '')}" not in dismissed
         )
         return snapshot
+
+    def _expire_idle_devices(self, tracked_ips: set[str], alive_ips: set[str]) -> None:
+        """Forget devices with no flow for DEVICE_IDLE_EXPIRY that nothing else vouches for."""
+        cutoff = datetime.now(timezone.utc) - DEVICE_IDLE_EXPIRY
+        stale: list[str] = []
+        for ip, device in self._devices.items():
+            if ip in tracked_ips or ip in alive_ips:
+                continue
+            seen = device.received_at
+            if seen is None:
+                # Scan- or tracker-created profile: last_seen is local time
+                try:
+                    seen = datetime.fromisoformat(device.last_seen)
+                except (TypeError, ValueError):
+                    stale.append(ip)
+                    continue
+            if seen.tzinfo is None:
+                seen = seen.replace(tzinfo=timezone.utc)
+            if seen < cutoff:
+                stale.append(ip)
+        for ip in stale:
+            self._devices.pop(ip, None)
+            self._recent_activity.pop(ip, None)
 
     def _trim_activity(self, activity: deque[tuple[datetime, int, str]], now: datetime) -> None:
         while activity and now - activity[0][0] > self._scan_window:

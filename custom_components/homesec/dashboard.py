@@ -2,231 +2,65 @@ from __future__ import annotations
 
 import ipaddress
 import json
-from pathlib import Path
-from typing import Any
 import logging
+from pathlib import Path
+import re as _re
+from typing import Any
+
 from aiohttp import web
-
-def _read_version() -> str:
-    return _VERSION
-
-try:
-    _VERSION: str = json.loads((Path(__file__).parent / "manifest.json").read_text())["version"]
-except Exception:
-    _VERSION = "?"
 
 from homeassistant.components import panel_custom
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.http.view import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
-from . import const as _const
 from .const import (
     CONF_BASELINE_ENABLED,
-    CONF_BIND_HOST,
-    CONF_BIND_PORT,
-    CONF_BLACKLIST_URLS,
-    CONF_BASELINE_EGRESS_MULTIPLIER,
-    CONF_BASELINE_MIN_OBSERVATIONS,
-    CONF_BASELINE_TRAINING_HOURS,
-    CONF_DNS_BLOCKED_CATEGORIES,
-    CONF_DNS_PROXY_BIND_HOST,
-    CONF_DNS_LOG_RETENTION_HOURS,
-    CONF_DNS_OVERRIDES,
     CONF_DNS_PROXY_ENABLED,
-    CONF_DNS_PROXY_PORT,
-    CONF_DNS_PROXY_UPSTREAM,
-    CONF_DNS_WARN_BLOCKED_LOGS,
-    CONF_ENABLE_DNS_RESOLUTION,
     CONF_ENABLE_NETFLOW_LISTENER,
-    CONF_ENABLE_SCANNER,
-    CONF_ENRICHMENT_TTL_MINUTES,
-    CONF_EXTERNAL_IP_RETENTION,
-    CONF_HIGH_EGRESS_THRESHOLD,
-    CONF_INTERNAL_NETWORKS,
-    CONF_NVD_API_URL,
-    CONF_NVD_KEYWORDS,
-    CONF_NVD_MIN_YEAR,
-    CONF_NVD_TTL_HOURS,
-    CONF_RETENTION_MALICIOUS_HOURS,
-    CONF_RETENTION_SUSPICIOUS_HOURS,
-    CONF_ABUSEIPDB_API_KEY,
-    CONF_ABUSEIPDB_DAILY_BUDGET,
-    CONF_SCAN_EXCEPTIONS,
     CONF_SCAN_INTERVAL,
-    CONF_SCAN_PORT_THRESHOLD,
-    CONF_SCAN_PORTS,
-    CONF_SCAN_WINDOW_SECONDS,
     CONF_STATS_TOP_N,
-    CONF_SURICATA_LISTENER_ENABLED,
-    CONF_SURICATA_LISTENER_HOST,
-    CONF_SURICATA_LISTENER_PORT,
-    CONF_SURICATA_LOG_RETENTION_HOURS,
-    CONF_VT_ABUSEIPDB_THRESHOLD,
-    CONF_VIRUSTOTAL_API_KEY,
-    CONF_VIRUSTOTAL_DAILY_BUDGET,
     CONF_WEBUI_REQUIRE_ADMIN,
+    DASHBOARD_LOG_LIMIT,
     DEFAULT_BASELINE_ENABLED,
-    DEFAULT_BIND_HOST,
-    DEFAULT_BIND_PORT,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STATS_TOP_N,
     DEFAULT_WEBUI_REQUIRE_ADMIN,
     DOMAIN,
     get_entry_value,
 )
-from .storage import (
-    load_chart_state,
-    load_name_overrides,
-    load_role_overrides,
-    save_chart_state,
-    save_name_overrides,
-    save_role_overrides,
+from .settings_schema import (
+    REDACTED_SECRET_VALUE,
+    SECRET_SETTINGS_KEYS,
+    SETTINGS_DEFAULTS,
+    SETTINGS_KEYS,
+    SETTINGS_SCHEMA,
+    validate_settings,
 )
+
+try:
+    _VERSION: str = json.loads((Path(__file__).parent / "manifest.json").read_text())["version"]
+except Exception:  # noqa: BLE001
+    _VERSION = "?"
+
+
+def _read_version() -> str:
+    return _VERSION
+
 
 BUILT_IN_ROLES = (
     "unknown", "camera", "printer", "media_device", "mobile_device",
     "nas_or_desktop", "dns_or_gateway", "linux_host", "web_service", "iot_device",
 )
 
-import re as _re
 _ROLE_RE = _re.compile(r'^[a-z0-9_]{1,40}$')
-_REDACTED_SECRET_VALUE = "********"
-_SECRET_SETTINGS_KEYS = {CONF_VIRUSTOTAL_API_KEY, CONF_ABUSEIPDB_API_KEY}
+_MAX_REGEX_LENGTH = 200
+# Largest page of log entries one dashboard request may ask for
+_MAX_LOG_PAGE = 10_000
 
 _LOGGER = logging.getLogger(__name__)
 
-# Map each settings key (e.g. "nvd_api_url") to its DEFAULT_* value by
-# matching CONF_* and DEFAULT_* symbol pairs from const.py.
-SETTINGS_DEFAULTS: dict[str, Any] = {
-    conf_value: getattr(_const, f"DEFAULT_{conf_name[5:]}")
-    for conf_name, conf_value in vars(_const).items()
-    if conf_name.startswith("CONF_")
-    and isinstance(conf_value, str)
-    and hasattr(_const, f"DEFAULT_{conf_name[5:]}")
-}
-
 SEVERITY_SORT = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "low": 4, "info": 5}
-
-# ── Settings schema (mirrors standalone config.py — used by the Settings UI) ──
-SETTINGS_KEYS: tuple[str, ...] = (
-    CONF_BIND_HOST, CONF_BIND_PORT, CONF_ENABLE_NETFLOW_LISTENER,
-    CONF_INTERNAL_NETWORKS, CONF_SCAN_WINDOW_SECONDS, CONF_SCAN_PORT_THRESHOLD,
-    CONF_HIGH_EGRESS_THRESHOLD, CONF_ENABLE_SCANNER, CONF_SCAN_INTERVAL,
-    CONF_SCAN_PORTS, CONF_SCAN_EXCEPTIONS, CONF_ENABLE_DNS_RESOLUTION,
-    CONF_BLACKLIST_URLS, CONF_DNS_PROXY_ENABLED, CONF_DNS_PROXY_PORT,
-    CONF_DNS_PROXY_BIND_HOST,
-    CONF_DNS_PROXY_UPSTREAM, CONF_DNS_LOG_RETENTION_HOURS,
-    CONF_DNS_WARN_BLOCKED_LOGS, CONF_DNS_BLOCKED_CATEGORIES, CONF_DNS_OVERRIDES,
-    CONF_VIRUSTOTAL_API_KEY,
-    CONF_ABUSEIPDB_API_KEY, CONF_VT_ABUSEIPDB_THRESHOLD,
-    CONF_VIRUSTOTAL_DAILY_BUDGET, CONF_ABUSEIPDB_DAILY_BUDGET,
-    CONF_ENRICHMENT_TTL_MINUTES, CONF_EXTERNAL_IP_RETENTION,
-    CONF_RETENTION_SUSPICIOUS_HOURS, CONF_RETENTION_MALICIOUS_HOURS,
-    CONF_BASELINE_ENABLED, CONF_BASELINE_TRAINING_HOURS,
-    CONF_BASELINE_MIN_OBSERVATIONS, CONF_BASELINE_EGRESS_MULTIPLIER,
-    CONF_NVD_API_URL, CONF_NVD_TTL_HOURS, CONF_NVD_MIN_YEAR, CONF_NVD_KEYWORDS,
-    CONF_STATS_TOP_N, CONF_WEBUI_REQUIRE_ADMIN,
-    CONF_SURICATA_LISTENER_ENABLED, CONF_SURICATA_LISTENER_HOST,
-    CONF_SURICATA_LISTENER_PORT, CONF_SURICATA_LOG_RETENTION_HOURS,
-)
-
-SETTINGS_SCHEMA: list[dict[str, Any]] = [
-    {
-        "section": "Network & NetFlow",
-        "fields": [
-            {"key": CONF_BIND_HOST, "label": "NetFlow Bind Host", "type": "text", "help": "IP address to bind the NetFlow UDP listener (use 0.0.0.0 for all interfaces)"},
-            {"key": CONF_BIND_PORT, "label": "NetFlow Bind Port", "type": "number", "min": 1, "max": 65535, "help": "UDP port for NetFlow v5/v9/IPFIX datagrams (default 2055)"},
-            {"key": CONF_ENABLE_NETFLOW_LISTENER, "label": "Enable NetFlow Listener", "type": "boolean", "help": "Enable UDP NetFlow/IPFIX listener and flow ingestion"},
-            {"key": CONF_INTERNAL_NETWORKS, "label": "Internal Networks", "type": "text", "help": "Comma-separated CIDR ranges that are considered internal (e.g. 192.168.0.0/16,10.0.0.0/8)"},
-        ],
-    },
-    {
-        "section": "Threat Detection",
-        "fields": [
-            {"key": CONF_SCAN_WINDOW_SECONDS, "label": "Port Scan Window (s)", "type": "number", "min": 10, "max": 3600, "help": "Time window in seconds for port-scan detection"},
-            {"key": CONF_SCAN_PORT_THRESHOLD, "label": "Port Scan Threshold", "type": "number", "min": 1, "max": 10000, "help": "Number of distinct ports contacted within the window to trigger a port-scan alert"},
-            {"key": CONF_HIGH_EGRESS_THRESHOLD, "label": "High Egress Threshold (bytes)", "type": "number", "min": 100000, "help": "Bytes sent outbound to trigger a high-egress alert"},
-        ],
-    },
-    {
-        "section": "Active Scanner",
-        "fields": [
-            {"key": CONF_ENABLE_SCANNER, "label": "Enable Scanner", "type": "boolean", "help": "Enable periodic active port scanning of internal hosts"},
-            {"key": CONF_SCAN_INTERVAL, "label": "Scan Interval (s)", "type": "number", "min": 60, "help": "Seconds between active scan cycles"},
-            {"key": CONF_SCAN_PORTS, "label": "Scan Ports", "type": "text", "help": "Ports to scan (ranges and commas allowed, e.g. 22,80,443,8080-8090)"},
-            {"key": CONF_SCAN_EXCEPTIONS, "label": "Scan Exceptions", "type": "text", "help": "Comma-separated IPs to exclude from active scanning"},
-        ],
-    },
-    {
-        "section": "DNS & Threat Intelligence",
-        "fields": [
-            {"key": CONF_ENABLE_DNS_RESOLUTION, "label": "Enable DNS Resolution", "type": "boolean", "help": "Resolve hostnames for external IPs and check them against blacklists"},
-            {"key": CONF_BLACKLIST_URLS, "label": "Blacklist URLs", "type": "text", "help": "Comma or newline-separated URLs of threat-intel blocklists to download"},
-        ],
-    },
-    {
-        "section": "DNS Proxy",
-        "fields": [
-            {"key": CONF_DNS_PROXY_ENABLED, "label": "Enable DNS Proxy", "type": "boolean", "help": "Run a DNS proxy that logs and optionally blocks queries"},
-            {"key": CONF_DNS_PROXY_BIND_HOST, "label": "DNS Proxy Bind Host", "type": "text", "help": "Listener bind address for DNS proxy (recommended: 127.0.0.1 or a specific LAN IP)"},
-            {"key": CONF_DNS_PROXY_PORT, "label": "DNS Proxy Port", "type": "number", "min": 1, "max": 65535, "help": "UDP port for the DNS proxy listener (default 53 — requires root/CAP_NET_BIND_SERVICE)"},
-            {"key": CONF_DNS_PROXY_UPSTREAM, "label": "Upstream DNS Server", "type": "text", "help": "Upstream DNS resolver IP (e.g. 1.1.1.1)"},
-            {"key": CONF_DNS_LOG_RETENTION_HOURS, "label": "DNS Log Retention (h)", "type": "number", "min": 0, "max": 8760, "help": "How many hours to keep DNS query log entries (0 = unlimited)"},
-            {"key": CONF_DNS_WARN_BLOCKED_LOGS, "label": "Warn Logs for Blocked Domains", "type": "boolean", "help": "Write warning logs for each blocked DNS query (disabled by default to reduce log noise)"},
-            {"key": CONF_DNS_BLOCKED_CATEGORIES, "label": "Blocked DNS Categories", "type": "text", "help": "Comma or newline-separated category names to block (e.g. ads,malware,tracking)"},
-            {"key": CONF_DNS_OVERRIDES, "label": "DNS Local Overrides", "type": "text", "help": "Local DNS overrides, one per line: hostname=IP (e.g. myhost.local=192.168.1.5)"},
-        ],
-    },
-    {
-        "section": "External IP Enrichment",
-        "fields": [
-            {"key": CONF_VIRUSTOTAL_API_KEY, "label": "VirusTotal API Key", "type": "password", "help": "Optional VirusTotal API key for external IP reputation lookup"},
-            {"key": CONF_ABUSEIPDB_API_KEY, "label": "AbuseIPDB API Key", "type": "password", "help": "Optional AbuseIPDB API key for external IP reputation lookup"},
-            {"key": CONF_VT_ABUSEIPDB_THRESHOLD, "label": "Threat Score Threshold (%)", "type": "number", "min": 0, "max": 100, "help": "Minimum abuse confidence score (0-100) to flag an IP as suspicious"},
-            {"key": CONF_VIRUSTOTAL_DAILY_BUDGET, "label": "VirusTotal Daily Budget", "type": "number", "min": 0, "help": "Max VirusTotal API lookups per day"},
-            {"key": CONF_ABUSEIPDB_DAILY_BUDGET, "label": "AbuseIPDB Daily Budget", "type": "number", "min": 0, "help": "Max AbuseIPDB API lookups per day"},
-            {"key": CONF_ENRICHMENT_TTL_MINUTES, "label": "Enrichment Cache TTL (min)", "type": "number", "min": 1, "help": "Minutes before re-querying enrichment APIs for a known IP"},
-            {"key": CONF_EXTERNAL_IP_RETENTION, "label": "External IP Retention (h)", "type": "number", "min": 0, "help": "Hours to retain clean external IPs in the dashboard"},
-            {"key": CONF_RETENTION_SUSPICIOUS_HOURS, "label": "Suspicious IP Retention (h)", "type": "number", "min": 0, "help": "Hours to retain suspicious IPs"},
-            {"key": CONF_RETENTION_MALICIOUS_HOURS, "label": "Malicious IP Retention (h)", "type": "number", "min": 0, "help": "Hours to retain malicious IPs"},
-        ],
-    },
-    {
-        "section": "NVD Vulnerability Intelligence",
-        "fields": [
-            {"key": CONF_NVD_API_URL, "label": "NVD API URL", "type": "text", "help": "NVD CVE API endpoint URL"},
-            {"key": CONF_NVD_TTL_HOURS, "label": "NVD Cache TTL (h)", "type": "number", "min": 1, "help": "Hours before refreshing the NVD CVE cache"},
-            {"key": CONF_NVD_MIN_YEAR, "label": "CVE Min Year", "type": "number", "min": 1999, "help": "Only show CVEs published on or after this year"},
-            {"key": CONF_NVD_KEYWORDS, "label": "NVD Keywords", "type": "text", "help": "Comma-separated product keywords to pre-fetch from NVD (e.g. OpenSSH,nginx,Samba)"},
-        ],
-    },
-    {
-        "section": "Baseline & Behaviour Analysis",
-        "fields": [
-            {"key": CONF_BASELINE_ENABLED, "label": "Enable Baseline", "type": "boolean", "help": "Enable behavioural baseline learning and anomaly detection"},
-            {"key": CONF_BASELINE_TRAINING_HOURS, "label": "Training Duration (h)", "type": "number", "min": 1, "max": 168, "help": "Hours of traffic to observe before the baseline is considered trained"},
-            {"key": CONF_BASELINE_MIN_OBSERVATIONS, "label": "Min Observations", "type": "number", "min": 1, "max": 50, "help": "Minimum number of flow observations before treating a pattern as normal"},
-            {"key": CONF_BASELINE_EGRESS_MULTIPLIER, "label": "Egress Anomaly Multiplier", "type": "number", "min": 1.0, "help": "How many times the baseline egress a device must exceed before it is flagged"},
-        ],
-    },
-    {
-        "section": "Display",
-        "fields": [
-            {"key": CONF_WEBUI_REQUIRE_ADMIN, "label": "Sidebar panel requires admin", "type": "boolean", "help": "When enabled, only Home Assistant admin users can see the Security Assistant sidebar panel"},
-            {"key": CONF_STATS_TOP_N, "label": "Statistics Top N", "type": "number", "min": 3, "max": 25, "help": "How many top entries to show in statistics charts"},
-        ],
-    },
-    {
-        "section": "Suricata Alert Listener",
-        "fields": [
-            {"key": CONF_SURICATA_LISTENER_ENABLED, "label": "Enable Suricata Listener", "type": "boolean", "help": "Accept Suricata EVE JSON alerts over TCP from suricata_pusher.py"},
-            {"key": CONF_SURICATA_LISTENER_HOST, "label": "Listener Bind Host", "type": "text", "help": "IP address to bind the TCP listener (0.0.0.0 for all interfaces)"},
-            {"key": CONF_SURICATA_LISTENER_PORT, "label": "Listener TCP Port", "type": "number", "min": 1, "max": 65535, "help": "TCP port for the Suricata pusher to connect to (default 6343)"},
-            {"key": CONF_SURICATA_LOG_RETENTION_HOURS, "label": "Alert Log Retention (h)", "type": "number", "min": 0, "max": 8760, "help": "Hours to keep Suricata alert log entries (0 = unlimited)"},
-        ],
-    },
-]
 
 PANEL_URL_PATH = "homesec"
 PANEL_COMPONENT = "homesec-panel"
@@ -236,50 +70,94 @@ STATIC_LOGO_URL = "/api/homesec/frontend/hsa-logo.svg"
 STATIC_LOGO_PATH = Path(__file__).parent / "frontend" / "hsa-logo.svg"
 
 
+def _runtimes(hass: HomeAssistant) -> dict[str, dict[str, Any]]:
+    """Loaded entries keyed by entry id, as the dicts the payload builders use."""
+    from . import loaded_entries  # local import: __init__ imports this module
+
+    return {
+        entry.entry_id: {
+            "collector": entry.runtime_data.collector,
+            "coordinator": entry.runtime_data.coordinator,
+            "entry": entry,
+            "runtime": entry.runtime_data,
+        }
+        for entry in loaded_entries(hass)
+    }
+
+
+def _first_runtime(hass: HomeAssistant) -> dict[str, Any] | None:
+    return next(iter(_runtimes(hass).values()), None)
+
+
+def _access_denied(request: web.Request, *, write: bool) -> web.Response | None:
+    """Return a 403 response unless the user may perform this request.
+
+    Changing state always needs an admin.  Reading needs an admin unless the
+    "Sidebar panel requires admin" setting was turned off.
+    """
+    user = request.get("hass_user")
+    if user is not None and getattr(user, "is_admin", False):
+        return None
+    if user is not None and not write:
+        runtime = _first_runtime(request.app["hass"])
+        require_admin = DEFAULT_WEBUI_REQUIRE_ADMIN
+        if runtime is not None:
+            require_admin = bool(
+                get_entry_value(runtime["entry"], CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
+            )
+        if not require_admin:
+            return None
+    return web.json_response({"error": "Admin privileges required"}, status=403)
+
+
+def _parse_limit(raw: str | None, default: int) -> int:
+    """Parse a page-size query parameter (0 = default, capped at _MAX_LOG_PAGE)."""
+    try:
+        value = int(raw) if raw not in (None, "") else default
+    except (TypeError, ValueError):
+        value = default
+    if value <= 0:
+        value = default
+    return min(value, _MAX_LOG_PAGE)
+
+
+def _parse_offset(raw: str | None) -> int:
+    try:
+        return max(0, int(raw or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
 async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True) -> None:
     domain_data = hass.data.setdefault(DOMAIN, {})
-    domain_data.setdefault("entries", {})
-    domain_data.setdefault("panel_registered", False)
-    if domain_data["panel_registered"]:
+    # Static paths and API views can only be registered once per HA run.
+    if not domain_data.get("views_registered"):
+        await hass.http.async_register_static_paths(
+            [
+                StaticPathConfig(STATIC_PANEL_URL, str(STATIC_PANEL_PATH), cache_headers=False),
+                StaticPathConfig(STATIC_LOGO_URL, str(STATIC_LOGO_PATH), cache_headers=True),
+            ]
+        )
+        for view in (
+            HomeSecDashboardView(),
+            HomeSecPanelFallbackView(),
+            HomeSecLookupView(),
+            HomeSecDismissFindingView(),
+            HomeSecDismissByPatternView(),
+            HomeSecUndismissFindingView(),
+            HomeSecRoleOverrideView(),
+            HomeSecNameOverrideView(),
+            HomeSecVulnBrowserView(),
+            HomeSecDnsLogView(),
+            HomeSecClearBlockedDnsView(),
+            HomeSecSettingsView(),
+            HomeSecSettingsSaveView(),
+        ):
+            hass.http.register_view(view)
+        domain_data["views_registered"] = True
+
+    if domain_data.get("panel_registered"):
         return
-
-    await hass.http.async_register_static_paths(
-        [
-            StaticPathConfig(
-                STATIC_PANEL_URL,
-                str(STATIC_PANEL_PATH),
-                cache_headers=False,
-            ),
-            StaticPathConfig(
-                STATIC_LOGO_URL,
-                str(STATIC_LOGO_PATH),
-                cache_headers=True,
-            ),
-        ]
-    )
-    # Load persisted role overrides
-    role_overrides = await hass.async_add_executor_job(
-        load_role_overrides, hass.config.config_dir
-    )
-    name_overrides = await hass.async_add_executor_job(
-        load_name_overrides, hass.config.config_dir
-    )
-    domain_data["role_overrides"] = role_overrides
-    domain_data["name_overrides"] = name_overrides
-
-    hass.http.register_view(HomeSecDashboardView())
-    hass.http.register_view(HomeSecPanelFallbackView())
-    hass.http.register_view(HomeSecLookupView())
-    hass.http.register_view(HomeSecDismissFindingView())
-    hass.http.register_view(HomeSecDismissByPatternView())
-    hass.http.register_view(HomeSecUndismissFindingView())
-    hass.http.register_view(HomeSecRoleOverrideView())
-    hass.http.register_view(HomeSecNameOverrideView())
-    hass.http.register_view(HomeSecVulnBrowserView())
-    hass.http.register_view(HomeSecDnsLogView())
-    hass.http.register_view(HomeSecClearBlockedDnsView())
-    hass.http.register_view(HomeSecSettingsView())
-    hass.http.register_view(HomeSecSettingsSaveView())
     await panel_custom.async_register_panel(
         hass,
         webcomponent_name=PANEL_COMPONENT,
@@ -290,7 +168,7 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
         require_admin=require_admin,
         config={"domain": DOMAIN},
     )
-    _LOGGER.info("Security Assistant panel registered at /%s and fallback at /api/homesec/panel", PANEL_URL_PATH)
+    _LOGGER.debug("Security Assistant panel registered at /%s", PANEL_URL_PATH)
     domain_data["panel_registered"] = True
 
 
@@ -299,12 +177,11 @@ def build_dashboard_payload(
     persisted_chart_state: dict[str, Any] | None = None,
     dns_offset: int = 0,
     dns_limit: int | None = None,
+    suricata_limit: int | None = None,
 ) -> dict[str, Any]:
-    domain_data = hass.data.get(DOMAIN, {})
-    entries = domain_data.get("entries", {})
+    entries = _runtimes(hass)
     persisted_chart_state = persisted_chart_state or {}
 
-    entry_payloads: list[dict[str, Any]] = []
     all_devices: list[dict[str, Any]] = []
     all_findings: list[dict[str, Any]] = []
     all_dismissed_findings: list[dict[str, Any]] = []
@@ -348,15 +225,10 @@ def build_dashboard_payload(
         snapshot = coordinator.data or {}
         dismissed = getattr(coordinator.collector, "_dismissed_findings", {})
         listener = snapshot.get("listener", {})
-        payload = {
-            "entry_id": entry_id,
-            "title": runtime["entry"].title,
-            "snapshot": snapshot,
-        }
-        entry_payloads.append(payload)
 
-        # Recompute at_risk per device using the live dismissed set
-        devices_from_snapshot = snapshot.get("devices", [])
+        # Recompute at_risk per device using the live dismissed set (on copies:
+        # the snapshot is shared with the sensor entities)
+        devices_from_snapshot = [dict(device) for device in snapshot.get("devices", [])]
         for device in devices_from_snapshot:
             ip = device.get("ip", "")
             device["at_risk"] = any(
@@ -483,8 +355,9 @@ def build_dashboard_payload(
                 nvd_last_updated = nvd_ts_str
 
     # Apply persisted role overrides
-    role_overrides = domain_data.get("role_overrides", {})
-    name_overrides = domain_data.get("name_overrides", {})
+    first = next(iter(entries.values()), None)
+    role_overrides = first["runtime"].role_overrides if first else {}
+    name_overrides = first["runtime"].name_overrides if first else {}
     for device in all_devices:
         ip = device.get("ip", "")
         if ip in role_overrides:
@@ -630,11 +503,12 @@ def build_dashboard_payload(
 
     full_dns_log = _build_dns_log(entries)
     dns_offset = max(0, int(dns_offset))
-    if dns_limit is None:
-        dns_limit = 0
-    else:
-        dns_limit = max(0, int(dns_limit))
-    dns_log = full_dns_log[dns_offset:] if dns_limit == 0 else full_dns_log[dns_offset:dns_offset + dns_limit]
+    dns_limit = _parse_limit(str(dns_limit) if dns_limit is not None else None, DASHBOARD_LOG_LIMIT)
+    dns_log = full_dns_log[dns_offset:dns_offset + dns_limit]
+    full_suricata_log = _build_suricata_log(entries)
+    suricata_limit = _parse_limit(
+        str(suricata_limit) if suricata_limit is not None else None, DASHBOARD_LOG_LIMIT
+    )
 
     return {
         "summary": {
@@ -658,8 +532,8 @@ def build_dashboard_payload(
             "collector_started_at": collector_started_at,
             "version": _read_version(),
         },
-        "role_overrides": domain_data.get("role_overrides", {}),
-        "name_overrides": domain_data.get("name_overrides", {}),
+        "role_overrides": role_overrides,
+        "name_overrides": name_overrides,
         "devices": sorted(all_devices, key=lambda device: device.get("total_octets", 0), reverse=True),
         "findings": sorted(all_findings, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
         "baseline_anomalies": sorted(baseline_anomalies, key=lambda finding: (SEVERITY_SORT.get(finding.get("severity", ""), 99), -finding.get("count", 0))),
@@ -696,7 +570,6 @@ def build_dashboard_payload(
         "dns_proxy_enabled": bool(get_entry_value(
             list(entries.values())[0]["entry"], CONF_DNS_PROXY_ENABLED, False
         )) if entries else False,
-        "entries": entry_payloads,
         "stats_top_n": TOP_N,
         "top_public_ips": top_public_ips,
         "top_countries": top_countries,
@@ -711,7 +584,8 @@ def build_dashboard_payload(
         "dns_proxy_stats": _build_dns_proxy_stats(entries),
         "blacklist_stats": _build_blacklist_stats(entries),
         "suricata_stats": _build_suricata_stats(entries),
-        "suricata_log": _build_suricata_log(entries),
+        "suricata_log": full_suricata_log[:suricata_limit],
+        "suricata_log_total": len(full_suricata_log),
     }
 
 
@@ -949,45 +823,37 @@ class HomeSecDashboardView(HomeAssistantView):
     requires_auth = True
 
     async def get(self, request):
+        if (denied := _access_denied(request, write=False)) is not None:
+            return denied
         hass = request.app["hass"]
-        entries = hass.data.get(DOMAIN, {}).get("entries", {})
-        entry = list(entries.values())[0]["entry"] if entries else None
+        first = _first_runtime(hass)
+        runtime = first["runtime"] if first else None
 
-        try:
-            dns_offset = max(0, int(request.query.get("dns_offset", 0)))
-        except (TypeError, ValueError):
-            dns_offset = 0
-        raw_dns_limit = request.query.get("dns_limit")
-        if raw_dns_limit is None or raw_dns_limit == "":
-            dns_limit = 0
-        else:
-            try:
-                dns_limit = max(0, int(raw_dns_limit))
-            except (TypeError, ValueError):
-                dns_limit = 0
-
-        persisted_chart_state = await hass.async_add_executor_job(
-            load_chart_state, hass.config.config_dir
-        )
+        if runtime is not None and runtime.chart_state is None:
+            runtime.chart_state = await runtime.collector.storage.async_load("chart_state", {})
         payload = build_dashboard_payload(
             hass,
-            persisted_chart_state,
-            dns_offset=dns_offset,
-            dns_limit=dns_limit,
+            runtime.chart_state if runtime is not None else {},
+            dns_offset=_parse_offset(request.query.get("dns_offset")),
+            dns_limit=_parse_limit(request.query.get("dns_limit"), DASHBOARD_LOG_LIMIT),
+            suricata_limit=_parse_limit(request.query.get("suricata_limit"), DASHBOARD_LOG_LIMIT),
         )
         payload["panel_require_admin"] = bool(
-            get_entry_value(entry, CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
-        ) if entry is not None else DEFAULT_WEBUI_REQUIRE_ADMIN
-        await hass.async_add_executor_job(
-            save_chart_state,
-            hass.config.config_dir,
-            {
+            get_entry_value(first["entry"], CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
+        ) if first is not None else DEFAULT_WEBUI_REQUIRE_ADMIN
+        if runtime is not None:
+            chart_state = {
                 "top_public_ips": payload.get("top_public_ips", []),
                 "top_countries": payload.get("top_countries", []),
                 "top_internal_talkers": payload.get("top_internal_talkers", []),
                 "top_threat_ips": payload.get("top_threat_ips", []),
-            },
-        )
+            }
+            # Only write when the top lists actually changed (not on every poll)
+            if chart_state != runtime.chart_state:
+                runtime.chart_state = chart_state
+                runtime.collector.storage.async_delay_save(
+                    "chart_state", lambda: chart_state, 60
+                )
         return self.json(payload)
 
 
@@ -1029,6 +895,9 @@ class HomeSecLookupView(HomeAssistantView):
     requires_auth = True
 
     async def get(self, request: web.Request) -> web.Response:
+        # Lookups spend third-party API quota: admin only.
+        if (denied := _access_denied(request, write=True)) is not None:
+            return denied
         ip_param = request.query.get("ip", "").strip()
         if not ip_param:
             return self.json({"error": "missing 'ip' query parameter"}, status_code=400)
@@ -1038,13 +907,11 @@ class HomeSecLookupView(HomeAssistantView):
             return self.json({"error": "invalid IP address"}, status_code=400)
 
         hass: HomeAssistant = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
-        if not entries:
+        first = _first_runtime(hass)
+        if first is None:
             return self.json({"error": "no active HomeSec entries"}, status_code=404)
 
-        collector = next(iter(entries.values()))["collector"]
-        result = await collector.lookup_ip(ip_param)
+        result = await first["collector"].lookup_ip(ip_param)
         return self.json(result)
 
 
@@ -1056,22 +923,31 @@ class HomeSecDismissFindingView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request):
+        if (denied := _access_denied(request, write=True)) is not None:
+            return denied
         try:
             data = await request.json()
         except ValueError:
             return self.json({"error": "Invalid JSON"}, status_code=400)
-        key = data.get("key")
+        if not isinstance(data, dict):
+            return self.json({"error": "Expected JSON object"}, status_code=400)
+        key = str(data.get("key") or "")[:512]
         if not key:
             return self.json({"error": "Missing key"}, status_code=400)
         note = str(data.get("note") or "")[:500]  # cap note length
         hass = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
+        entries = _runtimes(hass)
         for runtime in entries.values():
             collector = getattr(runtime.get("coordinator"), "collector", None)
             if collector:
                 collector.dismiss_finding(key, note)
         return self.json({"result": "ok"})
+
+
+def _match_findings(pattern: str, findings: list[tuple[str, str]]) -> list[str]:
+    """Return keys whose key or summary matches *pattern* (runs in an executor)."""
+    rx = _re.compile(pattern, _re.IGNORECASE)
+    return [key for key, summary in findings if rx.search(key) or rx.search(summary)]
 
 
 class HomeSecDismissByPatternView(HomeAssistantView):
@@ -1082,41 +958,42 @@ class HomeSecDismissByPatternView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request):
-        import re as _re
-
+        if (denied := _access_denied(request, write=True)) is not None:
+            return denied
         try:
             data = await request.json()
         except ValueError:
             return self.json({"error": "Invalid JSON"}, status_code=400)
+        if not isinstance(data, dict):
+            return self.json({"error": "Expected JSON object"}, status_code=400)
         pattern = str(data.get("pattern") or "").strip()
         if not pattern:
             return self.json({"error": "Missing pattern"}, status_code=400)
-        if len(pattern) > 200:
-            return self.json({"error": "Pattern too long (max 200 chars)"}, status_code=400)
+        if len(pattern) > _MAX_REGEX_LENGTH:
+            return self.json({"error": f"Pattern too long (max {_MAX_REGEX_LENGTH} chars)"}, status_code=400)
         note = str(data.get("note") or "")[:500]
         try:
-            rx = _re.compile(pattern, _re.IGNORECASE)
+            _re.compile(pattern, _re.IGNORECASE)
         except _re.error as exc:
             return self.json({"error": f"Invalid regex: {exc}"}, status_code=400)
         hass = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
-        seen_keys: set[str] = set()
         dismissed_count = 0
-        for runtime in entries.values():
-            coordinator = runtime.get("coordinator")
-            collector = getattr(coordinator, "collector", None)
-            if not collector or not coordinator:
-                continue
+        for runtime in _runtimes(hass).values():
+            coordinator = runtime["coordinator"]
+            collector = runtime["collector"]
+            candidates: dict[str, str] = {}
             for f in (coordinator.data or {}).get("findings", []):
                 key = str(f.get("key") or "")
-                summary = str(f.get("summary") or "")
-                if not key or key in seen_keys:
-                    continue
-                if rx.search(key) or rx.search(summary):
-                    seen_keys.add(key)
-                    collector.dismiss_finding(key, note or f"Regex dismiss: {pattern}")
-                    dismissed_count += 1
+                if key:
+                    candidates.setdefault(key, str(f.get("summary") or ""))
+            # Regex matching runs in the executor: a pathological pattern can
+            # tie up one worker thread but never the event loop.
+            matched = await hass.async_add_executor_job(
+                _match_findings, pattern, list(candidates.items())
+            )
+            for key in matched:
+                collector.dismiss_finding(key, note or f"Regex dismiss: {pattern}")
+                dismissed_count += 1
         return self.json({"result": "ok", "dismissed": dismissed_count})
 
 
@@ -1128,16 +1005,19 @@ class HomeSecUndismissFindingView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request):
+        if (denied := _access_denied(request, write=True)) is not None:
+            return denied
         try:
             data = await request.json()
         except ValueError:
             return self.json({"error": "Invalid JSON"}, status_code=400)
-        key = data.get("key")
+        if not isinstance(data, dict):
+            return self.json({"error": "Expected JSON object"}, status_code=400)
+        key = str(data.get("key") or "")
         if not key:
             return self.json({"error": "Missing key"}, status_code=400)
         hass = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
+        entries = _runtimes(hass)
         for runtime in entries.values():
             collector = getattr(runtime.get("coordinator"), "collector", None)
             if collector:
@@ -1153,12 +1033,16 @@ class HomeSecRoleOverrideView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request):
+        if (denied := _access_denied(request, write=True)) is not None:
+            return denied
         try:
             data = await request.json()
         except ValueError:
             return self.json({"error": "Invalid JSON"}, status_code=400)
-        ip = data.get("ip", "").strip()
-        role = data.get("role", "").strip()
+        if not isinstance(data, dict):
+            return self.json({"error": "Expected JSON object"}, status_code=400)
+        ip = str(data.get("ip") or "").strip()
+        role = str(data.get("role") or "").strip()
         if not ip:
             return self.json({"error": "Missing ip"}, status_code=400)
         try:
@@ -1168,17 +1052,15 @@ class HomeSecRoleOverrideView(HomeAssistantView):
         if role and not _ROLE_RE.match(role):
             return self.json({"error": "Role must be 1-40 lowercase letters, digits, or underscores"}, status_code=400)
 
-        hass = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        overrides = domain_data.get("role_overrides", {})
+        first = _first_runtime(request.app["hass"])
+        if first is None:
+            return self.json({"error": "no active HomeSec entries"}, status_code=404)
+        overrides = first["runtime"].role_overrides
         if role:
             overrides[ip] = role
         else:
             overrides.pop(ip, None)
-        domain_data["role_overrides"] = overrides
-        await hass.async_add_executor_job(
-            save_role_overrides, hass.config.config_dir, overrides
-        )
+        await first["collector"].storage.async_save("role_overrides", dict(overrides))
         return self.json({"result": "ok"})
 
 
@@ -1190,12 +1072,16 @@ class HomeSecNameOverrideView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request):
+        if (denied := _access_denied(request, write=True)) is not None:
+            return denied
         try:
             data = await request.json()
         except ValueError:
             return self.json({"error": "Invalid JSON"}, status_code=400)
-        ip = data.get("ip", "").strip()
-        custom_name = data.get("name", "").strip()
+        if not isinstance(data, dict):
+            return self.json({"error": "Expected JSON object"}, status_code=400)
+        ip = str(data.get("ip") or "").strip()
+        custom_name = str(data.get("name") or "").strip()
         if not ip:
             return self.json({"error": "Missing ip"}, status_code=400)
         try:
@@ -1205,17 +1091,15 @@ class HomeSecNameOverrideView(HomeAssistantView):
         if custom_name and len(custom_name) > 64:
             return self.json({"error": "Name too long (max 64 chars)"}, status_code=400)
 
-        hass = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        overrides = domain_data.get("name_overrides", {})
+        first = _first_runtime(request.app["hass"])
+        if first is None:
+            return self.json({"error": "no active HomeSec entries"}, status_code=404)
+        overrides = first["runtime"].name_overrides
         if custom_name:
             overrides[ip] = custom_name
         else:
             overrides.pop(ip, None)
-        domain_data["name_overrides"] = overrides
-        await hass.async_add_executor_job(
-            save_name_overrides, hass.config.config_dir, overrides
-        )
+        await first["collector"].storage.async_save("name_overrides", dict(overrides))
         return self.json({"result": "ok"})
 
 
@@ -1227,9 +1111,10 @@ class HomeSecVulnBrowserView(HomeAssistantView):
     requires_auth = True
 
     async def get(self, request: web.Request) -> web.Response:
+        if (denied := _access_denied(request, write=False)) is not None:
+            return denied
         hass: HomeAssistant = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
+        entries = _runtimes(hass)
         if not entries:
             return self.json({"vulnerabilities": [], "total": 0, "kev_matches": 0, "kev_total": 0})
 
@@ -1392,20 +1277,15 @@ class HomeSecDnsLogView(HomeAssistantView):
     requires_auth = True
 
     async def get(self, request: web.Request) -> web.Response:
+        if (denied := _access_denied(request, write=False)) is not None:
+            return denied
         hass: HomeAssistant = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
+        entries = _runtimes(hass)
         if not entries:
             return self.json({"entries": [], "total": 0})
 
-        raw_limit = request.query.get("limit")
-        if raw_limit is None or raw_limit == "":
-            limit = 0
-        else:
-            try:
-                limit = max(0, int(raw_limit))
-            except (ValueError, TypeError):
-                limit = 0
+        limit = _parse_limit(request.query.get("limit"), DASHBOARD_LOG_LIMIT)
+        offset = _parse_offset(request.query.get("offset"))
         malicious_only = request.query.get("malicious_only", "").lower() in ("1", "true", "yes")
 
         merged: list[dict] = []
@@ -1414,10 +1294,8 @@ class HomeSecDnsLogView(HomeAssistantView):
         merged.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
         if malicious_only:
             merged = [e for e in merged if e.get("malicious")]
-        if limit > 0:
-            merged = merged[:limit]
-
-        return self.json({"entries": merged, "total": len(merged)})
+        total = len(merged)
+        return self.json({"entries": merged[offset:offset + limit], "total": total, "offset": offset})
 
 
 class HomeSecClearBlockedDnsView(HomeAssistantView):
@@ -1431,9 +1309,10 @@ class HomeSecClearBlockedDnsView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request: web.Request) -> web.Response:
+        if (denied := _access_denied(request, write=True)) is not None:
+            return denied
         hass: HomeAssistant = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
+        entries = _runtimes(hass)
         if not entries:
             return self.json({"removed": 0})
         total_removed = 0
@@ -1449,46 +1328,38 @@ class HomeSecSettingsView(HomeAssistantView):
 
     GET /api/homesec/settings
     Returns the current config entry values and the settings schema so
-    the frontend can render an editable form.
+    the frontend can render an editable form.  Secrets are redacted.
     """
 
     url = "/api/homesec/settings"
     name = "api:homesec:settings"
     requires_auth = True
 
-    @staticmethod
-    def _require_admin(request: web.Request) -> web.Response | None:
-        user = request.get("hass_user")
-        if user is None or not getattr(user, "is_admin", False):
-            return web.json_response({"error": "Admin privileges required"}, status=403)
-        return None
-
     async def get(self, request: web.Request) -> web.Response:
-        denied = self._require_admin(request)
-        if denied is not None:
+        if (denied := _access_denied(request, write=True)) is not None:
             return denied
-        hass: HomeAssistant = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
-        if not entries:
+        first = _first_runtime(request.app["hass"])
+        if first is None:
             return self.json({"error": "no active HomeSec entries"}, status_code=404)
-        entry = next(iter(entries.values()))["entry"]
+        entry = first["entry"]
         config: dict[str, Any] = {}
         for key in SETTINGS_KEYS:
             value = get_entry_value(entry, key, SETTINGS_DEFAULTS.get(key))
-            if key in _SECRET_SETTINGS_KEYS:
-                config[key] = _REDACTED_SECRET_VALUE if value else ""
+            if key in SECRET_SETTINGS_KEYS:
+                config[key] = REDACTED_SECRET_VALUE if value else ""
             else:
                 config[key] = value
         return self.json({"config": config, "schema": SETTINGS_SCHEMA})
 
 
 class HomeSecSettingsSaveView(HomeAssistantView):
-    """Save updated settings via the HA config entry options.
+    """Validate and save settings into the config entry options.
 
-    POST /api/homesec/settings
-    Accepts a JSON object with one or more settings keys and merges them
-    into the config entry options, then schedules a reload of the entry.
+    POST /api/homesec/settings/save
+    Accepts a JSON object with one or more settings keys.  Invalid values are
+    rejected with HTTP 400 and a per-field ``errors`` map; nothing is saved
+    in that case.  The entry's update listener then applies the change in
+    place or reloads the entry.
     """
 
     url = "/api/homesec/settings/save"
@@ -1496,43 +1367,38 @@ class HomeSecSettingsSaveView(HomeAssistantView):
     requires_auth = True
 
     async def post(self, request: web.Request) -> web.Response:
-        denied = HomeSecSettingsView._require_admin(request)
-        if denied is not None:
+        if (denied := _access_denied(request, write=True)) is not None:
             return denied
         try:
             data = await request.json()
-        except Exception:
+        except Exception:  # noqa: BLE001
             return self.json({"error": "Invalid or non-JSON request body"}, status_code=400)
         if not isinstance(data, dict):
             return self.json({"error": "Expected JSON object"}, status_code=400)
 
         hass: HomeAssistant = request.app["hass"]
-        domain_data = hass.data.get(DOMAIN, {})
-        entries = domain_data.get("entries", {})
-        if not entries:
+        first = _first_runtime(hass)
+        if first is None:
             return self.json({"error": "No active Home Security Assistant entry found. Is the integration set up?"}, status_code=404)
+        entry = first["entry"]
 
-        runtime = next(iter(entries.values()))
-        entry = runtime["entry"]
+        updates, errors = validate_settings(data)
+        if errors:
+            return self.json(
+                {
+                    "error": "Invalid settings: " + "; ".join(f"{k}: {v}" for k, v in errors.items()),
+                    "errors": errors,
+                },
+                status_code=400,
+            )
 
-        # Merge submitted keys into existing options (only known keys accepted)
         new_options = dict(entry.options)
-        for key in SETTINGS_KEYS:
-            if key in data:
-                if (
-                    key in _SECRET_SETTINGS_KEYS
-                    and isinstance(data[key], str)
-                    and data[key] == _REDACTED_SECRET_VALUE
-                ):
-                    # Keep existing stored secret when UI posts redacted placeholder.
-                    continue
-                if data[key] is None:
-                    new_options.pop(key, None)
-                else:
-                    new_options[key] = data[key]
-
-        hass.config_entries.async_update_entry(entry, options=new_options)
-        _LOGGER.info("HomeSec settings updated via Settings UI; scheduling reload")
-        # Delay reload slightly so the HTTP response is sent before teardown begins
-        hass.loop.call_later(0.5, lambda: hass.async_create_task(hass.config_entries.async_reload(entry.entry_id)))
-        return self.json({"result": "ok", "restart_required": False})
+        for key, value in updates.items():
+            if value is None:
+                new_options.pop(key, None)
+            else:
+                new_options[key] = value
+        if new_options != dict(entry.options):
+            hass.config_entries.async_update_entry(entry, options=new_options)
+            _LOGGER.info("HomeSec settings updated via Settings UI")
+        return self.json({"result": "ok"})
