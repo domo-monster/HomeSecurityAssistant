@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
-
 
 BASELINE_SCHEMA_VERSION = 1
 BASELINE_MODE_DISABLED = "disabled"
@@ -43,7 +42,7 @@ class BaselineManager:
         if self._mode != BASELINE_MODE_ACTIVE or not self._hosts:
             self._last_anomalies = []
             return []
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         anomalies = []
         # Build lookup tables for baseline
         baseline_hosts = self._hosts
@@ -153,7 +152,7 @@ class BaselineManager:
         *dns_log* must contain only the DNS entries logged since the previous
         call, so each query is counted once.
         """
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         if self._mode != BASELINE_MODE_TRAINING:
             return
         self._training_stats["snapshots_seen"] += 1
@@ -281,7 +280,8 @@ class BaselineManager:
         if not isinstance(data, dict):
             return
         self._mode = str(data.get("mode") or BASELINE_MODE_DISABLED)
-        metadata = data.get("metadata") if isinstance(data.get("metadata"), dict) else {}
+        raw_metadata = data.get("metadata")
+        metadata: dict[str, Any] = raw_metadata if isinstance(raw_metadata, dict) else {}
         self._training_started_at = self._parse_ts(metadata.get("training_started_at"))
         self._training_ends_at = self._parse_ts(metadata.get("training_ends_at"))
         self._baseline_completed_at = self._parse_ts(metadata.get("baseline_completed_at"))
@@ -326,7 +326,7 @@ class BaselineManager:
         }
 
     def start_training(self, now: datetime | None = None) -> None:
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         self._mode = BASELINE_MODE_TRAINING
         self._training_started_at = now
         self._training_ends_at = now + timedelta(hours=self._training_hours)
@@ -343,7 +343,7 @@ class BaselineManager:
         self._dirty = True
 
     def stop_training(self, now: datetime | None = None) -> None:
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         if self._mode == BASELINE_MODE_TRAINING:
             self._baseline_completed_at = now
             self._mode = BASELINE_MODE_ACTIVE if self._hosts else BASELINE_MODE_DISABLED
@@ -377,7 +377,7 @@ class BaselineManager:
     # Duplicate observe_snapshot removed (see above for correct definition)
 
     def status_snapshot(self, now: datetime | None = None) -> dict[str, Any]:
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         remaining_seconds = 0
         progress = 0
         if self._mode == BASELINE_MODE_TRAINING and self._training_started_at and self._training_ends_at:
@@ -449,7 +449,7 @@ class BaselineManager:
         try:
             dt = datetime.fromisoformat(str(value))
             if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=timezone.utc)
+                dt = dt.replace(tzinfo=UTC)
             return dt
         except (TypeError, ValueError):
             return None

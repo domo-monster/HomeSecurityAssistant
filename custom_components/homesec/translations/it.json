@@ -10,6 +10,14 @@
           "enable_netflow_listener": "Abilita listener NetFlow",
           "internal_networks": "Reti interne (CIDR separati da virgola, es. 192.168.0.0/16,10.0.0.0/8)"
         }
+      },
+      "privacy": {
+        "title": "Privacy e funzioni attive",
+        "description": "Entrambe le funzioni sono disattivate per impostazione predefinita.\n\n**Scanner attivo**: esegue periodicamente ping e scansioni delle porte degli host delle reti interne e legge i banner dei servizi. Trova i servizi vulnerabili ma può attivare altri sistemi di rilevamento intrusioni e disturbare dispositivi IoT fragili. Gli indirizzi di Home Assistant non vengono mai scansionati.\n\n**Geolocalizzazione IP**: invia ogni indirizzo IP pubblico contattato dai tuoi dispositivi al servizio esterno ipwho.is per mostrarne paese e operatore.\n\nPuoi cambiare entrambe le scelte in seguito nelle opzioni dell'integrazione o nelle impostazioni di Security Assistant.",
+        "data": {
+          "enable_scanner": "Attiva lo scanner di rete attivo",
+          "enable_ip_geolocation": "Attiva la geolocalizzazione IP tramite ipwho.is"
+        }
       }
     },
     "error": {
@@ -30,7 +38,9 @@
           "bind_host": "Host di ascolto NetFlow",
           "bind_port": "Porta di ascolto NetFlow (UDP)",
           "enable_netflow_listener": "Abilita listener NetFlow",
-          "internal_networks": "Reti interne (CIDR separati da virgola)"
+          "internal_networks": "Reti interne (CIDR separati da virgola)",
+          "enable_scanner": "Attiva lo scanner di rete attivo",
+          "enable_ip_geolocation": "Attiva la geolocalizzazione IP tramite ipwho.is"
         }
       }
     },
@@ -67,6 +77,56 @@
     "retrain_baseline": {
       "name": "Riaddestrare baseline",
       "description": "Cancella lo stato baseline corrente e riavvia immediatamente la modalità di addestramento."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_devices": {
+        "name": "Dispositivi attivi"
+      },
+      "scanned_devices": {
+        "name": "Dispositivi scansionati"
+      },
+      "total_flows": {
+        "name": "Flussi totali"
+      },
+      "open_findings": {
+        "name": "Rilevamenti aperti"
+      },
+      "vulnerability_count": {
+        "name": "Vulnerabilità"
+      },
+      "suspicious_sources": {
+        "name": "Sorgenti sospette"
+      },
+      "high_egress_sources": {
+        "name": "Sorgenti con traffico in uscita elevato"
+      },
+      "nvd_keywords": {
+        "name": "Parole chiave NVD"
+      }
+    }
+  },
+  "issues": {
+    "dns_proxy_not_running": {
+      "title": "Il proxy DNS non è in esecuzione",
+      "description": "Il proxy DNS non ha potuto mettersi in ascolto su {host}:{port}. Probabilmente un altro servizio (ad es. AdGuard, Pi-hole o systemd-resolved) usa quella porta. Cambia porta o indirizzo del proxy DNS nelle impostazioni di Security Assistant oppure arresta l'altro servizio."
+    },
+    "suricata_not_running": {
+      "title": "Il ricevitore Suricata non è in esecuzione",
+      "description": "Il ricevitore di avvisi Suricata non ha potuto mettersi in ascolto su {host}:{port}. Cambia la porta nelle impostazioni di Security Assistant o liberala."
+    },
+    "suricata_unauthenticated": {
+      "title": "Il ricevitore Suricata accetta avvisi da chiunque",
+      "description": "Qualsiasi dispositivo che raggiunge {host}:{port} può inviare avvisi Suricata, che possono attivare le tue automazioni. Imposta un token di autenticazione e/o le sorgenti consentite nelle impostazioni di Security Assistant e avvia suricata_pusher.py con lo stesso token."
+    },
+    "netflow_open_listener": {
+      "title": "Il ricevitore NetFlow accetta flussi da qualsiasi mittente",
+      "description": "Qualsiasi dispositivo che raggiunge {host}:{port} può inviare flussi falsi, creando rilevamenti errati e consumando la quota di arricchimento. Imposta «Esportatori NetFlow consentiti» con l'indirizzo del tuo router nelle impostazioni di Security Assistant."
+    },
+    "blocklist_empty": {
+      "title": "Le blocklist sono vuote",
+      "description": "Nessuno degli URL delle blocklist ha restituito voci, quindi domini e IP malevoli non vengono rilevati né bloccati. Controlla gli URL nelle impostazioni di Security Assistant e l'accesso a Internet di Home Assistant."
     }
   }
 }

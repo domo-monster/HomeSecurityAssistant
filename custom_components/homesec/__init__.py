@@ -13,9 +13,12 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
+from .config_flow import CONFIG_MINOR_VERSION
 from .const import (
     CONF_BIND_HOST,
     CONF_BIND_PORT,
+    CONF_ENABLE_IP_GEOLOCATION,
+    CONF_ENABLE_SCANNER,
     CONF_ENABLE_WEBUI,
     CONF_WEBUI_REQUIRE_ADMIN,
     DEFAULT_ENABLE_WEBUI,
@@ -123,6 +126,27 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         (SERVICE_RETRAIN_BASELINE, _handle_retrain_baseline),
     ):
         hass.services.async_register(DOMAIN, name, handler, schema=vol.Schema({}))
+    return True
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate config entries created by older versions."""
+    if entry.version > 1:
+        # Downgrade from a future major version is not supported.
+        return False
+    if entry.minor_version < 2:
+        # 0.10.x and earlier scanned the LAN and used ipwho.is by default.
+        # Those defaults became opt-in; keep existing installs as they were.
+        options = dict(entry.options)
+        current = _effective_settings(entry)
+        if current.get(CONF_ENABLE_SCANNER) in (None, ""):
+            options[CONF_ENABLE_SCANNER] = True
+        if current.get(CONF_ENABLE_IP_GEOLOCATION) in (None, ""):
+            options[CONF_ENABLE_IP_GEOLOCATION] = True
+        hass.config_entries.async_update_entry(
+            entry, options=options, minor_version=CONFIG_MINOR_VERSION
+        )
+        _LOGGER.info("Migrated HomeSec config entry to version 1.%d", CONFIG_MINOR_VERSION)
     return True
 
 

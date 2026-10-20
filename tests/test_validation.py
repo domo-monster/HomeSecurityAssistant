@@ -17,7 +17,6 @@ from custom_components.homesec.settings_schema import (
     validate_settings,
 )
 
-
 # ── Settings ─────────────────────────────────────────────────────────────────
 
 

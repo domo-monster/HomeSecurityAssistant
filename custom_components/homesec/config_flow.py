@@ -12,15 +12,22 @@ from homeassistant.config_entries import ConfigFlowResult
 from .const import (
     CONF_BIND_HOST,
     CONF_BIND_PORT,
+    CONF_ENABLE_IP_GEOLOCATION,
     CONF_ENABLE_NETFLOW_LISTENER,
+    CONF_ENABLE_SCANNER,
     CONF_INTERNAL_NETWORKS,
     DEFAULT_BIND_HOST,
     DEFAULT_BIND_PORT,
+    DEFAULT_ENABLE_IP_GEOLOCATION,
     DEFAULT_ENABLE_NETFLOW_LISTENER,
+    DEFAULT_ENABLE_SCANNER,
     DEFAULT_INTERNAL_NETWORKS,
     DOMAIN,
     get_entry_value,
 )
+
+# Config entry minor version 2: scanner and IP geolocation became opt-in.
+CONFIG_MINOR_VERSION = 2
 
 
 def _build_schema(defaults: Mapping[str, Any]) -> vol.Schema:
@@ -31,6 +38,13 @@ def _build_schema(defaults: Mapping[str, Any]) -> vol.Schema:
         ),
         vol.Required(CONF_ENABLE_NETFLOW_LISTENER, default=defaults.get(CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER)): bool,
         vol.Required(CONF_INTERNAL_NETWORKS, default=defaults.get(CONF_INTERNAL_NETWORKS, DEFAULT_INTERNAL_NETWORKS)): str,
+    })
+
+
+def _privacy_schema(defaults: Mapping[str, Any]) -> vol.Schema:
+    return vol.Schema({
+        vol.Required(CONF_ENABLE_SCANNER, default=defaults.get(CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER)): bool,
+        vol.Required(CONF_ENABLE_IP_GEOLOCATION, default=defaults.get(CONF_ENABLE_IP_GEOLOCATION, DEFAULT_ENABLE_IP_GEOLOCATION)): bool,
     })
 
 
@@ -58,9 +72,13 @@ def validate_user_input(user_input: dict[str, Any]) -> tuple[dict[str, Any], dic
 
 class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
+    MINOR_VERSION = CONFIG_MINOR_VERSION
+
+    def __init__(self) -> None:
+        self._network: dict[str, Any] = {}
 
     @staticmethod
-    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> "HomeSecOptionsFlowHandler":
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> HomeSecOptionsFlowHandler:
         return HomeSecOptionsFlowHandler()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
@@ -71,13 +89,27 @@ class HomeSecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             clean, errors = validate_user_input(user_input)
             if not errors:
-                return self.async_create_entry(title="Home Security Assistant", data=clean)
+                self._network = clean
+                return await self.async_step_privacy()
 
         return self.async_show_form(
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(_build_schema({}), user_input or {}),
             errors=errors,
         )
+
+    async def async_step_privacy(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Ask before enabling features that probe the LAN or contact third parties."""
+        if user_input is not None:
+            return self.async_create_entry(
+                title="Home Security Assistant",
+                data=self._network,
+                options={
+                    CONF_ENABLE_SCANNER: bool(user_input[CONF_ENABLE_SCANNER]),
+                    CONF_ENABLE_IP_GEOLOCATION: bool(user_input[CONF_ENABLE_IP_GEOLOCATION]),
+                },
+            )
+        return self.async_show_form(step_id="privacy", data_schema=_privacy_schema({}))
 
 
 class HomeSecOptionsFlowHandler(config_entries.OptionsFlow):
@@ -90,10 +122,18 @@ class HomeSecOptionsFlowHandler(config_entries.OptionsFlow):
                 # Keep options set from the Settings page; only update these keys.
                 return self.async_create_entry(title="", data={**self.config_entry.options, **clean})
 
+        entry = self.config_entry
         schema = _build_schema({
-            CONF_BIND_HOST: get_entry_value(self.config_entry, CONF_BIND_HOST, DEFAULT_BIND_HOST),
-            CONF_BIND_PORT: get_entry_value(self.config_entry, CONF_BIND_PORT, DEFAULT_BIND_PORT),
-            CONF_ENABLE_NETFLOW_LISTENER: get_entry_value(self.config_entry, CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER),
-            CONF_INTERNAL_NETWORKS: get_entry_value(self.config_entry, CONF_INTERNAL_NETWORKS, DEFAULT_INTERNAL_NETWORKS),
-        })
+            CONF_BIND_HOST: get_entry_value(entry, CONF_BIND_HOST, DEFAULT_BIND_HOST),
+            CONF_BIND_PORT: get_entry_value(entry, CONF_BIND_PORT, DEFAULT_BIND_PORT),
+            CONF_ENABLE_NETFLOW_LISTENER: get_entry_value(entry, CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER),
+            CONF_INTERNAL_NETWORKS: get_entry_value(entry, CONF_INTERNAL_NETWORKS, DEFAULT_INTERNAL_NETWORKS),
+        }).extend(
+            _privacy_schema({
+                CONF_ENABLE_SCANNER: bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER)),
+                CONF_ENABLE_IP_GEOLOCATION: bool(
+                    get_entry_value(entry, CONF_ENABLE_IP_GEOLOCATION, DEFAULT_ENABLE_IP_GEOLOCATION)
+                ),
+            }).schema
+        )
         return self.async_show_form(step_id="init", data_schema=schema, errors=errors)

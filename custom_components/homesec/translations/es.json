@@ -10,6 +10,14 @@
           "enable_netflow_listener": "Activar receptor NetFlow",
           "internal_networks": "Redes internas (CIDRs separados por comas, p.ej. 192.168.0.0/16,10.0.0.0/8)"
         }
+      },
+      "privacy": {
+        "title": "Privacidad y funciones activas",
+        "description": "Ambas funciones están desactivadas por defecto.\n\n**Escáner activo**: hace ping y escanea puertos de los hosts de sus redes internas y lee los banners de servicio. Detecta servicios vulnerables pero puede activar otros sistemas de detección de intrusiones y afectar a dispositivos IoT frágiles. Las direcciones de Home Assistant nunca se escanean.\n\n**Geolocalización IP**: envía cada dirección IP pública que contactan sus dispositivos al servicio externo ipwho.is para mostrar su país y operador.\n\nPuede cambiar ambas opciones más tarde en las opciones de la integración o en los ajustes de Security Assistant.",
+        "data": {
+          "enable_scanner": "Activar el escáner de red activo",
+          "enable_ip_geolocation": "Activar la geolocalización IP mediante ipwho.is"
+        }
       }
     },
     "error": {
@@ -30,7 +38,9 @@
           "bind_host": "Host de escucha NetFlow",
           "bind_port": "Puerto de escucha NetFlow (UDP)",
           "enable_netflow_listener": "Activar receptor NetFlow",
-          "internal_networks": "Redes internas (CIDRs separados por comas)"
+          "internal_networks": "Redes internas (CIDRs separados por comas)",
+          "enable_scanner": "Activar el escáner de red activo",
+          "enable_ip_geolocation": "Activar la geolocalización IP mediante ipwho.is"
         }
       }
     },
@@ -67,6 +77,56 @@
     "retrain_baseline": {
       "name": "Reentrenar línea base",
       "description": "Borra el estado de línea base actual y reinicia inmediatamente el modo de entrenamiento."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_devices": {
+        "name": "Dispositivos activos"
+      },
+      "scanned_devices": {
+        "name": "Dispositivos escaneados"
+      },
+      "total_flows": {
+        "name": "Flujos totales"
+      },
+      "open_findings": {
+        "name": "Hallazgos abiertos"
+      },
+      "vulnerability_count": {
+        "name": "Vulnerabilidades"
+      },
+      "suspicious_sources": {
+        "name": "Orígenes sospechosos"
+      },
+      "high_egress_sources": {
+        "name": "Orígenes con alto tráfico saliente"
+      },
+      "nvd_keywords": {
+        "name": "Palabras clave NVD"
+      }
+    }
+  },
+  "issues": {
+    "dns_proxy_not_running": {
+      "title": "El proxy DNS no está funcionando",
+      "description": "El proxy DNS no pudo escuchar en {host}:{port}. Probablemente otro servicio (por ejemplo AdGuard, Pi-hole o systemd-resolved) usa ese puerto. Cambie el puerto o la dirección del proxy DNS en los ajustes de Security Assistant o detenga el otro servicio."
+    },
+    "suricata_not_running": {
+      "title": "El receptor de Suricata no está funcionando",
+      "description": "El receptor de alertas de Suricata no pudo escuchar en {host}:{port}. Cambie el puerto en los ajustes de Security Assistant o libérelo."
+    },
+    "suricata_unauthenticated": {
+      "title": "El receptor de Suricata acepta alertas de cualquiera",
+      "description": "Cualquier dispositivo que alcance {host}:{port} puede enviar alertas de Suricata, que pueden activar sus automatizaciones. Defina un token de autenticación y/o los orígenes permitidos en los ajustes de Security Assistant e inicie suricata_pusher.py con el mismo token."
+    },
+    "netflow_open_listener": {
+      "title": "El receptor NetFlow acepta flujos de cualquier remitente",
+      "description": "Cualquier dispositivo que alcance {host}:{port} puede enviar flujos falsos, creando hallazgos falsos y consumiendo su cuota de enriquecimiento. Indique la dirección de su router en «Exportadores NetFlow permitidos» en los ajustes de Security Assistant."
+    },
+    "blocklist_empty": {
+      "title": "Las listas de bloqueo están vacías",
+      "description": "Ninguna de las URL de listas de bloqueo devolvió entradas, por lo que no se detectan ni bloquean dominios ni IP maliciosos. Revise las URL en los ajustes de Security Assistant y el acceso a Internet de Home Assistant."
     }
   }
 }

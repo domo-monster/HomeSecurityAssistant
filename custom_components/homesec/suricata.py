@@ -21,12 +21,13 @@ from __future__ import annotations
 
 import asyncio
 from collections import deque
-from datetime import datetime, UTC
+from collections.abc import Callable
+from datetime import UTC, datetime
 import hmac
 import ipaddress
 import json
 import logging
-from typing import Any, Callable, Optional
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -192,7 +193,7 @@ class SuricataAlertListener:
         self._total_received: int = 0
         self._rejected_connections: int = 0
         self._active_connections: int = 0
-        self._started_at: Optional[datetime] = None
+        self._started_at: datetime | None = None
         self._exporter_ips: list[str] = []
 
     async def async_start(self) -> None:
@@ -240,7 +241,7 @@ class SuricataAlertListener:
             return True
         try:
             line = await asyncio.wait_for(reader.readline(), timeout=_AUTH_TIMEOUT_SECONDS)
-        except (asyncio.TimeoutError, ValueError, asyncio.LimitOverrunError):
+        except (TimeoutError, ValueError, asyncio.LimitOverrunError):
             return False
         text = line.decode("utf-8", errors="replace").strip()
         if not text.startswith("AUTH "):
@@ -277,7 +278,7 @@ class SuricataAlertListener:
             while True:
                 try:
                     line = await asyncio.wait_for(reader.readline(), timeout=_IDLE_TIMEOUT_SECONDS)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # No data for 2 min — close idle connection so it doesn't leak
                     break
                 except (ValueError, asyncio.LimitOverrunError):
@@ -330,6 +331,7 @@ class SuricataAlertListener:
             "rejected_connections": self._rejected_connections,
             "active_connections": self._active_connections,
             "auth_required": bool(self._auth_token),
+            "allowlist": bool(self._allowed_networks),
             "started_at": self._started_at.isoformat() if self._started_at else None,
             "exporter_ips": list(self._exporter_ips),
         }

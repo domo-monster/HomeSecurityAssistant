@@ -1,5 +1,28 @@
 Security Assistant - Changelog
 
+0.11.0
+
+Privacy
+- The active network scanner and ipwho.is IP geolocation are now opt-in, chosen on a new privacy step during setup (and in the integration options / Settings page). Existing installs keep their current behaviour through a config-entry migration.
+- The scanner never probes Home Assistant's own addresses.
+- DNS queries from outside the allowed networks are counted instead of logged.
+
+Home Assistant integration
+- Repair issues for a DNS proxy or Suricata listener that cannot bind, listeners open to any sender, and empty blocklists. A Suricata bind failure no longer stops the whole integration from loading.
+- Diagnostics download with secrets redacted.
+- Sensors: translated names, long-term statistics (state classes), diagnostic categories, service device type; the NVD keywords attribute is now a single list.
+- New settings fields translated in the panel (FR/DE/ES/IT).
+
+Performance
+- DNS proxy reuses one UDP socket per upstream with randomised transaction IDs, question matching and a cap on queries in flight.
+- NetFlow datagrams are parsed in batches outside the receive callback.
+- NVD pages and the CISA KEV catalog are parsed in the executor; reverse DNS uses aiodns.
+- The panel stops polling while the browser tab is hidden.
+
+Maintenance
+- README screenshots moved to docs/images (2 MB less in every install).
+- ruff and mypy run in CI; removed six shadowed duplicate entries in the DNS category list (no behaviour change).
+
 0.10.0
 
 Security

@@ -10,6 +10,14 @@
           "enable_netflow_listener": "Enable NetFlow listener",
           "internal_networks": "Internal networks (comma-separated CIDRs, e.g. 192.168.0.0/16,10.0.0.0/8)"
         }
+      },
+      "privacy": {
+        "title": "Privacy and active features",
+        "description": "Both features are off by default.\n\n**Active scanner**: periodically pings and port-scans hosts on your internal networks and reads service banners. It finds vulnerable services but can trigger other intrusion detection and upset fragile IoT devices. Home Assistant's own addresses are never scanned.\n\n**IP geolocation**: sends every public IP address your devices contact to the third-party service ipwho.is to show its country and network owner.\n\nYou can change both later in the integration options or the Security Assistant settings.",
+        "data": {
+          "enable_scanner": "Enable the active network scanner",
+          "enable_ip_geolocation": "Enable IP geolocation via ipwho.is"
+        }
       }
     },
     "error": {
@@ -30,7 +38,9 @@
           "bind_host": "NetFlow bind host",
           "bind_port": "NetFlow bind port (UDP)",
           "enable_netflow_listener": "Enable NetFlow listener",
-          "internal_networks": "Internal networks (comma-separated CIDRs)"
+          "internal_networks": "Internal networks (comma-separated CIDRs)",
+          "enable_scanner": "Enable the active network scanner",
+          "enable_ip_geolocation": "Enable IP geolocation via ipwho.is"
         }
       }
     },
@@ -67,6 +77,56 @@
     "retrain_baseline": {
       "name": "Retrain baseline",
       "description": "Clear the current baseline state and immediately restart training mode."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_devices": {
+        "name": "Active devices"
+      },
+      "scanned_devices": {
+        "name": "Scanned devices"
+      },
+      "total_flows": {
+        "name": "Total flows"
+      },
+      "open_findings": {
+        "name": "Open findings"
+      },
+      "vulnerability_count": {
+        "name": "Vulnerabilities"
+      },
+      "suspicious_sources": {
+        "name": "Suspicious sources"
+      },
+      "high_egress_sources": {
+        "name": "High egress sources"
+      },
+      "nvd_keywords": {
+        "name": "NVD keywords"
+      }
+    }
+  },
+  "issues": {
+    "dns_proxy_not_running": {
+      "title": "DNS proxy is not running",
+      "description": "The DNS proxy could not listen on {host}:{port}. Another service (for example AdGuard, Pi-hole or systemd-resolved) probably uses that port. Change the DNS proxy port or bind address in the Security Assistant settings, or stop the other service."
+    },
+    "suricata_not_running": {
+      "title": "Suricata listener is not running",
+      "description": "The Suricata alert listener could not listen on {host}:{port}. Change the listener port in the Security Assistant settings or free the port."
+    },
+    "suricata_unauthenticated": {
+      "title": "Suricata listener accepts alerts from anyone",
+      "description": "Any device that can reach {host}:{port} can submit Suricata alerts, which can trigger your automations. Set a listener auth token and/or allowed pusher sources in the Security Assistant settings, and start suricata_pusher.py with the same token."
+    },
+    "netflow_open_listener": {
+      "title": "NetFlow listener accepts flows from any sender",
+      "description": "Any device that can reach {host}:{port} can send fake flows, creating false findings and using your enrichment quota. Set 'Allowed NetFlow Exporters' to your router's address in the Security Assistant settings."
+    },
+    "blocklist_empty": {
+      "title": "Threat-intel blocklists are empty",
+      "description": "None of the configured blocklist URLs returned any entries, so malicious domains and IPs are not being detected or blocked. Check the URLs in the Security Assistant settings and Home Assistant's internet access."
     }
   }
 }

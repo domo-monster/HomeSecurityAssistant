@@ -7,23 +7,34 @@ Results are cached per product keyword with a configurable TTL (default 24 h).
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, datetime, timedelta
+import json
 import logging
 import re
-from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import aiohttp
 
-from .vulnerabilities import _ver_tuple, _backport_patched
+from .vulnerabilities import _ver_tuple
 
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 # Delay before retrying a keyword whose last fetch failed
 _FAILURE_RETRY = timedelta(minutes=30)
+
+
+async def _read_json(resp: aiohttp.ClientResponse) -> Any:
+    """Parse a (potentially multi-megabyte) JSON body in the executor.
+
+    NVD pages hold up to 2,000 CVEs and the CISA KEV catalog is ~1.5 MB;
+    parsing them on the event loop would stall Home Assistant.
+    """
+    raw = await resp.read()
+    return await asyncio.get_running_loop().run_in_executor(None, json.loads, raw)
 DEFAULT_NVD_TTL_HOURS = 24
 
-_UTC = timezone.utc
+_UTC = UTC
 
 # ---------------------------------------------------------------------------
 # Product map: service_name -> list of product profiles.
@@ -666,9 +677,9 @@ class NVDClient:
                         if resp.status != 200:
                             _LOGGER.warning("NVD API HTTP %d for keyword %r", resp.status, keyword)
                             return None
-                        data = await resp.json(content_type=None)
+                        data = await _read_json(resp)
                     break  # success
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001
                     exc_desc = repr(exc) if not str(exc) else str(exc)
                     if attempt < 2:
                         _LOGGER.debug("NVD fetch error for %r (attempt %d/3): %s — retrying", keyword, attempt + 1, exc_desc)
@@ -1079,7 +1090,7 @@ class CISAKEVClient:
                     if resp.status != 200:
                         _LOGGER.warning("CISA KEV fetch HTTP %d", resp.status)
                         return
-                    data = await resp.json(content_type=None)
+                    data = await _read_json(resp)
                 vulns = data.get("vulnerabilities", [])
                 catalog: dict[str, dict[str, Any]] = {}
                 for v in vulns:
@@ -1098,5 +1109,5 @@ class CISAKEVClient:
                 self._catalog = catalog
                 self._fetched_at = datetime.now(_UTC)
                 _LOGGER.info("CISA KEV catalog loaded: %d known exploited vulnerabilities", len(catalog))
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 _LOGGER.warning("CISA KEV fetch error: %s", exc)

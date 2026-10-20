@@ -10,6 +10,14 @@
           "enable_netflow_listener": "NetFlow-Listener aktivieren",
           "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs, z.B. 192.168.0.0/16,10.0.0.0/8)"
         }
+      },
+      "privacy": {
+        "title": "Datenschutz und aktive Funktionen",
+        "description": "Beide Funktionen sind standardmäßig aus.\n\n**Aktiver Scanner**: pingt und scannt regelmäßig Ports von Hosts in Ihren internen Netzen und liest Dienst-Banner. Er findet verwundbare Dienste, kann aber andere Einbruchserkennung auslösen und empfindliche IoT-Geräte stören. Die eigenen Adressen von Home Assistant werden nie gescannt.\n\n**IP-Geolokalisierung**: sendet jede öffentliche IP-Adresse, die Ihre Geräte kontaktieren, an den Drittanbieter ipwho.is, um Land und Netzbetreiber anzuzeigen.\n\nBeides lässt sich später in den Integrationsoptionen oder den Security-Assistant-Einstellungen ändern.",
+        "data": {
+          "enable_scanner": "Aktiven Netzwerkscanner aktivieren",
+          "enable_ip_geolocation": "IP-Geolokalisierung über ipwho.is aktivieren"
+        }
       }
     },
     "error": {
@@ -30,7 +38,9 @@
           "bind_host": "NetFlow-Bind-Host",
           "bind_port": "NetFlow-Bind-Port (UDP)",
           "enable_netflow_listener": "NetFlow-Listener aktivieren",
-          "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs)"
+          "internal_networks": "Interne Netzwerke (kommagetrennte CIDRs)",
+          "enable_scanner": "Aktiven Netzwerkscanner aktivieren",
+          "enable_ip_geolocation": "IP-Geolokalisierung über ipwho.is aktivieren"
         }
       }
     },
@@ -67,6 +77,56 @@
     "retrain_baseline": {
       "name": "Baseline neu trainieren",
       "description": "Löscht den aktuellen Baseline-Zustand und startet den Trainingsmodus sofort neu."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_devices": {
+        "name": "Aktive Geräte"
+      },
+      "scanned_devices": {
+        "name": "Gescannte Geräte"
+      },
+      "total_flows": {
+        "name": "Flows gesamt"
+      },
+      "open_findings": {
+        "name": "Offene Befunde"
+      },
+      "vulnerability_count": {
+        "name": "Schwachstellen"
+      },
+      "suspicious_sources": {
+        "name": "Verdächtige Quellen"
+      },
+      "high_egress_sources": {
+        "name": "Quellen mit hohem Ausgangsverkehr"
+      },
+      "nvd_keywords": {
+        "name": "NVD-Suchbegriffe"
+      }
+    }
+  },
+  "issues": {
+    "dns_proxy_not_running": {
+      "title": "DNS-Proxy läuft nicht",
+      "description": "Der DNS-Proxy konnte nicht auf {host}:{port} lauschen. Vermutlich nutzt ein anderer Dienst (z. B. AdGuard, Pi-hole oder systemd-resolved) diesen Port. Ändern Sie Port oder Adresse des DNS-Proxys in den Security-Assistant-Einstellungen oder beenden Sie den anderen Dienst."
+    },
+    "suricata_not_running": {
+      "title": "Suricata-Listener läuft nicht",
+      "description": "Der Suricata-Listener konnte nicht auf {host}:{port} lauschen. Ändern Sie den Port in den Security-Assistant-Einstellungen oder geben Sie ihn frei."
+    },
+    "suricata_unauthenticated": {
+      "title": "Suricata-Listener nimmt Warnungen von jedem an",
+      "description": "Jedes Gerät, das {host}:{port} erreicht, kann Suricata-Warnungen senden und damit Automatisierungen auslösen. Setzen Sie ein Auth-Token und/oder erlaubte Quellen in den Security-Assistant-Einstellungen und starten Sie suricata_pusher.py mit demselben Token."
+    },
+    "netflow_open_listener": {
+      "title": "NetFlow-Listener nimmt Flows von jedem Absender an",
+      "description": "Jedes Gerät, das {host}:{port} erreicht, kann gefälschte Flows senden, die falsche Befunde erzeugen und Ihr Anreicherungskontingent verbrauchen. Tragen Sie unter „Erlaubte NetFlow-Exporter“ in den Security-Assistant-Einstellungen die Adresse Ihres Routers ein."
+    },
+    "blocklist_empty": {
+      "title": "Threat-Intel-Sperrlisten sind leer",
+      "description": "Keine der konfigurierten Sperrlisten-URLs lieferte Einträge, daher werden bösartige Domains und IPs weder erkannt noch blockiert. Prüfen Sie die URLs in den Security-Assistant-Einstellungen und den Internetzugang von Home Assistant."
     }
   }
 }

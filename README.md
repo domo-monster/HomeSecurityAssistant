@@ -20,7 +20,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - Detects suspicious patterns: outbound traffic to abused ports, port scanning, unusual egress volume
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_netmap.png" alt="Network Map Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_netmap.png" alt="Network Map Example" width="600">
   <br>
   <em>Example: Network Flow Analysis Map</em>
 </p>
@@ -33,7 +33,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - Reports scan results per host: alive status, ping latency, open ports, OS guess, detected technologies
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_hosts.png" alt="Active Network Scanner Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_hosts.png" alt="Active Network Scanner Example" width="600">
   <br>
   <em>Example: Active Network Scanner Hosts View</em>
 </p>
@@ -48,7 +48,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - **Traffic direction** — each external IP entry carries a direction badge: `↑ Outbound` (your device reached out), `↓ Inbound` (it connected to one of your servers), or `↕ Both`. When both directions are observed and the internal hosts involved are *different* (an external IP contacted a host it never received outbound traffic from), an amber ⚠ warning is shown — a pattern consistent with C2 beacon-then-callback or post-reconnaissance probing
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_pip.png" alt="External IP Intelligence Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_pip.png" alt="External IP Intelligence Example" width="600">
   <br>
   <em>Example: External IP Intelligence Table</em>
 </p>
@@ -62,7 +62,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_nvdbrowser.png" alt="Vulnerability Detection Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_nvdbrowser.png" alt="Vulnerability Detection Example" width="600">
   <br>
   <em>Example: Vulnerability Detection & NVD Browser</em>
 </p>
@@ -75,7 +75,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - Flags devices with known high/critical CVE vulnerabilities as "at risk"
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_ov_cards.png" alt="Device Fingerprinting and Enrichment Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_ov_cards.png" alt="Device Fingerprinting and Enrichment Example" width="600">
   <br>
   <em>Example: Device Fingerprinting & Enrichment Overview Cards</em>
 </p>
@@ -91,13 +91,13 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - **Overview card** — a new Baseline card in the Overview shows current mode, training progress (elapsed / remaining time), baseline creation age, confidence level, and quick-action buttons
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_baseline_comparison.png" alt="Live vs Baseline comparison" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_baseline_comparison.png" alt="Live vs Baseline comparison" width="600">
   <br>
   <em>Example: Live vs Baseline comparison</em>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_baseline_deviation.png" alt="Baseline deviation summary" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_baseline_deviation.png" alt="Baseline deviation summary" width="600">
   <br>
   <em>Example: Baseline deviation summary</em>
 </p>
@@ -115,19 +115,19 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
   Every received field is type-checked and length-limited, and the stored timestamp is the time Home Assistant received the alert (the sensor's own timestamp is kept as `event_timestamp`).
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_suricata_ov.png" alt="Suricata overview" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_suricata_ov.png" alt="Suricata overview" width="600">
   <br>
   <em>Example: Suricata overview card</em>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_suricata_alerts.png" alt="Suricata alerts list" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_suricata_alerts.png" alt="Suricata alerts list" width="600">
   <br>
   <em>Example: Suricata alerts view</em>
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_suricata_stats.png" alt="Suricata statistics" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_suricata_stats.png" alt="Suricata statistics" width="600">
   <br>
   <em>Example: Suricata statistics</em>
 </p>
@@ -149,7 +149,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - **Hardening recommendations** with expand panels — click any recommendation card to reveal affected hosts (IP, tracker name, role badge, CVE links) and related findings (severity badge, source IP, summary); cards without structured data remain static
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_reco.png" alt="Security Findings Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_reco.png" alt="Security Findings Example" width="600">
   <br>
   <em>Example: Security Findings & Recommendations</em>
 </p>
@@ -165,7 +165,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - **Automatic hiding** — the DNS Queries sidebar nav item and the Overview DNS Proxy card are hidden when the proxy is not running, keeping the UI uncluttered
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_dns.png" alt="DNS Proxy Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_dns.png" alt="DNS Proxy Example" width="600">
   <br>
   <em>Example: DNS Proxy Query Log</em>
 </p>
@@ -187,7 +187,7 @@ A dedicated statistics view consolidates all operational metrics in one place:
 The configurable **Statistics top N** option (3–25, default 10) controls the depth of all ranked lists.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/custom_components/homesec/hsa_stats.png" alt="Statistics Dashboard Example" width="600">
+  <img src="https://raw.githubusercontent.com/domo-monster/HomeSecurityAssistant/main/docs/images/hsa_stats.png" alt="Statistics Dashboard Example" width="600">
   <br>
   <em>Example: Statistics Dashboard</em>
 </p>
@@ -216,14 +216,20 @@ The `brands.home-assistant.io` CDN no longer hosts custom integrations, so `http
 
 | Sensor | Description |
 |---|---|
-| Active Devices | Count of observed internal devices |
-| Scanned Devices | Count of devices with active scan results |
-| Total Flows | Total NetFlow/IPFIX records ingested |
-| Open Findings | Count of actionable (high/critical) findings |
-| Vulnerability Count | Count of CVE vulnerabilities detected |
-| Suspicious Sources | Devices reaching commonly abused ports |
-| High Egress Sources | Devices exceeding outbound data threshold |
-| NVD Keywords | Count of NVD search keywords in cache (attributes: per-keyword CVE count, source classification — `custom` / `product_map` / `fingerprint` / `banner` — and fetch time) |
+| Active devices | Count of observed internal devices |
+| Scanned devices | Count of devices with active scan results |
+| Total flows | Total NetFlow/IPFIX records ingested since the last restart (diagnostic) |
+| Open findings | Count of actionable (high/critical) findings |
+| Vulnerabilities | Count of CVE vulnerabilities detected |
+| Suspicious sources | Devices reaching commonly abused ports |
+| High egress sources | Devices exceeding outbound data threshold |
+| NVD keywords | Count of NVD search keywords in cache (diagnostic; the `keywords` attribute lists each keyword's CVE count, source — `custom` / `product_map` / `fingerprint` / `banner` — and fetch time) |
+
+Sensors record long-term statistics, so you can graph them in history and energy-style dashboards. Names are translated (English, French, German, Spanish, Italian); entity IDs created by earlier versions are kept.
+
+### Repairs and diagnostics
+
+Problems that need your action appear under **Settings → System → Repairs**: the DNS proxy or Suricata listener could not bind its port, a listener accepts data from any sender (no allowlist or token), or every threat-intel blocklist came back empty. **Download diagnostics** on the integration card produces a report for bug reports with API keys and tokens redacted and no device, log or IP lists.
 
 Each sensor exposes diagnostic attributes including device inventory, listener health, exporter IPs, protocol versions, template counts, and dropped datagram counters.
 
@@ -278,7 +284,7 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | High egress threshold | `50 MB` | Octets per interval to trigger alert |
 | Enable sidebar panel | `true` | Register the Web UI panel |
 | Sidebar panel requires admin | `true` | Restrict sidebar panel visibility to Home Assistant admin users |
-| Enable active scanner | `true` | Ping + port scan internal hosts |
+| Enable active scanner | `false` | Ping + port scan internal hosts (opt-in on the setup privacy step; Home Assistant's own addresses are never scanned) |
 | Scan interval | `3000` s | Seconds between active scans |
 | Scan exceptions | _(empty)_ | Comma-separated IPs to skip during active scanning |
 | Scan ports | _(47 default ports)_ | Comma-separated ports or ranges to probe (e.g. `22,80,443,8000-9000`) |
@@ -287,6 +293,7 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | Malicious IP retention | `168` h | How long to keep external IPs rated as malicious (default 7 days) |
 | Enable reverse DNS | `true` | Resolve external IP hostnames |
 | Blacklist URLs | abuse.ch feeds | Comma-separated threat intel feed URLs (HTTPS only). On refresh, lists are swapped in only after a successful download; a failed source keeps its previous entries |
+| IP geolocation (ipwho.is) | `false` | Look up country and network owner of contacted public IPs at ipwho.is (opt-in: sends each public IP to that service) |
 | VirusTotal API key | _(empty)_ | Optional, enables VT lookups |
 | AbuseIPDB API key | _(empty)_ | Optional, enables abuse score lookups |
 | Enrichment cache TTL | `1440` min | Minutes before re-querying external enrichment providers |

@@ -10,6 +10,7 @@ import struct
 from hypothesis import given, settings, strategies as st
 import pytest
 
+from custom_components.homesec import dns_proxy
 from custom_components.homesec.dns_proxy import (
     DNSProxyProtocol,
     DNSProxyServer,
@@ -17,6 +18,7 @@ from custom_components.homesec.dns_proxy import (
     _build_override_response,
     _parse_dns_question,
     _parse_first_answer,
+    _UpstreamClient,
 )
 
 
@@ -98,7 +100,9 @@ def test_evaluate_refuses_clients_outside_acl() -> None:
     response, entry = proto.evaluate(_query("example.org"), "203.0.113.7")
     assert entry is None
     assert response[3] & 0x0F == 5  # REFUSED
-    assert log[-1]["status"] == "denied"
+    # Counted, not logged: a flood from outside cannot evict real entries
+    assert len(log) == 0
+    assert proto.denied_queries == 1
 
 
 def test_evaluate_override() -> None:
@@ -224,3 +228,93 @@ async def test_udp_block_is_answered(socket_enabled) -> None:
         assert proxy.stats()["total_queries"] == 1
     finally:
         await proxy.async_stop()
+
+
+# ── Shared upstream socket (P5) ──────────────────────────────────────────────
+
+
+class FakeUpstream(asyncio.DatagramProtocol):
+    """UDP resolver on localhost that answers after an optional delay."""
+
+    def __init__(self, delay: float = 0.0, spoof_first: bool = False) -> None:
+        self.delay = delay
+        self.spoof_first = spoof_first
+        self.received: list[bytes] = []
+        self.transport: asyncio.DatagramTransport | None = None
+
+    def connection_made(self, transport) -> None:
+        self.transport = transport
+
+    def datagram_received(self, data: bytes, addr) -> None:
+        self.received.append(data)
+        answer = _build_override_response(data, "198.51.100.7", "A")
+
+        def _send() -> None:
+            if self.spoof_first:
+                # Same transaction ID, different question: must be ignored
+                self.spoof_first = False
+                self.transport.sendto(
+                    _build_override_response(_query("evil.example", txid=struct.unpack_from("!H", data)[0]), "6.6.6.6", "A"),
+                    addr,
+                )
+            self.transport.sendto(answer, addr)
+
+        asyncio.get_running_loop().call_later(self.delay, _send)
+
+
+async def _start_upstream(**kwargs) -> tuple[asyncio.DatagramTransport, FakeUpstream, int]:
+    loop = asyncio.get_running_loop()
+    proto = FakeUpstream(**kwargs)
+    transport, _ = await loop.create_datagram_endpoint(lambda: proto, local_addr=("127.0.0.1", 0))
+    return transport, proto, transport.get_extra_info("sockname")[1]
+
+
+async def _ask(client: _UpstreamClient, query: bytes) -> bytes | None:
+    future: asyncio.Future = asyncio.get_running_loop().create_future()
+    await client.query(query, lambda resp: future.done() or future.set_result(resp))
+    return await asyncio.wait_for(future, 5)
+
+
+async def test_upstream_client_reuses_one_socket_and_restores_ids(socket_enabled) -> None:
+    transport, upstream, port = await _start_upstream(delay=0.05)
+    client = _UpstreamClient("127.0.0.1", port)
+    try:
+        # Two clients that happen to use the same transaction ID, concurrently
+        q1, q2 = _query("a.example", txid=0x4242), _query("b.example", txid=0x4242)
+        r1, r2 = await asyncio.gather(_ask(client, q1), _ask(client, q2))
+        assert r1[:2] == b"\x42\x42" and r2[:2] == b"\x42\x42"
+        assert _parse_dns_question(r1)[0] == "a.example"
+        assert _parse_dns_question(r2)[0] == "b.example"
+        # Upstream saw two different (randomised) IDs from one source port
+        ids = {struct.unpack_from("!H", q)[0] for q in upstream.received}
+        assert len(ids) == 2
+        assert client.inflight == 0
+    finally:
+        client.close()
+        transport.close()
+
+
+async def test_upstream_client_ignores_mismatched_answer(socket_enabled) -> None:
+    transport, _, port = await _start_upstream(spoof_first=True)
+    client = _UpstreamClient("127.0.0.1", port)
+    try:
+        response = await _ask(client, _query("good.example"))
+        assert _parse_first_answer(response) == "198.51.100.7"
+    finally:
+        client.close()
+        transport.close()
+
+
+async def test_upstream_client_timeout_and_cap(socket_enabled, monkeypatch) -> None:
+    monkeypatch.setattr(dns_proxy, "_UPSTREAM_TIMEOUT_SECONDS", 0.1)
+    monkeypatch.setattr(dns_proxy, "_MAX_INFLIGHT_PER_UPSTREAM", 1)
+    transport, _, port = await _start_upstream(delay=5)
+    client = _UpstreamClient("127.0.0.1", port)
+    try:
+        slow = asyncio.ensure_future(_ask(client, _query("slow.example")))
+        await asyncio.sleep(0.01)
+        assert await _ask(client, _query("over.example")) is None  # over the cap
+        assert await slow is None  # timed out
+    finally:
+        client.close()
+        transport.close()

@@ -8,7 +8,7 @@ Architecture
 ------------
 DNSProxyServer          — lifecycle wrapper (start / stop / stats)
 DNSProxyProtocol        — asyncio DatagramProtocol; one per bound socket
-_UpstreamProtocol       — one-shot protocol for each upstream relay leg
+_UpstreamClient         — one shared UDP socket per upstream resolver
 
 A query arriving from a LAN client is processed as follows:
   1. Parse the DNS question section to extract (qname, qtype).
@@ -31,13 +31,14 @@ Notes
 from __future__ import annotations
 
 import asyncio
+from collections import deque
+from collections.abc import Callable
+from datetime import UTC, datetime
 import ipaddress
 import logging
+import secrets
 import socket
 import struct
-from collections import deque
-from datetime import datetime, UTC
-from typing import Callable
 
 from .dns_categories import categorize_domain
 
@@ -97,7 +98,7 @@ def _question_end(data: bytes) -> int:
                 pos += 1 + length
             pos += 4  # QTYPE + QCLASS
         return pos
-    except Exception:
+    except Exception:  # noqa: BLE001
         return len(data)
 
 
@@ -136,7 +137,7 @@ def _parse_dns_question(data: bytes) -> tuple[str, str] | None:
         qtype = struct.unpack_from("!H", data, pos)[0]
         qname = ".".join(labels).lower().rstrip(".")
         return qname, _QTYPES.get(qtype, str(qtype))
-    except Exception:
+    except Exception:  # noqa: BLE001
         return None
 
 def _parse_rcode(data: bytes) -> str:
@@ -175,11 +176,13 @@ def _build_override_response(query: bytes, ip: str, qtype: str) -> bytes:
         resp[2] = 0x84 | (query[2] & 0x01)  # QR=1, AA=1, RD copied from query
         resp[3] = 0x80                       # RA=1, RCODE=0 (NOERROR)
         # QDCOUNT stays as-is (bytes 4-5 already copied)
-        resp[6] = 0; resp[7] = 1 if qtype_matches else 0  # ANCOUNT
-        resp[8] = 0; resp[9] = 0    # NSCOUNT
+        resp[6] = 0
+        resp[7] = 1 if qtype_matches else 0  # ANCOUNT
+        resp[8] = resp[9] = 0  # NSCOUNT
         # Echo EDNS0 OPT record when the query included one (RFC 6891 §7)
         has_edns = struct.unpack_from("!H", query, 10)[0] > 0
-        resp[10] = 0; resp[11] = 1 if has_edns else 0  # ARCOUNT
+        resp[10] = 0
+        resp[11] = 1 if has_edns else 0  # ARCOUNT
         # Append only the question section — strip EDNS0 OPT records and any
         # other additional-section data the client included in the query.
         q_end = _question_end(query)
@@ -195,7 +198,7 @@ def _build_override_response(query: bytes, ip: str, qtype: str) -> bytes:
             resp += _OPT_RR
 
         return bytes(resp)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return b""
 
 
@@ -220,7 +223,8 @@ def _build_block_response(query: bytes) -> bytes:
     # Without this, RFC-strict resolvers (systemd-resolved, macOS) discard our
     # NXDOMAIN and fall back to the next DNS server, resolving the blocked domain.
     has_edns = struct.unpack_from("!H", query, 10)[0] > 0
-    resp[10] = 0; resp[11] = 1 if has_edns else 0  # ARCOUNT
+    resp[10] = 0
+    resp[11] = 1 if has_edns else 0  # ARCOUNT
     # Append only the question section — strip EDNS0 OPT records and any
     # other additional-section data the client included in the query.
     q_end = _question_end(query)
@@ -318,72 +322,131 @@ def _parse_first_answer(data: bytes) -> str | None:
                 return socket.inet_ntop(socket.AF_INET6, data[pos : pos + 16])
             pos += rdlength
         return None
-    except Exception:
+    except Exception:  # noqa: BLE001
         return None
 
-class _UpstreamProtocol(asyncio.DatagramProtocol):
-    """One-shot: send the raw DNS query to upstream, relay the response back."""
+# Queries waiting for an answer per upstream; beyond this the proxy answers
+# SERVFAIL immediately instead of queueing without bound.
+_MAX_INFLIGHT_PER_UPSTREAM = 1024
 
-    def __init__(
-        self,
-        query: bytes,
-        client_transport: asyncio.DatagramTransport,
-        client_addr: tuple[str, int],
-        log_entry: dict,
-        timeout_seconds: float = _UPSTREAM_TIMEOUT_SECONDS,
-    ) -> None:
-        self._query = query
-        self._client_transport = client_transport
-        self._client_addr = client_addr
-        self._log_entry = log_entry
+
+class _UpstreamClient(asyncio.DatagramProtocol):
+    """One long-lived UDP socket to one upstream resolver, shared by all queries.
+
+    Each forwarded query gets a fresh random transaction ID (so concurrent
+    clients that happen to use the same ID never collide).  A response is
+    accepted only when its ID is pending and its question section matches the
+    one sent; the client's original ID is restored before relaying.
+    """
+
+    def __init__(self, host: str, port: int) -> None:
+        self._addr = (host, port)
         self._transport: asyncio.DatagramTransport | None = None
-        self._loop = asyncio.get_running_loop()
-        self._timeout_seconds = timeout_seconds
-        self._timeout_handle: asyncio.TimerHandle | None = None
+        self._connecting: asyncio.Future | None = None
+        # new txid -> (original id bytes, question bytes, callback, timeout handle)
+        self._pending: dict[int, tuple[bytes, bytes, Callable[[bytes | None], None], asyncio.TimerHandle]] = {}
 
-    def _close_transport(self) -> None:
-        if self._timeout_handle is not None:
-            self._timeout_handle.cancel()
-            self._timeout_handle = None
+    @property
+    def inflight(self) -> int:
+        return len(self._pending)
+
+    async def _ensure_connected(self) -> None:
+        if self._transport is not None and not self._transport.is_closing():
+            return
+        if self._connecting is None or self._connecting.done():
+            loop = asyncio.get_running_loop()
+            self._connecting = asyncio.ensure_future(
+                loop.create_datagram_endpoint(lambda: self, remote_addr=self._addr)
+            )
+        await asyncio.shield(self._connecting)
+
+    def connection_made(self, transport: asyncio.BaseTransport) -> None:
+        self._transport = transport  # type: ignore[assignment]
+
+    def connection_lost(self, exc: Exception | None) -> None:
+        self._transport = None  # reconnect on the next query; pending ones time out
+
+    def error_received(self, exc: Exception) -> None:
+        _LOGGER.debug("DNS proxy upstream %s error: %s", self._addr, exc)
+
+    def _new_txid(self) -> int:
+        while True:
+            txid = secrets.randbelow(0x10000)
+            if txid not in self._pending:
+                return txid
+
+    async def query(self, query: bytes, callback: Callable[[bytes | None], None]) -> None:
+        """Send *query*; *callback* gets the response, or None on timeout/error."""
+        if len(query) < 12 or len(self._pending) >= _MAX_INFLIGHT_PER_UPSTREAM:
+            callback(None)
+            return
+        try:
+            await self._ensure_connected()
+        except OSError as exc:
+            _LOGGER.debug("DNS proxy cannot reach upstream %s: %s", self._addr, exc)
+            callback(None)
+            return
+        transport = self._transport
+        if transport is None:
+            callback(None)
+            return
+        txid = self._new_txid()
+        question = query[12:_question_end(query)].lower()
+        handle = asyncio.get_running_loop().call_later(
+            _UPSTREAM_TIMEOUT_SECONDS, self._expire, txid
+        )
+        self._pending[txid] = (query[:2], question, callback, handle)
+        transport.sendto(struct.pack("!H", txid) + query[2:])
+
+    def datagram_received(self, data: bytes, addr: tuple) -> None:
+        if len(data) < 12:
+            return
+        (txid,) = struct.unpack_from("!H", data)
+        pending = self._pending.get(txid)
+        if pending is None:
+            return
+        original_id, question, callback, handle = pending
+        if data[12:12 + len(question)].lower() != question:
+            return  # not the answer to our question: ignore (spoofing / stale)
+        del self._pending[txid]
+        handle.cancel()
+        callback(original_id + data[2:])
+
+    def _expire(self, txid: int) -> None:
+        pending = self._pending.pop(txid, None)
+        if pending is not None:
+            pending[2](None)
+
+    def close(self) -> None:
+        for txid in list(self._pending):
+            _, _, callback, handle = self._pending.pop(txid)
+            handle.cancel()
+            callback(None)
         if self._transport is not None:
             self._transport.close()
             self._transport = None
 
-    def _send_servfail(self) -> None:
-        if self._client_transport and not self._client_transport.is_closing():
-            resp = _build_servfail_response(self._query)
-            if resp:
-                self._client_transport.sendto(resp, self._client_addr)
 
-    def _on_timeout(self) -> None:
-        self._log_entry["rcode"] = "SERVFAIL"
-        self._send_servfail()
-        self._close_transport()
+class _UpstreamPool:
+    """Shared upstream clients, one per (host, port)."""
 
-    def connection_made(self, transport: asyncio.DatagramTransport) -> None:
-        self._transport = transport
-        self._timeout_handle = self._loop.call_later(self._timeout_seconds, self._on_timeout)
-        transport.sendto(self._query)
+    def __init__(self) -> None:
+        self._clients: dict[tuple[str, int], _UpstreamClient] = {}
 
-    def datagram_received(self, data: bytes, addr: tuple) -> None:
-        self._log_entry["rcode"] = _parse_rcode(data)
-        answer = _parse_first_answer(data)
-        if answer:
-            self._log_entry["answer"] = answer
-        if self._client_transport and not self._client_transport.is_closing():
-            self._client_transport.sendto(data, self._client_addr)
-        self._close_transport()
+    def get(self, upstream: tuple[str, int]) -> _UpstreamClient:
+        client = self._clients.get(upstream)
+        if client is None:
+            client = self._clients[upstream] = _UpstreamClient(*upstream)
+        return client
 
-    def error_received(self, exc: Exception) -> None:
-        _LOGGER.debug("DNS proxy upstream error: %s", exc)
-        self._log_entry["rcode"] = "SERVFAIL"
-        self._send_servfail()
-        self._close_transport()
+    @property
+    def inflight(self) -> int:
+        return sum(client.inflight for client in self._clients.values())
 
-    def connection_lost(self, exc: Exception | None) -> None:
-        if self._timeout_handle is not None:
-            self._timeout_handle.cancel()
-            self._timeout_handle = None
+    def close(self) -> None:
+        for client in self._clients.values():
+            client.close()
+        self._clients.clear()
 
 
 _TCP_IDLE_TIMEOUT_SECONDS = 10.0
@@ -398,7 +461,7 @@ async def _read_tcp_message(reader: asyncio.StreamReader, timeout: float) -> byt
         if length == 0:
             return None
         return await asyncio.wait_for(reader.readexactly(length), timeout=timeout)
-    except (asyncio.TimeoutError, asyncio.IncompleteReadError, ConnectionError):
+    except (TimeoutError, asyncio.IncompleteReadError, ConnectionError):
         return None
 
 
@@ -417,10 +480,11 @@ async def _forward_tcp(query: bytes, upstream: tuple[str, int], entry: dict) -> 
             asyncio.open_connection(upstream[0], upstream[1]),
             timeout=_UPSTREAM_TIMEOUT_SECONDS,
         )
+        assert writer is not None
         writer.write(_frame_tcp_message(query))
         await writer.drain()
         response = await _read_tcp_message(reader, _UPSTREAM_TIMEOUT_SECONDS)
-    except (OSError, asyncio.TimeoutError) as exc:
+    except (TimeoutError, OSError) as exc:
         _LOGGER.debug("DNS proxy TCP upstream error: %s", exc)
         response = None
     finally:
@@ -450,8 +514,10 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         blocked_categories: set[str] | None = None,
         warn_blocked_logs: bool = False,
         overrides: dict[str, str] | None = None,
+        upstream_pool: _UpstreamPool | None = None,
     ) -> None:
         self._upstreams = upstreams  # list of (host, port)
+        self._upstream_pool = upstream_pool or _UpstreamPool()
         self._upstream_idx: int = 0  # round-robin cursor
         self._checker = checker
         self._dns_log = dns_log
@@ -463,14 +529,19 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         self._overrides: dict[str, str] = overrides or {}  # domain → IP
         self._transport: asyncio.DatagramTransport | None = None
         self._total_queries: int = 0
+        self._denied_queries: int = 0
         self._warned_empty: bool = False  # log at most once when blocklist is not yet loaded
 
-    def connection_made(self, transport: asyncio.DatagramTransport) -> None:
-        self._transport = transport
+    def connection_made(self, transport: asyncio.BaseTransport) -> None:
+        self._transport = transport  # type: ignore[assignment]
 
     @property
     def total_queries(self) -> int:
         return self._total_queries
+
+    @property
+    def denied_queries(self) -> int:
+        return self._denied_queries
 
     def datagram_received(self, data: bytes, addr: tuple) -> None:
         task = asyncio.ensure_future(self._handle(data, addr))
@@ -502,18 +573,9 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 src_addr = None
             allowed = src_addr is not None and any(src_addr in net for net in self._allowed_networks)
             if not allowed:
-                entry: dict = {
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "src_ip": src_ip,
-                    "domain": "",
-                    "qtype": "?",
-                    "malicious": False,
-                    "category": "acl",
-                    "status": "denied",
-                    "rcode": "REFUSED",
-                    "answer": None,
-                }
-                self._dns_log.append(entry)
+                # Counted, not logged: a flood from outside the ACL must not
+                # be able to push real queries out of the log.
+                self._denied_queries += 1
                 return _build_refused_response(data), None
 
         question = _parse_dns_question(data)
@@ -525,7 +587,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         # Local DNS overrides — answer immediately without hitting upstream
         if qname and qname in self._overrides:
             override_ip = self._overrides[qname]
-            entry: dict = {
+            override_entry: dict = {
                 "timestamp": datetime.now(UTC).isoformat(),
                 "src_ip": src_ip,
                 "domain": qname,
@@ -536,7 +598,7 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 "rcode": "NOERROR",
                 "answer": override_ip,
             }
-            self._dns_log.append(entry)
+            self._dns_log.append(override_entry)
             return _build_override_response(data, override_ip, qtype), None
 
         if qname and not qname.endswith(".in-addr.arpa") and not qname.endswith(".ip6.arpa"):
@@ -623,15 +685,21 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
             if response:
                 self._transport.sendto(response, addr)
             return
-        upstream_host, upstream_port = self.next_upstream()
-        try:
-            loop = asyncio.get_running_loop()
-            await loop.create_datagram_endpoint(
-                lambda: _UpstreamProtocol(data, self._transport, addr, entry),
-                remote_addr=(upstream_host, upstream_port),
-            )
-        except Exception as exc:
-            _LOGGER.debug("DNS proxy forward error for %s: %s", entry.get("domain"), exc)
+        transport = self._transport
+
+        def _relay(response: bytes | None) -> None:
+            if response is None:
+                entry["rcode"] = "SERVFAIL"
+                response = _build_servfail_response(data)
+            else:
+                entry["rcode"] = _parse_rcode(response)
+                answer = _parse_first_answer(response)
+                if answer:
+                    entry["answer"] = answer
+            if response and not transport.is_closing():
+                transport.sendto(response, addr)
+
+        await self._upstream_pool.get(self.next_upstream()).query(data, _relay)
 
     def error_received(self, exc: Exception) -> None:
         _LOGGER.debug("DNS proxy socket error: %s", exc)
@@ -674,6 +742,7 @@ class DNSProxyServer:
         self._tcp_servers: list[asyncio.AbstractServer] = []
         self._tcp_clients = 0
         self._protocols: list[DNSProxyProtocol] = []
+        self._upstream_pool = _UpstreamPool()
         self._protocol: DNSProxyProtocol | None = None
         self._running = False
 
@@ -756,6 +825,7 @@ class DNSProxyServer:
             self._blocked_categories,
             self._warn_blocked_logs,
             self._overrides,
+            self._upstream_pool,
         )
 
     async def async_start(self) -> None:
@@ -767,7 +837,10 @@ class DNSProxyServer:
             # implicit IPv6 companion is best effort (host may lack IPv6).
             try:
                 sock = self._bind_udp(host)
-                transport, _ = await loop.create_datagram_endpoint(lambda: proto, sock=sock)
+                transport, _ = await loop.create_datagram_endpoint(
+                    lambda proto=proto: proto,  # type: ignore[misc]
+                    sock=sock,
+                )
             except OSError as exc:
                 if index == 0:
                     _LOGGER.error(
@@ -850,6 +923,7 @@ class DNSProxyServer:
             except Exception:  # noqa: BLE001
                 pass
         self._tcp_servers = []
+        self._upstream_pool.close()
         self._protocols = []
         self._protocol = None
         self._running = False
@@ -863,11 +937,14 @@ class DNSProxyServer:
         if self._protocol is not None:
             protocols.append(self._protocol)
         total = sum(proto.total_queries for proto in protocols)
+        denied = sum(proto.denied_queries for proto in protocols)
         return {
             "running": self._running,
             "host": self._host,
             "port": self._port,
             "upstream": ", ".join(f"{h}:{p}" for h, p in self._upstreams),
             "total_queries": total,
+            "denied_queries": denied,
+            "upstream_inflight": self._upstream_pool.inflight,
             "tcp": bool(self._tcp_servers),
         }

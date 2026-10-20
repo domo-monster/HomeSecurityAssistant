@@ -7,17 +7,15 @@ from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events
 import yaml
 
+from custom_components.homesec.const import DOMAIN
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.setup import async_setup_component
-
-from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events
-
-from custom_components.homesec.const import DOMAIN
 
 ENTRY_DATA = {
     "bind_host": "127.0.0.1",
@@ -51,6 +49,7 @@ async def _setup(hass: HomeAssistant, options: dict | None = None) -> MockConfig
         data=ENTRY_DATA,
         options={**ENTRY_OPTIONS, **(options or {})},
         unique_id=DOMAIN,
+        minor_version=2,
     )
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
@@ -71,13 +70,24 @@ async def test_config_flow_validates_and_creates(hass: HomeAssistant) -> None:
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"bind_host": "invalid_host", "internal_networks": "invalid_networks"}
 
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], ENTRY_DATA)
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "privacy"
+    # Both privacy-sensitive features default to off
+    defaults = {key.schema: key.default() for key in result["data_schema"].schema}
+    assert defaults == {"enable_scanner": False, "enable_ip_geolocation": False}
+
     with (
         patch("custom_components.homesec.async_setup_entry", return_value=True),
         patch("custom_components.homesec.async_unload_entry", return_value=True),
     ):
-        result = await hass.config_entries.flow.async_configure(result["flow_id"], ENTRY_DATA)
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"enable_scanner": True, "enable_ip_geolocation": False}
+        )
         assert result["type"] is FlowResultType.CREATE_ENTRY
         assert result["data"]["bind_host"] == "127.0.0.1"
+        assert result["options"] == {"enable_scanner": True, "enable_ip_geolocation": False}
+        assert result["result"].minor_version == 2
         await hass.config_entries.async_unload(result["result"].entry_id)
 
 
@@ -106,7 +116,9 @@ async def test_options_flow_keeps_other_options(hass: HomeAssistant) -> None:
 async def test_setup_and_unload(hass: HomeAssistant) -> None:
     entry = await _setup(hass)
     assert entry.state is ConfigEntryState.LOADED
-    assert hass.states.get("sensor.home_security_assistant_hsa_open_findings") is not None
+    state = hass.states.get("sensor.home_security_assistant_open_findings")
+    assert state is not None
+    assert state.attributes["state_class"] == "measurement"
     assert hass.services.has_service(DOMAIN, "trigger_scan")
 
     assert await hass.config_entries.async_unload(entry.entry_id)
@@ -239,7 +251,6 @@ async def test_end_to_end_traffic(
     import asyncio
     import json
     import socket
-    import struct
 
     from tests.test_netflow import _v5_datagram
 
@@ -337,3 +348,117 @@ async def test_failed_setup_does_not_wipe_stored_state(hass: HomeAssistant, hass
         await hass.async_block_till_done()
     assert entry.state is ConfigEntryState.SETUP_RETRY
     assert hass_storage["homesec.dismissed"]["data"] == {"scan:10.0.0.1": "keep me"}
+
+
+# ── Phase 3 ──────────────────────────────────────────────────────────────────
+
+
+async def test_migration_keeps_previous_defaults(hass: HomeAssistant) -> None:
+    """Entries from 0.10.x keep scanning and geolocation; explicit choices win."""
+    await async_setup_component(hass, "http", {})
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data=ENTRY_DATA,
+        options={"enable_dns_resolution": False, "enable_ip_geolocation": False},
+        unique_id=DOMAIN,
+        version=1,
+        minor_version=1,
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert entry.minor_version == 2
+    assert entry.options["enable_scanner"] is True
+    assert entry.options["enable_ip_geolocation"] is False
+
+
+async def test_diagnostics_redacts_secrets(hass: HomeAssistant) -> None:
+    from custom_components.homesec.diagnostics import async_get_config_entry_diagnostics
+
+    entry = await _setup(hass, {"virustotal_api_key": "vt-secret", "suricata_auth_token": "tok"})
+    diag = await async_get_config_entry_diagnostics(hass, entry)
+    text = str(diag)
+    assert "vt-secret" not in text and "'tok'" not in text
+    assert diag["entry"]["options"]["virustotal_api_key"] == "**REDACTED**"
+    assert diag["counts"]["devices"] == 0
+
+
+async def test_repair_issues(hass: HomeAssistant, socket_enabled) -> None:
+    import socket
+
+    from homeassistant.helpers import issue_registry as ir
+
+    busy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    busy.bind(("127.0.0.1", 0))
+    busy.listen()
+    port = busy.getsockname()[1]
+    try:
+        entry = await _setup(
+            hass,
+            {
+                "suricata_listener_enabled": True,
+                "suricata_listener_host": "127.0.0.1",
+                "suricata_listener_port": port,  # already taken
+            },
+        )
+        registry = ir.async_get(hass)
+        assert entry.state is ConfigEntryState.LOADED  # bind failure no longer aborts setup
+        assert registry.async_get_issue(DOMAIN, "suricata_not_running") is not None
+
+        await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+        assert registry.async_get_issue(DOMAIN, "suricata_not_running") is None
+    finally:
+        busy.close()
+
+
+async def test_open_listeners_raise_warnings(hass: HomeAssistant, socket_enabled) -> None:
+    from homeassistant.helpers import issue_registry as ir
+
+    entry = await _setup(
+        hass,
+        {
+            "bind_port": _free_port(__import__("socket").SOCK_DGRAM),
+            "enable_netflow_listener": True,
+            "suricata_listener_enabled": True,
+            "suricata_listener_host": "127.0.0.1",
+            "suricata_listener_port": _free_port(__import__("socket").SOCK_STREAM),
+        },
+    )
+    registry = ir.async_get(hass)
+    assert registry.async_get_issue(DOMAIN, "netflow_open_listener") is not None
+    assert registry.async_get_issue(DOMAIN, "suricata_unauthenticated") is not None
+
+    hass.config_entries.async_update_entry(
+        entry,
+        options={**entry.options, "netflow_allowed_exporters": "127.0.0.1"},
+    )
+    await hass.async_block_till_done()
+    await entry.runtime_data.coordinator.async_refresh()
+    assert registry.async_get_issue(DOMAIN, "netflow_open_listener") is None
+
+
+async def test_scanner_skips_own_addresses(hass: HomeAssistant) -> None:
+    import ipaddress
+
+    adapters = [
+        {
+            "name": "eth0",
+            "index": 1,
+            "enabled": True,
+            "auto": True,
+            "default": True,
+            "ipv4": [{"address": "192.168.1.2", "network_prefix": 24}],
+            "ipv6": [],
+        }
+    ]
+    with patch(
+        "homeassistant.components.network.async_get_adapters",
+        AsyncMock(return_value=adapters),
+    ):
+        entry = await _setup(hass, {"internal_networks": "192.168.1.0/24"})
+    scanner = entry.runtime_data.collector._scanner
+    scanner._internal_networks = [ipaddress.ip_network("192.168.1.0/24")]
+    targets = scanner.get_scan_targets()
+    assert "192.168.1.2" not in targets
+    assert "192.168.1.3" in targets

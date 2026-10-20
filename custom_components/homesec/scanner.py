@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable, Coroutine, Iterable
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 import ipaddress
 import logging
 import re
-import socket
 import ssl
-import struct
-from collections.abc import Callable, Coroutine, Iterable
 from typing import Any
-from dataclasses import dataclass, field
-from datetime import UTC, datetime
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,7 +81,7 @@ class ServiceInfo:
     version: str
     technologies: list[str] = field(default_factory=list)
 
-    def as_dict(self) -> dict[str, object]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "port": self.port,
             "protocol": self.protocol,
@@ -119,7 +117,7 @@ class ScannedHost:
     ttl: int | None
     open_ports: list[ServiceInfo] = field(default_factory=list)
 
-    def as_dict(self) -> dict[str, object]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "ip": self.ip,
             "alive": self.alive,
@@ -174,7 +172,7 @@ async def ping_host(ip: str, timeout: float = 1.5) -> tuple[bool, float | None, 
         rtt = float(rtt_match.group(1)) if rtt_match else None
         ttl = int(ttl_match.group(1)) if ttl_match else None
         return True, rtt, ttl
-    except (asyncio.TimeoutError, OSError):
+    except (TimeoutError, OSError):
         return False, None, None
 
 
@@ -189,7 +187,7 @@ async def tcp_connect_scan(ip: str, port: int, timeout: float = 1.5) -> tuple[bo
         try:
             data = await asyncio.wait_for(reader.read(512), timeout=1.0)
             banner = data.decode(errors="replace").strip()[:256]
-        except (asyncio.TimeoutError, ConnectionError):
+        except (TimeoutError, ConnectionError):
             pass
         # If no banner received, send HTTP probe to detect HTTP servers
         # on non-standard ports (e.g. port 2323 running an HTTP service).
@@ -199,12 +197,12 @@ async def tcp_connect_scan(ip: str, port: int, timeout: float = 1.5) -> tuple[bo
                 await writer.drain()
                 data = await asyncio.wait_for(reader.read(512), timeout=1.0)
                 banner = data.decode(errors="replace").strip()[:256]
-            except (asyncio.TimeoutError, ConnectionError, OSError):
+            except (TimeoutError, ConnectionError, OSError):
                 pass
         writer.close()
         await writer.wait_closed()
         return True, banner
-    except (asyncio.TimeoutError, OSError, ConnectionError):
+    except (TimeoutError, OSError, ConnectionError):
         return False, ""
 
 
@@ -488,7 +486,7 @@ async def _http_get(
         data = b""
         try:
             data = await asyncio.wait_for(reader.read(65536), timeout=timeout)
-        except (asyncio.TimeoutError, ConnectionError):
+        except (TimeoutError, ConnectionError):
             pass
         writer.close()
         try:
@@ -522,7 +520,7 @@ async def _http_get(
                     headers[lk] = val
         return headers, body
 
-    except (asyncio.TimeoutError, OSError, ConnectionError, ssl.SSLError):
+    except (TimeoutError, OSError, ConnectionError, ssl.SSLError):
         return {}, ""
 
 
@@ -574,9 +572,6 @@ async def fingerprint_http(ip: str, port: int) -> list[str]:
             sec_headers, sec_body = await _http_get(ip, port, url_path, timeout=3.0)
             if not sec_headers and not sec_body:
                 continue
-            # A 200 response to a known path is a strong signal
-            # Check for 200-level status in the raw header data
-            raw_status = sec_headers.get("", "")
             # For path probes, finding the page exists (non-404) with
             # matching content is sufficient
             sig_def = next(s for s in _HTTP_SIGNATURES if s["name"] == tech_name)
@@ -601,8 +596,8 @@ async def scan_host(ip: str, ports: tuple[int, ...] = SCAN_PORTS, timeout: float
         batch = ports[i : i + batch_size]
         tasks = [tcp_connect_scan(ip, port, timeout=timeout) for port in batch]
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        for port, result in zip(batch, results):
-            if isinstance(result, Exception):
+        for port, result in zip(batch, results, strict=True):
+            if isinstance(result, BaseException):
                 continue
             is_open, banner = result
             if is_open:
@@ -631,7 +626,7 @@ async def scan_host(ip: str, ports: tuple[int, ...] = SCAN_PORTS, timeout: float
                 if techs:
                     svc.technologies = techs
                     _LOGGER.debug("HTTP fingerprint %s:%d → %s", ip, svc.port, techs)
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("HTTP fingerprint failed for %s:%d: %s", ip, svc.port, exc)
 
     # Refine OS guess from service banners
@@ -699,7 +694,7 @@ async def scan_network(
         try:
             result = await coro
             results.append(result)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("Scan error: %s", exc)
 
     return results
@@ -735,6 +730,10 @@ class NetworkScanner:
         self._last_scan_status: str | None = None
         self._last_scan_targets: int | None = None
         self._scan_lock = asyncio.Lock()
+
+    def exclude_ips(self, ips: Iterable[str]) -> None:
+        """Never scan these addresses (e.g. the Home Assistant host itself)."""
+        self._excluded_ips.update(ips)
 
     def set_observed_ips(self, ips: Iterable[str]) -> None:
         """Replace the set of IPs seen via NetFlow that the scanner should probe.
@@ -785,7 +784,7 @@ class NetworkScanner:
                 pass
             self._task = None
 
-    async def async_trigger_scan(self) -> dict[str, object]:
+    async def async_trigger_scan(self) -> dict[str, Any]:
         """Run an immediate scan cycle outside the normal schedule."""
         return await self._run_scan()
 
@@ -818,12 +817,12 @@ class NetworkScanner:
     def last_scan_targets(self) -> int | None:
         return self._last_scan_targets
 
-    async def _run_scan(self) -> dict[str, object]:
+    async def _run_scan(self) -> dict[str, Any]:
         """Execute one full scan cycle (never two at once) and return a status payload."""
         async with self._scan_lock:
             return await self._run_scan_locked()
 
-    async def _run_scan_locked(self) -> dict[str, object]:
+    async def _run_scan_locked(self) -> dict[str, Any]:
         targets = self.get_scan_targets()
         if not targets:
             now = datetime.now(UTC)
@@ -876,7 +875,7 @@ class NetworkScanner:
             if ip not in self._hosts:
                 try:
                     self._hosts[ip] = ScannedHost.from_dict(host_dict)
-                except Exception:
+                except Exception:  # noqa: BLE001
                     _LOGGER.debug("Skipping invalid persisted host entry for %s", ip)
 
     def get_hosts_as_dicts(self) -> dict[str, dict]:
@@ -887,7 +886,7 @@ class NetworkScanner:
         """Return current state of all scanned hosts."""
         return dict(self._hosts)
 
-    def snapshot_as_dicts(self) -> list[dict[str, object]]:
+    def snapshot_as_dicts(self) -> list[dict[str, Any]]:
         """Return scan results as serializable dicts."""
         return [host.as_dict() for host in sorted(self._hosts.values(), key=lambda h: h.ip)]
 

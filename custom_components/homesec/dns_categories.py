@@ -456,7 +456,6 @@ _SUFFIX_MAP: dict[str, str] = {
     "miniclip.com":             "gaming",
     "crazygames.com":           "gaming",
     "newgrounds.com":           "gaming",
-    "poki.com":                 "gaming",
     "king.com":                 "gaming",
     "supercell.net":            "gaming",
     "clashofclans.com":         "gaming",
@@ -550,7 +549,6 @@ _SUFFIX_MAP: dict[str, str] = {
     "itvhub.com":               "streaming",
     "channel4.com":             "streaming",
     "all4.com":                 "streaming",
-    "rtve.es":                  "streaming",
     "ard.de":                   "streaming",
     "zdf.de":                   "streaming",
     "france.tv":                "streaming",
@@ -763,7 +761,6 @@ _SUFFIX_MAP: dict[str, str] = {
     "zdassets.com":             "cdn",
     # Shopify CDN
     "cdn.shopify.com":          "cdn",
-    "shopifycdn.com":           "cdn",
 
     # ── Cloud / SaaS / Platform services ────────────────────────────────────
     # Google
@@ -863,9 +860,6 @@ _SUFFIX_MAP: dict[str, str] = {
     "mailchimp.com":            "cloud",
     "mandrillapp.com":          "cloud",
     # Stripe / PayPal
-    "stripe.com":               "cloud",
-    "paypal.com":               "cloud",
-    "paypalobjects.com":        "cloud",
     "braintreegateway.com":     "cloud",
     # Auth0 / Okta
     "auth0.com":                "cloud",
