@@ -45,11 +45,11 @@ Neue Anderungen in 0.9.1
 Baseline-Bilder
 - Live-vs-Baseline-Vergleich:
 
-  ![Live vs Baseline](custom_components/homesec/hsa_baseline_comparison.png)
+  ![Live vs Baseline](docs/images/hsa_baseline_comparison.png)
 
 - Baseline-Abweichungsuebersicht:
 
-  ![Baseline deviation](custom_components/homesec/hsa_baseline_deviation.png)
+  ![Baseline deviation](docs/images/hsa_baseline_deviation.png)
 
 Suricata - Alarm-Streaming
 - **Suricata EVE Alarm-Listener** - Home Security Assistant kann Suricata-Alarmereignisse per TCP empfangen und in das Sidebar-Dashboard sowie das Alarmprotokoll aufnehmen.
@@ -59,15 +59,15 @@ Suricata - Alarm-Streaming
 Suricata-Bilder
 - Uebersicht:
 
-  ![Suricata overview](custom_components/homesec/hsa_suricata_ov.png)
+  ![Suricata overview](docs/images/hsa_suricata_ov.png)
 
 - Alarmliste:
 
-  ![Suricata alerts](custom_components/homesec/hsa_suricata_alerts.png)
+  ![Suricata alerts](docs/images/hsa_suricata_alerts.png)
 
 - Statistiken:
 
-  ![Suricata stats](custom_components/homesec/hsa_suricata_stats.png)
+  ![Suricata stats](docs/images/hsa_suricata_stats.png)
 
 Installation (HACS)
 1. HACS -> Integrations -> Custom Repositories offnen.

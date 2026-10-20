@@ -1,0 +1,32 @@
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "I", "SIM", "ASYNC", "BLE"]
+ignore = [
+    "E501",     # long lines (data tables, translations)
+    "ASYNC109", # explicit timeout parameters are intentional
+    "SIM105",   # explicit try/except/pass reads clearer here
+    "SIM108",   # ternaries are not always clearer
+    "SIM102",   # nested ifs with comments are kept for readability
+    "SIM103",   # explicit return True/False chains in version checks
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components", "homeassistant", "tests"]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["BLE001"]
+
+[tool.mypy]
+python_version = "3.13"
+files = ["custom_components/homesec"]
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true

@@ -18,7 +18,7 @@ class FakeResponse:
         self._body = body
         self.headers = headers or {}
 
-    async def __aenter__(self) -> "FakeResponse":
+    async def __aenter__(self) -> FakeResponse:
         return self
 
     async def __aexit__(self, *exc) -> None:
@@ -29,6 +29,13 @@ class FakeResponse:
 
     async def json(self, **kwargs) -> Any:
         return self._body
+
+    async def read(self) -> bytes:
+        import json
+
+        return json.dumps(self._body).encode() if not isinstance(self._body, (str, bytes)) else (
+            self._body.encode() if isinstance(self._body, str) else self._body
+        )
 
 
 class FakeSession:
@@ -162,6 +169,20 @@ def no_throttle(monkeypatch):
 
 
 VT_BODY = {"data": {"attributes": {"last_analysis_stats": {"malicious": 5}}}}
+
+
+async def test_ipwho_is_opt_in(no_throttle) -> None:
+    session = FakeSession({"https://ipwho.is/": FakeResponse(200, {"success": True, "country_code": "US"})})
+    off = ExternalIPEnricher(session)
+    assert not off.has_providers
+    off.queue_ip("8.8.8.8")
+    assert off._pending.qsize() == 0
+    assert (await off._enrich("8.8.8.8"))["sources"] == []
+    assert session.calls == []
+
+    on = ExternalIPEnricher(session, enable_ipwho=True)
+    result = await on._enrich("8.8.8.8")
+    assert result["sources"] == ["ipwho"] and result["country"] == "US"
 
 
 async def test_virustotal_used_without_abuseipdb(no_throttle) -> None:

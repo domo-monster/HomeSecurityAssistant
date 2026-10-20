@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
+import re
+from typing import Any
 
 
 @dataclass(slots=True)
@@ -18,7 +20,7 @@ class VulnMatch:
     remediation: str
     port: int = 0
 
-    def as_dict(self) -> dict[str, object]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "cve_id": self.cve_id,
             "severity": self.severity,
@@ -84,7 +86,7 @@ def _backport_patched(banner: str, exemptions: list[dict]) -> bool:
 @dataclass(slots=True)
 class _VulnRule:
     service_pattern: str
-    version_check: object  # callable(str) -> bool; checks upstream version range only
+    version_check: Callable[[str], bool]  # checks upstream version range only
     cve_id: str
     cvss: float
     severity: str
@@ -96,7 +98,7 @@ class _VulnRule:
     distro_exemptions: list[dict] = field(default_factory=list)
 
 
-def _rule_check(rule: "_VulnRule", banner: str) -> bool:
+def _rule_check(rule: _VulnRule, banner: str) -> bool:
     """Unified check: upstream range → floor guard → distro backport exemptions."""
     if not rule.version_check(banner):
         return False
@@ -283,7 +285,7 @@ VULN_DATABASE: list[_VulnRule] = [
 
 def match_vulnerabilities(
     ip: str,
-    services: list[dict[str, object]],
+    services: list[dict[str, Any]],
 ) -> list[VulnMatch]:
     """Match discovered services against the vulnerability database."""
     matches: list[VulnMatch] = []
@@ -319,7 +321,7 @@ def match_vulnerabilities(
                         )
                     )
                     seen_cves.add(dedup_key)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 pass  # Version parsing edge case
 
     # Sort by severity

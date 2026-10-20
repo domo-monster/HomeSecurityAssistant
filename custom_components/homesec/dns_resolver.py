@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, datetime
 import ipaddress
 import logging
 import socket
-from datetime import datetime, UTC
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -120,6 +121,8 @@ class DNSBlacklistChecker:
         self._refresh_task: asyncio.Task | None = None
         self._resolve_task: asyncio.Task | None = None
         self._fetch_task: asyncio.Task | None = None
+        # aiodns resolver (created lazily); False when aiodns is unavailable
+        self._aiodns: Any = None
 
     # ------------------------------------------------------------------ #
     # Lifecycle
@@ -199,7 +202,7 @@ class DNSBlacklistChecker:
         """Return cached hostname, or None if not yet resolved."""
         return self._hostname_cache.get(ip)
 
-    def check(self, indicator: str) -> dict[str, object] | None:
+    def check(self, indicator: str) -> dict[str, Any] | None:
         """Return a hit dict if the IP or hostname is on a bad list, else None."""
         if not indicator:
             return None
@@ -221,7 +224,7 @@ class DNSBlacklistChecker:
                 }
         return None
 
-    def stats(self) -> dict[str, object]:
+    def stats(self) -> dict[str, Any]:
         return {
             "bad_ips": len(self._bad_ips),
             "bad_domains": len(self._bad_domains),
@@ -252,6 +255,23 @@ class DNSBlacklistChecker:
     # Private helpers
 
     async def _rdns(self, ip: str) -> str | None:
+        """Reverse lookup via aiodns (non-blocking; no executor thread per query)."""
+        if self._aiodns is None:
+            try:
+                import aiodns  # noqa: PLC0415 - shipped with Home Assistant core
+
+                self._aiodns = aiodns.DNSResolver(timeout=_LOOKUP_TIMEOUT, tries=1)
+            except Exception:  # noqa: BLE001
+                self._aiodns = False
+        if self._aiodns:
+            try:
+                result = await asyncio.wait_for(
+                    self._aiodns.gethostbyaddr(ip), timeout=_LOOKUP_TIMEOUT + 1
+                )
+                return str(result.name) or None
+            except Exception:  # noqa: BLE001 - NXDOMAIN, timeout, ...
+                return None
+        # Fallback: blocking resolver in the executor
         loop = asyncio.get_running_loop()
         try:
             result = await asyncio.wait_for(
@@ -259,7 +279,7 @@ class DNSBlacklistChecker:
                 timeout=_LOOKUP_TIMEOUT,
             )
             return result[0]
-        except Exception:
+        except Exception:  # noqa: BLE001
             return None
 
     async def _resolve_worker(self) -> None:
@@ -274,6 +294,7 @@ class DNSBlacklistChecker:
             await self._cancel(self._fetch_task)
             self._start_fetch()
             # Wait for this cycle so refreshes never overlap
+            assert self._fetch_task is not None
             try:
                 await asyncio.shield(self._fetch_task)
             except Exception:  # noqa: BLE001 - logged by _on_fetch_done

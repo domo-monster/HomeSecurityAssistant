@@ -3,8 +3,8 @@ from __future__ import annotations
 import asyncio
 from collections import deque
 from collections.abc import Callable, Coroutine
+from datetime import UTC, datetime, timedelta
 import ipaddress
-from datetime import datetime, timedelta, timezone
 import logging
 import socket
 import time
@@ -12,9 +12,11 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .baseline import BASELINE_MODE_ACTIVE, BASELINE_MODE_DISABLED, BaselineManager
 from .const import (
     CONF_ABUSEIPDB_API_KEY,
     CONF_ABUSEIPDB_DAILY_BUDGET,
@@ -25,39 +27,40 @@ from .const import (
     CONF_BIND_HOST,
     CONF_BIND_PORT,
     CONF_BLACKLIST_URLS,
-    CONF_DNS_PROXY_ENABLED,
+    CONF_DNS_BLOCKED_CATEGORIES,
+    CONF_DNS_LOG_RETENTION_HOURS,
+    CONF_DNS_OVERRIDES,
     CONF_DNS_PROXY_BIND_HOST,
+    CONF_DNS_PROXY_ENABLED,
     CONF_DNS_PROXY_PORT,
     CONF_DNS_PROXY_UPSTREAM,
-    CONF_DNS_LOG_RETENTION_HOURS,
     CONF_DNS_WARN_BLOCKED_LOGS,
-    CONF_DNS_BLOCKED_CATEGORIES,
-    CONF_DNS_OVERRIDES,
     CONF_ENABLE_DNS_RESOLUTION,
+    CONF_ENABLE_IP_GEOLOCATION,
     CONF_ENABLE_NETFLOW_LISTENER,
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
     CONF_EXTERNAL_IP_RETENTION,
-    CONF_RETENTION_SUSPICIOUS_HOURS,
-    CONF_RETENTION_MALICIOUS_HOURS,
     CONF_HIGH_EGRESS_THRESHOLD,
     CONF_INTERNAL_NETWORKS,
+    CONF_NETFLOW_ALLOWED_EXPORTERS,
+    CONF_NVD_API_URL,
+    CONF_NVD_KEYWORDS,
+    CONF_NVD_MIN_YEAR,
+    CONF_NVD_TTL_HOURS,
+    CONF_RETENTION_MALICIOUS_HOURS,
+    CONF_RETENTION_SUSPICIOUS_HOURS,
     CONF_SCAN_EXCEPTIONS,
     CONF_SCAN_INTERVAL,
     CONF_SCAN_PORT_THRESHOLD,
     CONF_SCAN_PORTS,
     CONF_SCAN_WINDOW_SECONDS,
-    CONF_NVD_API_URL,
-    CONF_NVD_TTL_HOURS,
-    CONF_NVD_MIN_YEAR,
-    CONF_NVD_KEYWORDS,
+    CONF_SURICATA_ALLOWED_SOURCES,
+    CONF_SURICATA_AUTH_TOKEN,
     CONF_SURICATA_LISTENER_ENABLED,
     CONF_SURICATA_LISTENER_HOST,
     CONF_SURICATA_LISTENER_PORT,
     CONF_SURICATA_LOG_RETENTION_HOURS,
-    CONF_SURICATA_AUTH_TOKEN,
-    CONF_SURICATA_ALLOWED_SOURCES,
-    CONF_NETFLOW_ALLOWED_EXPORTERS,
     CONF_VIRUSTOTAL_API_KEY,
     CONF_VIRUSTOTAL_DAILY_BUDGET,
     CONF_VT_ABUSEIPDB_THRESHOLD,
@@ -71,39 +74,40 @@ from .const import (
     DEFAULT_BIND_HOST,
     DEFAULT_BIND_PORT,
     DEFAULT_BLACKLIST_URLS,
-    DEFAULT_DNS_PROXY_ENABLED,
+    DEFAULT_DNS_BLOCKED_CATEGORIES,
+    DEFAULT_DNS_LOG_RETENTION_HOURS,
+    DEFAULT_DNS_OVERRIDES,
     DEFAULT_DNS_PROXY_BIND_HOST,
+    DEFAULT_DNS_PROXY_ENABLED,
     DEFAULT_DNS_PROXY_PORT,
     DEFAULT_DNS_PROXY_UPSTREAM,
-    DEFAULT_DNS_LOG_RETENTION_HOURS,
     DEFAULT_DNS_WARN_BLOCKED_LOGS,
-    DEFAULT_DNS_BLOCKED_CATEGORIES,
-    DEFAULT_DNS_OVERRIDES,
     DEFAULT_ENABLE_DNS_RESOLUTION,
+    DEFAULT_ENABLE_IP_GEOLOCATION,
     DEFAULT_ENABLE_NETFLOW_LISTENER,
     DEFAULT_ENABLE_SCANNER,
     DEFAULT_ENRICHMENT_TTL_MINUTES,
     DEFAULT_EXTERNAL_IP_RETENTION,
-    DEFAULT_RETENTION_SUSPICIOUS_HOURS,
-    DEFAULT_RETENTION_MALICIOUS_HOURS,
     DEFAULT_HIGH_EGRESS_THRESHOLD,
     DEFAULT_INTERNAL_NETWORKS,
+    DEFAULT_NETFLOW_ALLOWED_EXPORTERS,
+    DEFAULT_NVD_API_URL,
+    DEFAULT_NVD_KEYWORDS,
+    DEFAULT_NVD_MIN_YEAR,
+    DEFAULT_NVD_TTL_HOURS,
+    DEFAULT_RETENTION_MALICIOUS_HOURS,
+    DEFAULT_RETENTION_SUSPICIOUS_HOURS,
     DEFAULT_SCAN_EXCEPTIONS,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SCAN_PORT_THRESHOLD,
     DEFAULT_SCAN_PORTS,
     DEFAULT_SCAN_WINDOW_SECONDS,
-    DEFAULT_NVD_API_URL,
-    DEFAULT_NVD_TTL_HOURS,
-    DEFAULT_NVD_MIN_YEAR,
-    DEFAULT_NVD_KEYWORDS,
+    DEFAULT_SURICATA_ALLOWED_SOURCES,
+    DEFAULT_SURICATA_AUTH_TOKEN,
     DEFAULT_SURICATA_LISTENER_ENABLED,
     DEFAULT_SURICATA_LISTENER_HOST,
     DEFAULT_SURICATA_LISTENER_PORT,
     DEFAULT_SURICATA_LOG_RETENTION_HOURS,
-    DEFAULT_SURICATA_AUTH_TOKEN,
-    DEFAULT_SURICATA_ALLOWED_SOURCES,
-    DEFAULT_NETFLOW_ALLOWED_EXPORTERS,
     DEFAULT_VIRUSTOTAL_API_KEY,
     DEFAULT_VIRUSTOTAL_DAILY_BUDGET,
     DEFAULT_VT_ABUSEIPDB_THRESHOLD,
@@ -114,21 +118,20 @@ from .const import (
     get_entry_int,
     get_entry_value,
 )
-from .baseline import BaselineManager, BASELINE_MODE_DISABLED, BASELINE_MODE_ACTIVE
-from .dns_resolver import DNSBlacklistChecker
 from .dns_proxy import DNSProxyServer
+from .dns_resolver import DNSBlacklistChecker
 from .enrichment import collect_tracker_enrichment
 from .external_enrichment import ExternalIPEnricher
 from .fingerprints import HomeSecurityAnalyzer
 from .netflow import FlowRecord, NetFlowDatagramProtocol, parse_exporter_allowlist
-from .nvd_enrichment import NVDClient, CISAKEVClient
+from .nvd_enrichment import CISAKEVClient, NVDClient
 from .scanner import NetworkScanner, parse_scan_ports
-from .suricata import SuricataAlertListener, parse_allowed_networks, sanitize_stored_record
 from .storage import (
-    HomeSecStorage,
     TIMESERIES_INTERVAL_SECONDS,
     TIMESERIES_MAX_POINTS,
+    HomeSecStorage,
 )
+from .suricata import SuricataAlertListener, parse_allowed_networks, sanitize_stored_record
 from .vulnerabilities import match_vulnerabilities
 
 _LOGGER = logging.getLogger(__name__)
@@ -173,6 +176,8 @@ class HomeSecCollector:
         # True once persisted state has been loaded; nothing is saved before
         # that, so a failed setup can never overwrite stored data with empties.
         self._state_loaded = False
+        # issue_id -> translation placeholders of currently raised repair issues
+        self._active_issues: dict[str, dict[str, str]] = {}
         internal_nets = str(get_entry_value(entry, CONF_INTERNAL_NETWORKS, DEFAULT_INTERNAL_NETWORKS)).split(",")
         scan_interval = get_entry_int(entry, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         exceptions_raw = str(get_entry_value(entry, CONF_SCAN_EXCEPTIONS, DEFAULT_SCAN_EXCEPTIONS))
@@ -192,7 +197,7 @@ class HomeSecCollector:
         self._netflow_listener_enabled = _as_bool(
             get_entry_value(entry, CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER)
         )
-        self._scanner_enabled = bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER))
+        self._scanner_enabled = _as_bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER))
 
         session = async_get_clientsession(hass)
         blacklist_raw = str(get_entry_value(entry, CONF_BLACKLIST_URLS, DEFAULT_BLACKLIST_URLS))
@@ -210,6 +215,9 @@ class HomeSecCollector:
             abuseipdb_key=str(get_entry_value(entry, CONF_ABUSEIPDB_API_KEY, DEFAULT_ABUSEIPDB_API_KEY)) or None,
             enrichment_ttl_minutes=get_entry_int(entry, CONF_ENRICHMENT_TTL_MINUTES, DEFAULT_ENRICHMENT_TTL_MINUTES),
             vt_abuseipdb_threshold=get_entry_int(entry, CONF_VT_ABUSEIPDB_THRESHOLD, DEFAULT_VT_ABUSEIPDB_THRESHOLD),
+            enable_ipwho=_as_bool(
+                get_entry_value(entry, CONF_ENABLE_IP_GEOLOCATION, DEFAULT_ENABLE_IP_GEOLOCATION)
+            ),
             daily_budgets={
                 "virustotal": get_entry_int(entry, CONF_VIRUSTOTAL_DAILY_BUDGET, DEFAULT_VIRUSTOTAL_DAILY_BUDGET),
                 "abuseipdb": get_entry_int(entry, CONF_ABUSEIPDB_DAILY_BUDGET, DEFAULT_ABUSEIPDB_DAILY_BUDGET),
@@ -231,7 +239,7 @@ class HomeSecCollector:
         self._nvd_ttl_hours = nvd_ttl_hours
         self._kev_client = CISAKEVClient(session=session, ttl_hours=nvd_ttl_hours)
         # Results from the last background NVD fetch: ip -> list[vuln_dict]
-        self._nvd_results: dict[str, list[dict[str, object]]] = {}
+        self._nvd_results: dict[str, list[dict[str, Any]]] = {}
         self._nvd_task: asyncio.Task | None = None
         self._nvd_last_fetch_at: datetime | None = None
         self._dismissed_findings: dict[str, str] = {}  # key -> note
@@ -322,6 +330,22 @@ class HomeSecCollector:
             _LOGGER.warning("Ignoring invalid %s value %r: %s", key, raw, err)
             return []
 
+    async def _async_own_ips(self) -> set[str]:
+        """Addresses of this Home Assistant host (never worth scanning)."""
+        try:
+            from homeassistant.components import network  # noqa: PLC0415
+
+            adapters = await network.async_get_adapters(self.hass)
+        except Exception:  # noqa: BLE001 - network integration unavailable
+            _LOGGER.debug("Could not read network adapters", exc_info=True)
+            return set()
+        own: set[str] = set()
+        for adapter in adapters:
+            for info in adapter.get("ipv4", []) + adapter.get("ipv6", []):
+                if info.get("address"):
+                    own.add(str(info["address"]))
+        return own
+
     def _parse_exporters(self, entry: ConfigEntry) -> list:
         raw = get_entry_value(entry, CONF_NETFLOW_ALLOWED_EXPORTERS, DEFAULT_NETFLOW_ALLOWED_EXPORTERS)
         try:
@@ -358,7 +382,8 @@ class HomeSecCollector:
             )
             raise
         sock.setblocking(False)
-        transport, _ = await loop.create_datagram_endpoint(lambda: self._protocol, sock=sock)
+        protocol = self._protocol
+        transport, _ = await loop.create_datagram_endpoint(lambda: protocol, sock=sock)
         self._transport = transport
         _LOGGER.info(
             "Home Security Assistant listening for NetFlow v5/v9/IPFIX on %s:%s",
@@ -373,7 +398,7 @@ class HomeSecCollector:
         self._protocol = None
 
     async def async_start(self) -> None:
-        self._started_at = datetime.now(timezone.utc)
+        self._started_at = datetime.now(UTC)
         startup_started = time.monotonic()
 
         def _log_step(step: str, started_at: float) -> None:
@@ -429,7 +454,7 @@ class HomeSecCollector:
         ]
         if dns_data:
             if self._dns_log_retention_hours > 0:
-                cutoff = (datetime.now(timezone.utc) - timedelta(hours=self._dns_log_retention_hours)).isoformat()
+                cutoff = (datetime.now(UTC) - timedelta(hours=self._dns_log_retention_hours)).isoformat()
                 dns_data = [e for e in dns_data if e.get("timestamp", "") >= cutoff]
             for entry in dns_data:
                 self._dns_log.append(entry)
@@ -443,7 +468,7 @@ class HomeSecCollector:
             if isinstance(e, dict) and e.get("ip")
         ]
         if ext_ip_data:
-            now_ext = datetime.now(timezone.utc)
+            now_ext = datetime.now(UTC)
             for rec in ext_ip_data:
                 ip = rec.get("ip", "")
                 if not ip:
@@ -503,6 +528,7 @@ class HomeSecCollector:
         _log_step("load baseline state", step_started)
 
         step_started = time.monotonic()
+        self._scanner.exclude_ips(await self._async_own_ips())
         if self._scanner_enabled:
             await self._scanner.async_start()
             _LOGGER.info("Home Security Assistant active network scanner started")
@@ -527,7 +553,7 @@ class HomeSecCollector:
         if suricata_data:
             if self._suricata_log_retention_hours > 0:
                 cutoff = (
-                    datetime.now(timezone.utc) - timedelta(hours=self._suricata_log_retention_hours)
+                    datetime.now(UTC) - timedelta(hours=self._suricata_log_retention_hours)
                 ).isoformat()
                 suricata_data = [e for e in suricata_data if e.get("timestamp", "") >= cutoff]
             for _se in suricata_data:
@@ -540,7 +566,16 @@ class HomeSecCollector:
         self._announced_vulns = set(event_state.get("vulnerabilities", []) or [])
         self._state_loaded = True
         if self._suricata_listener is not None:
-            await self._suricata_listener.async_start()
+            try:
+                await self._suricata_listener.async_start()
+            except OSError as err:
+                # Reported as a repair issue; the rest of the integration runs.
+                _LOGGER.error(
+                    "HomeSec Suricata listener could not bind %s:%s - %s",
+                    self._suricata_listener.stats()["host"],
+                    self._suricata_listener.stats()["port"],
+                    err,
+                )
         _log_step("load suricata log and listener startup", step_started)
 
         self._nvd_task = self.entry.async_create_background_task(
@@ -594,7 +629,59 @@ class HomeSecCollector:
                 },
             )
 
+    def update_repair_issues(self) -> None:
+        """Raise or clear repair issues for problems the user should act on."""
+        wanted: dict[str, tuple[ir.IssueSeverity, dict[str, str]]] = {}
+        if self._dns_proxy is not None and not self._dns_proxy.running:
+            stats = self._dns_proxy.stats()
+            wanted["dns_proxy_not_running"] = (
+                ir.IssueSeverity.ERROR,
+                {"host": str(stats["host"]), "port": str(stats["port"])},
+            )
+        if self._suricata_listener is not None:
+            stats = self._suricata_listener.stats()
+            placeholders = {"host": str(stats["host"]), "port": str(stats["port"])}
+            if not stats["running"]:
+                wanted["suricata_not_running"] = (ir.IssueSeverity.ERROR, placeholders)
+            elif not stats["auth_required"] and not stats.get("allowlist"):
+                wanted["suricata_unauthenticated"] = (ir.IssueSeverity.WARNING, placeholders)
+        if self._transport is not None and not self._netflow_allowed_exporters:
+            wanted["netflow_open_listener"] = (
+                ir.IssueSeverity.WARNING,
+                {"host": self._bind_host, "port": str(self._bind_port)},
+            )
+        blocklists = self._resolver.stats()
+        if (
+            blocklists["sources"]
+            and blocklists["last_refresh"]
+            and not blocklists["bad_domains"]
+            and not blocklists["bad_ips"]
+        ):
+            wanted["blocklist_empty"] = (ir.IssueSeverity.WARNING, {})
+
+        for issue_id in self._active_issues - wanted.keys():
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id)
+        for issue_id, (severity, placeholders) in wanted.items():
+            if self._active_issues.get(issue_id) == placeholders:
+                continue
+            ir.async_create_issue(
+                self.hass,
+                DOMAIN,
+                issue_id,
+                is_fixable=False,
+                severity=severity,
+                translation_key=issue_id,
+                translation_placeholders=placeholders,
+            )
+        self._active_issues = {k: v for k, (_, v) in wanted.items()}
+
+    def clear_repair_issues(self) -> None:
+        for issue_id in list(self._active_issues):
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id)
+        self._active_issues = {}
+
     async def async_stop(self) -> None:
+        self.clear_repair_issues()
         # Write all state now (pending delayed saves would otherwise be lost
         # when the entry is reloaded) before tearing down services.
         await self.async_save_all()
@@ -620,7 +707,7 @@ class HomeSecCollector:
         new_netflow_enabled = _as_bool(
             get_entry_value(entry, CONF_ENABLE_NETFLOW_LISTENER, DEFAULT_ENABLE_NETFLOW_LISTENER)
         )
-        new_scanner_enabled = bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER))
+        new_scanner_enabled = _as_bool(get_entry_value(entry, CONF_ENABLE_SCANNER, DEFAULT_ENABLE_SCANNER))
         new_exporters = self._parse_exporters(entry)
 
         internal_nets_raw = str(get_entry_value(entry, CONF_INTERNAL_NETWORKS, DEFAULT_INTERNAL_NETWORKS))
@@ -741,10 +828,10 @@ class HomeSecCollector:
                 await self._kev_client.fetch()
                 if not hosts_with_services:
                     _LOGGER.debug("NVD background loop: no scan results yet, retrying in %ds", retry_delay)
-                    self._nvd_last_fetch_at = datetime.now(timezone.utc)
+                    self._nvd_last_fetch_at = datetime.now(UTC)
                     await asyncio.sleep(retry_delay)
                     continue
-                new_results: dict[str, list[dict[str, object]]] = {}
+                new_results: dict[str, list[dict[str, Any]]] = {}
                 for host in hosts_with_services:
                     ip = str(host.get("ip", ""))
                     services = host.get("open_ports", [])
@@ -752,10 +839,10 @@ class HomeSecCollector:
                         vulns = await self._nvd_client.find_vulnerabilities(ip, services)
                         if vulns:
                             new_results[ip] = vulns
-                    except Exception as exc:
+                    except Exception as exc:  # noqa: BLE001
                         _LOGGER.debug("NVD background fetch failed for %s: %s", ip, exc)
                 self._nvd_results = new_results
-                self._nvd_last_fetch_at = datetime.now(timezone.utc)
+                self._nvd_last_fetch_at = datetime.now(UTC)
                 total_vulns = sum(len(v) for v in new_results.values())
                 _LOGGER.info(
                     "NVD background fetch complete: %d hosts with CVEs, %d total findings, %d CVEs in cache",
@@ -763,11 +850,11 @@ class HomeSecCollector:
                 )
             except asyncio.CancelledError:
                 raise
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 _LOGGER.warning("NVD background loop error: %s", exc)
             await asyncio.sleep(self._nvd_ttl_hours * 3600)
 
-    def snapshot(self) -> dict[str, object]:
+    def snapshot(self) -> dict[str, Any]:
         enrichment_by_ip = collect_tracker_enrichment(self.hass)
         listener_stats = self._protocol.snapshot_stats() if self._protocol is not None else {}
 
@@ -782,7 +869,7 @@ class HomeSecCollector:
             scan_results=scan_results,
             vuln_findings=vuln_findings,
             alive_hosts=self._scanner.get_alive_hosts(),
-            dismissed_findings=self._dismissed_findings,
+            dismissed_findings=set(self._dismissed_findings),
         )
 
         if self._baseline_enabled or self._baseline_manager._mode != BASELINE_MODE_DISABLED:
@@ -827,10 +914,10 @@ class HomeSecCollector:
         payload["dismissed_findings"] = dismissed_list
 
         # Collect unique external IPs from device peers + connections
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         ext_state_changed = False
-        external_ips: dict[str, dict[str, object]] = {}
-        multicast_ips: dict[str, dict[str, object]] = {}
+        external_ips: dict[str, dict[str, Any]] = {}
+        multicast_ips: dict[str, dict[str, Any]] = {}
         external_ip_traffic: dict[str, dict[str, int]] = {}
 
         def _bump_ext_traffic(ip: str, flows: int = 0, octets: int = 0) -> None:
@@ -989,15 +1076,15 @@ class HomeSecCollector:
             external_ips.pop(ip, None)
             ext_state_changed = True
         # Add retained IPs not in current snapshot
-        for ip, ts in self._ext_ip_last_seen.items():
+        for ip in self._ext_ip_last_seen:
             if ip not in external_ips:
                 external_ips[ip] = self._build_ext_ip_entry(ip)
 
         # Attach last_seen, first_seen, and internal_sources to each entry
         for ip, entry_data in external_ips.items():
-            ts = self._ext_ip_last_seen.get(ip)
+            last_ts = self._ext_ip_last_seen.get(ip)
             first_ts = self._ext_ip_first_seen.get(ip)
-            entry_data["last_seen"] = ts.isoformat() if ts else None
+            entry_data["last_seen"] = last_ts.isoformat() if last_ts else None
             entry_data["first_seen"] = first_ts.isoformat() if first_ts else None
             traffic = external_ip_traffic.get(ip, {})
             entry_data["total_flows"] = int(traffic.get("total_flows", 0) or 0)
@@ -1055,7 +1142,7 @@ class HomeSecCollector:
             self._ext_state_dirty = True
 
         # Record timeseries point every TIMESERIES_INTERVAL_SECONDS
-        _ts_now = datetime.now(timezone.utc)
+        _ts_now = datetime.now(UTC)
         if self._ts_last_point is None or (_ts_now - self._ts_last_point).total_seconds() >= TIMESERIES_INTERVAL_SECONDS:
             # Compute baseline deviance score (0-100) for this snapshot
             _deviance_score = 0
@@ -1107,7 +1194,7 @@ class HomeSecCollector:
 
         return payload
 
-    def _fire_transition_events(self, payload: dict[str, object]) -> None:
+    def _fire_transition_events(self, payload: dict[str, Any]) -> None:
         """Fire bus events only for newly malicious IPs and newly found vulnerabilities.
 
         Keys stay announced while the condition persists; once it clears the
@@ -1190,7 +1277,7 @@ class HomeSecCollector:
         """Remove DNS log entries older than the configured retention window."""
         if not self._dns_log or self._dns_log_retention_hours == 0:
             return
-        cutoff = (datetime.now(timezone.utc) - timedelta(hours=self._dns_log_retention_hours)).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(hours=self._dns_log_retention_hours)).isoformat()
         while self._dns_log and self._dns_log[0].get("timestamp", "") < cutoff:
             self._dns_log.popleft()
 
@@ -1199,7 +1286,7 @@ class HomeSecCollector:
         if not self._suricata_log or self._suricata_log_retention_hours == 0:
             return
         cutoff = (
-            datetime.now(timezone.utc) - timedelta(hours=self._suricata_log_retention_hours)
+            datetime.now(UTC) - timedelta(hours=self._suricata_log_retention_hours)
         ).isoformat()
         removed = False
         while self._suricata_log and self._suricata_log[0].get("timestamp", "") < cutoff:
@@ -1240,13 +1327,13 @@ class HomeSecCollector:
     def storage(self) -> HomeSecStorage:
         return self._storage
 
-    def _build_ext_ip_entry(self, ip: str) -> dict[str, object]:
+    def _build_ext_ip_entry(self, ip: str) -> dict[str, Any]:
         enrichment = self._enricher.get(ip)
         hostname = self._resolver.get_hostname(ip)
         blacklist = self._resolver.check(ip)
         hostname_threat = self._resolver.check(hostname) if hostname else None
         threat = blacklist or hostname_threat
-        entry: dict[str, object] = {
+        entry: dict[str, Any] = {
             "ip": ip,
             "hostname": hostname,
             "blacklisted": threat is not None,
@@ -1260,7 +1347,7 @@ class HomeSecCollector:
         return entry
 
     @staticmethod
-    def _build_multicast_entry(ip: str) -> dict[str, object]:
+    def _build_multicast_entry(ip: str) -> dict[str, Any]:
         """Build a lightweight entry for a multicast destination (no enrichment)."""
         import ipaddress as _ip
         try:
@@ -1314,14 +1401,14 @@ class HomeSecCollector:
             "internal_sources": [],
         }
 
-    async def lookup_ip(self, ip: str) -> dict[str, object]:
+    async def lookup_ip(self, ip: str) -> dict[str, Any]:
         """On-demand enrichment + DNS lookup for a specific IP (used by the lookup endpoint)."""
         hostname = await self._resolver.resolve(ip)
         enrichment = await self._enricher.enrich_now(ip)
         blacklist = self._resolver.check(ip)
         hostname_threat = self._resolver.check(hostname) if hostname else None
         threat = blacklist or hostname_threat
-        entry: dict[str, object] = {
+        entry: dict[str, Any] = {
             "ip": ip,
             "hostname": hostname,
             "blacklisted": threat is not None,
@@ -1334,8 +1421,8 @@ class HomeSecCollector:
             entry["rating_source"] = f"Blacklist: {source_label}"
         return entry
 
-    def _build_vuln_findings(self, scan_results: list[dict[str, object]]) -> list[dict[str, object]]:
-        all_vulns: list[dict[str, object]] = []
+    def _build_vuln_findings(self, scan_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        all_vulns: list[dict[str, Any]] = []
         nvd_seen: set[str] = set()
         for host in scan_results:
             ip = str(host.get("ip", ""))
@@ -1359,7 +1446,7 @@ class HomeSecCollector:
     def _handle_records(self, records: list[FlowRecord]) -> None:
         self._analyzer.ingest(records)
         # Update last_seen for external IPs appearing in live flow records
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         is_internal = self._analyzer._is_internal
         is_multicast = self._analyzer._is_multicast
         for rec in records:
@@ -1384,7 +1471,7 @@ class HomeSecCollector:
                 if prev != now:
                     self._ext_state_dirty = True
 
-    def _external_state_snapshot(self) -> list[dict[str, object]]:
+    def _external_state_snapshot(self) -> list[dict[str, Any]]:
         return [
             {
                 "ip": ip,
@@ -1470,7 +1557,7 @@ class HomeSecCollector:
         self._baseline_manager.mark_clean()
 
 
-class HomeSecCoordinator(DataUpdateCoordinator[dict[str, object]]):
+class HomeSecCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def __init__(self, hass: HomeAssistant, collector: HomeSecCollector, entry: ConfigEntry) -> None:
         super().__init__(
             hass,
@@ -1482,9 +1569,10 @@ class HomeSecCoordinator(DataUpdateCoordinator[dict[str, object]]):
         self.collector = collector
         collector._post_scan_refresh = self.async_request_refresh
 
-    async def _async_update_data(self) -> dict[str, object]:
+    async def _async_update_data(self) -> dict[str, Any]:
         try:
             result = self.collector.snapshot()
+            self.collector.update_repair_issues()
             self.collector.schedule_persist()
             return result
         except Exception as err:

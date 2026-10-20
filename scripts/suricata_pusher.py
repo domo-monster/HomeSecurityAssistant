@@ -114,7 +114,7 @@ def _tail_and_push(
 
         if token:
             try:
-                sock.sendall(f"AUTH {token}\n".encode("utf-8"))
+                sock.sendall(f"AUTH {token}\n".encode())
             except OSError as exc:
                 _LOGGER.warning("Auth send failed: %s. Retrying in %ds", exc, retry_delay)
                 sock.close()

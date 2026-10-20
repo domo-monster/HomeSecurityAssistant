@@ -47,10 +47,10 @@ Nouveautés 0.9.1
 Visuels du baseline
 - Comparaison Live vs Baseline :
 
-  ![Live vs Baseline](custom_components/homesec/hsa_baseline_comparison.png)
+  ![Live vs Baseline](docs/images/hsa_baseline_comparison.png)
 
 
-  ![Deviation baseline](custom_components/homesec/hsa_baseline_deviation.png)
+  ![Deviation baseline](docs/images/hsa_baseline_deviation.png)
 
 Suricata - Flux des alertes
 - **Écouteur d'alertes Suricata EVE** - Home Security Assistant peut recevoir les alertes Suricata via TCP et les intégrer au tableau de bord latéral ainsi qu'au journal d'alertes.
@@ -60,15 +60,15 @@ Suricata - Flux des alertes
 Visuels Suricata
 - Vue d'ensemble :
 
-  ![Suricata overview](custom_components/homesec/hsa_suricata_ov.png)
+  ![Suricata overview](docs/images/hsa_suricata_ov.png)
 
 - Liste d'alertes :
 
-  ![Suricata alerts](custom_components/homesec/hsa_suricata_alerts.png)
+  ![Suricata alerts](docs/images/hsa_suricata_alerts.png)
 
 - Statistiques :
 
-  ![Suricata stats](custom_components/homesec/hsa_suricata_stats.png)
+  ![Suricata stats](docs/images/hsa_suricata_stats.png)
 
 Installation (HACS)
 1. Ouvrir HACS -> Integrations -> Custom Repositories.

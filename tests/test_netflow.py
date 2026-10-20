@@ -159,3 +159,16 @@ def test_fuzz_template_and_data(fields: list[tuple[int, int]], payload: bytes) -
     records = parser.parse(_v9_data(256, payload), EXPORTER)
     for record in records:
         assert isinstance(record.src_ip, (ipaddress.IPv4Address, ipaddress.IPv6Address))
+
+
+async def test_datagrams_are_processed_in_batches() -> None:
+    import asyncio
+
+    batches: list[list] = []
+    proto = NetFlowDatagramProtocol(batches.append)
+    data = _v5_datagram([("192.168.1.10", "8.8.8.8", 1, 443)])
+    for _ in range(5):
+        proto.datagram_received(data, ("192.168.1.1", 2055))
+    assert batches == []  # nothing parsed inside the receive callback
+    await asyncio.sleep(0)
+    assert len(batches) == 1 and len(batches[0]) == 5

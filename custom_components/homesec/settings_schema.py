@@ -34,6 +34,7 @@ from .const import (
     CONF_DNS_PROXY_UPSTREAM,
     CONF_DNS_WARN_BLOCKED_LOGS,
     CONF_ENABLE_DNS_RESOLUTION,
+    CONF_ENABLE_IP_GEOLOCATION,
     CONF_ENABLE_NETFLOW_LISTENER,
     CONF_ENABLE_SCANNER,
     CONF_ENRICHMENT_TTL_MINUTES,
@@ -120,7 +121,7 @@ SETTINGS_SCHEMA: list[dict[str, Any]] = [
     {
         "section": "Active Scanner",
         "fields": [
-            {"key": CONF_ENABLE_SCANNER, "label": "Enable Scanner", "type": "boolean", "help": "Enable periodic active port scanning of internal hosts"},
+            {"key": CONF_ENABLE_SCANNER, "label": "Enable Scanner", "type": "boolean", "help": "Periodically ping, port-scan and banner-grab internal hosts (Home Assistant's own addresses are always skipped). Off by default: scanning can trip other intrusion detection and upset fragile IoT devices."},
             {"key": CONF_SCAN_INTERVAL, "label": "Scan Interval (s)", "type": "number", "min": 60, "max": 604800, "help": "Seconds between active scan cycles"},
             {"key": CONF_SCAN_PORTS, "label": "Scan Ports", "type": "text", "help": "Ports to scan (ranges and commas allowed, e.g. 22,80,443,8080-8090)"},
             {"key": CONF_SCAN_EXCEPTIONS, "label": "Scan Exceptions", "type": "text", "help": "Comma-separated IPs to exclude from active scanning"},
@@ -149,6 +150,7 @@ SETTINGS_SCHEMA: list[dict[str, Any]] = [
     {
         "section": "External IP Enrichment",
         "fields": [
+            {"key": CONF_ENABLE_IP_GEOLOCATION, "label": "IP Geolocation (ipwho.is)", "type": "boolean", "help": "Look up country and network owner of contacted public IPs at ipwho.is. Off by default: every public IP your devices contact is sent to that third-party service."},
             {"key": CONF_VIRUSTOTAL_API_KEY, "label": "VirusTotal API Key", "type": "password", "help": "Optional VirusTotal API key for external IP reputation lookup"},
             {"key": CONF_ABUSEIPDB_API_KEY, "label": "AbuseIPDB API Key", "type": "password", "help": "Optional AbuseIPDB API key for external IP reputation lookup"},
             {"key": CONF_VT_ABUSEIPDB_THRESHOLD, "label": "Threat Score Threshold (%)", "type": "number", "min": 0, "max": 100, "help": "Minimum abuse confidence score (0-100) to flag an IP as suspicious"},

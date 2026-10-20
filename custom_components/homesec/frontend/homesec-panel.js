@@ -1240,6 +1240,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Seuil de scan de ports',
       high_egress_threshold: 'Seuil de trafic sortant élevé (octets)',
       enable_scanner: 'Activer le scanner',
+      enable_ip_geolocation: 'Géolocalisation IP (ipwho.is)',
+      netflow_allowed_exporters: 'Exportateurs NetFlow autorisés',
+      suricata_auth_token: 'Jeton d’authentification',
+      suricata_allowed_sources: 'Sources autorisées',
       scan_interval: 'Intervalle de scan (s)',
       scan_ports: 'Ports à scanner',
       scan_exceptions: 'Exceptions de scan',
@@ -1286,6 +1290,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Nombre de ports distincts contactés dans la fenêtre pour déclencher une alerte de scan de ports.',
       high_egress_threshold: 'Volume d\'octets envoyés vers l\'extérieur pour déclencher une alerte de trafic sortant élevé.',
       enable_scanner: 'Active le scan actif périodique des hôtes internes.',
+      enable_ip_geolocation: 'Recherche le pays et l’opérateur des IP publiques contactées via ipwho.is. Désactivé par défaut : chaque IP publique est envoyée à ce service tiers.',
+      netflow_allowed_exporters: 'IP ou CIDR autorisés à envoyer des flux (ex. votre routeur), séparés par des virgules. Vide = tout expéditeur accepté.',
+      suricata_auth_token: 'Secret partagé que le script d’envoi doit transmettre (--token ou HSA_SURICATA_TOKEN). Fortement recommandé.',
+      suricata_allowed_sources: 'IP ou CIDR autorisés à se connecter (ex. l’hôte Suricata). Vide = toute source acceptée.',
       scan_interval: 'Nombre de secondes entre deux cycles de scan actif.',
       scan_ports: 'Ports à scanner (plages et virgules autorisées, ex. 22,80,443,8080-8090).',
       scan_exceptions: 'IPs à exclure du scan actif, séparées par des virgules.',
@@ -1346,6 +1354,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Portscan-Schwelle',
       high_egress_threshold: 'Schwelle für hohen ausgehenden Traffic (Bytes)',
       enable_scanner: 'Scanner aktivieren',
+      enable_ip_geolocation: 'IP-Geolokalisierung (ipwho.is)',
+      netflow_allowed_exporters: 'Erlaubte NetFlow-Exporter',
+      suricata_auth_token: 'Auth-Token',
+      suricata_allowed_sources: 'Erlaubte Quellen',
       scan_interval: 'Scan-Intervall (s)',
       scan_ports: 'Zu scannende Ports',
       scan_exceptions: 'Scan-Ausnahmen',
@@ -1392,6 +1404,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Anzahl unterschiedlicher Ports im Fenster, um einen Portscan-Alarm auszulösen.',
       high_egress_threshold: 'Ausgehend gesendete Bytes für einen High-Egress-Alarm.',
       enable_scanner: 'Aktiviert periodisches aktives Port-Scanning interner Hosts.',
+      enable_ip_geolocation: 'Ermittelt Land und Netzbetreiber kontaktierter öffentlicher IPs über ipwho.is. Standardmäßig aus: jede öffentliche IP wird an diesen Drittanbieter gesendet.',
+      netflow_allowed_exporters: 'Kommagetrennte IPs oder CIDRs, die Flows senden dürfen (z. B. Ihr Router). Leer = jeder Absender.',
+      suricata_auth_token: 'Gemeinsames Geheimnis, das das Pusher-Skript senden muss (--token oder HSA_SURICATA_TOKEN). Dringend empfohlen.',
+      suricata_allowed_sources: 'Kommagetrennte IPs oder CIDRs, die sich verbinden dürfen (z. B. der Suricata-Host). Leer = jede Quelle.',
       scan_interval: 'Sekunden zwischen aktiven Scan-Zyklen.',
       scan_ports: 'Zu scannende Ports (Bereiche und Kommas erlaubt, z. B. 22,80,443,8080-8090).',
       scan_exceptions: 'Kommagetrennte IPs, die vom aktiven Scan ausgeschlossen werden.',
@@ -1452,6 +1468,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Umbral de escaneo de puertos',
       high_egress_threshold: 'Umbral de tráfico saliente alto (bytes)',
       enable_scanner: 'Activar escáner',
+      enable_ip_geolocation: 'Geolocalización IP (ipwho.is)',
+      netflow_allowed_exporters: 'Exportadores NetFlow permitidos',
+      suricata_auth_token: 'Token de autenticación',
+      suricata_allowed_sources: 'Orígenes permitidos',
       scan_interval: 'Intervalo de escaneo (s)',
       scan_ports: 'Puertos a escanear',
       scan_exceptions: 'Excepciones de escaneo',
@@ -1498,6 +1518,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Número de puertos distintos contactados en la ventana para activar una alerta de escaneo.',
       high_egress_threshold: 'Bytes enviados al exterior para activar una alerta de tráfico saliente alto.',
       enable_scanner: 'Activa el escaneo activo periódico de hosts internos.',
+      enable_ip_geolocation: 'Consulta país y operador de las IP públicas contactadas en ipwho.is. Desactivado por defecto: cada IP pública se envía a ese servicio externo.',
+      netflow_allowed_exporters: 'IP o CIDR autorizados a enviar flujos (p. ej. su router), separados por comas. Vacío = cualquier remitente.',
+      suricata_auth_token: 'Secreto compartido que debe enviar el script (--token o HSA_SURICATA_TOKEN). Muy recomendado.',
+      suricata_allowed_sources: 'IP o CIDR autorizados a conectarse (p. ej. el host de Suricata). Vacío = cualquier origen.',
       scan_interval: 'Segundos entre ciclos de escaneo activo.',
       scan_ports: 'Puertos a escanear (rangos y comas permitidos, p. ej. 22,80,443,8080-8090).',
       scan_exceptions: 'IPs separadas por comas a excluir del escaneo activo.',
@@ -1558,6 +1582,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Soglia scansione porte',
       high_egress_threshold: 'Soglia traffico in uscita elevato (byte)',
       enable_scanner: 'Abilita scanner',
+      enable_ip_geolocation: 'Geolocalizzazione IP (ipwho.is)',
+      netflow_allowed_exporters: 'Esportatori NetFlow consentiti',
+      suricata_auth_token: 'Token di autenticazione',
+      suricata_allowed_sources: 'Sorgenti consentite',
       scan_interval: 'Intervallo scansione (s)',
       scan_ports: 'Porte da scansionare',
       scan_exceptions: 'Eccezioni scansione',
@@ -1604,6 +1632,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Numero di porte distinte contattate nella finestra per generare un avviso di scansione porte.',
       high_egress_threshold: 'Byte inviati in uscita per generare un avviso di traffico elevato.',
       enable_scanner: 'Abilita la scansione attiva periodica delle porte sugli host interni.',
+      enable_ip_geolocation: 'Cerca paese e operatore degli IP pubblici contattati tramite ipwho.is. Disattivato per impostazione predefinita: ogni IP pubblico viene inviato a quel servizio esterno.',
+      netflow_allowed_exporters: 'IP o CIDR autorizzati a inviare flussi (es. il router), separati da virgole. Vuoto = qualsiasi mittente.',
+      suricata_auth_token: 'Segreto condiviso che lo script deve inviare (--token o HSA_SURICATA_TOKEN). Fortemente consigliato.',
+      suricata_allowed_sources: 'IP o CIDR autorizzati a connettersi (es. l’host Suricata). Vuoto = qualsiasi sorgente.',
       scan_interval: 'Secondi tra i cicli di scansione attiva.',
       scan_ports: 'Porte da scansionare (range e virgole consentiti, es. 22,80,443,8080-8090).',
       scan_exceptions: 'IP separate da virgole da escludere dalla scansione attiva.',
@@ -1664,6 +1696,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Portscan-Schwellenwert',
       high_egress_threshold: 'Schwellenwert hoher Egress-Traffic (Bytes)',
       enable_scanner: 'Scanner aktivieren',
+      enable_ip_geolocation: 'IP-Geolokalisierung (ipwho.is)',
+      netflow_allowed_exporters: 'Erlaubte NetFlow-Exporter',
+      suricata_auth_token: 'Auth-Token',
+      suricata_allowed_sources: 'Erlaubte Quellen',
       scan_interval: 'Scan-Intervall (s)',
       scan_ports: 'Zu scannende Ports',
       scan_exceptions: 'Scan-Ausnahmen',
@@ -1710,6 +1746,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Anzahl unterschiedlicher Ports im Fenster, um einen Portscan-Alarm auszulösen.',
       high_egress_threshold: 'Ausgehend gesendete Bytes, um einen High-Egress-Alarm auszulösen.',
       enable_scanner: 'Aktiviert periodische aktive Portscans interner Hosts.',
+      enable_ip_geolocation: 'Ermittelt Land und Netzbetreiber kontaktierter öffentlicher IPs über ipwho.is. Standardmäßig aus: jede öffentliche IP wird an diesen Drittanbieter gesendet.',
+      netflow_allowed_exporters: 'Kommagetrennte IPs oder CIDRs, die Flows senden dürfen (z. B. Ihr Router). Leer = jeder Absender.',
+      suricata_auth_token: 'Gemeinsames Geheimnis, das das Pusher-Skript senden muss (--token oder HSA_SURICATA_TOKEN). Dringend empfohlen.',
+      suricata_allowed_sources: 'Kommagetrennte IPs oder CIDRs, die sich verbinden dürfen (z. B. der Suricata-Host). Leer = jede Quelle.',
       scan_interval: 'Sekunden zwischen aktiven Scan-Zyklen.',
       scan_ports: 'Zu scannende Ports (Bereiche und Kommas erlaubt, z. B. 22,80,443,8080-8090).',
       scan_exceptions: 'Kommagetrennte IPs, die vom aktiven Scan ausgeschlossen werden.',
@@ -1770,6 +1810,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Umbral de escaneo de puertos',
       high_egress_threshold: 'Umbral de tráfico saliente alto (bytes)',
       enable_scanner: 'Activar escáner',
+      enable_ip_geolocation: 'Geolocalización IP (ipwho.is)',
+      netflow_allowed_exporters: 'Exportadores NetFlow permitidos',
+      suricata_auth_token: 'Token de autenticación',
+      suricata_allowed_sources: 'Orígenes permitidos',
       scan_interval: 'Intervalo de escaneo (s)',
       scan_ports: 'Puertos a escanear',
       scan_exceptions: 'Excepciones de escaneo',
@@ -1816,6 +1860,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Número de puertos distintos contactados en la ventana para disparar una alerta de escaneo.',
       high_egress_threshold: 'Bytes enviados al exterior para disparar una alerta de alto tráfico saliente.',
       enable_scanner: 'Activa el escaneo activo periódico de hosts internos.',
+      enable_ip_geolocation: 'Consulta país y operador de las IP públicas contactadas en ipwho.is. Desactivado por defecto: cada IP pública se envía a ese servicio externo.',
+      netflow_allowed_exporters: 'IP o CIDR autorizados a enviar flujos (p. ej. su router), separados por comas. Vacío = cualquier remitente.',
+      suricata_auth_token: 'Secreto compartido que debe enviar el script (--token o HSA_SURICATA_TOKEN). Muy recomendado.',
+      suricata_allowed_sources: 'IP o CIDR autorizados a conectarse (p. ej. el host de Suricata). Vacío = cualquier origen.',
       scan_interval: 'Segundos entre ciclos de escaneo activo.',
       scan_ports: 'Puertos a escanear (se permiten rangos y comas, p. ej. 22,80,443,8080-8090).',
       scan_exceptions: 'IPs separadas por comas que se excluirán del escaneo activo.',
@@ -1876,6 +1924,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Soglia scansione porte',
       high_egress_threshold: 'Soglia traffico uscente elevato (byte)',
       enable_scanner: 'Abilita scanner',
+      enable_ip_geolocation: 'Geolocalizzazione IP (ipwho.is)',
+      netflow_allowed_exporters: 'Esportatori NetFlow consentiti',
+      suricata_auth_token: 'Token di autenticazione',
+      suricata_allowed_sources: 'Sorgenti consentite',
       scan_interval: 'Intervallo scansione (s)',
       scan_ports: 'Porte da scansionare',
       scan_exceptions: 'Eccezioni scansione',
@@ -1922,6 +1974,10 @@ const _SETTINGS_SCHEMA_I18N = {
       scan_port_threshold: 'Numero di porte distinte contattate nella finestra per attivare un alert di scansione porte.',
       high_egress_threshold: 'Byte inviati in uscita per attivare un alert di traffico uscente elevato.',
       enable_scanner: 'Abilita scansione attiva periodica delle porte degli host interni.',
+      enable_ip_geolocation: 'Cerca paese e operatore degli IP pubblici contattati tramite ipwho.is. Disattivato per impostazione predefinita: ogni IP pubblico viene inviato a quel servizio esterno.',
+      netflow_allowed_exporters: 'IP o CIDR autorizzati a inviare flussi (es. il router), separati da virgole. Vuoto = qualsiasi mittente.',
+      suricata_auth_token: 'Segreto condiviso che lo script deve inviare (--token o HSA_SURICATA_TOKEN). Fortemente consigliato.',
+      suricata_allowed_sources: 'IP o CIDR autorizzati a connettersi (es. l’host Suricata). Vuoto = qualsiasi sorgente.',
       scan_interval: 'Secondi tra i cicli di scansione attiva.',
       scan_ports: 'Porte da scansionare (range e virgole consentiti, es. 22,80,443,8080-8090).',
       scan_exceptions: 'IP separati da virgole da escludere dalla scansione attiva.',
@@ -2105,11 +2161,25 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     if (this._refreshTimer) return;
     this._fetch();
     this._refreshTimer = setInterval(() => {
-      if (this._view === 'settings') return;
+      // Skip polls while the browser tab is hidden or on the settings form
+      if (this._view === 'settings' || document.hidden) return;
       this._fetch();
     }, 30000);
+    if (!this._onVisibility) {
+      this._onVisibility = () => {
+        if (!document.hidden && this._refreshTimer && this._view !== 'settings') this._fetch();
+      };
+      document.addEventListener('visibilitychange', this._onVisibility);
+    }
   }
-  _stopRefresh() { clearInterval(this._refreshTimer); this._refreshTimer = null; }
+  _stopRefresh() {
+    clearInterval(this._refreshTimer);
+    this._refreshTimer = null;
+    if (this._onVisibility) {
+      document.removeEventListener('visibilitychange', this._onVisibility);
+      this._onVisibility = null;
+    }
+  }
 
   async _fetch() {
     if (this._loading || !this._hass) return;

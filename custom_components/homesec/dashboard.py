@@ -220,7 +220,7 @@ def build_dashboard_payload(
     baseline_anomalies: list[dict[str, Any]] = []
     baseline_status: dict[str, Any] = {}
     baseline_graph: dict[str, Any] = {}
-    for entry_id, runtime in entries.items():
+    for runtime in entries.values():
         coordinator = runtime["coordinator"]
         snapshot = coordinator.data or {}
         dismissed = getattr(coordinator.collector, "_dismissed_findings", {})
@@ -432,7 +432,7 @@ def build_dashboard_payload(
 
     # Enrichment budget stats — aggregate across all entries
     enrichment_stats_merged: dict[str, dict[str, Any]] = {}
-    for entry_id, runtime in entries.items():
+    for runtime in entries.values():
         for stat in runtime["collector"]._enricher.enrichment_stats():
             prov = stat["provider"]
             if prov not in enrichment_stats_merged:
@@ -446,7 +446,7 @@ def build_dashboard_payload(
 
     # Timeseries — merge points from all collectors, deduplicated by timestamp
     timeseries_merged: dict[str, dict[str, Any]] = {}
-    for entry_id, runtime in entries.items():
+    for runtime in entries.values():
         for pt in runtime["collector"]._timeseries:
             ts_key = str(pt.get("ts", ""))
             if ts_key and ts_key not in timeseries_merged:
@@ -646,7 +646,7 @@ def _build_recommendations(
     total_datagrams: int,
     parsed_datagrams: int,
 ) -> list[dict[str, str]]:
-    recommendations: list[dict[str, str]] = []
+    recommendations: list[dict[str, Any]] = []
     finding_categories = {finding.get("category") for finding in findings}
     # Use devices that are alive or enriched from HA trackers to match
     # the Hosts view filtering.
@@ -1217,7 +1217,7 @@ class HomeSecVulnBrowserView(HomeAssistantView):
                 cid = cve.get("cve_id", "")
                 if not cid or cid in all_vulns:
                     continue
-                cpe_list: list[str] = []
+                cpe_list = []
                 for cfg in cve.get("configurations", []):
                     for node in cfg.get("nodes", []):
                         for m in node.get("cpeMatch", []):

@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import asyncio
-import time as _time
-from datetime import datetime, timedelta, UTC
+from collections.abc import Awaitable, Callable
+from datetime import UTC, datetime, timedelta
 import ipaddress
 import logging
+import time as _time
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,13 +77,15 @@ class ExternalIPEnricher:
         enrichment_ttl_minutes: int = 60,
         daily_budgets: dict[str, int] | None = None,
         vt_abuseipdb_threshold: int = 30,
+        enable_ipwho: bool = False,
     ) -> None:
         self._session = session
+        self._ipwho_enabled = bool(enable_ipwho)
         self._vt_key = virustotal_key
         self._abuse_key = abuseipdb_key
         self._ttl = timedelta(minutes=max(1, enrichment_ttl_minutes))
         self._vt_abuseipdb_threshold = max(0, min(100, int(vt_abuseipdb_threshold)))
-        self._cache: dict[str, dict[str, object]] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
         self._enriched_at: dict[str, datetime] = {}
         self._pending: asyncio.Queue[str] = asyncio.Queue(maxsize=_QUEUE_MAX)
         self._queued: set[str] = set()  # IPs currently sitting in the queue
@@ -102,7 +106,7 @@ class ExternalIPEnricher:
         self._usage_state_dirty: bool = False
         # Pre-populate sensible tier defaults; detection at startup may refine these.
         self._prov_tier: dict[str, str] = {}
-        self._prov_tier["ipwho"] = "free"  # ipwho.is is always active (no auth required)
+        self._prov_tier["ipwho"] = "free"  # ipwho.is needs no account
         if self._vt_key:
             self._prov_tier["virustotal"] = "community"
         if self._abuse_key:
@@ -131,7 +135,7 @@ class ExternalIPEnricher:
                 pass
         self._task = self._tier_task = None
 
-    def _store(self, ip: str, data: dict[str, object], enriched_at: datetime) -> None:
+    def _store(self, ip: str, data: dict[str, Any], enriched_at: datetime) -> None:
         """Cache *data* for *ip*, evicting the oldest entries beyond the cap."""
         self._cache.pop(ip, None)
         self._cache[ip] = data
@@ -161,9 +165,14 @@ class ExternalIPEnricher:
         except ValueError:
             return False
 
+    @property
+    def has_providers(self) -> bool:
+        """True when at least one enrichment provider is enabled."""
+        return self._ipwho_enabled or bool(self._vt_key) or bool(self._abuse_key)
+
     def queue_ip(self, ip: str) -> None:
         """Request background enrichment for a *public* IP (non-blocking)."""
-        if not self._is_public(ip):
+        if not self.has_providers or not self._is_public(ip):
             return
         if ip in self._queued:
             return
@@ -175,11 +184,11 @@ class ExternalIPEnricher:
         except asyncio.QueueFull:
             pass
 
-    def get(self, ip: str) -> dict[str, object]:
+    def get(self, ip: str) -> dict[str, Any]:
         """Return cached enrichment, or empty dict if not yet enriched."""
         return dict(self._cache.get(ip, {}))
 
-    async def enrich_now(self, ip: str) -> dict[str, object]:
+    async def enrich_now(self, ip: str) -> dict[str, Any]:
         """Return cached enrichment for on-demand lookups (non-blocking).
 
         If this IP has been enriched before (even if the cached entry is now
@@ -202,21 +211,21 @@ class ExternalIPEnricher:
         self.queue_ip(ip)
         return dict(result)
 
-    def enrichment_stats(self) -> list[dict[str, object]]:
+    def enrichment_stats(self) -> list[dict[str, Any]]:
         """Return per-provider enrichment usage vs daily budget."""
         today = datetime.now(UTC).strftime("%Y-%m-%d")
         if today != self._prov_day:
             self._prov_day = today
             self._prov_daily_count.clear()
             self._usage_state_dirty = True
-        stats: list[dict[str, object]] = []
+        stats: list[dict[str, Any]] = []
         for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
             budget = self._limits.get(prov, (interval, default_budget))[1]
             used = self._prov_daily_count.get(prov, 0)
-            # ipwho.is: always active, no auth, no effective daily cap
+            # ipwho.is: opt-in, no auth, no effective daily cap
             if prov == "ipwho":
-                configured = True
-                variant: str | None = "free"
+                configured = self._ipwho_enabled
+                variant: str | None = "free" if configured else None
                 display_budget: int | None = None
             elif prov == "virustotal":
                 configured = self._vt_key not in (None, "")
@@ -254,7 +263,7 @@ class ExternalIPEnricher:
         for prov, coro in calls:
             try:
                 await coro  # type: ignore[misc]
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("HomeSec: %s tier detection failed: %s", prov, exc)
 
     async def _detect_vt_tier(self, aiohttp) -> None:
@@ -309,7 +318,7 @@ class ExternalIPEnricher:
             if self._is_stale(ip):
                 try:
                     self._store(ip, await self._enrich(ip), datetime.now(UTC))
-                except Exception as exc:
+                except Exception as exc:  # noqa: BLE001
                     _LOGGER.debug("HomeSec: enrichment error for %s: %s", ip, exc)
                     self._store(
                         ip,
@@ -323,10 +332,10 @@ class ExternalIPEnricher:
                     )
             await asyncio.sleep(_WORKER_DELAY)
 
-    async def _enrich(self, ip: str, fast_only: bool = False) -> dict[str, object]:
+    async def _enrich(self, ip: str, fast_only: bool = False) -> dict[str, Any]:
         import aiohttp as _aiohttp  # lazy import
 
-        result: dict[str, object] = {
+        result: dict[str, Any] = {
             "ip": ip,
             "enriched_at": datetime.now(UTC).isoformat(),
             "sources": [],
@@ -335,8 +344,8 @@ class ExternalIPEnricher:
         # Each provider: check budget → throttle → call
         # Order matters: AbuseIPDB runs before VirusTotal so the score is available
         # to gate the VT call.
-        providers: list[tuple[str, str | None, object]] = [
-            ("ipwho",      "_always_",      self._ipwho),
+        providers: list[tuple[str, str | None, Callable[[str, Any], Awaitable[dict[str, Any] | None]]]] = [
+            ("ipwho",      "_on_" if self._ipwho_enabled else None, self._ipwho),
             ("abuseipdb",  self._abuse_key, self._abuseipdb),
             ("virustotal", self._vt_key,    self._virustotal),
         ]
@@ -370,7 +379,7 @@ class ExternalIPEnricher:
                 data = await method(ip, _aiohttp)
                 if data:
                     result.update(data)
-                    result["sources"].append(name)  # type: ignore[union-attr]
+                    result["sources"].append(name)
                 self._prov_last_error.pop(name, None)  # clear error on success
                 self._prov_backoff_until.pop(name, None)  # clear backoff on success
             except _ProviderError as exc:
@@ -388,20 +397,20 @@ class ExternalIPEnricher:
                 else:
                     self._prov_last_error[name] = note
                     _LOGGER.debug("HomeSec: %s returned %s for %s", name, exc.status, ip)
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("HomeSec: %s failed for %s: %s", name, ip, exc)
 
         result["rating"], result["rating_source"] = self._compute_rating(result)
         return result
 
-    def export_usage_state(self) -> dict[str, object]:
+    def export_usage_state(self) -> dict[str, Any]:
         """Return serializable usage counters used for persistence."""
         return {
             "day": self._prov_day,
             "daily_count": dict(self._prov_daily_count),
         }
 
-    def import_usage_state(self, state: dict[str, object]) -> None:
+    def import_usage_state(self, state: dict[str, Any]) -> None:
         """Restore persisted usage counters if they are valid for today."""
         if not isinstance(state, dict):
             return
@@ -431,7 +440,7 @@ class ExternalIPEnricher:
     def mark_usage_state_clean(self) -> None:
         self._usage_state_dirty = False
 
-    async def _ipwho(self, ip: str, aiohttp) -> dict[str, object] | None:
+    async def _ipwho(self, ip: str, aiohttp) -> dict[str, Any] | None:
         """Query ipwho.is for country and ASN data (free, no auth, 1 req/s)."""
         url = _IPWHO_URL.format(ip=ip)
         async with self._session.get(
@@ -459,7 +468,7 @@ class ExternalIPEnricher:
             "isp": as_name,
         }
 
-    async def _virustotal(self, ip: str, aiohttp) -> dict[str, object] | None:
+    async def _virustotal(self, ip: str, aiohttp) -> dict[str, Any] | None:
         url = _VT_URL.format(ip=ip)
         headers = {"x-apikey": self._vt_key}
         async with self._session.get(
@@ -482,7 +491,7 @@ class ExternalIPEnricher:
             "vt_asn": int(attrs.get("asn") or 0),
         }
 
-    async def _abuseipdb(self, ip: str, aiohttp) -> dict[str, object] | None:
+    async def _abuseipdb(self, ip: str, aiohttp) -> dict[str, Any] | None:
         headers = {"Key": self._abuse_key, "Accept": "application/json"}
         params = {"ipAddress": ip, "maxAgeInDays": "90"}
         async with self._session.get(
@@ -515,7 +524,7 @@ class ExternalIPEnricher:
         }
 
     @staticmethod
-    def _compute_rating(data: dict[str, object]) -> tuple[str, str]:
+    def _compute_rating(data: dict[str, Any]) -> tuple[str, str]:
         vt_mal = int(data.get("vt_malicious") or 0)
         vt_sus = int(data.get("vt_suspicious") or 0)
         abuse = int(data.get("abuse_confidence") or 0)

@@ -3,8 +3,9 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 import ipaddress
+from typing import Any
 
 from .netflow import FlowRecord
 
@@ -40,12 +41,12 @@ class DeviceProfile:
     ping_ms: float | None = None
     os_guess: str = ""
     os_confidence: str = ""
-    scanned_services: list[dict[str, object]] = field(default_factory=list)
-    vulnerabilities: list[dict[str, object]] = field(default_factory=list)
+    scanned_services: list[dict[str, Any]] = field(default_factory=list)
+    vulnerabilities: list[dict[str, Any]] = field(default_factory=list)
     # Local time of the last flow for this device (exporter clocks can be wrong)
     received_at: datetime | None = None
 
-    def as_dict(self) -> dict[str, object]:
+    def as_dict(self) -> dict[str, Any]:
         return {
             "ip": self.ip,
             "last_seen": self.last_seen,
@@ -73,9 +74,9 @@ class SecurityFinding:
     source_ip: str
     count: int
     last_seen: str
-    details: dict[str, object] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
-    def as_dict(self) -> dict[str, object]:
+    def as_dict(self) -> dict[str, Any]:
         data = asdict(self)
         return data
 
@@ -93,7 +94,7 @@ class NetworkConnection:
     flows: int
     last_seen: str
 
-    def as_dict(self) -> dict[str, object]:
+    def as_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
@@ -139,7 +140,7 @@ class HomeSecurityAnalyzer:
                     self._observe_external_egress(record)
 
                 self._observe_connection(record, src_internal, dst_internal, dst_multicast)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 pass  # skip malformed record, keep processing
 
     def get_observed_ips(self) -> list[str]:
@@ -148,13 +149,13 @@ class HomeSecurityAnalyzer:
 
     def snapshot(
         self,
-        enrichment_by_ip: dict[str, dict[str, object]] | None = None,
-        listener_stats: dict[str, object] | None = None,
-        scan_results: list[dict[str, object]] | None = None,
-        vuln_findings: list[dict[str, object]] | None = None,
+        enrichment_by_ip: dict[str, dict[str, Any]] | None = None,
+        listener_stats: dict[str, Any] | None = None,
+        scan_results: list[dict[str, Any]] | None = None,
+        vuln_findings: list[dict[str, Any]] | None = None,
         alive_hosts: list[str] | None = None,
         dismissed_findings: set[str] | None = None,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         enrichment_by_ip = enrichment_by_ip or {}
         listener_stats = listener_stats or {}
         scan_results = scan_results or []
@@ -164,8 +165,8 @@ class HomeSecurityAnalyzer:
         self._expire_idle_devices(set(enrichment_by_ip), {str(h["ip"]) for h in scan_results if h.get("alive")})
 
         # Merge scan results into device profiles
-        scan_by_ip: dict[str, dict[str, object]] = {str(h["ip"]): h for h in scan_results}
-        vuln_by_ip: dict[str, list[dict[str, object]]] = defaultdict(list)
+        scan_by_ip: dict[str, dict[str, Any]] = {str(h["ip"]): h for h in scan_results}
+        vuln_by_ip: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for v in vuln_findings:
             vuln_by_ip[str(v.get("host_ip", ""))].append(v)
 
@@ -190,8 +191,9 @@ class HomeSecurityAnalyzer:
 
         # Apply scan data to profiles
         for ip, device in self._devices.items():
-            scan_data = scan_by_ip.get(ip)
-            if scan_data:
+            device_scan = scan_by_ip.get(ip)
+            if device_scan:
+                scan_data = device_scan
                 device.alive = bool(scan_data.get("alive", False))
                 # Refresh last_seen from the scan timestamp only while the host
                 # is alive so that the live map can use this field as a freshness
@@ -252,7 +254,7 @@ class HomeSecurityAnalyzer:
         self._interval_egress.clear()
         return payload
 
-    def _merge_vuln_findings(self, vuln_findings: list[dict[str, object]]) -> None:
+    def _merge_vuln_findings(self, vuln_findings: list[dict[str, Any]]) -> None:
         """Promote vulnerability matches from the scanner into SecurityFindings."""
         for v in vuln_findings:
             cve_id = str(v.get("cve_id", ""))
@@ -267,7 +269,7 @@ class HomeSecurityAnalyzer:
                 summary=str(v.get("summary", "")),
                 source_ip=host_ip,
                 count=1,
-                last_seen=datetime.now(timezone.utc).isoformat(),
+                last_seen=datetime.now(UTC).isoformat(),
                 details={
                     "cve_id": cve_id,
                     "port": port,
@@ -365,7 +367,7 @@ class HomeSecurityAnalyzer:
     def _device_for(self, address: IPAddress, when: datetime) -> DeviceProfile:
         key = str(address)
         device = self._devices.get(key)
-        received_at = datetime.now(timezone.utc)
+        received_at = datetime.now(UTC)
         if device is None:
             device = DeviceProfile(ip=key, last_seen=when.isoformat(), received_at=received_at)
             if len(self._devices) >= MAX_DEVICES:
@@ -414,15 +416,15 @@ class HomeSecurityAnalyzer:
         if self._last_flow_at is None:
             return []
 
-        cutoff = datetime.now(timezone.utc) - (self._scan_window * 6)
+        cutoff = datetime.now(UTC) - (self._scan_window * 6)
         if cutoff.tzinfo is None:
-            cutoff = cutoff.replace(tzinfo=timezone.utc)
+            cutoff = cutoff.replace(tzinfo=UTC)
         stale_keys = []
         for key, connection in self._connections.items():
             try:
                 ts = datetime.fromisoformat(connection.last_seen)
                 if ts.tzinfo is None:
-                    ts = ts.replace(tzinfo=timezone.utc)
+                    ts = ts.replace(tzinfo=UTC)
                 if ts < cutoff:
                     stale_keys.append(key)
             except (ValueError, TypeError):
@@ -448,7 +450,7 @@ class HomeSecurityAnalyzer:
     def _infer_role(
         self,
         exposed_ports: set[int],
-        enrichment: dict[str, object] | None = None,
+        enrichment: dict[str, Any] | None = None,
     ) -> tuple[str, str]:
         identity_text = " ".join(
             str(enrichment.get(key, "")).lower()
@@ -477,7 +479,7 @@ class HomeSecurityAnalyzer:
             return "web_service", "low"
         return "unknown", "low"
 
-    def _build_device_snapshot(self, device: DeviceProfile, enrichment: dict[str, object], dismissed: set[str] | None = None) -> dict[str, object]:
+    def _build_device_snapshot(self, device: DeviceProfile, enrichment: dict[str, Any], dismissed: set[str] | None = None) -> dict[str, Any]:
         snapshot = device.as_dict()
         probable_role, confidence = self._infer_role(device.exposed_ports, enrichment)
         snapshot["probable_role"] = probable_role
@@ -500,7 +502,7 @@ class HomeSecurityAnalyzer:
 
     def _expire_idle_devices(self, tracked_ips: set[str], alive_ips: set[str]) -> None:
         """Forget devices with no flow for DEVICE_IDLE_EXPIRY that nothing else vouches for."""
-        cutoff = datetime.now(timezone.utc) - DEVICE_IDLE_EXPIRY
+        cutoff = datetime.now(UTC) - DEVICE_IDLE_EXPIRY
         stale: list[str] = []
         for ip, device in self._devices.items():
             if ip in tracked_ips or ip in alive_ips:
@@ -514,7 +516,7 @@ class HomeSecurityAnalyzer:
                     stale.append(ip)
                     continue
             if seen.tzinfo is None:
-                seen = seen.replace(tzinfo=timezone.utc)
+                seen = seen.replace(tzinfo=UTC)
             if seen < cutoff:
                 stale.append(ip)
         for ip in stale:
@@ -532,7 +534,7 @@ class HomeSecurityAnalyzer:
         severity: str,
         summary: str,
         source_ip: str,
-        details: dict[str, object],
+        details: dict[str, Any],
         when: datetime,
     ) -> None:
         finding = self._findings.get(key)
@@ -560,13 +562,13 @@ class HomeSecurityAnalyzer:
         cutoff = self._last_flow_at - (self._scan_window * 2)
         # Ensure cutoff is tz-aware for comparison
         if cutoff.tzinfo is None:
-            cutoff = cutoff.replace(tzinfo=timezone.utc)
+            cutoff = cutoff.replace(tzinfo=UTC)
         stale_keys = []
         for key, finding in self._findings.items():
             try:
                 ts = datetime.fromisoformat(finding.last_seen)
                 if ts.tzinfo is None:
-                    ts = ts.replace(tzinfo=timezone.utc)
+                    ts = ts.replace(tzinfo=UTC)
                 if ts < cutoff:
                     stale_keys.append(key)
             except (ValueError, TypeError):
@@ -577,7 +579,7 @@ class HomeSecurityAnalyzer:
         # Also trim stale activity deques to prevent memory growth
         activity_cutoff = self._last_flow_at - self._scan_window
         if activity_cutoff.tzinfo is None:
-            activity_cutoff = activity_cutoff.replace(tzinfo=timezone.utc)
+            activity_cutoff = activity_cutoff.replace(tzinfo=UTC)
         stale_activity = [
             ip for ip, dq in self._recent_activity.items()
             if not dq or dq[-1][0] < activity_cutoff

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 from asyncio import DatagramProtocol
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 import ipaddress
 import logging
 import struct
@@ -16,6 +17,8 @@ _LOGGER = logging.getLogger(__name__)
 MAX_TEMPLATES_PER_EXPORTER = 256
 # Upper bound on distinct exporter addresses remembered for statistics.
 MAX_TRACKED_EXPORTERS = 64
+# Datagrams buffered between two event-loop iterations before dropping
+MAX_BUFFERED_DATAGRAMS = 5000
 
 
 @dataclass(slots=True)
@@ -292,7 +295,7 @@ class NetFlowParser:
             self._stats.data_sets_without_template += 1
             return []
 
-        record_length = sum(field.field_length for field in template)
+        record_length = sum(template_field.field_length for template_field in template)
         if record_length <= 0:
             return []
 
@@ -315,9 +318,9 @@ class NetFlowParser:
     ) -> FlowRecord | None:
         values: dict[int, bytes] = {}
         offset = 0
-        for field in template:
-            values[field.field_type] = payload[offset : offset + field.field_length]
-            offset += field.field_length
+        for template_field in template:
+            values[template_field.field_type] = payload[offset : offset + template_field.field_length]
+            offset += template_field.field_length
 
         # IPFIX/NetFlow v9 address fields: 8/12 = sourceIPv4Address/destinationIPv4Address,
         # 27/28 = sourceIPv6Address/destinationIPv6Address. A template uses one pair or the other.
@@ -382,6 +385,9 @@ class NetFlowDatagramProtocol(DatagramProtocol):
         self._parser = NetFlowParser()
         self._callback_errors: int = 0
         self._allowed_exporters = list(allowed_exporters or [])
+        self._buffer: list[tuple[bytes, str]] = []
+        self._flush_scheduled = False
+        self._buffer_overflows = 0
 
     def _exporter_allowed(self, host: str) -> bool:
         if not self._allowed_exporters:
@@ -398,15 +404,49 @@ class NetFlowDatagramProtocol(DatagramProtocol):
         if not self._exporter_allowed(addr[0]):
             self._parser.record_rejected()
             return
+        if len(self._buffer) >= MAX_BUFFERED_DATAGRAMS:
+            self._buffer_overflows += 1
+            return
+        self._buffer.append((data, addr[0]))
+        if self._flush_scheduled:
+            return
         try:
-            records = self._parser.parse(data, exporter_host=addr[0])
-            if records:
-                self._callback(records)
-        except Exception:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            # No running loop (direct use, e.g. tests): process right away
+            self.flush()
+            return
+        self._flush_scheduled = True
+        loop.call_soon(self.flush)
+
+    def flush(self) -> None:
+        """Parse all buffered datagrams and hand the records over in one call.
+
+        A busy exporter sends many datagrams per event-loop iteration; parsing
+        them together lets the analyzer ingest one batch instead of running
+        once per datagram.
+        """
+        self._flush_scheduled = False
+        if not self._buffer:
+            return
+        batch, self._buffer = self._buffer, []
+        records: list[FlowRecord] = []
+        for data, exporter in batch:
+            try:
+                records.extend(self._parser.parse(data, exporter_host=exporter))
+            except Exception:  # noqa: BLE001
+                self._callback_errors += 1
+                _LOGGER.debug("Error parsing datagram from %s", exporter, exc_info=True)
+        if not records:
+            return
+        try:
+            self._callback(records)
+        except Exception:  # noqa: BLE001
             self._callback_errors += 1
-            _LOGGER.debug("Error processing datagram from %s", addr[0], exc_info=True)
+            _LOGGER.debug("Error processing %d flow records", len(records), exc_info=True)
 
     def snapshot_stats(self) -> dict[str, object]:
         stats = self._parser.snapshot_stats()
         stats["callback_errors"] = self._callback_errors
+        stats["buffer_overflows"] = self._buffer_overflows
         return stats
