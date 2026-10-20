@@ -6,3 +6,6 @@ deploy.sh
 .pytest_cache/
 .hypothesis/
 __pycache__/
+frontend/node_modules/
+frontend/test-results/
+frontend/playwright-report/

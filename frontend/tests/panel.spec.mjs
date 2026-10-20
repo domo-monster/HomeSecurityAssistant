@@ -1,0 +1,213 @@
+// Browser regression tests for the Security Assistant panel.
+//
+// The panel is rendered in Chromium against fixtures generated from the real
+// backend (tests/fixtures/generate_fixture.py). Every view and the main
+// interactions are exercised, and each state is checked for:
+//   - page / console errors,
+//   - script injected through hostile fixture strings actually running,
+//   - raw markup or double-escaped entities leaking into visible text,
+//   - visual changes (screenshots taken from the reviewed baseline).
+import { expect, test } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+const fixtures = JSON.parse(readFileSync(new URL("./fixtures/api.json", import.meta.url)));
+const XSS_TEXT = '<img src=x onerror="window.__xss=1">';
+const PANEL = process.env.PANEL_URL || "/panel/homesec-panel.js";
+
+async function openPanel(page, { lang = "en", view = null } = {}) {
+  const errors = [];
+  page.on("pageerror", (err) => errors.push(`pageerror: ${err.message}`));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") errors.push(`console: ${msg.text()}`);
+  });
+  // Freeze time at fixture generation so "x minutes ago" texts are stable,
+  // and make Math.random deterministic (map layout and particles).
+  await page.clock.install({ time: new Date(fixtures.generated_at) });
+  await page.addInitScript(() => {
+    let seed = 42;
+    Math.random = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+  });
+  await page.goto(`/tests/harness.html?lang=${lang}&panel=${encodeURIComponent(PANEL)}`);
+  const panel = page.locator("homesec-panel");
+  await expect(panel.locator(".nav-item").first()).toBeVisible();
+  await expect(panel.locator(".loader")).toHaveCount(0);
+  if (view) await goTo(page, view);
+  return { panel, errors };
+}
+
+async function goTo(page, view) {
+  const panel = page.locator("homesec-panel");
+  await panel.locator(`.nav-item[data-view="${view}"]`).click();
+  await expect(panel.locator(`.nav-item.active[data-view="${view}"]`)).toBeVisible();
+}
+
+async function checkClean(page, errors) {
+  expect(errors, "page errors").toEqual([]);
+  expect(await page.evaluate(() => window.__xss), "injected script ran").toBeUndefined();
+  const text = await page.locator("homesec-panel").evaluate((el) => el.shadowRoot.querySelector(".app").innerText);
+  const visible = text.split(XSS_TEXT).join("").split('<img src=x onerror="window.__xss=1"').join("");
+  expect(visible, "raw markup visible as text").not.toMatch(/<\/?(div|span|td|tr|th|table|svg|path|button|a|img|b|strong|li|ul|input|select|option|h\d|p|br)\b[^>]*>/i);
+  expect(visible, "double-escaped entities visible").not.toMatch(/&(lt|gt|amp|quot|#39);/);
+}
+
+async function snap(page, name) {
+  await page.evaluate(() => document.fonts && document.fonts.ready);
+  await expect(page.locator("homesec-panel")).toHaveScreenshot(`${name}.png`, { fullPage: false });
+}
+
+const SIMPLE_VIEWS = ["overview", "hosts", "findings", "external", "vulnerabilities", "statistics", "dns", "suricata", "recommendations"];
+
+for (const view of SIMPLE_VIEWS) {
+  test(`view ${view}`, async ({ page }) => {
+    const { errors } = await openPanel(page, { view });
+    if (view === "vulnerabilities") {
+      await expect(page.locator("homesec-panel").locator("[data-vuln-detail]").first()).toBeVisible();
+    }
+    await checkClean(page, errors);
+    await snap(page, `view-${view}`);
+  });
+}
+
+test("view map renders a canvas", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "map" });
+  await expect(panel.locator("canvas")).toBeVisible();
+  for (const mode of ["baseline", "compare", "live"]) {
+    const button = panel.locator(`[data-mapmode="${mode}"]`);
+    if (await button.count()) await button.first().click();
+  }
+  const filters = panel.locator("[data-mapfilter]");
+  for (let i = 0; i < (await filters.count()); i++) await filters.nth(i).click();
+  await checkClean(page, errors);
+});
+
+test("hosts: expand a row and open the rename editor", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "hosts" });
+  await panel.locator('tr.expandable[data-ip="192.168.1.10"]').click();
+  await expect(panel.locator(".host-detail-wrap").first()).toBeVisible();
+  await snap(page, "hosts-expanded");
+  await panel.locator('[data-editname="192.168.1.12"]').click();
+  await expect(panel.locator("#hsa-editor-modal")).toBeVisible();
+  await snap(page, "hosts-rename-modal");
+  await panel.locator("#hsa-editor-modal input, #hsa-editor-modal textarea").first().fill("Front door camera");
+  await panel.locator("[data-editor-save]").click();
+  await expect.poll(() => page.evaluate(() => window.__calls.some((c) => c.path === "homesec/device/name" && c.body.name === "Front door camera"))).toBe(true);
+  await checkClean(page, errors);
+});
+
+test("findings: group modes, expand a group, dismiss", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "findings" });
+  for (const mode of ["host", "severity", "flat", "category"]) {
+    await panel.locator(`[data-findings-group-mode="${mode}"]`).click();
+    await snap(page, `findings-group-${mode}`);
+  }
+  await panel.locator("[data-expand-group]").first().click();
+  await snap(page, "findings-group-expanded");
+  await panel.locator("[data-dismiss]").first().click();
+  const editor = panel.locator("#hsa-editor-modal");
+  if (await editor.count()) await panel.locator("[data-editor-save]").click();
+  await expect.poll(() => page.evaluate(() => window.__calls.some((c) => c.path === "homesec/findings/dismiss"))).toBe(true);
+  await checkClean(page, errors);
+});
+
+test("findings: regex dismiss preview", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "findings" });
+  await panel.locator("[data-regex-dismiss-open]").first().click();
+  await expect(panel.locator("#hsa-regex-dismiss-modal")).toBeVisible();
+  await panel.locator("#hsa-regex-dismiss-modal input").first().fill("vulnerab");
+  await snap(page, "findings-regex-modal");
+  await checkClean(page, errors);
+});
+
+test("external IPs: detail modal and lookup", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "external" });
+  await panel.locator("[data-ext-ip-row]").first().click();
+  await expect(panel.locator("#hsa-ext-ip-modal")).toBeVisible();
+  await snap(page, "external-ip-modal");
+  await panel.locator("[data-ext-close]").first().click();
+  await expect(panel.locator("#hsa-ext-ip-modal")).toHaveCount(0);
+  await checkClean(page, errors);
+});
+
+test("vulnerabilities: detail modal, sort and search", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "vulnerabilities" });
+  await panel.locator("[data-vuln-detail]").first().click();
+  await expect(panel.locator("#hsa-vuln-modal")).toBeVisible();
+  await snap(page, "vulnerability-modal");
+  await panel.locator("#hsa-vuln-modal button[data-vuln-close]").first().click();
+  await expect(panel.locator("#hsa-vuln-modal")).toHaveCount(0);
+  await panel.locator("[data-vulnsort]").first().click();
+  const search = panel.locator("[data-vuln-search]").first();
+  await search.fill("openssh");
+  await search.press("Enter");
+  await snap(page, "vulnerabilities-search");
+  await checkClean(page, errors);
+});
+
+test("statistics: switch charts to list mode", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "statistics" });
+  const toggles = panel.locator('[data-statstoggle$=":bar"], [data-statstoggle$=":list"]');
+  const count = await toggles.count();
+  for (let i = 0; i < count; i++) await toggles.nth(i).click();
+  await snap(page, "statistics-list-mode");
+  await checkClean(page, errors);
+});
+
+test("dns: search, sort and malicious filter", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "dns" });
+  const search = panel.locator("#dns-search, input.search-bar").first();
+  await search.fill("example");
+  await search.press("Enter");
+  await panel.locator("[data-dnssort]").first().click();
+  await snap(page, "dns-filtered");
+  await checkClean(page, errors);
+});
+
+test("suricata: alert detail modal escapes hostile signature", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "suricata" });
+  await panel.locator("[data-suricata-alert-idx]").first().click();
+  await expect(panel.locator("#hsa-suricata-detail-modal")).toBeVisible();
+  await snap(page, "suricata-modal");
+  await checkClean(page, errors);
+});
+
+test("recommendations: expand a card", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "recommendations" });
+  await panel.locator("[data-rec-idx]").first().click();
+  await snap(page, "recommendations-expanded");
+  await checkClean(page, errors);
+});
+
+test("settings: edit, save and unsaved-changes guard", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "settings" });
+  await expect(panel.locator("#hsa-setting-stats_top_n")).toBeVisible();
+  await snap(page, "view-settings");
+  await panel.locator("#hsa-setting-stats_top_n").fill("7");
+  await panel.locator(".nav-item[data-view=\"overview\"]").click();
+  await expect(panel.locator("#hsa-unsaved-modal")).toBeVisible();
+  await panel.locator("[data-unsaved-stay]").click();
+  await panel.locator("[data-settings-save]").first().click();
+  await expect.poll(() => page.evaluate(() => {
+    const call = window.__calls.find((c) => c.path === "homesec/settings/save");
+    return call && call.body.stats_top_n;
+  })).toBe(7);
+  await checkClean(page, errors);
+});
+
+test("mobile layout and menu", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const { panel, errors } = await openPanel(page);
+  await snap(page, "mobile-overview");
+  await panel.locator("[data-mobile-menu-toggle]").click();
+  await snap(page, "mobile-menu-open");
+  await checkClean(page, errors);
+});
+
+test("french locale", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { lang: "fr", view: "findings" });
+  await expect(panel.locator(".nav-item.active")).toContainText("Constats");
+  await snap(page, "fr-findings");
+  await checkClean(page, errors);
+});
