@@ -415,6 +415,12 @@ The Vulnerability Browser only shows CVEs that are relevant to services actually
 
 This is expected behavior, not a bug: a low KEV count means few of the actively-exploited vulnerabilities in the CISA catalog apply to the software versions found on your network.
 
+### Why is a CVE reported for a service I have already patched?
+
+NVD enrichment matches CVEs against the product and version advertised in each service banner (for example `OpenSSH_8.9p1 Ubuntu-3ubuntu0.17`). Linux distributions such as Ubuntu, Debian and RHEL routinely **backport** security fixes into their packages without changing the upstream version number, so the banner still reports `8.9p1` even though the fix for a CVE affecting that version has been applied. Home Security Assistant cannot see the distribution patch level, so these matches can be false positives.
+
+Before acting on a vulnerability finding, check your distribution's security tracker (e.g. [Ubuntu CVE tracker](https://ubuntu.com/security/cves), [Debian security tracker](https://security-tracker.debian.org/tracker/)) for the package version you run. If it is already fixed, dismiss the finding — dismissals persist across scans.
+
 ## Version History
 
 Release notes and historical changes are now maintained in `changelog.txt` at the repository root.

@@ -34,6 +34,10 @@ Fixes
 - Baseline training no longer counts the same DNS queries on every refresh.
 - Idle devices expire by local receive time, not the exporter's clock.
 
+Vulnerability findings
+- Findings, Vulnerability Browser and CVE details now warn that banner-based CVE matches can be false positives when a distribution backports fixes (FR/DE/ES/IT translated); README FAQ explains how to verify.
+- Grouped finding rows show the CVE ID.
+
 Branding
 - Brand images ship in custom_components/homesec/brand (Home Assistant 2026.3+). The HACS 2.0.x store cannot show local brand icons; Home Assistant 2026.11 (Marketplace) does.
 
