@@ -6028,6 +6028,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
                 self._sev(f.severity) +
                 '<span class="ip">' + self._esc(f.source_ip || '') + '</span>' +
                 blBadge +
+                (det.cve_id ? '<span class="chip">' + self._esc(det.cve_id) + '</span>' : '') +
                 (det.port ? '<span class="chip">:' + det.port + '</span>' : '') +
                 '<span style="flex:1;font-size:11px">' + self._esc(f.summary || f.category || '') + '</span>' +
                 '<span class="dim" style="font-size:10px">' + (f.count || 1) + '\u00D7\u00A0\u00B7\u00A0' + self._ago(f.last_seen) + '</span>' +
