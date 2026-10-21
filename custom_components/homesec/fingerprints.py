@@ -25,6 +25,8 @@ MAX_EXTERNAL_PEERS_PER_DEVICE = 512
 MAX_EXPOSED_PORTS_PER_DEVICE = 256
 # Flow-only devices not seen for this long are forgotten
 DEVICE_IDLE_EXPIRY = timedelta(days=7)
+# Addresses whose string form and internal/multicast class are memoized
+MAX_CLASSIFIED_ADDRESSES = 65536
 
 
 @dataclass(slots=True)
@@ -95,7 +97,19 @@ class NetworkConnection:
     last_seen: str
 
     def as_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        # Flat fields only: cheaper than dataclasses.asdict's recursive copy
+        return {
+            "key": self.key,
+            "source": self.source,
+            "target": self.target,
+            "source_kind": self.source_kind,
+            "target_kind": self.target_kind,
+            "protocol": self.protocol,
+            "dst_port": self.dst_port,
+            "octets": self.octets,
+            "flows": self.flows,
+            "last_seen": self.last_seen,
+        }
 
 
 class HomeSecurityAnalyzer:
@@ -114,32 +128,52 @@ class HomeSecurityAnalyzer:
         self._devices: dict[str, DeviceProfile] = {}
         self._findings: dict[str, SecurityFinding] = {}
         self._recent_activity: dict[str, deque[tuple[datetime, int, str]]] = defaultdict(deque)
+        # Per-source count of each destination port in _recent_activity, so the
+        # port-scan check does not rebuild a set of the whole window per flow
+        self._recent_ports: dict[str, dict[int, int]] = defaultdict(dict)
+        self._address_info: dict[IPAddress, tuple[str, bool, bool]] = {}
         self._interval_egress: dict[str, int] = defaultdict(int)
         self._connections: dict[str, NetworkConnection] = {}
         self._total_flows = 0
         self._device_updates_dropped = 0
         self._last_flow_at: datetime | None = None
 
+    def set_internal_networks(self, networks: list[ipaddress.IPv4Network | ipaddress.IPv6Network]) -> None:
+        self._internal_networks = list(networks)
+        self._address_info.clear()
+
+    def classify(self, address: IPAddress) -> tuple[str, bool, bool]:
+        """Return (text, is_internal, is_multicast) for an address, memoized."""
+        info = self._address_info.get(address)
+        if info is None:
+            if len(self._address_info) >= MAX_CLASSIFIED_ADDRESSES:
+                self._address_info.clear()
+            info = (str(address), self._is_internal(address), self._is_multicast(address))
+            self._address_info[address] = info
+        return info
+
     def ingest(self, records: Iterable[FlowRecord]) -> None:
+        received_at = datetime.now(UTC)
+        classify = self.classify
         for record in records:
             try:
                 self._total_flows += 1
-                self._last_flow_at = record.timestamp
+                when = record.timestamp
+                self._last_flow_at = when
+                when_iso = when.isoformat()
 
-                src_internal = self._is_internal(record.src_ip)
-                dst_internal = self._is_internal(record.dst_ip)
-
-                dst_multicast = self._is_multicast(record.dst_ip)
+                src, src_internal, _ = classify(record.src_ip)
+                dst, dst_internal, dst_multicast = classify(record.dst_ip)
 
                 if src_internal:
-                    self._observe_internal_source(record)
+                    self._observe_internal_source(record, src, dst, when_iso, received_at)
                 if dst_internal:
-                    self._observe_internal_destination(record)
+                    self._observe_internal_destination(record, dst, when_iso, received_at)
 
                 if src_internal and not dst_internal and not dst_multicast:
-                    self._observe_external_egress(record)
+                    self._observe_external_egress(record, src, dst, when_iso, received_at)
 
-                self._observe_connection(record, src_internal, dst_internal, dst_multicast)
+                self._observe_connection(record, src, dst, src_internal, dst_internal, dst_multicast, when_iso)
             except Exception:  # noqa: BLE001
                 pass  # skip malformed record, keep processing
 
@@ -291,98 +325,109 @@ class HomeSecurityAnalyzer:
             return address in MULTICAST_NETWORK_V6
         return address in MULTICAST_NETWORK
 
-    def _observe_internal_source(self, record: FlowRecord) -> None:
-        device = self._device_for(record.src_ip, record.timestamp)
+    def _observe_internal_source(
+        self, record: FlowRecord, src: str, dst: str, when_iso: str, received_at: datetime
+    ) -> None:
+        device = self._device_for(src, when_iso, received_at)
         device.total_flows += 1
         device.total_octets += record.octets
 
-        activity = self._recent_activity[str(record.src_ip)]
-        activity.append((record.timestamp, record.dst_port, str(record.dst_ip)))
-        self._trim_activity(activity, record.timestamp)
+        activity = self._recent_activity[src]
+        ports = self._recent_ports[src]
+        activity.append((record.timestamp, record.dst_port, dst))
+        ports[record.dst_port] = ports.get(record.dst_port, 0) + 1
+        self._trim_activity(activity, ports, record.timestamp)
 
-        unique_ports = {dst_port for _, dst_port, _ in activity}
-        if len(unique_ports) >= self._scan_port_threshold:
+        if len(ports) >= self._scan_port_threshold:
             self._upsert_finding(
-                key=f"scan:{record.src_ip}",
+                key=f"scan:{src}",
                 category="port_scan",
                 severity="high",
                 summary="Source contacted many destination ports in a short window",
-                source_ip=str(record.src_ip),
+                source_ip=src,
                 details={
-                    "unique_ports": len(unique_ports),
+                    "unique_ports": len(ports),
                     "window_seconds": int(self._scan_window.total_seconds()),
                 },
                 when=record.timestamp,
             )
 
-    def _observe_internal_destination(self, record: FlowRecord) -> None:
+    def _observe_internal_destination(
+        self, record: FlowRecord, dst: str, when_iso: str, received_at: datetime
+    ) -> None:
         # Ignore ephemeral / client-side ports (return traffic from outbound connections).
         # IANA ephemeral range starts at 49152; Linux default starts at 32768.
         # Only track ports below 32768 as potential listening/server ports.
         if record.dst_port >= 32768:
             return
-        device = self._device_for(record.dst_ip, record.timestamp)
-        if (
-            record.dst_port in device.exposed_ports
-            or len(device.exposed_ports) < MAX_EXPOSED_PORTS_PER_DEVICE
-        ):
+        device = self._device_for(dst, when_iso, received_at)
+        if record.dst_port in device.exposed_ports:
+            return
+        if len(device.exposed_ports) < MAX_EXPOSED_PORTS_PER_DEVICE:
             device.exposed_ports.add(record.dst_port)
-        device.probable_role, device.confidence = self._infer_role(device.exposed_ports)
+            device.probable_role, device.confidence = self._infer_role(device.exposed_ports)
 
-    def _observe_external_egress(self, record: FlowRecord) -> None:
-        device = self._device_for(record.src_ip, record.timestamp)
+    def _observe_external_egress(
+        self, record: FlowRecord, src: str, dst: str, when_iso: str, received_at: datetime
+    ) -> None:
+        device = self._device_for(src, when_iso, received_at)
         if len(device.external_peers) < MAX_EXTERNAL_PEERS_PER_DEVICE:
-            device.external_peers.add(str(record.dst_ip))
-        self._interval_egress[str(record.src_ip)] += record.octets
+            device.external_peers.add(dst)
+        self._interval_egress[src] += record.octets
 
         if record.dst_port in SUSPICIOUS_PORTS:
             self._upsert_finding(
-                key=f"port:{record.src_ip}:{record.dst_port}",
+                key=f"port:{src}:{record.dst_port}",
                 category="suspicious_port",
                 severity="high",
                 summary="Outbound flow matched a commonly abused destination port",
-                source_ip=str(record.src_ip),
+                source_ip=src,
                 details={
-                    "destination_ip": str(record.dst_ip),
+                    "destination_ip": dst,
                     "destination_port": record.dst_port,
                     "protocol": record.protocol,
                 },
                 when=record.timestamp,
             )
 
-        if self._interval_egress[str(record.src_ip)] >= self._high_egress_threshold:
+        if self._interval_egress[src] >= self._high_egress_threshold:
             self._upsert_finding(
-                key=f"egress:{record.src_ip}",
+                key=f"egress:{src}",
                 category="high_egress",
                 severity="medium",
                 summary="Source exceeded the high egress threshold in the current interval",
-                source_ip=str(record.src_ip),
+                source_ip=src,
                 details={
-                    "octets": self._interval_egress[str(record.src_ip)],
+                    "octets": self._interval_egress[src],
                     "threshold": self._high_egress_threshold,
                 },
                 when=record.timestamp,
             )
 
-    def _device_for(self, address: IPAddress, when: datetime) -> DeviceProfile:
-        key = str(address)
+    def _device_for(self, key: str, when_iso: str, received_at: datetime) -> DeviceProfile:
         device = self._devices.get(key)
-        received_at = datetime.now(UTC)
         if device is None:
-            device = DeviceProfile(ip=key, last_seen=when.isoformat(), received_at=received_at)
+            device = DeviceProfile(ip=key, last_seen=when_iso, received_at=received_at)
             if len(self._devices) >= MAX_DEVICES:
                 # Over the cap: account this observation to a throwaway profile.
                 self._device_updates_dropped += 1
                 return device
             self._devices[key] = device
         else:
-            device.last_seen = when.isoformat()
+            device.last_seen = when_iso
             device.received_at = received_at
         return device
 
-    def _observe_connection(self, record: FlowRecord, src_internal: bool, dst_internal: bool, dst_multicast: bool = False) -> None:
-        source = str(record.src_ip)
-        target = str(record.dst_ip)
+    def _observe_connection(
+        self,
+        record: FlowRecord,
+        source: str,
+        target: str,
+        src_internal: bool,
+        dst_internal: bool,
+        dst_multicast: bool,
+        when_iso: str,
+    ) -> None:
         source_kind = "internal" if src_internal else "external"
         if dst_multicast:
             target_kind = "multicast"
@@ -404,13 +449,13 @@ class HomeSecurityAnalyzer:
                 dst_port=record.dst_port,
                 octets=record.octets,
                 flows=1,
-                last_seen=record.timestamp.isoformat(),
+                last_seen=when_iso,
             )
             return
 
         connection.octets += record.octets
         connection.flows += 1
-        connection.last_seen = record.timestamp.isoformat()
+        connection.last_seen = when_iso
 
     def _connection_snapshot(self) -> list[NetworkConnection]:
         if self._last_flow_at is None:
@@ -522,10 +567,18 @@ class HomeSecurityAnalyzer:
         for ip in stale:
             self._devices.pop(ip, None)
             self._recent_activity.pop(ip, None)
+            self._recent_ports.pop(ip, None)
 
-    def _trim_activity(self, activity: deque[tuple[datetime, int, str]], now: datetime) -> None:
+    def _trim_activity(
+        self, activity: deque[tuple[datetime, int, str]], ports: dict[int, int], now: datetime
+    ) -> None:
         while activity and now - activity[0][0] > self._scan_window:
-            activity.popleft()
+            port = activity.popleft()[1]
+            remaining = ports[port] - 1
+            if remaining:
+                ports[port] = remaining
+            else:
+                del ports[port]
 
     def _upsert_finding(
         self,
@@ -586,3 +639,4 @@ class HomeSecurityAnalyzer:
         ]
         for ip in stale_activity:
             self._recent_activity.pop(ip, None)
+            self._recent_ports.pop(ip, None)

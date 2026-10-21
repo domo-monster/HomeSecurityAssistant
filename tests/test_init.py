@@ -553,3 +553,86 @@ def test_log_stats_aggregation() -> None:
     s = stats["suricata_log_stats"]
     assert s["by_severity"] == {"1": 1, "3": 1}
     assert s["by_category"] == [{"category": "Scan", "count": 1}, {"category": "Other", "count": 1}]
+
+
+def _ext_flow(src: str, dst: str, dport: int, octets: int = 100):
+    from datetime import UTC, datetime
+    import ipaddress
+
+    from custom_components.homesec.netflow import FlowRecord
+
+    return FlowRecord(
+        src_ip=ipaddress.ip_address(src),
+        dst_ip=ipaddress.ip_address(dst),
+        src_port=40000,
+        dst_port=dport,
+        protocol=6,
+        packets=1,
+        octets=octets,
+        timestamp=datetime.now(UTC),
+        tcp_flags=0x18,
+    )
+
+
+async def test_external_ips_are_tracked_per_flow(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    collector = entry.runtime_data.collector
+    collector._handle_records(
+        [
+            _ext_flow("192.168.1.5", "8.8.8.8", 443, 1000),
+            _ext_flow("192.168.1.5", "8.8.8.8", 853, 500),
+            _ext_flow("192.168.1.6", "8.8.8.8", 443, 10),
+            _ext_flow("203.0.113.7", "192.168.1.9", 22, 60),
+            _ext_flow("192.168.1.5", "239.255.255.250", 1900),
+        ]
+    )
+    data = collector.snapshot()
+    by_ip = {e["ip"]: e for e in data["external_ips"]}
+    assert set(by_ip) == {"8.8.8.8", "203.0.113.7"}
+    google = by_ip["8.8.8.8"]
+    assert (google["total_flows"], google["total_octets"]) == (3, 1510)
+    assert google["dst_ports"] == [443, 853]
+    assert google["internal_sources"] == ["192.168.1.5", "192.168.1.6"]
+    assert google["direction"] == "outbound"
+    inbound = by_ip["203.0.113.7"]
+    assert (inbound["direction"], inbound["dst_ports"], inbound["internal_sources"]) == ("inbound", [], ["192.168.1.9"])
+    assert [m["ip"] for m in data["multicast_ips"]] == ["239.255.255.250"]
+    saved = {e["ip"]: e for e in collector._external_state_snapshot()}
+    assert saved["8.8.8.8"]["total_flows"] == 3
+
+
+async def test_external_ip_entries_are_reused_until_inputs_change(hass: HomeAssistant) -> None:
+    from datetime import UTC, datetime
+
+    entry = await _setup(hass)
+    collector = entry.runtime_data.collector
+    collector._handle_records([_ext_flow("192.168.1.5", "8.8.8.8", 443), _ext_flow("192.168.1.5", "1.1.1.1", 443)])
+
+    def entries() -> dict:
+        return {e["ip"]: e for e in collector.snapshot()["external_ips"]}
+
+    first = entries()
+    second = entries()
+    assert second["8.8.8.8"] is first["8.8.8.8"]  # idle and unchanged: reused
+    collector._enricher._store("8.8.8.8", {"country": "US", "rating": "clean"}, datetime.now(UTC))
+    third = entries()
+    assert third["8.8.8.8"] is not first["8.8.8.8"]
+    assert third["8.8.8.8"]["country"] == "US"
+    assert third["1.1.1.1"] is first["1.1.1.1"]
+    collector._resolver._bad_ips = {"1.1.1.1"}  # blocklist swap rebuilds everything
+    fourth = entries()
+    assert fourth["1.1.1.1"]["blacklisted"] is True
+    assert collector._ext_ip_ratings["1.1.1.1"] == "malicious"
+    collector._handle_records([_ext_flow("192.168.1.7", "8.8.8.8", 53, 70)])  # new traffic
+    fifth = entries()
+    assert fifth["8.8.8.8"]["internal_sources"] == ["192.168.1.5", "192.168.1.7"]
+    assert fifth["8.8.8.8"]["total_octets"] == 170
+
+
+async def test_reverse_dns_queue_is_deduplicated(hass: HomeAssistant) -> None:
+    entry = await _setup(hass, {"enable_dns_resolution": True})
+    resolver = entry.runtime_data.collector._resolver
+    for _ in range(3):
+        resolver.queue_resolve("8.8.8.8")
+    assert resolver._resolve_queue.qsize() == 1
+
