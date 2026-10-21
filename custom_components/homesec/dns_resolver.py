@@ -121,6 +121,9 @@ class DNSBlacklistChecker:
         self._refresh_task: asyncio.Task | None = None
         self._resolve_task: asyncio.Task | None = None
         self._fetch_task: asyncio.Task | None = None
+        # url -> {etag, last_modified, fetched_at, checked_at, domains, ips}
+        self._source_state: dict[str, dict[str, Any]] = {}
+        self._state_dirty = False
         # aiodns resolver (created lazily); False when aiodns is unavailable
         self._aiodns: Any = None
 
@@ -301,51 +304,25 @@ class DNSBlacklistChecker:
                 pass
 
     async def _fetch_all(self) -> None:
-        """Download every URL into fresh sets, then swap them in atomically.
+        """Refresh every URL, then swap the combined lists in atomically.
 
-        The active lists stay in place while downloading.  If a source fails,
-        its previously loaded entries are kept so a transient outage never
-        turns blocking off.
+        The active lists stay in place while downloading.  Each source keeps
+        its last good list (also across restarts, see export_state), so a
+        failed or unchanged download never removes entries.
         """
-        new_domains: set[str] = set()
-        new_ips: set[str] = set()
-        new_sources: dict[str, str] = {}
-        failed_sources: set[str] = set()
         for url in self._urls:
-            source = _source_name(url)
             try:
-                result = await self._fetch_one(url)
+                changed = await self._fetch_one(url)
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.error("HomeSec: blocklist download FAILED for %s: %s", url, exc)
-                result = None
-            if result is None:
-                failed_sources.add(source)
                 continue
-            domains, ips, sources = result
-            new_domains |= domains
-            new_ips |= ips
-            for key, value in sources.items():
-                new_sources.setdefault(key, value)
-            _LOGGER.info(
-                "HomeSec: loaded %d domains + %d IPs from %s", len(domains), len(ips), source
-            )
-
-        # Carry over entries from sources that failed this time.
-        if failed_sources:
-            for indicator, source in self._source_map.items():
-                if source not in failed_sources or indicator in new_sources:
-                    continue
-                if indicator in self._bad_domains:
-                    new_domains.add(indicator)
-                elif indicator in self._bad_ips:
-                    new_ips.add(indicator)
-                else:
-                    continue
-                new_sources[indicator] = source
-
-        self._bad_domains = new_domains
-        self._bad_ips = new_ips
-        self._source_map = new_sources
+            state = self._source_state.get(url)
+            if changed and state is not None:
+                _LOGGER.info(
+                    "HomeSec: loaded %d domains + %d IPs from %s",
+                    len(state["domains"]), len(state["ips"]), _source_name(url),
+                )
+        self._rebuild_active()
         self._last_refresh = datetime.now(UTC)
         _LOGGER.info(
             "HomeSec: threat intel ready — %d blocked IPs, %d blocked domains from %d source(s)",
@@ -359,23 +336,118 @@ class DNSBlacklistChecker:
                 "network connectivity (Settings \u2192 System \u2192 Logs for details)"
             )
 
-    async def _fetch_one(
-        self, url: str
-    ) -> tuple[set[str], set[str], dict[str, str]] | None:
-        """Download and parse one blocklist; ``None`` means the download failed."""
+    def _rebuild_active(self) -> None:
+        """Combine the per-source lists of the configured URLs into the active sets."""
+        domains: set[str] = set()
+        ips: set[str] = set()
+        sources: dict[str, str] = {}
+        for url in self._urls:
+            state = self._source_state.get(url)
+            if not state:
+                continue
+            label = _source_name(url)
+            for domain in state["domains"]:
+                domains.add(domain)
+                sources.setdefault(domain, label)
+            for ip in state["ips"]:
+                ips.add(ip)
+                sources.setdefault(ip, label)
+        self._bad_domains = domains
+        self._bad_ips = ips
+        self._source_map = sources
+
+    async def _fetch_one(self, url: str) -> bool:
+        """Refresh one blocklist; returns True when new content was downloaded.
+
+        Sends If-None-Match / If-Modified-Since from the previous download,
+        so an unchanged list costs a 304 instead of a full transfer.  Raises
+        or returns False on failure (the previous list stays in use).
+        """
         import aiohttp as _aiohttp  # imported here to avoid circular init issues
 
+        previous = self._source_state.get(url) or {}
+        headers: dict[str, str] = {}
+        if previous.get("etag"):
+            headers["If-None-Match"] = previous["etag"]
+        if previous.get("last_modified"):
+            headers["If-Modified-Since"] = previous["last_modified"]
         async with self._session.get(
             url,
+            headers=headers,
             timeout=_aiohttp.ClientTimeout(sock_connect=10, sock_read=_FETCH_TIMEOUT),
             allow_redirects=True,
         ) as resp:
+            if resp.status == 304 and previous:
+                previous["checked_at"] = datetime.now(UTC).isoformat()
+                self._state_dirty = True
+                _LOGGER.debug("HomeSec: blocklist %s unchanged (304)", url)
+                return False
             if resp.status != 200:
                 _LOGGER.warning("HomeSec: blocklist %s returned HTTP %d", url, resp.status)
-                return None
+                return False
             text = await resp.text(encoding="utf-8", errors="replace")
+            etag = resp.headers.get("ETag")
+            last_modified = resp.headers.get("Last-Modified")
 
         # Parse in a thread-pool executor so large files (100k+ lines) do not
         # block the asyncio event loop and cause DNS query timeouts.
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, _parse_blocklist_text, text, _source_name(url))
+        domains, ips, _ = await loop.run_in_executor(None, _parse_blocklist_text, text, _source_name(url))
+        now = datetime.now(UTC).isoformat()
+        self._source_state[url] = {
+            "etag": etag,
+            "last_modified": last_modified,
+            "fetched_at": now,
+            "checked_at": now,
+            "domains": sorted(domains),
+            "ips": sorted(ips),
+        }
+        self._state_dirty = True
+        return True
+
+    # ------------------------------------------------------------------ #
+    # Persistence
+
+    def export_state(self) -> dict[str, Any]:
+        """Per-source lists and HTTP validators, for Store."""
+        return {"sources": {url: dict(state) for url, state in self._source_state.items() if url in self._urls}}
+
+    def import_state(self, data: Any) -> None:
+        """Restore lists saved by export_state and activate them immediately."""
+        sources = data.get("sources") if isinstance(data, dict) else None
+        if not isinstance(sources, dict):
+            return
+        for url, state in sources.items():
+            if url not in self._urls or not isinstance(state, dict):
+                continue
+            domains = state.get("domains")
+            ips = state.get("ips")
+            if not isinstance(domains, list) or not isinstance(ips, list):
+                continue
+            self._source_state[url] = {
+                "etag": state.get("etag") if isinstance(state.get("etag"), str) else None,
+                "last_modified": state.get("last_modified") if isinstance(state.get("last_modified"), str) else None,
+                "fetched_at": str(state.get("fetched_at") or ""),
+                "checked_at": str(state.get("checked_at") or ""),
+                "domains": [str(d) for d in domains],
+                "ips": [str(i) for i in ips],
+            }
+        if self._source_state:
+            self._rebuild_active()
+            checked = [s["checked_at"] for s in self._source_state.values() if s["checked_at"]]
+            if checked:
+                try:
+                    self._last_refresh = datetime.fromisoformat(max(checked))
+                except ValueError:
+                    pass
+            _LOGGER.info(
+                "HomeSec: restored %d blocked domains + %d IPs from storage",
+                len(self._bad_domains), len(self._bad_ips),
+            )
+
+    @property
+    def is_state_dirty(self) -> bool:
+        return self._state_dirty
+
+    def mark_state_clean(self) -> None:
+        self._state_dirty = False

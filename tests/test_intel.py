@@ -47,6 +47,7 @@ class FakeSession:
 
     def get(self, url: str, **kwargs) -> FakeResponse:
         self.calls.append(url)
+        self.headers_sent = getattr(self, "headers_sent", []) + [dict(kwargs.get("headers") or {})]
         for prefix, result in self.routes.items():
             if url.startswith(prefix):
                 if isinstance(result, Exception):
@@ -258,3 +259,93 @@ async def test_nvd_failure_keeps_previous_cache(monkeypatch) -> None:
 
 async def _instant_sleep(_delay: float) -> None:
     return None
+
+
+# ── Persistence and conditional downloads (0.13) ─────────────────────────────
+
+
+async def test_blocklist_conditional_request_keeps_list() -> None:
+    session = FakeSession({"https://a.example/": FakeResponse(200, "bad.example\n", headers={"ETag": '"v1"'})})
+    checker = DNSBlacklistChecker(session, ["https://a.example/list"], enable_resolution=False)
+    await checker.async_start()
+    try:
+        await _wait_fetch(checker)
+        session.routes["https://a.example/"] = FakeResponse(304, "")
+        await checker.async_force_refresh()
+        await _wait_fetch(checker)
+        assert session.headers_sent[-1].get("If-None-Match") == '"v1"'
+        assert checker.check("bad.example") is not None  # 304 kept the list
+    finally:
+        await checker.async_stop()
+
+
+async def test_blocklist_state_survives_restart_without_network() -> None:
+    session = FakeSession({"https://a.example/": FakeResponse(200, "bad.example\n198.51.100.9\n", headers={"Last-Modified": "Mon, 19 Oct 2026 10:00:00 GMT"})})
+    first = DNSBlacklistChecker(session, ["https://a.example/list"], enable_resolution=False)
+    await first.async_start()
+    await _wait_fetch(first)
+    await first.async_stop()
+    saved = first.export_state()
+
+    offline = FakeSession({})
+    second = DNSBlacklistChecker(offline, ["https://a.example/list", "https://new.example/x"], enable_resolution=False)
+    second.import_state(saved)
+    # Blocking works before any download
+    assert second.check("www.bad.example") is not None
+    assert second.check("198.51.100.9") is not None
+    assert offline.calls == []
+    # State for URLs that are no longer configured is ignored
+    third = DNSBlacklistChecker(offline, ["https://other.example/"], enable_resolution=False)
+    third.import_state(saved)
+    assert third.check("bad.example") is None
+
+
+async def test_nvd_cache_survives_restart(monkeypatch) -> None:
+    monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, _nvd_page("CVE-2024-0002"))})
+    client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
+    await client._get_cached("nginx")
+    assert client.is_state_dirty
+    saved = client.export_state()
+
+    offline = FakeSession({})
+    restored = NVDClient(offline, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
+    restored.import_state(saved)
+    cves = await restored._get_cached("nginx")
+    assert [c["cve_id"] for c in cves] == ["CVE-2024-0002"]
+    assert offline.calls == []  # still fresh: no download
+
+
+def test_nvd_api_key_speeds_up_requests() -> None:
+    assert NVDClient(FakeSession({}), api_key="key")._rate_delay < 1
+    assert NVDClient(FakeSession({}))._rate_delay > 6
+
+
+async def test_kev_catalog_survives_restart() -> None:
+    from custom_components.homesec.nvd_enrichment import CISAKEVClient
+
+    session = FakeSession({"https://www.cisa.gov/": FakeResponse(200, {"vulnerabilities": [{"cveID": "CVE-2024-6387", "product": "OpenSSH"}]})})
+    client = CISAKEVClient(session, ttl_hours=24)
+    await client.fetch()
+    saved = client.export_state()
+    offline = FakeSession({})
+    restored = CISAKEVClient(offline, ttl_hours=24)
+    restored.import_state(saved)
+    await restored.fetch()
+    assert restored.total == 1 and restored.is_in_kev("CVE-2024-6387")
+    assert offline.calls == []
+
+
+def test_enrichment_cache_survives_restart_and_expires() -> None:
+    from datetime import UTC, datetime, timedelta
+
+    enricher = ExternalIPEnricher(FakeSession({}), enrichment_ttl_minutes=60)
+    enricher._store("8.8.8.8", {"ip": "8.8.8.8", "rating": "clean"}, datetime.now(UTC))
+    enricher._store("1.1.1.1", {"ip": "1.1.1.1"}, datetime.now(UTC) - timedelta(hours=3))
+    saved = enricher.export_cache()
+    assert [e["ip"] for e in saved["entries"]] == ["8.8.8.8"]  # stale entry not saved
+
+    restored = ExternalIPEnricher(FakeSession({}), enrichment_ttl_minutes=60)
+    restored.import_cache(saved)
+    assert restored.get("8.8.8.8")["rating"] == "clean"
+    assert not restored._is_stale("8.8.8.8")

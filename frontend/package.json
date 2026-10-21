@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "check-bundle": "node build.mjs && git diff --exit-code -- ../custom_components/homesec/frontend/homesec-panel.js",
+    "check-bundle": "node build.mjs && git status --porcelain -- ../custom_components/homesec/frontend && test -z \"$(git status --porcelain -- ../custom_components/homesec/frontend)\"",
     "test": "playwright test",
     "test:update": "playwright test --update-snapshots"
   },

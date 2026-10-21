@@ -79,7 +79,7 @@
     <span>
       #Collector active
     <span style=margin-left: auto; opacity: 0.45; font-size: 9px;>
-      #v0.11.0
+      #v0.12.0
   <div class=sidebar-copy>
     <a href=https://domotic.monster rel=noopener noreferrer target=_blank>
       #© 2026 domotic.monster
@@ -367,6 +367,14 @@
     <div class=card style=margin-bottom: 12px;>
       <div class=card-title>
         #NVD Vulnerability Intelligence
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #NVD API Key
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Optional free key from nvd.nist.gov/developers/request-an-api-key. Speeds CVE downloads up about 10x (0.6 s instead of 6.5 s between requests).
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-nvd_api_key style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=password value=>
       <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
         <div style=flex: 0 0 240px; min-width: 0px;>
           <div style=font-size: 12px; font-weight: 600; color: var(--text);>

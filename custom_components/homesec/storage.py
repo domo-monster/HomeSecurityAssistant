@@ -44,6 +44,11 @@ STORE_NAMES: dict[str, str] = {
     "baseline": "homesec_baseline.yaml",
     "chart_state": "homesec_chart_state.yaml",
     "event_state": "",
+    # Downloaded data kept across restarts (no legacy YAML equivalent)
+    "blocklists": "",
+    "nvd_cache": "",
+    "kev_catalog": "",
+    "enrichment_cache": "",
 }
 
 LEGACY_CONFIG_FILENAME = "homesec.yaml"

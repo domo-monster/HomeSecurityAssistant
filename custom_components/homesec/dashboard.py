@@ -64,10 +64,17 @@ SEVERITY_SORT = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "low": 4, 
 
 PANEL_URL_PATH = "homesec"
 PANEL_COMPONENT = "homesec-panel"
-STATIC_PANEL_URL = "/api/homesec/frontend/homesec-panel.js"
-STATIC_PANEL_PATH = Path(__file__).parent / "frontend" / "homesec-panel.js"
-STATIC_LOGO_URL = "/api/homesec/frontend/hsa-logo.svg"
-STATIC_LOGO_PATH = Path(__file__).parent / "frontend" / "hsa-logo.svg"
+STATIC_FRONTEND_URL = "/api/homesec/frontend"
+STATIC_FRONTEND_PATH = Path(__file__).parent / "frontend"
+STATIC_PANEL_URL = f"{STATIC_FRONTEND_URL}/homesec-panel.js"
+STATIC_PANEL_PATH = STATIC_FRONTEND_PATH / "homesec-panel.js"
+
+
+def _panel_version() -> str:
+    """Short content hash of the panel bundle (cache-busting query parameter)."""
+    import hashlib  # noqa: PLC0415
+
+    return hashlib.sha256(STATIC_PANEL_PATH.read_bytes()).hexdigest()[:12]
 
 
 def _runtimes(hass: HomeAssistant) -> dict[str, dict[str, Any]]:
@@ -132,12 +139,13 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
     domain_data = hass.data.setdefault(DOMAIN, {})
     # Static paths and API views can only be registered once per HA run.
     if not domain_data.get("views_registered"):
+        # The whole frontend folder (bundle, logo, hashed translation files) is
+        # served with long-lived cache headers; the bundle URL carries a
+        # content hash so a new version is fetched as soon as it changes.
         await hass.http.async_register_static_paths(
-            [
-                StaticPathConfig(STATIC_PANEL_URL, str(STATIC_PANEL_PATH), cache_headers=False),
-                StaticPathConfig(STATIC_LOGO_URL, str(STATIC_LOGO_PATH), cache_headers=True),
-            ]
+            [StaticPathConfig(STATIC_FRONTEND_URL, str(STATIC_FRONTEND_PATH), cache_headers=True)]
         )
+        domain_data["panel_version"] = await hass.async_add_executor_job(_panel_version)
         for view in (
             HomeSecDashboardView(),
             HomeSecPanelFallbackView(),
@@ -162,7 +170,7 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
         hass,
         webcomponent_name=PANEL_COMPONENT,
         frontend_url_path=PANEL_URL_PATH,
-        module_url=STATIC_PANEL_URL,
+        module_url=f"{STATIC_PANEL_URL}?v={domain_data.get('panel_version', '0')}",
         sidebar_title="Security Assistant",
         sidebar_icon="mdi:shield-search",
         require_admin=require_admin,
@@ -863,6 +871,7 @@ class HomeSecPanelFallbackView(HomeAssistantView):
     requires_auth = True
 
     async def get(self, request):
+        version = request.app["hass"].data.get(DOMAIN, {}).get("panel_version", "0")
         html = f"""
 <!doctype html>
 <html lang=\"en\">
@@ -876,7 +885,7 @@ class HomeSecPanelFallbackView(HomeAssistantView):
 </head>
 <body>
     <homesec-panel></homesec-panel>
-    <script type=\"module\" src=\"{STATIC_PANEL_URL}\"></script>
+    <script type=\"module\" src=\"{STATIC_PANEL_URL}?v={version}\"></script>
 </body>
 </html>
 """

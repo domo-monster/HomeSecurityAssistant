@@ -79,7 +79,7 @@
     <span>
       #Collector active
     <span style=margin-left: auto; opacity: 0.45; font-size: 9px;>
-      #v0.11.0
+      #v0.12.0
   <div class=sidebar-copy>
     <a href=https://domotic.monster rel=noopener noreferrer target=_blank>
       #© 2026 domotic.monster
@@ -192,7 +192,7 @@
           <tbody>
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:27:06 PM
+                #4:42:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -212,7 +212,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:29:06 PM
+                #4:44:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -233,7 +233,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:32:06 PM
+                #4:47:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -254,7 +254,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:33:06 PM
+                #4:48:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -274,7 +274,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:35:06 PM
+                #4:50:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -295,7 +295,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:38:06 PM
+                #4:53:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -316,7 +316,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:39:06 PM
+                #4:54:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -336,7 +336,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:41:06 PM
+                #4:56:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -357,7 +357,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:44:06 PM
+                #4:59:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -378,7 +378,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:45:06 PM
+                #5:00:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -398,7 +398,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:47:06 PM
+                #5:02:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -419,7 +419,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:50:06 PM
+                #5:05:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -440,7 +440,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:51:06 PM
+                #5:06:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -460,7 +460,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:53:06 PM
+                #5:08:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -481,7 +481,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:56:06 PM
+                #5:11:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -502,7 +502,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:57:06 PM
+                #5:12:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -522,7 +522,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #2:59:06 PM
+                #5:14:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -543,7 +543,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:02:06 PM
+                #5:17:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -564,7 +564,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:03:06 PM
+                #5:18:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -584,7 +584,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:05:06 PM
+                #5:20:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -605,7 +605,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:08:06 PM
+                #5:23:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -626,7 +626,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:09:06 PM
+                #5:24:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
@@ -646,7 +646,7 @@
                   #✓ Allowed
             <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:11:06 PM
+                #5:26:03 AM
               <td class=mono ip>
                 #192.168.1.12
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
@@ -667,7 +667,7 @@
                   #🚫 Blocked
             <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:14:06 PM
+                #5:29:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
@@ -688,7 +688,7 @@
                   #✓ Allowed
             <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:15:06 PM
+                #5:30:03 AM
               <td class=mono ip>
                 #192.168.1.10
               <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
