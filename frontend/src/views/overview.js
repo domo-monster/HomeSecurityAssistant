@@ -118,9 +118,21 @@ export const overviewMethods = {
       });
       var cfgStyle = 'background:rgba(158,150,255,.22);border-color:rgba(158,150,255,.5);color:#c4bfff';
       var dynStyle = 'background:rgba(107,255,200,.18);border-color:rgba(107,255,200,.45);color:#6bffc8';
+      // Keywords without results yet (queued, downloading or failed) are listed too
+      var stateText = {
+        pending: self._t('overview.kw_pending', 'waiting to download'),
+        fetching: self._t('overview.kw_fetching', 'downloading'),
+        failed: self._t('overview.kw_failed', 'download failed, retried in 30 min')
+      };
+      var stateMark = { pending: '…', fetching: '⟳', failed: '!' };
       function renderChips(list, style) {
         return joinTemplates(list.map(function (k) {
-          return html`<span class="chip" style="${style}" title="${k.keyword} · ${k.cve_count} CVEs · source: ${k.source}">${k.keyword} <span style="opacity:.55;font-size:9px">(${k.cve_count})</span></span>`;
+          var state = k.status && k.status !== 'ok' ? k.status : null;
+          if (!state) {
+            return html`<span class="chip" style="${style}" title="${k.keyword} · ${k.cve_count} CVEs · source: ${k.source}">${k.keyword} <span style="opacity:.55;font-size:9px">(${k.cve_count})</span></span>`;
+          }
+          var chipStyle = style + (state === 'failed' ? ';border-color:rgba(255,77,109,.6)' : ';opacity:.6');
+          return html`<span class="chip" style="${chipStyle}" data-kw-state="${state}" title="${k.keyword} · ${stateText[state]}">${k.keyword} <span style="opacity:.75;font-size:9px">(${stateMark[state]})</span></span>`;
         }), ' ');
       }
       var legend = html`<div style="display:flex;gap:14px;align-items:center;font-size:10px;color:var(--muted);margin-bottom:6px"><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(158,150,255,.7);background:rgba(158,150,255,.35)"></span> ${self._t('overview.kw_configured', 'Configured')}</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(107,255,200,.6);background:rgba(107,255,200,.3)"></span> ${self._t('overview.kw_from_scans', 'From scans')}</span></div>`;

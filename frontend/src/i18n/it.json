@@ -498,7 +498,10 @@
     "external.modal_last_seen": "Ultima vista",
     "external.modal_yes": "Sì",
     "external.modal_no": "No",
-    "external.modal_error": "Errore di arricchimento:"
+    "external.modal_error": "Errore di arricchimento:",
+    "overview.kw_pending": "in attesa di download",
+    "overview.kw_fetching": "download in corso",
+    "overview.kw_failed": "download non riuscito, nuovo tentativo tra 30 min"
   },
   "settings": {
     "sections": {

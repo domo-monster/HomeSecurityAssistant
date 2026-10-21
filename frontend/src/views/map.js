@@ -324,6 +324,8 @@ export const mapMethods = {
     this._mapNodes = new Map();
     this._mapEdges = [];
     this._mapParticles = [];
+    // New positions are laid out at 100 %; the step scales them to the zoom
+    this._mapLayoutScale = 1;
     var slice = devices.slice(0, 80);
     for (var i = 0; i < slice.length; i++) {
       var d = slice[i];
@@ -877,13 +879,43 @@ export const mapMethods = {
     var nodes = Array.from(this._mapNodes.values());
     // Adaptive physics: strong early, gentle continuous drift after settling
     var settled = this._mapTick > 200;
-    var R = settled ? 400 : 1400,
+    // Zoomed out, the whole layout is scaled up by 1/zoom so it fills the
+    // screen as it does at 100 %: distances (link lengths, boundary, speeds)
+    // scale by k and the 1/d^2 repulsion by k^3, which makes the zoomed-out
+    // equilibrium an enlarged copy of the 100 % one. Zoomed in, nothing
+    // changes, so zooming in magnifies.
+    var zoom = this._mapZoom || 1;
+    var view = Math.min(1, zoom);
+    // Centre: the middle of the map at 100 %, moving towards the middle of
+    // the screen as the view zooms out (wheel zoom pivots on the pointer)
+    var cx2 = W / 2 + ((W / 2 - this._mapPanX) / zoom - W / 2) * (1 - view),
+      cy2 = H / 2 + ((H / 2 - this._mapPanY) / zoom - H / 2) * (1 - view);
+    // After a zoom change the positions are scaled about the centre, eased
+    // over ~0.5 s, instead of letting the forces pull them in or out (which
+    // left a hollow ring of nodes while the layout caught up).
+    var target = 1 / view;
+    var k = this._mapLayoutScale || 1;
+    if (k !== target) {
+      var nk = Math.abs(target - k) < 0.002 * target ? target : k + (target - k) * 0.12;
+      var grow = nk / k;
+      for (var si = 0; si < nodes.length; si++) {
+        nodes[si].x = cx2 + (nodes[si].x - cx2) * grow;
+        nodes[si].y = cy2 + (nodes[si].y - cy2) * grow;
+      }
+      if (this._mapDrag) {
+        this._mapDrag.x = cx2 + (this._mapDrag.x - cx2) * grow;
+        this._mapDrag.y = cy2 + (this._mapDrag.y - cy2) * grow;
+      }
+      k = nk;
+      this._mapLayoutScale = nk;
+    }
+    var R = (settled ? 400 : 1400) * k * k * k,
       A = settled ? 0.001 : 0.004;
     var DAMP = settled ? 0.55 : 0.72,
-      MAX_V = settled ? 1.2 : 5;
+      MAX_V = (settled ? 1.2 : 5) * k;
     var CENTER_PULL = settled ? 0.00004 : 0.00015;
     // Jitter to keep things subtly alive
-    var jitter = settled ? 0.08 : 0;
+    var jitter = (settled ? 0.08 : 0) * k;
     // While a node is dragged (and shortly after release) the hosts linked to
     // it get stiffer springs and less damping, so they follow like an elastic
     // chain; the effect fades with each hop away from the dragged node.
@@ -914,7 +946,7 @@ export const mapMethods = {
         edy = t.y - s.y;
       var dd = Math.max(Math.sqrt(edx * edx + edy * edy), 1);
       // Target edge length based on node types
-      var ideal = s.type === 'external' || t.type === 'external' ? 100 : 55;
+      var ideal = (s.type === 'external' || t.type === 'external' ? 100 : 55) * k;
       var ea = A;
       if (chain) {
         var hop = Math.min(chain.has(e.source) ? chain.get(e.source) : 9, chain.has(e.target) ? chain.get(e.target) : 9);
@@ -926,12 +958,12 @@ export const mapMethods = {
       t.vx -= edx / dd * ef;
       t.vy -= edy / dd * ef;
     }
-    var cx2 = W / 2,
-      cy2 = H / 2;
     // Soft elliptical boundary (instead of clamping to the canvas rectangle,
     // which piled nodes up along straight walls that showed when zoomed out)
-    var rx = Math.max(60, W / 2 - 40),
-      ry = Math.max(60, H / 2 - 40);
+    // Sized to the visible area: zooming out widens it so the hosts fill the
+    // screen again. Zooming in keeps the 100 % size, so it magnifies.
+    var rx = Math.max(60, W / 2 - 40) * k,
+      ry = Math.max(60, H / 2 - 40) * k;
     var dragged = drag ? this._mapNodes.get(drag.ip) : null;
     for (var ni = 0; ni < nodes.length; ni++) {
       var n = nodes[ni];
@@ -944,7 +976,7 @@ export const mapMethods = {
       }
       var inChain = chain && chain.has(n.ip);
       var nDamp = inChain ? DAMP + (0.8 - DAMP) * heat : DAMP;
-      var nMaxV = inChain ? MAX_V + (10 - MAX_V) * heat : MAX_V;
+      var nMaxV = inChain ? MAX_V + (10 * k - MAX_V) * heat : MAX_V;
       n.vx += (cx2 - n.x) * CENTER_PULL;
       n.vy += (cy2 - n.y) * CENTER_PULL;
       if (jitter > 0) {

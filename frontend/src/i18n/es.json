@@ -498,7 +498,10 @@
     "external.modal_last_seen": "Última vez visto",
     "external.modal_yes": "Sí",
     "external.modal_no": "No",
-    "external.modal_error": "Error de enriquecimiento:"
+    "external.modal_error": "Error de enriquecimiento:",
+    "overview.kw_pending": "en espera de descarga",
+    "overview.kw_fetching": "descargando",
+    "overview.kw_failed": "descarga fallida, se reintenta en 30 min"
   },
   "settings": {
     "sections": {

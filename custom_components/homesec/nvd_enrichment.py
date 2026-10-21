@@ -24,6 +24,8 @@ _LOGGER = logging.getLogger(__name__)
 DEFAULT_NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 # Delay before retrying a keyword whose last fetch failed
 _FAILURE_RETRY = timedelta(minutes=30)
+# Per NVD request (seconds)
+_NVD_REQUEST_TIMEOUT = 300
 
 
 async def _read_json(resp: aiohttp.ClientResponse) -> Any:
@@ -51,7 +53,7 @@ _UTC = UTC
 # banner parser (see _extract_product_from_banner), so every service with
 # an identifiable banner gets NVD coverage.
 # ---------------------------------------------------------------------------
-_SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
+_SERVICE_PRODUCT_MAP: dict[str, list[dict[str, Any]]] = {
     "ssh": [
         {
             "keyword": "OpenSSH",
@@ -62,8 +64,9 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
         {
             "keyword": "Dropbear SSH",
             "banner_re": r"dropbear[_/ ]?(\d+\.\d+[\w.]*)",
-            "cpe_vendor": "matt_johnston",
-            "cpe_product": "dropbear_ssh_server",
+            "cpe_vendor": "dropbear_ssh_project",
+            "cpe_product": "dropbear_ssh",
+            "cpe_alt": [("matt_johnston", "dropbear_ssh_server")],
         },
     ],
     "http": [
@@ -76,8 +79,9 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
         {
             "keyword": "nginx",
             "banner_re": r"nginx/(\d+\.\d+[\w.]*)",
-            "cpe_vendor": "nginx",
+            "cpe_vendor": "f5",
             "cpe_product": "nginx",
+            "cpe_alt": [("f5", "nginx_open_source"), ("nginx", "nginx")],
         },
         {
             "keyword": "lighttpd",
@@ -90,8 +94,9 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
         {
             "keyword": "MySQL",
             "banner_re": r"(\d+\.\d+\.\d+[\w.-]*)",
-            "cpe_vendor": "mysql",
+            "cpe_vendor": "oracle",
             "cpe_product": "mysql",
+            "cpe_alt": [("oracle", "mysql_server"), ("mysql", "mysql")],
         },
         {
             "keyword": "MariaDB",
@@ -212,6 +217,8 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
             "banner_re": r"android[/ ](\d+\.\d+[\w.]*)",
             "cpe_vendor": "google",
             "cpe_product": "android",
+            # A CPE lookup would download every Android CVE (~10,000)
+            "cpe_lookup": False,
         },
     ],
     "dns": [
@@ -252,7 +259,7 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
         {
             "keyword": "GStreamer RTSP",
             "banner_re": r"gstreamer[/ ](\d+\.\d+[\w.]*)",
-            "cpe_vendor": "gstreamer_project",
+            "cpe_vendor": "gstreamer",
             "cpe_product": "gstreamer",
         },
     ],
@@ -265,9 +272,12 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
         },
         {
             "keyword": "UPnP",
-            "banner_re": r"upnp[/ ](\d+\.\d+[\w.]*)",
-            "cpe_vendor": "upnp",
-            "cpe_product": "upnp",
+            # "UPnP/1.0" in a SERVER header is the protocol version; the
+            # library version follows "Portable SDK for UPnP devices/"
+            "banner_re": r"portable sdk for upnp devices/(\d+\.\d+[\w.]*)",
+            "cpe_vendor": "libupnp_project",
+            "cpe_product": "libupnp",
+            "cpe_alt": [("pupnp_project", "pupnp")],
         },
     ],
     "upnp-alt": [
@@ -279,9 +289,12 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
         },
         {
             "keyword": "UPnP",
-            "banner_re": r"upnp[/ ](\d+\.\d+[\w.]*)",
-            "cpe_vendor": "upnp",
-            "cpe_product": "upnp",
+            # "UPnP/1.0" in a SERVER header is the protocol version; the
+            # library version follows "Portable SDK for UPnP devices/"
+            "banner_re": r"portable sdk for upnp devices/(\d+\.\d+[\w.]*)",
+            "cpe_vendor": "libupnp_project",
+            "cpe_product": "libupnp",
+            "cpe_alt": [("pupnp_project", "pupnp")],
         },
     ],
 }
@@ -292,7 +305,7 @@ _SERVICE_PRODUCT_MAP: dict[str, list[dict[str, str]]] = {
 # These are used when the scanner detects a technology via HTTP fingerprinting;
 # CVEs are only reported for products confirmed present on the host.
 # ---------------------------------------------------------------------------
-_TECHNOLOGY_PRODUCT_MAP: dict[str, dict[str, str]] = {
+_TECHNOLOGY_PRODUCT_MAP: dict[str, dict[str, Any]] = {
     "WordPress": {
         "keyword": "WordPress",
         "cpe_vendor": "wordpress",
@@ -360,8 +373,13 @@ _TECHNOLOGY_PRODUCT_MAP: dict[str, dict[str, str]] = {
     },
     "Varnish": {
         "keyword": "Varnish",
-        "cpe_vendor": "varnish-software",
+        "cpe_vendor": "varnish_cache_project",
         "cpe_product": "varnish_cache",
+        "cpe_alt": [
+            ("varnish-software", "varnish_cache"),
+            ("varnish-cache", "varnish_cache"),
+            ("varnish-cache", "varnish"),
+        ],
     },
     "Caddy": {
         "keyword": "Caddy",
@@ -380,43 +398,68 @@ _TECHNOLOGY_PRODUCT_MAP: dict[str, dict[str, str]] = {
     },
 }
 
-# keyword -> (cpe_vendor, cpe_product) for every product with a known CPE.
-# These are fetched with a CPE match (virtualMatchString) instead of a
-# full-text keyword search, which also returns CVEs that merely mention the
-# word (e.g. "BIND": ~1,700 results instead of ~180).
-_KEYWORD_CPE: dict[str, tuple[str, str]] = {
+def _cpe_pairs(profile: dict[str, Any]) -> tuple[tuple[str, str], ...]:
+    """All (vendor, product) names NVD uses for a product (renames happen)."""
+    return ((profile["cpe_vendor"], profile["cpe_product"]), *(tuple(p) for p in profile.get("cpe_alt", ())))
+
+
+# keyword -> CPE (vendor, product) names for every product with a known CPE.
+# These are fetched with a CPE match (virtualMatchString, one query per name)
+# instead of a full-text keyword search, which also returns CVEs that merely
+# mention the word (e.g. "BIND": ~1,700 results instead of ~180).
+_KEYWORD_CPE: dict[str, tuple[tuple[str, str], ...]] = {
     **{
-        profile["keyword"]: (profile["cpe_vendor"], profile["cpe_product"])
+        profile["keyword"]: _cpe_pairs(profile)
         for profiles in _SERVICE_PRODUCT_MAP.values()
         for profile in profiles
+        if profile.get("cpe_lookup", True)
     },
     **{
-        profile["keyword"]: (profile["cpe_vendor"], profile["cpe_product"])
+        profile["keyword"]: _cpe_pairs(profile)
         for profile in _TECHNOLOGY_PRODUCT_MAP.values()
+        if profile.get("cpe_lookup", True)
     },
 }
+
+
+def _query_marker(keyword: str) -> str:
+    """How results for *keyword* are fetched, saved with them (see import_state)."""
+    pairs = _KEYWORD_CPE.get(keyword)
+    return "cpe:" + ",".join(f"{v}:{p}" for v, p in pairs) if pairs else "keyword"
 
 
 def _cpe_match_string(vendor: str, product: str) -> str:
     return f"cpe:2.3:*:{vendor}:{product}:*:*:*:*:*:*:*:*"
 
 
-def _prune_configurations(configurations: list[dict[str, Any]], vendor: str, product: str) -> list[dict[str, Any]]:
-    """Keep only the vulnerable CPE matches for vendor/product.
+def _prune_configurations(
+    configurations: list[dict[str, Any]], pairs: tuple[tuple[str, str], ...]
+) -> list[dict[str, Any]]:
+    """Keep only the vulnerable CPE matches for the product's (vendor, product) names.
 
     Those are the only entries the version matching looks at; CVEs often
     list hundreds of unrelated platform CPEs, which would otherwise be kept
     in memory and in storage.
     """
     kept: list[dict[str, Any]] = []
+    seen: set[tuple[Any, ...]] = set()
     for config in configurations:
         for node in config.get("nodes", []):
             for cpe_match in node.get("cpeMatch", []):
                 if not cpe_match.get("vulnerable", False):
                     continue
                 parts = str(cpe_match.get("criteria", "")).lower().split(":")
-                if len(parts) > 5 and parts[3] == vendor and parts[4] == product:
-                    kept.append(cpe_match)
+                if len(parts) > 5 and (parts[3], parts[4]) in pairs:
+                    identity = (
+                        cpe_match.get("criteria"),
+                        cpe_match.get("versionStartIncluding"),
+                        cpe_match.get("versionStartExcluding"),
+                        cpe_match.get("versionEndIncluding"),
+                        cpe_match.get("versionEndExcluding"),
+                    )
+                    if identity not in seen:
+                        seen.add(identity)
+                        kept.append(cpe_match)
     return [{"nodes": [{"cpeMatch": kept}]}] if kept else []
 
 # ---------------------------------------------------------------------------
@@ -501,6 +544,7 @@ def _is_version_vulnerable(
     cpe_vendor: str = "",
     cpe_product: str = "",
     cpe_keyword: str = "",
+    cpe_pairs: tuple[tuple[str, str], ...] = (),
 ) -> bool:
     """Return True if *version* matches at least one vulnerable CPE range.
 
@@ -518,8 +562,13 @@ def _is_version_vulnerable(
                 if not cpe_match.get("vulnerable", False):
                     continue
                 criteria = str(cpe_match.get("criteria", "")).lower()
+                # Any of the product's names (vendor/product renames)
+                if cpe_pairs:
+                    parts = criteria.split(":")
+                    if len(parts) <= 5 or (parts[3], parts[4]) not in cpe_pairs:
+                        continue
                 # Exact vendor/product filtering (precise map matches)
-                if cpe_vendor or cpe_product:
+                elif cpe_vendor or cpe_product:
                     parts = criteria.split(":")
                     if len(parts) > 5:
                         if cpe_vendor and parts[3] != cpe_vendor:
@@ -552,6 +601,7 @@ def _has_matching_cpe(
     configurations: list[dict[str, Any]],
     cpe_vendor: str,
     cpe_product: str,
+    cpe_pairs: tuple[tuple[str, str], ...] = (),
 ) -> bool:
     """Return True if any vulnerable CPE entry references the given vendor/product.
 
@@ -566,6 +616,10 @@ def _has_matching_cpe(
                 criteria = str(cpe_match.get("criteria", "")).lower()
                 parts = criteria.split(":")
                 if len(parts) > 5:
+                    if cpe_pairs:
+                        if (parts[3], parts[4]) in cpe_pairs:
+                            return True
+                        continue
                     if cpe_vendor and parts[3] != cpe_vendor:
                         continue
                     if cpe_product and parts[4] != cpe_product:
@@ -671,18 +725,82 @@ class NVDClient:
         self._state_dirty = False
         # keyword -> time of the last failed fetch (retry after _FAILURE_RETRY)
         self._failed_at: dict[str, datetime] = {}
+        # Keyword being downloaded right now (shown in the panel)
+        self._fetching: str | None = None
         # NVD rate limits: 5 req/30 s without key, 50 req/30 s with key
         self._rate_delay = 0.6 if api_key else 6.5
 
     async def _fetch_keyword(self, keyword: str) -> list[dict[str, Any]] | None:
-        """Query NVD for CVEs matching *keyword*. Returns simplified CVE list.
+        """Query NVD for CVEs of *keyword*. Returns a simplified CVE list.
 
-        Paginates automatically when the total exceeds a single page.
-        Returns ``None`` when any page fails, so a partial result never
-        replaces a complete cached one.
+        Known products are queried once per CPE name and the results merged;
+        if none of those names returns anything (NVD renamed the product),
+        a keyword search is used instead and a warning logged.  Returns
+        ``None`` when any request fails, so a partial result never replaces
+        a complete cached one.
+        """
+        pairs = _KEYWORD_CPE.get(keyword)
+        if not pairs:
+            fetched = await self._fetch_query(keyword, {"keywordSearch": keyword}, ())
+            if fetched is None:
+                return None
+            self._log_fetched(keyword, "keyword", fetched[0])
+            return fetched[0]
+        merged: dict[str, dict[str, Any]] = {}
+        total = 0
+        for index, (vendor, product) in enumerate(pairs):
+            if index:
+                await asyncio.sleep(self._rate_delay)
+            fetched = await self._fetch_query(
+                keyword, {"virtualMatchString": _cpe_match_string(vendor, product)}, pairs
+            )
+            if fetched is None:
+                return None
+            results, found = fetched
+            total += found
+            for cve in results:
+                known = merged.get(cve["cve_id"])
+                if known is None:
+                    merged[cve["cve_id"]] = cve
+                else:
+                    # Same CVE listed under two names: keep every match
+                    known["configurations"] = _prune_configurations(
+                        known["configurations"] + cve["configurations"], pairs
+                    )
+        if total == 0:
+            _LOGGER.warning(
+                "NVD: no CVE references %s by CPE (%s); falling back to keyword search",
+                keyword,
+                ", ".join(f"{v}:{p}" for v, p in pairs),
+            )
+            await asyncio.sleep(self._rate_delay)
+            fetched = await self._fetch_query(keyword, {"keywordSearch": keyword}, ())
+            if fetched is None:
+                return None
+            self._log_fetched(keyword, "keyword", fetched[0])
+            return fetched[0]
+        results = list(merged.values())
+        self._log_fetched(keyword, "CPE", results)
+        return results
+
+    def _log_fetched(self, keyword: str, how: str, results: list[dict[str, Any]]) -> None:
+        _LOGGER.info(
+            "NVD: %d CVEs fetched for %s %r (>= %s)",
+            len(results),
+            how,
+            keyword,
+            self._min_year or "all years",
+        )
+
+    async def _fetch_query(
+        self, keyword: str, query: dict[str, str], pairs: tuple[tuple[str, str], ...]
+    ) -> tuple[list[dict[str, Any]], int] | None:
+        """Run one paginated NVD query; returns (CVEs kept, NVD's total) or None.
+
         Filters by ``_min_year`` client-side (the NVD date-range parameters
-        require both start+end and a ≤120-day window which makes server-side
-        filtering impractical for multi-year ranges).
+        require both start+end and a <=120-day window which makes server-side
+        filtering impractical for multi-year ranges).  With *pairs*, each
+        CVE keeps only those CPE matches and is dropped if none remain.
         """
         page_size = 2000
         headers: dict[str, str] = {"Accept": "application/json"}
@@ -692,10 +810,7 @@ class NVDClient:
         min_year_prefix = f"{self._min_year}-" if self._min_year else ""
         all_results: list[dict[str, Any]] = []
         start_index = 0
-        cpe = _KEYWORD_CPE.get(keyword)
-        query: dict[str, str] = (
-            {"virtualMatchString": _cpe_match_string(*cpe)} if cpe else {"keywordSearch": keyword}
-        )
+        total_results = 0
 
         while True:
             params: dict[str, Any] = {
@@ -711,7 +826,9 @@ class NVDClient:
                         self._api_url,
                         params=params,
                         headers=headers,
-                        timeout=aiohttp.ClientTimeout(total=60),
+                        # NVD can take minutes for large result sets (MySQL by
+                        # CPE: ~170 s); this runs in the background
+                        timeout=aiohttp.ClientTimeout(total=_NVD_REQUEST_TIMEOUT),
                     ) as resp:
                         if resp.status == 429:
                             _LOGGER.warning("NVD rate limit hit for keyword %r — will retry next cycle", keyword)
@@ -752,8 +869,8 @@ class NVDClient:
                 if score < 4.0:
                     continue
                 configurations = cve.get("configurations", [])
-                if cpe:
-                    configurations = _prune_configurations(configurations, *cpe)
+                if pairs:
+                    configurations = _prune_configurations(configurations, pairs)
                     if not configurations:
                         continue
                 all_results.append({
@@ -771,14 +888,7 @@ class NVDClient:
                 break
             await asyncio.sleep(self._rate_delay)
 
-        _LOGGER.info(
-            "NVD: %d CVEs fetched for %s %r (>= %s)",
-            len(all_results),
-            "CPE" if cpe else "keyword",
-            keyword,
-            self._min_year or "all years",
-        )
-        return all_results
+        return all_results, total_results
 
     async def _get_cached(self, keyword: str) -> list[dict[str, Any]]:
         """Return cached or freshly fetched CVE list for *keyword*.
@@ -795,7 +905,11 @@ class NVDClient:
             if failed_at and now - failed_at < _FAILURE_RETRY:
                 return entry[1] if entry else []
 
-            cves = await self._fetch_keyword(keyword)
+            self._fetching = keyword
+            try:
+                cves = await self._fetch_keyword(keyword)
+            finally:
+                self._fetching = None
             await asyncio.sleep(self._rate_delay)
             if cves is None:
                 self._failed_at[keyword] = datetime.now(_UTC)
@@ -815,7 +929,7 @@ class NVDClient:
             "cache": {
                 kw: {
                     "fetched_at": ts.isoformat(),
-                    "query": "cpe" if kw in _KEYWORD_CPE else "keyword",
+                    "query": _query_marker(kw),
                     "cves": cves,
                 }
                 for kw, (ts, cves) in self._cache.items()
@@ -830,8 +944,8 @@ class NVDClient:
         for kw, entry in cache.items():
             if not isinstance(entry, dict) or not isinstance(entry.get("cves"), list):
                 continue
-            if str(kw) in _KEYWORD_CPE and entry.get("query") != "cpe":
-                continue  # saved by a keyword search before CPE lookups: fetch again
+            if entry.get("query", "keyword") != _query_marker(str(kw)):
+                continue  # fetched another way (or under other CPE names): fetch again
             try:
                 fetched_at = datetime.fromisoformat(str(entry.get("fetched_at")))
             except ValueError:
@@ -950,6 +1064,44 @@ class NVDClient:
         return max(ts for ts, _ in self._cache.values())
 
     @property
+    def keyword_status(self) -> list[dict[str, Any]]:
+        """cached_keywords plus configured keywords that have no results yet.
+
+        Each entry gets a ``status``: ``ok`` (results cached), ``fetching``,
+        ``failed`` (retried after _FAILURE_RETRY) or ``pending`` (queued),
+        so the panel can show every configured keyword from the start.
+        """
+        result = []
+        for info in self.cached_keywords:
+            entry = dict(info, status="ok")
+            if info["keyword"] in self._failed_at:
+                entry["last_error_at"] = self._failed_at[info["keyword"]].isoformat()
+            result.append(entry)
+        cached = set(self._cache)
+        missing = [kw for kw in (self._custom_keywords or []) if kw not in cached]
+        if self._fetching and self._fetching not in cached and self._fetching not in missing:
+            missing.append(self._fetching)
+        custom = set(self._custom_keywords or [])
+        for kw in dict.fromkeys(missing):
+            if kw == self._fetching:
+                status = "fetching"
+            elif kw in self._failed_at:
+                status = "failed"
+            else:
+                status = "pending"
+            entry = {
+                "keyword": kw,
+                "cve_count": None,
+                "fetched_at": None,
+                "source": "custom" if kw in custom else "product_map",
+                "status": status,
+            }
+            if kw in self._failed_at:
+                entry["last_error_at"] = self._failed_at[kw].isoformat()
+            result.append(entry)
+        return result
+
+    @property
     def cached_keywords(self) -> list[dict[str, Any]]:
         """Return info about every keyword currently in the cache.
 
@@ -1030,8 +1182,7 @@ class NVDClient:
                     if not _is_version_vulnerable(
                         version_str,
                         cve["configurations"],
-                        cpe_vendor=prod["cpe_vendor"],
-                        cpe_product=prod["cpe_product"],
+                        cpe_pairs=_cpe_pairs(prod),
                     ):
                         continue
                     seen.add(key)
@@ -1067,8 +1218,7 @@ class NVDClient:
                             if not _is_version_vulnerable(
                                 tech_version,
                                 cve["configurations"],
-                                cpe_vendor=tech_prod["cpe_vendor"],
-                                cpe_product=tech_prod["cpe_product"],
+                                cpe_pairs=_cpe_pairs(tech_prod),
                             ):
                                 continue
                         else:
@@ -1078,6 +1228,7 @@ class NVDClient:
                                 cve["configurations"],
                                 tech_prod["cpe_vendor"],
                                 tech_prod["cpe_product"],
+                                cpe_pairs=_cpe_pairs(tech_prod),
                             ):
                                 continue
                         seen.add(key)

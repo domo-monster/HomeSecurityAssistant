@@ -171,6 +171,41 @@ test("map: dragging a host pulls its linked hosts along", async ({ page }) => {
   await checkClean(page, errors);
 });
 
+test("map: zooming out scales the layout to fill the screen", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "map" });
+  await expect(panel.locator("canvas")).toBeVisible();
+  // Past the energetic start-up phase, so the layout is no longer growing
+  await page.waitForFunction(() => window.__panel._mapTick > 400, null, { timeout: 15000 });
+  const width = () =>
+    page.evaluate(() => {
+      const xs = [...window.__panel._mapNodes.values()].map((n) => n.x);
+      return Math.max(...xs) - Math.min(...xs);
+    });
+  const before = await width();
+  await page.evaluate(() => {
+    const p = window.__panel;
+    const c = p.shadowRoot.getElementById("hsa-map-canvas");
+    p._mapZoom = 0.5;
+    p._mapPanX = c.width / 4;
+    p._mapPanY = c.height / 4;
+  });
+  await page.waitForTimeout(1000);
+  const zoomedOut = await width();
+  expect(zoomedOut / before).toBeGreaterThan(1.7);
+  expect(zoomedOut / before).toBeLessThan(2.3);
+  await page.evaluate(() => {
+    const p = window.__panel;
+    p._mapZoom = 1;
+    p._mapPanX = 0;
+    p._mapPanY = 0;
+  });
+  await page.waitForTimeout(1000);
+  const back = await width();
+  expect(back / before).toBeGreaterThan(0.8);
+  expect(back / before).toBeLessThan(1.25);
+  await checkClean(page, errors);
+});
+
 test("hosts: expand a row and open the rename editor", async ({ page }) => {
   const { panel, errors } = await openPanel(page, { view: "hosts" });
   await panel.locator('tr.expandable[data-ip="192.168.1.10"]').click();
@@ -382,5 +417,24 @@ test("state changes in one task are rendered once", async ({ page }) => {
   });
   expect(renders).toBe(1);
   await expect(panel.locator("#hsa-mobile-title")).toHaveText("Hosts");
+  await checkClean(page, errors);
+});
+
+test("overview lists configured NVD keywords that are not downloaded yet", async ({ page }) => {
+  const { panel, errors } = await openPanel(page);
+  await page.evaluate(() =>
+    window.__push({
+      nvd_keywords: [
+        { keyword: "OpenSSH", cve_count: 32, fetched_at: "2026-10-20T11:00:00+00:00", source: "custom", status: "ok" },
+        { keyword: "MySQL", cve_count: null, fetched_at: null, source: "custom", status: "fetching" },
+        { keyword: "Samba", cve_count: null, fetched_at: null, source: "custom", status: "pending" },
+        { keyword: "nginx", cve_count: null, fetched_at: null, source: "custom", status: "failed" },
+      ],
+    }),
+  );
+  await expect(panel.locator('[data-kw-state="fetching"]')).toContainText("MySQL");
+  await expect(panel.locator('[data-kw-state="pending"]')).toContainText("Samba");
+  await expect(panel.locator('[data-kw-state="failed"]')).toHaveAttribute("title", /nginx · download failed/);
+  await expect(panel.getByText("OpenSSH (32)")).toBeVisible();
   await checkClean(page, errors);
 });

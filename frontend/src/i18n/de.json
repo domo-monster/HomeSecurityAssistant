@@ -498,7 +498,10 @@
     "external.modal_last_seen": "Zuletzt gesehen",
     "external.modal_yes": "Ja",
     "external.modal_no": "Nein",
-    "external.modal_error": "Anreicherungsfehler:"
+    "external.modal_error": "Anreicherungsfehler:",
+    "overview.kw_pending": "wartet auf Download",
+    "overview.kw_fetching": "wird heruntergeladen",
+    "overview.kw_failed": "Download fehlgeschlagen, neuer Versuch in 30 Min."
   },
   "settings": {
     "sections": {
