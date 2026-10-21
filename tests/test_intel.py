@@ -47,6 +47,7 @@ class FakeSession:
 
     def get(self, url: str, **kwargs) -> FakeResponse:
         self.calls.append(url)
+        self.params_sent = getattr(self, "params_sent", []) + [dict(kwargs.get("params") or {})]
         self.headers_sent = getattr(self, "headers_sent", []) + [dict(kwargs.get("headers") or {})]
         for prefix, result in self.routes.items():
             if url.startswith(prefix):
@@ -228,20 +229,21 @@ def test_enrichment_cache_is_bounded() -> None:
 # ── NVD (B3) ─────────────────────────────────────────────────────────────────
 
 
-def _nvd_page(cve_id: str) -> dict:
-    return {
-        "totalResults": 1,
-        "vulnerabilities": [
-            {
-                "cve": {
-                    "id": cve_id,
-                    "published": "2024-01-01T00:00:00",
-                    "metrics": {"cvssMetricV31": [{"cvssData": {"baseScore": 9.8, "baseSeverity": "CRITICAL"}}]},
-                    "descriptions": [{"lang": "en", "value": "test"}],
-                }
-            }
-        ],
+def _nvd_page(cve_id: str, *criteria: str) -> dict:
+    cve: dict = {
+        "id": cve_id,
+        "published": "2024-01-01T00:00:00",
+        "metrics": {"cvssMetricV31": [{"cvssData": {"baseScore": 9.8, "baseSeverity": "CRITICAL"}}]},
+        "descriptions": [{"lang": "en", "value": "test"}],
     }
+    if criteria:
+        cve["configurations"] = [
+            {"nodes": [{"cpeMatch": [{"vulnerable": True, "criteria": c, "versionEndExcluding": "1.25.0"} for c in criteria]}]}
+        ]
+    return {"totalResults": 1, "vulnerabilities": [{"cve": cve}]}
+
+
+NGINX_CPE = "cpe:2.3:a:f5:nginx:*:*:*:*:*:*:*:*"
 
 
 async def test_nvd_failure_keeps_previous_cache(monkeypatch) -> None:
@@ -302,7 +304,8 @@ async def test_blocklist_state_survives_restart_without_network() -> None:
 
 async def test_nvd_cache_survives_restart(monkeypatch) -> None:
     monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
-    session = FakeSession({"https://nvd.example/": FakeResponse(200, _nvd_page("CVE-2024-0002"))})
+    page = _nvd_page("CVE-2024-0002", "cpe:2.3:a:nginx:nginx:*:*:*:*:*:*:*:*")
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, page)})
     client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
     await client._get_cached("nginx")
     assert client.is_state_dirty
@@ -349,3 +352,49 @@ def test_enrichment_cache_survives_restart_and_expires() -> None:
     restored.import_cache(saved)
     assert restored.get("8.8.8.8")["rating"] == "clean"
     assert not restored._is_stale("8.8.8.8")
+
+
+async def test_nvd_known_products_are_fetched_by_cpe(monkeypatch) -> None:
+    monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
+    page = _nvd_page(
+        "CVE-2024-0003",
+        "cpe:2.3:a:nginx:nginx:*:*:*:*:*:*:*:*",
+        "cpe:2.3:o:debian:debian_linux:12.0:*:*:*:*:*:*:*",
+        NGINX_CPE,
+    )
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, page)})
+    client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
+    cves = await client._get_cached("nginx")
+    assert session.params_sent[-1]["virtualMatchString"] == "cpe:2.3:*:nginx:nginx:*:*:*:*:*:*:*:*"
+    assert "keywordSearch" not in session.params_sent[-1]
+    # Only the vulnerable nginx:nginx match is kept
+    [config] = cves[0]["configurations"]
+    assert [m["criteria"] for m in config["nodes"][0]["cpeMatch"]] == ["cpe:2.3:a:nginx:nginx:*:*:*:*:*:*:*:*"]
+    assert client.get_cached_cve("CVE-2024-0003") is cves[0]
+
+    # Unknown products still use a keyword search; CVEs are kept as returned
+    await client._get_cached("SomeDaemon")
+    assert session.params_sent[-1]["keywordSearch"] == "SomeDaemon"
+    assert len(client._cache["SomeDaemon"][1][0]["configurations"][0]["nodes"][0]["cpeMatch"]) == 3
+    assert client.get_cached_cve("CVE-2024-9999") is None
+
+
+async def test_nvd_cpe_lookup_drops_cves_without_the_product(monkeypatch) -> None:
+    monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, _nvd_page("CVE-2024-0004", NGINX_CPE))})
+    client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
+    assert await client._get_cached("nginx") == []
+
+
+def test_nvd_keyword_era_cache_is_refetched_for_cpe_products() -> None:
+    saved = {
+        "cache": {
+            "nginx": {"fetched_at": "2026-10-21T00:00:00+00:00", "cves": [{"cve_id": "CVE-1"}]},
+            "SomeDaemon": {"fetched_at": "2026-10-21T00:00:00+00:00", "cves": [{"cve_id": "CVE-2"}]},
+        }
+    }
+    client = NVDClient(FakeSession({}), ttl_hours=12)
+    client.import_state(saved)
+    assert set(client._cache) == {"SomeDaemon"}
+    assert client.export_state()["cache"]["SomeDaemon"]["query"] == "keyword"
+
