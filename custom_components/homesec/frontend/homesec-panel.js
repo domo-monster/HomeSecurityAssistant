@@ -543,9 +543,6 @@ var o4 = s3.litElementPolyfillSupport;
 o4?.({ LitElement: i4 });
 (s3.litElementVersions ?? (s3.litElementVersions = [])).push("4.2.2");
 
-// node_modules/lit-html/directives/if-defined.js
-var o5 = (o6) => o6 ?? A;
-
 // src/styles.js
 var CSS = ':host{--bg:#070b12;--card:rgba(14,23,40,.92);--border:rgba(98,232,255,.14);--text:#eef7ff;--muted:#8a9dbf;--accent:#62e8ff;--success:#6bffc8;--danger:#ff4d6d;--warn:#ffb347;--violet:#9e96ff;--glow:0 0 28px rgba(98,232,255,.08);display:block;height:100vh;overflow:hidden;font-family:"IBM Plex Sans","Segoe UI",sans-serif;color:var(--text);background:var(--bg)}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:210px;min-width:210px;background:rgba(6,11,24,.98);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;z-index:10}.brand{padding:18px 14px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}.brand-shield{font-size:26px;filter:drop-shadow(0 0 8px rgba(98,232,255,.5))}.brand-text{display:flex;flex-direction:column}.brand-name{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.06em}.brand-tagline{font-size:9px;color:var(--muted);opacity:.7;margin-top:4px;line-height:1.3}.nav-list{list-style:none;padding:6px 0;flex:1}.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);border-left:3px solid transparent;transition:all .12s ease;user-select:none}.nav-item:hover{background:rgba(98,232,255,.05);color:var(--text)}.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(98,232,255,.07)}.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:.65}.nav-item.active svg{opacity:1}.nav-label{flex:1}.nav-badge{background:var(--danger);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center}.sidebar-status{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted)}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}.sidebar-status.online .status-dot{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}.content{flex:1;overflow-y:auto;padding:22px 24px;position:relative;background:var(--bg)}.content::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;background-image:linear-gradient(rgba(98,232,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(98,232,255,.07) 1px,transparent 1px);background-size:40px 40px}.content>*{position:relative;z-index:1}.page-header{margin-bottom:20px}.page-title{font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.01em;margin-bottom:3px}.page-subtitle{font-size:12px;color:var(--muted);letter-spacing:.02em}.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--glow)}.stat-card.danger{border-color:rgba(255,77,109,.3)}.stat-card.warn{border-color:rgba(255,179,71,.28)}.stat-card.success{border-color:rgba(107,255,200,.2)}.stat-value{font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--glow);margin-bottom:14px}.table-card{padding:0;overflow:hidden}.card-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}.health-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(98,232,255,.05);font-size:12px}.health-row:last-child{border-bottom:none}.health-label{color:var(--muted)}.health-value{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}.health-value.good{color:var(--success)}.health-value.warn{color:var(--warn)}.health-value.bad{color:var(--danger)}.alert-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(98,232,255,.05)}.alert-row:last-child{border-bottom:none}.alert-body{flex:1;min-width:0}.alert-sum{font-size:12px;font-weight:600}.alert-meta{font-size:10px;color:var(--muted);margin-top:2px}.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.view-header h1{font-size:18px;font-weight:700}.dim{color:var(--muted);font-weight:400;font-size:13px}.row-gap{display:flex;gap:8px;align-items:center}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}.data-table td{padding:7px 10px;border-bottom:1px solid rgba(98,232,255,.04);vertical-align:middle}.data-table tr.expandable{cursor:pointer}.data-table tr.expandable:hover td{background:rgba(98,232,255,.03)}.mono{font-family:"IBM Plex Mono",monospace}.ip{font-family:"IBM Plex Mono",monospace;font-size:11px}.host-detail-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:14px 16px;background:rgba(0,0,0,.25)}.section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;font-weight:600}.detail-row{background:rgba(0,0,0,.2)}.badge{display:inline-block;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.badge-critical{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-high{background:rgba(255,140,66,.18);color:#ff8c42;border:1px solid rgba(255,140,66,.35)}.badge-medium{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-low{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-clean{background:rgba(107,255,200,.1);color:#6bffc8;border:1px solid rgba(107,255,200,.22)}.badge-suspicious{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-malicious{background:rgba(255,77,109,.2);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}.badge-ok{background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)}.badge-warn{background:rgba(255,206,84,.15);color:#ffce54;border:1px solid rgba(255,206,84,.28)}.badge-dim{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}.chip{display:inline-block;background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.15);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--accent);margin:1px}.ip-chip{display:inline-block;background:rgba(107,255,200,.08);border:1px solid rgba(107,255,200,.2);border-radius:100px;padding:1px 7px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:var(--success);margin:1px 2px 1px 0}.finding-card{background:var(--card);border:1px solid var(--border);border-left-width:3px;border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:10px}.finding-card.sev-critical{border-left-color:var(--danger)}.finding-card.sev-high{border-left-color:#ff8c42}.finding-header{display:flex;align-items:center;gap:8px;margin-bottom:5px}.finding-title{flex:1;font-size:12px;font-weight:600}.finding-meta{display:flex;gap:12px;font-size:10px;color:var(--muted);flex-wrap:wrap}.finding-body{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}.finding-detail{margin-top:8px;background:rgba(0,0,0,.2);border-radius:5px;padding:8px;font-size:10px;font-family:"IBM Plex Mono",monospace;color:#b0c8e0}.finding-detail dt{color:var(--muted);font-weight:600}.finding-detail dd{margin-left:4px;color:var(--text);margin-right:12px}.fix-hint{font-size:11px;color:var(--success);margin-top:5px}.finding-group-wrap{margin-bottom:10px}.finding-group-card{cursor:pointer;border-radius:0 10px 10px 0;margin-bottom:0;transition:border-color .12s}.finding-group-card:hover{border-color:rgba(98,232,255,.3)}.finding-group-chevron{font-size:10px;color:var(--muted);transition:transform .15s;display:inline-block;flex-shrink:0}.finding-group-rows{background:rgba(0,0,0,.18);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:4px 0}.finding-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(98,232,255,.05);font-size:11px}.finding-row:last-child{border-bottom:none}.map-wrap{position:relative;height:calc(100vh - 120px);background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}#hsa-map-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}#hsa-map-canvas:active{cursor:grabbing}.map-tooltip{position:absolute;background:rgba(6,11,24,.96);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:10px;pointer-events:none;z-index:10;min-width:130px;box-shadow:0 4px 18px rgba(0,0,0,.5)}.map-legend{position:absolute;bottom:10px;left:10px;background:rgba(6,11,24,.82);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:10px;display:flex;gap:12px}.legend-item{display:flex;align-items:center;gap:4px;color:var(--muted)}.ldot{width:9px;height:9px;border-radius:50%}.map-mbtn{padding:4px 12px}.map-mbtn.active{background:rgba(136,167,199,.2);border-color:#88a7c7;color:#fff}.map-filter-bar{display:flex;gap:6px;margin-bottom:10px}.map-fbtn{padding:4px 12px}.map-fbtn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.tldr-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;gap:20px;flex-wrap:wrap;font-size:11px;color:var(--muted)}.tldr-bar strong{color:var(--accent)}.ip-detail-panel{background:rgba(6,11,24,.98);border:1px solid rgba(98,232,255,.3);border-radius:10px;padding:14px;font-size:12px}.ip-detail-panel h3{color:var(--accent);font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}.detail-pair{display:flex;flex-direction:column;gap:2px}.detail-key{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}.detail-val{font-size:12px;color:var(--text);word-break:break-all}.ext-report-link{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;border:1px solid rgba(98,232,255,.25);background:rgba(98,232,255,.08);color:var(--accent);text-decoration:none;font-size:11px;font-weight:600}.ext-report-link:hover{background:rgba(98,232,255,.16);border-color:rgba(98,232,255,.45)}.rec-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}.rec-card-clickable{cursor:pointer;transition:border-color .12s}.rec-card-clickable:hover{border-color:rgba(98,232,255,.35);background:rgba(14,23,40,.98)}.rec-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}.rec-title{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:8px}.rec-detail{font-size:11px;color:var(--muted);line-height:1.55}.rec-expand-panel{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}.rec-expand-section{margin-bottom:10px}.rec-expand-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:6px}.rec-expand-rows{display:flex;flex-direction:column;gap:5px}.rec-expand-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;padding:4px 0;border-bottom:1px solid rgba(98,232,255,.04)}.rec-expand-row:last-child{border-bottom:none}.btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(98,232,255,.05);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;transition:all .12s}.btn:hover{background:rgba(98,232,255,.12);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:default}.btn.active{background:rgba(98,232,255,.18);border-color:var(--accent);color:#fff}.search-bar{padding:5px 11px;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;width:210px}.search-bar:focus{outline:none;border-color:var(--accent)}.state-box{display:flex;flex-direction:column;align-items:center;justify-content:center;height:220px;gap:14px;color:var(--muted)}.state-icon{font-size:32px}.loader{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;color:var(--muted);text-align:center}.empty-icon{font-size:28px}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--success)}50%{opacity:.6;box-shadow:0 0 2px var(--success)}}@keyframes spin{to{transform:rotate(360deg)}}.role-select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:11px;padding:2px 4px;cursor:pointer;font-family:inherit}.role-select:focus{outline:none;border-color:var(--accent)}.role-select:hover{border-color:var(--accent);background:rgba(98,232,255,.08)}.sortable-th{cursor:pointer;user-select:none;white-space:nowrap}.sortable-th:hover{color:var(--accent)}.sort-arrow{font-size:8px;margin-left:3px;color:var(--accent)}@media(max-width:768px){.app{flex-direction:column}.sidebar{width:100%;min-width:0;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--border);align-items:center;gap:0}.brand{display:none}.brand-tagline{display:none}.nav-list{display:flex;flex-direction:row;padding:0;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch}.nav-item{flex-direction:column;gap:2px;padding:8px 12px;font-size:10px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;min-width:0}.nav-item.active{border-left-color:transparent;border-bottom-color:var(--accent)}.nav-item svg{width:14px;height:14px}.nav-label{font-size:9px}.sidebar-status{display:none}.content{padding:12px 10px;height:calc(100vh - 52px)}.content::before{display:none}.page-title{font-size:18px}.stat-grid{grid-template-columns:repeat(2,1fr);gap:8px}.stat-card{padding:10px}.stat-value{font-size:20px}.stat-label{font-size:9px}.two-col{grid-template-columns:1fr}.host-detail-wrap{grid-template-columns:1fr}.table-card{overflow-x:auto;-webkit-overflow-scrolling:touch}.data-table{min-width:680px}.search-bar{width:100%}.view-header{flex-direction:column;align-items:flex-start;gap:8px}.view-header h1{font-size:16px}.map-wrap{height:calc(100vh - 160px)}.map-legend{flex-wrap:wrap;gap:6px;font-size:9px}.map-filter-bar{flex-wrap:wrap}.finding-meta{flex-direction:column;gap:4px}.detail-grid{grid-template-columns:1fr}.ip-detail-panel{font-size:11px}.rec-card{flex-direction:column;gap:6px}.tldr-bar{flex-direction:column;gap:6px}.card{padding:12px;border-radius:10px}.finding-card{padding:10px}.btn{font-size:10px;padding:4px 8px}}@media(max-width:480px){.stat-grid{grid-template-columns:1fr}.data-table{min-width:560px;font-size:11px}.content{padding:8px 6px}}.mobile-topbar{display:none}.mobile-backdrop{display:none}.stats-two-col>.card{min-width:0;width:100%;overflow:hidden}.stats-panel-card .data-table{min-width:0}.stats-chart-row{display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding-top:10px;width:100%;min-width:0}.stats-chart-legend{flex:1;min-width:0}.stats-chart-legend>div{max-width:100%}@media(max-width:768px){.mobile-topbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);background:rgba(6,11,24,.98);position:sticky;top:0;z-index:35}.mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:rgba(98,232,255,.1);color:var(--text);font-size:18px;cursor:pointer}.mobile-topbar-title{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.04em;text-transform:uppercase}.sidebar{position:fixed;top:0;left:0;bottom:0;width:min(82vw,300px);min-width:0;max-width:300px;transform:translateX(-102%);transition:transform .2s ease;z-index:45;border-right:1px solid var(--border);border-bottom:none;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}.app.mobile-menu-open .sidebar{transform:translateX(0)}.mobile-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}.app.mobile-menu-open .mobile-backdrop{display:block}.sidebar .brand{display:flex}.sidebar .brand-tagline{display:block}.sidebar .nav-list{display:block;overflow:visible;padding:6px 0}.sidebar .nav-item{display:flex;flex-direction:row;gap:9px;padding:9px 14px;font-size:12px;border-bottom:none;border-left:3px solid transparent;white-space:normal}.sidebar .nav-item.active{border-bottom-color:transparent;border-left-color:var(--accent)}.sidebar .nav-label{font-size:12px}.sidebar .sidebar-status{display:flex}.content{height:auto;min-height:0;flex:1}.stats-chart-row{gap:12px}.stats-chart-row svg{max-width:100%}.stats-chart-legend{width:100%;max-height:none}.stats-two-col>.card{margin-bottom:0}.stats-panel-card .data-table{min-width:0}}.sidebar-copy{padding:0 14px 10px;font-size:9px;color:var(--muted);opacity:.75}.sidebar-copy a{color:inherit;text-decoration:none}.sidebar-copy a:hover{color:var(--accent);text-decoration:underline}@media(max-width:768px){.sidebar-copy{display:block;padding:0 14px 12px;font-size:10px}}.nav-list{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden}.sidebar-status,.sidebar-copy{flex:0 0 auto}.sidebar-copy{border-top:1px solid rgba(98,232,255,.08);padding-top:8px}@media(max-width:420px){.mobile-topbar{padding:8px 10px;gap:8px}.mobile-menu-btn{width:30px;height:30px;font-size:16px;border-radius:7px}.mobile-topbar-title{font-size:12px;letter-spacing:.02em}.sidebar{width:min(90vw,280px);max-width:280px}.sidebar .brand{padding:14px 12px 10px}.sidebar .nav-item{padding:8px 12px;font-size:11px;gap:8px}.sidebar .nav-label{font-size:11px}.content{padding:8px 8px}.page-title{font-size:16px}.card{padding:10px;border-radius:9px}.card-title{font-size:10px;line-height:1.35;word-break:break-word}.stats-two-col{gap:10px!important}.stats-panel-card .data-table{font-size:10px}.stats-panel-card .data-table th,.stats-panel-card .data-table td{padding:6px 7px}.stats-chart-row{gap:10px}.stats-chart-legend{font-size:10px;line-height:1.4}.stats-chart-legend .row-gap{gap:6px;flex-wrap:wrap}.stats-chart-row svg{width:112px;height:112px}}@media(max-width:360px){.mobile-topbar{padding:7px 8px}.mobile-topbar-title{font-size:11px}.sidebar{width:min(92vw,260px);max-width:260px}.content{padding:7px 6px}.card{padding:9px}.stats-panel-card .data-table{font-size:9px}.stats-panel-card .data-table th,.stats-panel-card .data-table td{padding:5px 6px}}';
 
@@ -559,21 +556,3760 @@ function joinTemplates(items, separator) {
   return out.length ? out : "";
 }
 
-// src/constants.js
-var VIEWS = ["overview", "map", "hosts", "findings", "external", "vulnerabilities", "statistics", "dns", "suricata", "recommendations", "settings"];
-var VIEW_LABELS = {
-  "overview": "Overview",
-  "map": "Network Map",
-  "hosts": "Hosts",
-  "findings": "Findings",
-  "external": "External IPs",
-  "vulnerabilities": "Vulnerabilities",
-  "statistics": "Statistics",
-  "dns": "DNS Queries",
-  "suricata": "Suricata Alerts",
-  "recommendations": "Recommendations",
-  "settings": "Settings"
+// src/views/overview.js
+var overviewMethods = {
+  _viewOverview() {
+    var _BL_ONLY_OV = {
+      anomaly_new_host: 1,
+      anomaly_new_peer: 1,
+      anomaly_new_port: 1,
+      anomaly_new_dns_domain: 1,
+      anomaly_new_dns_category: 1
+    };
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
+    var baselineEnabledRaw = this._data && this._data.baseline_enabled;
+    var baselineEnabled = baselineEnabledRaw === true || baselineEnabledRaw === "true" || baselineEnabledRaw === 1 || baselineEnabledRaw === "1";
+    var s4 = this._data && this._data.summary || {};
+    var findings = (this._data && this._data.findings || []).filter(function(f3) {
+      return !_BL_ONLY_OV[f3.category];
+    });
+    var dismissed = (this._data && this._data.dismissed_findings || []).filter(function(f3) {
+      return !_BL_ONLY_OV[f3.category];
+    });
+    var dismissedVulns = dismissed.filter(function(f3) {
+      return f3.category === "vulnerability";
+    }).length;
+    var recent = findings.slice(0, 5);
+    var exporters = s4.exporters || [];
+    var totalDatagrams = s4.total_datagrams || 0;
+    var parsed = s4.parsed_datagrams || 0;
+    var dropped = s4.dropped_datagrams || 0;
+    var pct = totalDatagrams > 0 ? Math.round(parsed / totalDatagrams * 100) : 0;
+    var self = this;
+    var findingsLabel = b2`${this._t("overview.active_findings", "Active Findings")}${dismissed.length ? b2` <span class="dim" style="font-size:10px;text-transform:none">(${dismissed.length} ${this._t("overview.dismissed", "dismissed")})</span>` : ""}`;
+    var cvesLabel = b2`${this._t("overview.active_cves", "Active CVEs")}${dismissedVulns ? b2` <span class="dim" style="font-size:10px;text-transform:none">(${dismissedVulns} ${this._t("overview.dismissed", "dismissed")})</span>` : ""}`;
+    var nvdTs = this._data && this._data.nvd_last_updated;
+    var nvdTtl = this._data && this._data.nvd_ttl_hours != null ? this._data.nvd_ttl_hours + "\xA0h" : "\u2014";
+    var nvdTotalCves = this._data && this._data.nvd_total_cves != null ? this._data.nvd_total_cves : 0;
+    var nvdMinYear = this._data && this._data.nvd_min_year != null ? this._data.nvd_min_year : null;
+    var nvdAge = nvdTs ? this._ago(nvdTs) : this._t("overview.never_fetched", "never fetched");
+    var nvdStatus = nvdTs ? Date.now() - new Date(nvdTs).getTime() < 26 * 3600 * 1e3 ? "good" : "warn" : "warn";
+    var suricataEnabledOv = this._data && this._data.suricata_stats && this._data.suricata_stats.running || false;
+    var suricataStatsOv = this._data && this._data.suricata_stats || {};
+    var suricataLogOv = this._data && this._data.suricata_log || [];
+    var suricataTotalOv = suricataLogOv.length;
+    var suricataCritOv = suricataLogOv.filter(function(e4) {
+      return e4.severity === 1;
+    }).length;
+    var baseline = this._data && this._data.baseline || {};
+    var baselineMode = baseline.mode || "disabled";
+    var baselineModeLabel = baselineMode === "training" ? this._t("overview.baseline_learning", "Learning") : baselineMode === "active" ? this._t("overview.baseline_active", "Active") : this._t("overview.baseline_disabled", "Disabled");
+    var baselineIcon = baselineMode === "training" ? "\u{1F9E0}" : baselineMode === "active" ? "\u2705" : "\u23F8";
+    var sinceStr = baseline.baseline_completed_at ? self._ago(baseline.baseline_completed_at) : "";
+    var trainingElapsed = "";
+    if (baselineMode === "training") {
+      var started = baseline.training_started_at;
+      var ends = baseline.training_ends_at;
+      var now = Date.now();
+      var startMs = started ? new Date(started).getTime() : null;
+      var endMs = ends ? new Date(ends).getTime() : null;
+      var elapsed = startMs ? Math.max(0, Math.min(now, endMs || now) - startMs) : 0;
+      var trainingTotalMs = endMs && startMs ? endMs - startMs : null;
+      var trainingPct = trainingTotalMs ? Math.round(elapsed / trainingTotalMs * 100) : 0;
+      trainingElapsed = b2`<div><span style="font-size:13px">${self._t("overview.elapsed", "Elapsed")}: <b>${self._ago(started)}</b></span>${trainingTotalMs ? b2` &nbsp; <span style="font-size:13px">${self._t("overview.progress", "Progress")}: <b>${trainingPct}%</b></span>` : ""}</div>`;
+    }
+    var btns = [];
+    btns.push(b2`<button class="btn" data-baseline-action="start">${this._t("overview.btn_start_training", "Start Training")}</button>`);
+    btns.push(b2`<button class="btn" data-baseline-action="stop">${this._t("overview.btn_stop_training", "Stop Training")}</button>`);
+    btns.push(b2`<button class="btn" data-baseline-action="retrain">${this._t("overview.btn_retrain", "Retrain")}</button>`);
+    btns.push(b2`<button class="btn" data-baseline-action="clear">${this._t("overview.btn_clear", "Clear")}</button>`);
+    var baselineCard = b2`<div class="card" id="baseline-card" style="margin-bottom:12px${this._baselineWorking ? ";position:relative" : ""}">${this._baselineWorking ? b2`<div id="baseline-working-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);border-radius:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10"><div style="width:32px;height:32px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="color:#fff;font-size:13px;font-weight:600">${this._baselineWorking}…</div></div>` : A}<div class="card-title">${this._t("overview.baseline_title", "Baseline")} <span style="font-size:18px;margin-left:6px">${baselineIcon}</span></div><div style="margin-bottom:6px"><b>${this._t("overview.mode_label", "Mode")}:</b> ${baselineModeLabel}</div>${baselineMode === "training" ? trainingElapsed : ""}${baselineMode === "active" && sinceStr ? b2`<div><b>${this._t("overview.baseline_created_label", "Baseline created")}:</b> ${sinceStr}</div>` : ""}<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
+    return b2`<div><div class="page-header"><h1 class="page-title">${this._t("page.overview", "Overview")}</h1></div><div class="stat-grid">${this._stat(s4.devices || 0, this._t("overview.stat_devices", "Devices"), "success")}${this._stat((this._data && this._data.scan_hosts_found) != null ? this._data.scan_hosts_found : s4.scanned_devices || 0, this._t("overview.stat_scanned", "Scanned"), "")}${this._stat(s4.findings || 0, findingsLabel, (s4.findings || 0) > 0 ? "danger" : "")}${this._stat(s4.vulnerability_count || 0, cvesLabel, (s4.vulnerability_count || 0) > 0 ? "warn" : "")}${this._stat(nvdTotalCves, b2`${this._t("overview.stat_nvd_cves", "NVD CVEs")}${nvdMinYear ? b2` <span class="dim" style="font-size:10px;text-transform:none">(≥ ${nvdMinYear})</span>` : ""}`, "")}${this._stat(this._data && this._data.kev_total || 0, this._t("overview.stat_cisa_kev", "CISA KEV"), "")}${this._stat(this._fmtN(s4.total_flows || 0), this._t("overview.stat_flows", "Flows"), "")}${this._stat(exporters.length, this._t("overview.stat_exporters", "Exporters"), exporters.length > 0 ? "success" : "warn")}${suricataEnabledOv ? [this._stat(suricataTotalOv, this._t("overview.stat_suricata_alerts", "Suricata Alerts"), suricataTotalOv > 0 ? "warn" : ""), this._stat(suricataCritOv, this._t("overview.stat_critical_alerts", "Critical Alerts"), suricataCritOv > 0 ? "danger" : "")] : ""}</div><div class="two-col">${netflowEnabled ? b2`<div class="card"><div class="card-title">${this._t("overview.netflow_title", "NetFlow Listener Health")}</div>${this._hrow(this._t("overview.status_label", "Status"), (function() {
+      var lf = s4.last_flow_at;
+      if (!lf) return self._t("overview.no_flows_seen", "No flows seen");
+      var age = Date.now() - new Date(lf).getTime();
+      return age < 9e4 ? self._t("overview.receiving_flows", "Receiving flows") : self._t("overview.no_flows_idle_prefix", "No flows (idle ") + (age < 36e5 ? Math.floor(age / 6e4) + "m" : Math.floor(age / 36e5) + "h") + ")";
+    })(), (function() {
+      var lf = s4.last_flow_at;
+      return lf && Date.now() - new Date(lf).getTime() < 9e4 ? "good" : "warn";
+    })())}${this._hrow(this._t("overview.uptime_label", "Uptime"), this._uptime(s4.collector_started_at), "")}${this._hrow(this._t("overview.exporters_label", "Exporters"), exporters.join(", ") || "\u2014", "")}${this._hrow(this._t("overview.flow_versions", "Flow versions"), (s4.versions_seen || []).join(", ") || "\u2014", "")}${this._hrow(this._t("overview.total_datagrams", "Total datagrams"), totalDatagrams.toLocaleString(), "")}${this._hrow(this._t("overview.parsed", "Parsed"), parsed.toLocaleString() + " (" + pct + "%)", pct > 90 ? "good" : pct > 50 ? "warn" : "bad")}${this._hrow(this._t("overview.dropped", "Dropped"), dropped.toLocaleString(), dropped > 0 ? "warn" : "good")}${this._hrow(this._t("overview.last_flow", "Last flow"), this._ago(s4.last_flow_at), "")}${s4.last_parser_error ? this._hrow(this._t("overview.last_error", "Last error"), s4.last_parser_error, "bad") : ""}<div style="margin-top:10px"><button class="btn" data-view="statistics">${this._t("overview.view_statistics", "View Statistics \u2192")}</button></div></div>` : ""}<div class="card" style=${!netflowEnabled ? "grid-column:1/-1" : A}><div class="card-title">${this._t("overview.recent_alerts", "Recent Alerts")}</div>${recent.length === 0 ? b2`<div class="empty-state"><div class="empty-icon">✓</div><p>${self._t("overview.no_active_findings", "No active high/critical findings")}</p></div>` : recent.map(function(f3) {
+      return b2`<div class="alert-row">${self._sev(f3.severity)}<div class="alert-body"><div class="alert-sum">${f3.summary}</div><div class="alert-meta"><span class="ip">${f3.source_ip}</span> · ${self._ago(f3.last_seen)}</div></div></div>`;
+    })}${findings.length > 5 ? b2`<button class="btn" style="margin-top:10px" data-view="findings">${self._t("overview.view_all_findings", "View all findings \u2192")}</button>` : ""}</div></div>${(function() {
+      var scanAt = self._data && self._data.scan_last_at;
+      var scanDur = self._data && self._data.scan_duration;
+      var scanHosts = self._data && self._data.scan_hosts_found;
+      var scanInterval = self._data && self._data.scan_interval;
+      var scanResult = self._data && self._data.scan_last_status;
+      var scanTargets = self._data && self._data.scan_last_targets;
+      var scanAge = scanAt ? self._ago(scanAt) : self._t("overview.never", "never");
+      var scanStatus = scanAt ? Date.now() - new Date(scanAt).getTime() < (scanInterval || 300) * 2 * 1e3 ? "good" : "warn" : "warn";
+      var durStr = scanDur != null ? scanDur < 60 ? scanDur.toFixed(1) + "\xA0s" : (scanDur / 60).toFixed(1) + "\xA0min" : "\u2014";
+      var hostsStr = scanHosts != null ? scanHosts.toLocaleString() : "\u2014";
+      var intervalStr = scanInterval != null ? scanInterval < 60 ? scanInterval + "\xA0s" : Math.round(scanInterval / 60) + "\xA0min" : "\u2014";
+      var targetsStr = scanTargets != null ? scanTargets.toLocaleString() : "\u2014";
+      var resultText = "\u2014", resultTone = "";
+      if (scanResult === "ok") {
+        resultText = self._t("overview.scan_completed", "Completed");
+        resultTone = "good";
+      } else if (scanResult === "no_targets") {
+        resultText = self._t("overview.scan_skipped", "Skipped \u2014 no targets discovered yet");
+        resultTone = "warn";
+      }
+      return b2`<div class="card" style="margin-top:12px"><div class="card-title">${self._t("overview.active_scan_title", "Active Scan")}</div>${self._hrow(self._t("overview.last_scan", "Last scan"), scanAge, scanStatus)}${self._hrow(self._t("overview.last_result", "Last result"), resultText, resultTone)}${self._hrow(self._t("overview.duration", "Duration"), durStr, "")}${self._hrow(self._t("overview.hosts_found", "Hosts found"), hostsStr, scanHosts > 0 ? "" : "warn")}${self._hrow(self._t("overview.targets_scanned", "Targets scanned"), targetsStr, scanTargets != null && scanTargets > 0 ? "" : "warn")}${self._hrow(self._t("overview.scan_interval", "Scan interval"), intervalStr, "")}<div style="margin-top:10px"><button class="btn" data-service-action="trigger_scan">${self._t("overview.force_scan_btn", "Force hosts scan \u21BB")}</button></div></div>`;
+    })()}<div class="card" style="margin-top:12px"><div class="card-title">${this._t("overview.nvd_title", "Vulnerability Intelligence (NVD)")}</div>${this._hrow(this._t("overview.last_db_fetch", "Last database fetch"), nvdAge, nvdStatus)}${this._hrow(this._t("overview.cache_ttl", "Cache TTL"), nvdTtl, "")}${this._hrow(this._t("overview.cves_in_db", "CVEs in database"), nvdTotalCves.toLocaleString(), "")}${this._hrow(this._t("overview.min_pub_year", "Min publication year"), nvdMinYear ? nvdMinYear : this._t("overview.all_years", "All years"), "")}${(function() {
+      var kws = self._data && self._data.nvd_keywords || [];
+      if (!kws.length) return self._hrow(self._t("overview.keywords_label", "Keywords"), self._t("overview.none_loaded", "None loaded yet"), "warn");
+      var configured = kws.filter(function(k2) {
+        return k2.source === "custom";
+      });
+      var dynamic = kws.filter(function(k2) {
+        return k2.source !== "custom";
+      });
+      var cfgStyle = "background:rgba(158,150,255,.22);border-color:rgba(158,150,255,.5);color:#c4bfff";
+      var dynStyle = "background:rgba(107,255,200,.18);border-color:rgba(107,255,200,.45);color:#6bffc8";
+      function renderChips(list, style) {
+        return joinTemplates(list.map(function(k2) {
+          return b2`<span class="chip" style="${style}" title="${k2.keyword} · ${k2.cve_count} CVEs · source: ${k2.source}">${k2.keyword} <span style="opacity:.55;font-size:9px">(${k2.cve_count})</span></span>`;
+        }), " ");
+      }
+      var legend = b2`<div style="display:flex;gap:14px;align-items:center;font-size:10px;color:var(--muted);margin-bottom:6px"><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(158,150,255,.7);background:rgba(158,150,255,.35)"></span> ${self._t("overview.kw_configured", "Configured")}</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(107,255,200,.6);background:rgba(107,255,200,.3)"></span> ${self._t("overview.kw_from_scans", "From scans")}</span></div>`;
+      return b2`<div class="section-label" style="margin-top:10px;margin-bottom:4px">NVD ${self._t("overview.keywords_label", "Keywords")} (${kws.length})</div>${legend}<div style="line-height:2">${configured.length ? renderChips(configured, cfgStyle) : ""}${configured.length && dynamic.length ? " " : ""}${dynamic.length ? renderChips(dynamic, dynStyle) : ""}</div>`;
+    })()}<div style="margin-top:10px"><button class="btn" data-view="vulnerabilities">${this._t("overview.browse_vulns_btn", "Browse all vulnerabilities \u2192")}</button> <button class="btn" data-service-action="nvd_refresh">${this._t("overview.force_nvd_refresh_btn", "Force intelligence refresh \u21BB")}</button></div></div>${(function() {
+      var kevTotal = self._data && self._data.kev_total != null ? self._data.kev_total : 0;
+      var kevTs = self._data && self._data.kev_last_updated;
+      var kevTtl = self._data && self._data.kev_ttl_hours != null ? self._data.kev_ttl_hours + "\xA0h" : "\u2014";
+      var kevAge = kevTs ? self._ago(kevTs) : self._t("overview.never_fetched", "never fetched");
+      var kevStatus = kevTs ? Date.now() - new Date(kevTs).getTime() < 26 * 3600 * 1e3 ? "good" : "warn" : "warn";
+      return b2`<div class="card"><div class="card-title">${self._t("overview.kev_title", "CISA Known Exploited Vulnerabilities (KEV)")}</div>${self._hrow(self._t("overview.last_catalog_fetch", "Last catalog fetch"), kevAge, kevStatus)}${self._hrow(self._t("overview.cache_ttl", "Cache TTL"), kevTtl, "")}${self._hrow(self._t("overview.catalog_size", "Catalog size"), kevTotal.toLocaleString(), kevTotal > 0 ? "" : "warn")}</div>`;
+    })()}${(function() {
+      var dnsStats = self._data && self._data.dns_proxy_stats || {};
+      var dnsLog = self._data && self._data.dns_log || [];
+      var bs = self._data && self._data.blacklist_stats || {};
+      var dnsRunning = dnsStats.running || false;
+      if (!dnsRunning) return "";
+      var dnsMal = dnsLog.filter(function(e4) {
+        return e4.malicious;
+      }).length;
+      var dnsTotal = dnsStats.total_queries != null ? dnsStats.total_queries : dnsLog.length;
+      var blDomains = bs.bad_domains || 0;
+      var blIPs = bs.bad_ips || 0;
+      var blTotal = blDomains + blIPs;
+      var blLoaded = blTotal > 0;
+      var blParts = [];
+      if (blDomains > 0) blParts.push(blDomains.toLocaleString() + " " + self._t("overview.dns_domains", "domains"));
+      if (blIPs > 0) blParts.push(blIPs.toLocaleString() + " IPs");
+      var blLabel = blLoaded ? blParts.join(" + ") + " " + self._t("overview.dns_blocked_suffix", "blocked") : bs.last_refresh ? self._t("overview.dns_bl_empty", "0 entries \u2014 check URLs") : self._t("overview.dns_bl_downloading", "Downloading\u2026");
+      var blStatus = blLoaded ? "good" : bs.last_refresh ? "bad" : "";
+      return b2`<div class="card" style="margin-top:12px"><div class="card-title">${self._t("overview.dns_proxy_title", "DNS Proxy")}</div>${self._hrow(self._t("overview.status_label", "Status"), self._t("overview.dns_running", "Running"), "good")}${self._hrow(self._t("overview.port_label", "Port"), String(dnsStats.port || "\u2014"), "")}${self._hrow(self._t("overview.upstream_label", "Upstream"), String(dnsStats.upstream || "\u2014"), "")}${self._hrow(self._t("overview.blocklist_label", "Blocklist"), blLabel, blStatus)}${bs.last_refresh ? self._hrow(self._t("overview.last_refreshed", "Last refreshed"), self._ago(bs.last_refresh), "") : ""}${self._hrow(self._t("overview.queries_in_log", "Queries in log"), dnsLog.length.toLocaleString(), "")}${self._hrow(self._t("overview.malicious_queries", "Malicious queries"), dnsMal.toLocaleString(), dnsMal > 0 ? "bad" : "good")}${(function() {
+        var dnsBlocked = dnsLog.filter(function(e4) {
+          return e4.status === "blocked";
+        }).length;
+        return dnsBlocked > 0 ? self._hrow(self._t("overview.blocked_queries", "Blocked queries"), dnsBlocked.toLocaleString(), "bad") : "";
+      })()}<div style="margin-top:10px"><button class="btn" data-view="dns">${self._t("overview.view_dns_btn", "View DNS Queries \u2192")}</button></div></div>`;
+    })()}${(function() {
+      if (!suricataEnabledOv) return "";
+      var sStats = suricataStatsOv;
+      var sLog = suricataLogOv;
+      var sRunning = sStats.running || false;
+      var sPort = sStats.port || "\u2014";
+      var sUptime = sStats.started_at ? self._uptime(sStats.started_at) : "\u2014";
+      var sExporters = sStats.exporter_ips && sStats.exporter_ips.length ? sStats.exporter_ips.join(", ") : "\u2014";
+      var sTotal = sLog.length;
+      var sCrit = sLog.filter(function(e4) {
+        return e4.severity === 1;
+      }).length;
+      var sConns = sStats.active_connections != null ? sStats.active_connections : 0;
+      return b2`<div class="card" style="margin-top:12px"><div class="card-title">${self._t("overview.suricata_listener_title", "Suricata Alert Listener")}</div>${self._hrow(self._t("overview.status_label", "Status"), sRunning ? self._t("overview.suricata_active", "Active") : self._t("overview.suricata_inactive", "Inactive"), sRunning ? "good" : "warn")}${self._hrow(self._t("overview.port_label", "Port"), String(sPort), "")}${self._hrow(self._t("overview.uptime_label", "Uptime"), sUptime, "")}${self._hrow(self._t("overview.exporter_ips_label", "Exporter IP(s)"), sExporters, sConns > 0 ? "good" : "")}${self._hrow(self._t("overview.active_connections", "Active connections"), String(sConns), sConns > 0 ? "good" : "")}${self._hrow(self._t("overview.alerts_in_log", "Alerts in log"), sTotal.toLocaleString(), sTotal > 0 ? "warn" : "good")}${self._hrow(self._t("overview.critical_alerts_label", "Critical alerts"), sCrit.toLocaleString(), sCrit > 0 ? "bad" : "good")}<div style="margin-top:10px"><button class="btn" data-view="suricata">${self._t("overview.view_suricata_btn", "View Suricata Alerts \u2192")}</button></div></div>`;
+    })()}${baselineEnabled ? [baselineCard, self._baselineDevianceCard()] : ""}</div>`;
+  },
+  // ── Baseline deviance score card ─────────────────────────────────────
+  _baselineDevianceCard() {
+    var self = this;
+    var baseline = this._data && this._data.baseline || {};
+    if ((baseline.mode || "disabled") !== "active") return "";
+    var baselineGraph = this._data && this._data.baseline_graph || null;
+    if (!baselineGraph || !(baselineGraph.edges && baselineGraph.edges.length)) return "";
+    var connections = this._data && this._data.connections || [];
+    var live = this._buildLiveEdgeIndex(connections);
+    var base = this._buildBaselineEdgeIndex(baselineGraph);
+    var keys = {};
+    Object.keys(live).forEach(function(k2) {
+      keys[k2] = true;
+    });
+    Object.keys(base).forEach(function(k2) {
+      keys[k2] = true;
+    });
+    var cntNew = 0, cntMissing = 0, cntBoth = 0;
+    var topDelta = null, topDeltaAbs = 0;
+    for (var key in keys) {
+      var le = live[key];
+      var be = base[key];
+      if (le && be) {
+        cntBoth++;
+        var d3 = (le.live_flows || 0) - (be.avg_flows || 0);
+        if (Math.abs(d3) > topDeltaAbs) {
+          topDeltaAbs = Math.abs(d3);
+          topDelta = {
+            source: le.source,
+            target: le.target,
+            delta: d3
+          };
+        }
+      } else if (le && !be) {
+        cntNew++;
+      } else {
+        cntMissing++;
+      }
+    }
+    var activeLive = cntNew + cntBoth;
+    var totalKnown = cntBoth + cntMissing;
+    var newRatio = activeLive > 0 ? cntNew / activeLive : 0;
+    var missingRatio = totalKnown > 0 ? cntMissing / totalKnown : 0;
+    var score = Math.min(100, Math.round(newRatio * 80 + missingRatio * 20));
+    var band, bandColor, bandBg, bandBorder, bandDesc;
+    if (score <= 20) {
+      band = this._t("overview.band_normal", "Normal");
+      bandColor = "#3ddc84";
+      bandBg = "rgba(61,220,132,.10)";
+      bandBorder = "rgba(61,220,132,.35)";
+      bandDesc = this._t("overview.band_desc_normal", "Traffic closely matches your baseline. No action needed.");
+    } else if (score <= 50) {
+      band = this._t("overview.band_review", "Review");
+      bandColor = "#ffce54";
+      bandBg = "rgba(255,206,84,.10)";
+      bandBorder = "rgba(255,206,84,.35)";
+      bandDesc = this._t("overview.band_desc_review", "Some deviation from baseline detected. Worth a quick look.");
+    } else if (score <= 75) {
+      band = this._t("overview.band_investigate", "Investigate");
+      bandColor = "#ff9640";
+      bandBg = "rgba(255,150,64,.10)";
+      bandBorder = "rgba(255,150,64,.35)";
+      bandDesc = this._t("overview.band_desc_investigate", "Noticeable deviation from baseline. Review unexpected connections.");
+    } else {
+      band = this._t("overview.band_critical", "Critical");
+      bandColor = "#ff5a32";
+      bandBg = "rgba(255,90,50,.10)";
+      bandBorder = "rgba(255,90,50,.40)";
+      bandDesc = this._t("overview.band_desc_critical", "Significant deviation from baseline. Investigate immediately.");
+    }
+    var barFill = score <= 20 ? "#3ddc84" : score <= 50 ? "#ffce54" : score <= 75 ? "#ff9640" : "#ff5a32";
+    function row(icon, count, label, note, iconColor) {
+      return b2`<div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:16px;line-height:1.2;flex-shrink:0;color:${iconColor}">${icon}</span><div style="flex:1;min-width:0"><span style="font-size:14px;font-weight:600;color:${iconColor}">${count}</span> <span style="font-size:12px;color:var(--fg)">${label}</span><div style="font-size:11px;color:var(--muted);margin-top:1px">${note}</div></div></div>`;
+    }
+    var topDeltaHtml = "";
+    if (topDelta) {
+      var d3 = topDelta.delta;
+      var abs = Math.abs(d3);
+      var dirKey = d3 > 0 ? "busier" : "quieter";
+      var magKey = abs > 1e4 ? "far" : abs > 1e3 ? "noticeably" : abs > 100 ? "somewhat" : "slightly";
+      var trafficMagDir = self._t("overview.traffic_" + magKey + "_" + dirKey, magKey + " " + dirKey);
+      var sign = d3 > 0 ? "+" : "";
+      topDeltaHtml = b2`<div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(255,206,84,.07);border:1px solid rgba(255,206,84,.22);font-size:11px"><span style="color:#ffce54;font-weight:600">${self._t("overview.biggest_traffic_change", "\u0394 Biggest traffic change")}</span><div style="margin-top:3px;color:var(--fg)"><span style="font-family:monospace;font-size:11px">${topDelta.source} → ${topDelta.target}</span></div><div style="color:var(--muted);margin-top:2px">${self._t("overview.traffic_change_pre", "This known connection is")} <b style="color:var(--fg)">${trafficMagDir}</b> ${self._t("overview.traffic_change_mid", "than usual")} (${sign}${Math.round(d3)} ${self._t("overview.traffic_change_post", "flows/snapshot).")}${abs > 1e3 ? " " + self._t("overview.traffic_change_file_hint", "Could be a file transfer, backup, or update in progress.") : ""}</div></div>`;
+    }
+    return b2`<div class="card" style="margin-top:12px"><div class="card-title">${this._t("overview.network_behaviour_title", "Network Behaviour")}</div><div style="display:flex;align-items:center;gap:14px;margin-bottom:10px"><div style="position:relative;flex-shrink:0"><svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="${barFill}" stroke-width="7" stroke-dasharray="163.4" stroke-dashoffset="${(163.4 * (1 - score / 100)).toFixed(1)}" stroke-linecap="round" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="${barFill}">${score}</text></svg></div><div style="flex:1"><div style="display:inline-block;padding:3px 12px;border-radius:100px;background:${bandBg};border:1px solid ${bandBorder};color:${bandColor};font-size:12px;font-weight:600;margin-bottom:5px">${band}</div><div style="font-size:12px;color:var(--muted)">${bandDesc}</div></div></div>${// Breakdown rows
+    row("\u2191", cntNew, cntNew === 1 ? self._t("overview.new_conn_single", "unexpected new connection") : self._t("overview.new_conn_plural", "unexpected new connections"), cntNew === 0 ? self._t("overview.new_conn_note_none", "No unknown activity \u2014 all current traffic was seen during training.") : self._t("overview.new_conn_note_some", "These connections were not present during baseline training.") + " " + (cntNew > 5 ? self._t("overview.new_conn_note_investigate", "This is the main driver of your score \u2014 investigate.") : self._t("overview.new_conn_note_review", "Review to confirm they are expected.")), cntNew === 0 ? "#3ddc84" : cntNew <= 3 ? "#ffce54" : "#ff5a32")}${row("\u2193", cntMissing, cntMissing === 1 ? self._t("overview.missing_conn_single", "baseline connection not active now") : self._t("overview.missing_conn_plural", "baseline connections not active now"), self._t("overview.missing_conn_note", "Connections seen during training that are quiet right now. This is usually normal \u2014 devices don\u2019t maintain all connections at all times.") + " " + (cntMissing > totalKnown * 0.9 ? self._t("overview.missing_conn_note_high", "The count is very high, but your baseline likely captured many short-lived flows over a long training window.") : ""), "#88a7c7")}${row("=", cntBoth, cntBoth === 1 ? self._t("overview.both_conn_single", "connection matches baseline exactly") : self._t("overview.both_conn_plural", "connections match baseline exactly"), cntBoth > 0 ? self._t("overview.both_conn_note_some", "These connections are active now and were seen during training \u2014 your expected, normal traffic.") : self._t("overview.both_conn_note_none", "No currently active connections were seen in the baseline yet."), "#3ac5c9")}${topDeltaHtml}<div style="margin-top:10px"><button class="btn" data-view="map" data-map-mode="compare">${self._t("overview.view_map_btn", "View on Network Map \u2192")}</button></div></div>`;
+  }
 };
+
+// src/views/charts.js
+var chartsMethods = {
+  // ── SVG donut-pie chart helper ───────────────────────────────────────
+  _pieSvg(items, getVal, getLabel, colors) {
+    var self = this;
+    var total = items.reduce(function(s4, it) {
+      return s4 + getVal(it);
+    }, 0);
+    if (!total) return b2`<div style="text-align:center;color:var(--muted);padding:20px;font-size:11px">No data</div>`;
+    var size = 130, cx = 65, cy = 65, r4 = 52, ri = 28;
+    var TAU = Math.PI * 2;
+    var angle = -Math.PI / 2;
+    var GAP = 0.018;
+    var paths = [];
+    items.forEach(function(it, i5) {
+      var val = getVal(it);
+      if (!val) return;
+      var sweep = val / total * TAU;
+      if (sweep < 4e-3) return;
+      var a1 = angle + GAP / 2;
+      var a22 = angle + sweep - GAP / 2;
+      var x1 = (cx + r4 * Math.cos(a1)).toFixed(2), y1 = (cy + r4 * Math.sin(a1)).toFixed(2);
+      var x2 = (cx + r4 * Math.cos(a22)).toFixed(2), y22 = (cy + r4 * Math.sin(a22)).toFixed(2);
+      var xi1 = (cx + ri * Math.cos(a1)).toFixed(2), yi1 = (cy + ri * Math.sin(a1)).toFixed(2);
+      var xi2 = (cx + ri * Math.cos(a22)).toFixed(2), yi2 = (cy + ri * Math.sin(a22)).toFixed(2);
+      var large = a22 - a1 > Math.PI ? 1 : 0;
+      var d3 = "M " + x1 + " " + y1 + " A " + r4 + " " + r4 + " 0 " + large + " 1 " + x2 + " " + y22 + " L " + xi2 + " " + yi2 + " A " + ri + " " + ri + " 0 " + large + " 0 " + xi1 + " " + yi1 + " Z";
+      paths.push(w`<path d="${d3}" fill="${colors[i5 % colors.length]}" opacity="0.88"><title>${getLabel(it)}</title></path>`);
+      angle += sweep;
+    });
+    return b2`<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="flex-shrink:0">${paths}</svg>`;
+  },
+  // ── Pie chart legend helper ──────────────────────────────────────────
+  _statsLegend(items, getVal, getLabel, colors) {
+    var self = this;
+    var total = items.reduce(function(s4, it) {
+      return s4 + getVal(it);
+    }, 0);
+    return items.map(function(it, i5) {
+      var val = getVal(it);
+      var pct = total > 0 ? Math.round(val / total * 100) : 0;
+      return b2`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${colors[i5 % colors.length]};opacity:.88"></div><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${getLabel(it)}</span><span style="color:var(--muted);white-space:nowrap;margin-left:4px">${pct}%</span></div>`;
+    });
+  },
+  // ── SVG line/area chart helper ───────────────────────────────────────
+  // series: [{key, label, color}]  points: array of timeseries objects with a "ts" field
+  _lineChart(points, series) {
+    var W = 560, H2 = 120, ML = 42, MR = 14, MT = 8, MB = 28;
+    var PW = W - ML - MR, PH = H2 - MT - MB;
+    if (!points || points.length < 2) {
+      return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Not enough data yet — check back after a few minutes</div>`;
+    }
+    var parsed = [];
+    for (var i5 = 0; i5 < points.length; i5++) {
+      var t3 = new Date(points[i5].ts).getTime();
+      if (!isNaN(t3)) parsed.push({
+        t: t3,
+        d: points[i5]
+      });
+    }
+    if (parsed.length < 2) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No data for this period</div>`;
+    var tMin = parsed[0].t, tMax = parsed[parsed.length - 1].t, tRange = tMax - tMin || 1;
+    function xp(t4) {
+      return (ML + (t4 - tMin) / tRange * PW).toFixed(1);
+    }
+    var svgOut = [];
+    svgOut.push(w`<rect x="${ML}" y="${MT}" width="${PW}" height="${PH}" fill="none" stroke="rgba(255,255,255,.08)" rx="2"/>`);
+    [0.25, 0.5, 0.75].forEach(function(f3) {
+      var gy = (MT + PH * f3).toFixed(1);
+      svgOut.push(w`<line x1="${ML}" y1="${gy}" x2="${ML + PW}" y2="${gy}" stroke="rgba(255,255,255,.05)"/>`);
+    });
+    var xRangeH = tRange / 36e5;
+    for (var ti = 0; ti <= 5; ti++) {
+      var tt = tMin + tRange * ti / 5;
+      var tx = xp(tt);
+      var dd = new Date(tt);
+      var lbl = xRangeH <= 48 ? dd.getHours().toString().padStart(2, "0") + ":" + dd.getMinutes().toString().padStart(2, "0") : dd.getMonth() + 1 + "/" + dd.getDate();
+      svgOut.push(w`<line x1="${tx}" y1="${MT + PH}" x2="${tx}" y2="${MT + PH + 4}" stroke="rgba(255,255,255,.15)"/>`);
+      svgOut.push(w`<text x="${tx}" y="${MT + PH + 14}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${lbl}</text>`);
+      if (ti > 0 && ti < 5) svgOut.push(w`<line x1="${tx}" y1="${MT}" x2="${tx}" y2="${MT + PH}" stroke="rgba(255,255,255,.04)"/>`);
+    }
+    var yMaxAll = 1;
+    series.forEach(function(s4) {
+      parsed.forEach(function(p3) {
+        var v2 = Number(p3.d[s4.key] || 0);
+        if (v2 > yMaxAll) yMaxAll = v2;
+      });
+    });
+    [0, 0.5, 1].forEach(function(f3) {
+      var yv = Math.round(yMaxAll * f3);
+      var yy = (MT + PH - f3 * PH).toFixed(1);
+      svgOut.push(w`<text x="${ML - 4}" y="${yy}" dy="0.35em" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="end">${yv}</text>`);
+    });
+    series.forEach(function(s4, si) {
+      var gradId = "tlg-" + s4.key;
+      svgOut.push(w`<defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${s4.color}" stop-opacity="0.28"/><stop offset="100%" stop-color="${s4.color}" stop-opacity="0.02"/></linearGradient></defs>`);
+      function yp(v2) {
+        return (MT + PH - Math.min(v2, yMaxAll) / yMaxAll * PH).toFixed(1);
+      }
+      var lineD = parsed.map(function(p3, i6) {
+        return (i6 === 0 ? "M" : "L") + xp(p3.t) + "," + yp(Number(p3.d[s4.key] || 0));
+      }).join(" ");
+      var areaD = lineD + " L" + xp(parsed[parsed.length - 1].t) + "," + (MT + PH) + " L" + xp(parsed[0].t) + "," + (MT + PH) + " Z";
+      svgOut.push(w`<path d="${areaD}" fill="url(#${gradId})"/>`);
+      svgOut.push(w`<path d="${lineD}" fill="none" stroke="${s4.color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>`);
+    });
+    var legend = series.map(function(s4) {
+      return b2`<span style="color:${s4.color};font-size:10px;margin-right:10px"><svg width="14" height="2" style="vertical-align:middle;margin-right:3px;overflow:visible"><line x1="0" y1="1" x2="14" y2="1" stroke="${s4.color}" stroke-width="2"/></svg>${s4.label}</span>`;
+    });
+    return b2`<div style="width:100%;height:${H2}px"><svg viewBox="0 0 ${W} ${H2}" width="100%" height="100%" preserveAspectRatio="none">${svgOut}</svg></div><div style="text-align:right;margin-top:3px">${legend}</div>`;
+  },
+  // ── Hourly bar chart (max value per 1-hour bucket) ────────────────────
+  _hourlyBarChart(points, key, color) {
+    var W = 560, H2 = 120, ML = 42, MR = 14, MT = 8, MB = 28;
+    var PW = W - ML - MR, PH = H2 - MT - MB;
+    if (!points || points.length < 2) {
+      return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Not enough data yet — check back after a few minutes</div>`;
+    }
+    var tMin = Infinity, tMax = -Infinity;
+    for (var i5 = 0; i5 < points.length; i5++) {
+      var t3 = new Date(points[i5].ts).getTime();
+      if (!isNaN(t3)) {
+        if (t3 < tMin) tMin = t3;
+        if (t3 > tMax) tMax = t3;
+      }
+    }
+    if (!isFinite(tMin)) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No data for this period</div>`;
+    var tMinHour = Math.floor(tMin / 36e5) * 36e5;
+    var numBuckets = Math.max(1, Math.ceil((tMax - tMinHour) / 36e5));
+    if (numBuckets > 168) numBuckets = 168;
+    var buckets = new Array(numBuckets).fill(0);
+    for (var i5 = 0; i5 < points.length; i5++) {
+      var t3 = new Date(points[i5].ts).getTime();
+      if (isNaN(t3)) continue;
+      var bi = Math.floor((t3 - tMinHour) / 36e5);
+      if (bi < 0) bi = 0;
+      if (bi >= numBuckets) bi = numBuckets - 1;
+      var v2 = Number(points[i5][key] || 0);
+      if (v2 > buckets[bi]) buckets[bi] = v2;
+    }
+    var yMax = 1;
+    for (var i5 = 0; i5 < buckets.length; i5++) {
+      if (buckets[i5] > yMax) yMax = buckets[i5];
+    }
+    var barW = Math.max(1, PW / numBuckets - 1);
+    var svgOut = [];
+    svgOut.push(w`<rect x="${ML}" y="${MT}" width="${PW}" height="${PH}" fill="none" stroke="rgba(255,255,255,.08)" rx="2"/>`);
+    [0.25, 0.5, 0.75].forEach(function(f3) {
+      var gy = (MT + PH * f3).toFixed(1);
+      svgOut.push(w`<line x1="${ML}" y1="${gy}" x2="${ML + PW}" y2="${gy}" stroke="rgba(255,255,255,.05)"/>`);
+    });
+    for (var i5 = 0; i5 < numBuckets; i5++) {
+      var bh = buckets[i5] / yMax * PH;
+      var bx = (ML + i5 * (PW / numBuckets)).toFixed(1);
+      var by = (MT + PH - bh).toFixed(1);
+      svgOut.push(w`<rect x="${bx}" y="${by}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" fill="${color}" opacity="0.75" rx="1"/>`);
+    }
+    var tickCount = Math.min(6, numBuckets);
+    for (var ti = 0; ti <= tickCount; ti++) {
+      var frac = ti / tickCount;
+      var tx = (ML + frac * PW).toFixed(1);
+      var tt = tMinHour + frac * (numBuckets * 36e5);
+      var dd = new Date(tt);
+      var lbl = numBuckets <= 48 ? dd.getHours().toString().padStart(2, "0") + ":00" : dd.getMonth() + 1 + "/" + dd.getDate();
+      svgOut.push(w`<line x1="${tx}" y1="${MT + PH}" x2="${tx}" y2="${MT + PH + 4}" stroke="rgba(255,255,255,.15)"/>`);
+      svgOut.push(w`<text x="${tx}" y="${MT + PH + 14}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${lbl}</text>`);
+    }
+    [0, 0.5, 1].forEach(function(f3) {
+      var yv = Math.round(yMax * f3);
+      var yy = (MT + PH - f3 * PH).toFixed(1);
+      svgOut.push(w`<text x="${ML - 4}" y="${yy}" dy="0.35em" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="end">${yv}</text>`);
+    });
+    return b2`<div style="width:100%;height:${H2}px"><svg viewBox="0 0 ${W} ${H2}" width="100%" height="100%" preserveAspectRatio="none">${svgOut}</svg></div>`;
+  }
+};
+
+// src/views/statistics.js
+var statisticsMethods = {
+  // ── Statistics view ──────────────────────────────────────────────────
+  _viewStatistics() {
+    var self = this;
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
+    var dnsProxyEnabledRaw = this._data && this._data.dns_proxy_enabled;
+    var dnsProxyEnabled = dnsProxyEnabledRaw === true || dnsProxyEnabledRaw === "true" || dnsProxyEnabledRaw === 1 || dnsProxyEnabledRaw === "1";
+    var suricataEnabledStats = this._data && this._data.suricata_stats && this._data.suricata_stats.running || false;
+    var modes = this._statsViewModes;
+    var topN = this._data && this._data.stats_top_n || 10;
+    var COLORS = ["#8f86ff", "#3ac5c9", "#6bffc8", "#ffc107", "#ff8c42", "#ff4d6d", "#7fb3f5", "#d4a843", "#a8e063", "#f472b6", "#60a5fa", "#34d399", "#fb923c", "#a78bfa", "#22d3ee"];
+    var suricataLogStats = this._data && this._data.suricata_log || [];
+    var SUC_SEV_COLORS = ["rgba(255,77,109,1)", "rgba(255,179,71,1)", "rgba(107,255,200,1)"];
+    var SUC_CAT_PALETTE = ["rgba(255,77,109,1)", "rgba(255,179,71,1)", "rgba(107,255,200,1)", "rgba(98,232,255,1)", "rgba(191,111,255,1)", "rgba(59,178,255,1)", "rgba(72,199,142,1)", "rgba(255,159,67,1)"];
+    var SUC_SRC_PALETTE = ["rgba(98,232,255,1)", "rgba(59,178,255,1)", "rgba(72,199,142,1)", "rgba(191,111,255,1)", "rgba(255,179,71,1)", "rgba(255,77,109,1)", "rgba(107,255,200,1)", "rgba(155,135,245,1)"];
+    var sucSevLabels = {
+      1: this._t("suricata.sev_critical", "Critical"),
+      2: this._t("suricata.sev_major", "Major"),
+      3: this._t("suricata.sev_minor", "Minor")
+    };
+    var sucSevData = [1, 2, 3].filter(function(s4) {
+      return suricataLogStats.some(function(e4) {
+        return e4.severity === s4;
+      });
+    }).map(function(s4) {
+      return {
+        label: sucSevLabels[s4],
+        value: suricataLogStats.filter(function(e4) {
+          return e4.severity === s4;
+        }).length
+      };
+    });
+    var sucCatCounts = {};
+    var sucCatColors = [];
+    var nameMap = {};
+    (this._data && this._data.devices || []).forEach(function(d3) {
+      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
+    });
+    suricataLogStats.forEach(function(e4) {
+      var c4 = e4.category || "Other";
+      sucCatCounts[c4] = (sucCatCounts[c4] || 0) + 1;
+    });
+    var sucCatData = Object.keys(sucCatCounts).sort(function(a3, b3) {
+      return sucCatCounts[b3] - sucCatCounts[a3];
+    }).map(function(k2, i5) {
+      sucCatColors.push(SUC_CAT_PALETTE[i5 % SUC_CAT_PALETTE.length]);
+      return {
+        label: k2,
+        value: sucCatCounts[k2]
+      };
+    });
+    var sucSrcCounts = {};
+    suricataLogStats.forEach(function(e4) {
+      var ip = e4.src_ip || "unknown";
+      sucSrcCounts[ip] = (sucSrcCounts[ip] || 0) + 1;
+    });
+    var sucSrcData = Object.keys(sucSrcCounts).sort(function(a3, b3) {
+      return sucSrcCounts[b3] - sucSrcCounts[a3];
+    }).slice(0, topN).map(function(k2) {
+      var name = nameMap[k2] || k2;
+      var label = name === k2 ? k2 : name + " (" + k2 + ")";
+      return {
+        label,
+        value: sucSrcCounts[k2]
+      };
+    });
+    var allPoints = this._data && this._data.timeseries || [];
+    var _extIpsList = this._data && this._data.external_ips || [];
+    var _now = Date.now();
+    var extIps1h = _extIpsList.filter(function(e4) {
+      return e4.last_seen && _now - new Date(e4.last_seen).getTime() <= 36e5;
+    }).length;
+    var extIps24h = _extIpsList.filter(function(e4) {
+      return e4.last_seen && _now - new Date(e4.last_seen).getTime() <= 864e5;
+    }).length;
+    var extIps7d = _extIpsList.filter(function(e4) {
+      return e4.last_seen && _now - new Date(e4.last_seen).getTime() <= 6048e5;
+    }).length;
+    var extIpsTotal = _extIpsList.length;
+    var extIpsBadges = b2`<span style="font-size:10px;color:var(--muted)">1h <strong style="color:var(--fg)">${extIps1h}</strong> · 24h <strong style="color:var(--fg)">${extIps24h}</strong> · 7d <strong style="color:var(--fg)">${extIps7d}</strong> · all <strong style="color:var(--fg)">${extIpsTotal}</strong></span>`;
+    var timelineHtml = b2`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span class="card-title" style="margin-bottom:0">${this._t("stats.activity_timeline", "ACTIVITY TIMELINE")}</span></div><div style="margin-bottom:16px"><div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;color:var(--muted)">${this._t("stats.public_ips_per_hour", "Public IPs seen per hour (last 24h)")}</span>${extIpsBadges}</div>${(function() {
+      var EXT_H = 24, BAR_W = 18, BAR_GAP = 3, CHART_H = 60, LABEL_H = 16;
+      var nowMs = Date.now();
+      var extBuckets = new Array(EXT_H).fill(0);
+      for (var ei = 0; ei < _extIpsList.length; ei++) {
+        var fs = _extIpsList[ei].first_seen;
+        if (!fs) continue;
+        var ago = Math.floor((nowMs - new Date(fs).getTime()) / 36e5);
+        if (ago >= 0 && ago < EXT_H) extBuckets[EXT_H - 1 - ago]++;
+      }
+      var maxExt = Math.max.apply(null, extBuckets) || 1;
+      var svgW = EXT_H * (BAR_W + BAR_GAP);
+      var bars = extBuckets.map(function(cnt, i5) {
+        var x2 = i5 * (BAR_W + BAR_GAP);
+        var bh = Math.max(2, Math.round(cnt / maxExt * CHART_H));
+        var lhour2 = new Date(nowMs - (EXT_H - 1 - i5) * 36e5).getHours();
+        var tip = lhour2 + "h \u2014 " + cnt + " IP" + (cnt !== 1 ? "s" : "");
+        return w`<rect x="${x2}" y="${CHART_H - bh}" width="${BAR_W}" height="${bh}" fill="#8f86ff" opacity="0.75" rx="2"><title>${tip}</title></rect>`;
+      });
+      var labels = [];
+      for (var li = 0; li < EXT_H; li += 4) {
+        var lx = li * (BAR_W + BAR_GAP) + BAR_W / 2;
+        var lhour = new Date(nowMs - (EXT_H - 1 - li) * 36e5).getHours();
+        labels.push(w`<text x="${lx}" y="${CHART_H + LABEL_H - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${lhour}h</text>`);
+      }
+      if (!_extIpsList.length) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">${self._t("stats.no_public_ips", "No public IPs tracked yet")}</div>`;
+      return b2`<svg viewBox="0 0 ${svgW} ${CHART_H + LABEL_H}" width="100%" height="${CHART_H + LABEL_H}" preserveAspectRatio="none" style="display:block">${bars}${labels}</svg>`;
+    })()}</div><div style="margin-top:16px"><div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;color:var(--muted)">${this._t("stats.hosts_per_hour", "Hosts per hour (last 24h)")}</span></div>${(function() {
+      var H_HOURS = 24, H_BAR_W = 18, H_BAR_GAP = 3, H_CHART = 60, H_LABEL = 16;
+      var nowMs2 = Date.now();
+      var hostBkts = [], scannedBkts = [];
+      for (var hbi = 0; hbi < H_HOURS; hbi++) {
+        var hbEnd = nowMs2 - hbi * 36e5, hbStart = hbEnd - 36e5;
+        var mxH = 0, mxS = 0;
+        for (var hpi = 0; hpi < allPoints.length; hpi++) {
+          var hpt = new Date(allPoints[hpi].ts).getTime();
+          if (hpt >= hbStart && hpt < hbEnd) {
+            var hv = Number(allPoints[hpi].hosts || 0), sv = Number(allPoints[hpi].scanned || 0);
+            if (hv > mxH) mxH = hv;
+            if (sv > mxS) mxS = sv;
+          }
+        }
+        hostBkts.unshift(mxH);
+        scannedBkts.unshift(mxS);
+      }
+      if (!allPoints.length) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">${self._t("stats.no_host_data", "No host data yet")}</div>`;
+      var mxAll = Math.max.apply(null, hostBkts) || 1;
+      var hSvgW = H_HOURS * (H_BAR_W + H_BAR_GAP);
+      var hBars = hostBkts.map(function(h3, i5) {
+        var s4 = scannedBkts[i5];
+        var x2 = i5 * (H_BAR_W + H_BAR_GAP);
+        var bh = Math.max(2, Math.round(h3 / mxAll * H_CHART));
+        var sh = s4 > 0 ? Math.max(2, Math.round(s4 / mxAll * H_CHART)) : 0;
+        var lhour = new Date(nowMs2 - (H_HOURS - 1 - i5) * 36e5).getHours();
+        var tip = lhour + "h \u2014 " + h3 + " host" + (h3 !== 1 ? "s" : "") + (s4 > 0 ? " (" + s4 + " scanned)" : "");
+        return w`<rect x="${x2}" y="${H_CHART - bh}" width="${H_BAR_W}" height="${bh}" fill="rgba(58,197,201,.45)" rx="2"><title>${tip}</title></rect>${sh > 0 ? w`<rect x="${x2}" y="${H_CHART - sh}" width="${H_BAR_W}" height="${sh}" fill="rgba(107,255,200,.75)" rx="2"><title>${tip}</title></rect>` : ""}`;
+      });
+      var hLabels = [];
+      for (var hl = 0; hl < H_HOURS; hl += 4) {
+        var hlx = hl * (H_BAR_W + H_BAR_GAP) + H_BAR_W / 2;
+        var hlHour = new Date(nowMs2 - (H_HOURS - 1 - hl) * 36e5).getHours();
+        hLabels.push(w`<text x="${hlx}" y="${H_CHART + H_LABEL - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${hlHour}h</text>`);
+      }
+      return b2`<svg viewBox="0 0 ${hSvgW} ${H_CHART + H_LABEL}" width="100%" height="${H_CHART + H_LABEL}" preserveAspectRatio="none" style="display:block">${hBars}${hLabels}</svg><div style="display:flex;gap:12px;margin-top:4px;font-size:10px"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(58,197,201,.45);display:inline-block;border-radius:2px"></span>${self._t("stats.hosts_seen", "Hosts seen")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(107,255,200,.75);display:inline-block;border-radius:2px"></span>${self._t("stats.scanned_alive", "Scanned alive")}</span></div>`;
+    })()}</div>`;
+    function toggleBtns(id, current) {
+      return b2`<span style="display:flex;gap:4px;flex-shrink:0"><button class="btn${current === "pie" ? " active" : ""}" style="padding:3px 8px;font-size:10px" data-statstoggle="${id}:pie"><svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M7 1.07A7 7 0 1 0 15 9H7V1.07z"/><path d="M8.5.5v7h7A7.5 7.5 0 0 0 8.5.5z"/></svg>${self._t("stats.pie", "Pie")}</button><button class="btn${current === "list" ? " active" : ""}" style="padding:3px 8px;font-size:10px" data-statstoggle="${id}:list"><svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>${self._t("stats.list", "List")}</button></span>`;
+    }
+    function chartSection(svgHtml, legendHtml) {
+      return b2`<div class="stats-chart-row">${svgHtml}<div class="stats-chart-legend">${legendHtml}</div></div>`;
+    }
+    var topIPs = this._data && this._data.top_public_ips || [];
+    var ipsSection;
+    if (!topIPs.length) {
+      ipsSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_external_flow_data", "No external flow data yet")}</p></div>`;
+    } else if (modes.public_ips === "pie") {
+      ipsSection = chartSection(self._pieSvg(topIPs, function(e4) {
+        return e4.flows;
+      }, function(e4) {
+        return (e4.hostname || e4.org || e4.ip) + (e4.country ? " [" + e4.country + "]" : "");
+      }, COLORS), b2`${self._statsLegend(topIPs, function(e4) {
+        return e4.flows;
+      }, function(e4) {
+        return (e4.hostname || e4.org || e4.ip) + (e4.country ? " [" + e4.country + "]" : "") + (e4.blacklisted ? " \u26A0" : "");
+      }, COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.ranked_by_flow_count", "Ranked by flow count")}</div><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`);
+    } else {
+      ipsSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Hostname / Org</th><th>Country</th><th style="text-align:right">Flows</th><th>Rating</th></tr></thead><tbody>${topIPs.map(function(e4, i5) {
+        var label = e4.hostname || e4.org || e4.ip;
+        var country = e4.country_name || e4.country || "";
+        var countryFlag = self._countryFlag(e4.country);
+        var bc = e4.blacklisted ? "badge-critical" : e4.rating === "suspicious" ? "badge-warn" : "badge-ok";
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${e4.ip}</span></td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</td><td>${countryFlag ? b2`<span title="${country}" style="font-size:15px;line-height:1">${countryFlag}</span>` : b2`<span class="dim">${country || "\u2014"}</span>`}</td><td style="text-align:right">${e4.flows.toLocaleString()}</td><td><span class="badge ${bc}">${e4.blacklisted ? "malicious" : e4.rating || "ok"}</span></td></tr>`;
+      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`;
+    }
+    var topC = this._data && this._data.top_countries || [];
+    var countriesSection;
+    if (!topC.length) {
+      countriesSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_country_data", "No country data yet")}</p></div>`;
+    } else if (modes.countries === "pie") {
+      countriesSection = chartSection(self._pieSvg(topC, function(c4) {
+        return c4.flow_count;
+      }, function(c4) {
+        return (c4.country_name || c4.country) + " (" + c4.ip_count + " IPs)";
+      }, COLORS), b2`${self._statsLegend(topC, function(c4) {
+        return c4.flow_count;
+      }, function(c4) {
+        return (c4.country_name || c4.country || "\u2014") + " (" + c4.ip_count + " IPs)";
+      }, COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.ranked_by_flow_count", "Ranked by flow count")}</div>`);
+    } else {
+      var maxFlows = topC[0] ? topC[0].flow_count : 1;
+      countriesSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>CC</th><th>Country</th><th style="text-align:right">Unique IPs</th><th style="text-align:right">Flows</th><th>Share</th></tr></thead><tbody>${topC.map(function(c4, i5) {
+        var pct = maxFlows > 0 ? Math.round(c4.flow_count / maxFlows * 100) : 0;
+        var ccFlag = self._countryFlag(c4.country);
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><b>${ccFlag ? b2`<span title="${c4.country || "\u2014"}" style="font-size:15px;line-height:1">${ccFlag}</span>` : c4.country || "\u2014"}</b></td><td>${c4.country_name || c4.country || "\u2014"}</td><td style="text-align:right">${c4.ip_count.toLocaleString()}</td><td style="text-align:right">${c4.flow_count.toLocaleString()}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:var(--accent,#8f86ff);border-radius:3px;height:8px"></div></div></td></tr>`;
+      })}</tbody></table>`;
+    }
+    var topT = this._data && this._data.top_internal_talkers || [];
+    var talkersSection;
+    if (!topT.length) {
+      talkersSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_traffic_data", "No traffic data yet")}</p></div>`;
+    } else if (modes.talkers === "pie") {
+      talkersSection = chartSection(self._pieSvg(topT, function(d3) {
+        return d3.total_octets;
+      }, function(d3) {
+        return d3.display_name || d3.ip;
+      }, COLORS), b2`${self._statsLegend(topT, function(d3) {
+        return d3.total_octets;
+      }, function(d3) {
+        return (d3.display_name || d3.ip) + " \xB7 " + self._bytes(d3.total_octets);
+      }, COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.ranked_by_total_traffic", "Ranked by total traffic")}</div><button class="btn" style="margin-top:8px" data-view="hosts">${this._t("stats.view_all_hosts", "View all hosts \u2192")}</button>`);
+    } else {
+      var maxOct = topT[0] ? topT[0].total_octets : 1;
+      talkersSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Name</th><th>Role</th><th style="text-align:right">Traffic</th><th>Share</th></tr></thead><tbody>${topT.map(function(d3, i5) {
+        var pct = maxOct > 0 ? Math.round(d3.total_octets / maxOct * 100) : 0;
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${d3.ip}</span></td><td>${d3.display_name}</td><td>${d3.probable_role || "\u2014"}</td><td style="text-align:right">${self._bytes(d3.total_octets)}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:#3ac5c9;border-radius:3px;height:8px"></div></div></td></tr>`;
+      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="hosts">${this._t("stats.view_all_hosts", "View all hosts \u2192")}</button>`;
+    }
+    var eStats = this._data && this._data.enrichment_stats || [];
+    var enrichSection;
+    if (!eStats.length) {
+      enrichSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_enrichment_data", "No enrichment data")}</p></div>`;
+    } else {
+      enrichSection = b2`<div style="overflow-x:auto"><table class="data-table" style="width:100%;min-width:480px"><thead><tr><th>${this._t("stats.provider", "Provider")}</th><th style="width:80px;text-align:right">${this._t("stats.used_today", "Used today")}</th><th style="width:90px;text-align:right">${this._t("stats.daily_budget", "Daily budget")}</th><th style="width:110px">${this._t("stats.usage", "Usage")}</th><th style="width:80px">${this._t("stats.status", "Status")}</th><th>${this._t("stats.errors_notes", "Errors / Notes")}</th></tr></thead><tbody>${eStats.map(function(s4) {
+        var PROV_LABELS = {
+          ipwho: "ipwho.is",
+          virustotal: "VirusTotal",
+          abuseipdb: "AbuseIPDB"
+        };
+        var provLabel = (PROV_LABELS[s4.provider] || s4.provider) + (s4.variant ? " (" + s4.variant + ")" : "");
+        var unlimited = s4.budget === null || s4.budget === void 0;
+        var pct = !unlimited && s4.budget > 0 ? Math.min(100, Math.round(s4.used / s4.budget * 100)) : 0;
+        var barColor = s4.exhausted ? "#ff4d6d" : unlimited || pct <= 80 ? "#6bffc8" : "#ffc107";
+        var badge = !s4.configured ? b2`<span class="badge badge-dim">${self._t("stats.not_configured", "not configured")}</span>` : s4.exhausted ? b2`<span class="badge badge-critical">${self._t("stats.exhausted", "exhausted")}</span>` : unlimited ? b2`<span class="badge badge-ok">${self._t("stats.unlimited", "\u221E unlimited")}</span>` : pct > 80 ? b2`<span class="badge badge-warn">${self._t("stats.high", "high")}</span>` : b2`<span class="badge badge-ok">${self._t("stats.ok", "ok")}</span>`;
+        var errCell = "";
+        if (s4.last_error) {
+          var errStr = String(s4.last_error);
+          var errColor = errStr.indexOf("401") !== -1 || errStr.indexOf("403") !== -1 ? "#ffc107" : "#ff4d6d";
+          errCell = b2`<span style="color:${errColor};font-size:11px;font-weight:600">⚠️ ${errStr}</span>`;
+        }
+        return b2`<tr><td><b>${provLabel}</b></td><td style="text-align:right">${s4.used.toLocaleString()}</td><td style="text-align:right">${unlimited ? "\u221E" : s4.budget.toLocaleString()}</td><td style="width:120px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${unlimited ? 100 : pct}%;background:${barColor};border-radius:3px;height:8px"></div></div></td><td>${badge}</td><td>${errCell}</td></tr>`;
+      })}</tbody></table></div>`;
+    }
+    var THREAT_COLORS = ["#ff4d6d", "#ff8c42", "#ffc107", "#f472b6", "#fb923c", "#ff6b6b", "#e879f9", "#facc15", "#fd8dac", "#ffb347"];
+    var topThr = this._data && this._data.top_threat_ips || [];
+    var threatSection;
+    if (!topThr.length) {
+      threatSection = b2`<div class="empty-state"><div class="empty-icon" style="font-size:24px">✅</div><p style="margin:8px 0">${this._t("stats.no_threat_ips", "No suspicious or malicious IPs detected")}</p></div>`;
+    } else if (modes.threat_ips === "pie") {
+      threatSection = chartSection(self._pieSvg(topThr, function(e4) {
+        return Math.max(e4.flows, 1);
+      }, function(e4) {
+        return e4.ip + (e4.hostname ? " (" + e4.hostname + ")" : "") + " \u2014 " + e4.rating;
+      }, THREAT_COLORS), b2`${self._statsLegend(topThr, function(e4) {
+        return Math.max(e4.flows, 1);
+      }, function(e4) {
+        var label = e4.hostname || e4.org || e4.ip;
+        return label + " \xB7 " + e4.rating + (e4.flows ? " \xB7 " + e4.flows.toLocaleString() + " flows" : "");
+      }, THREAT_COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.malicious_first", "Malicious first, then by flow count")}</div><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`);
+    } else {
+      threatSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Hostname / Org</th><th>Country</th><th style="text-align:right">Flows</th><th>Rating</th><th>Details</th></tr></thead><tbody>${topThr.map(function(e4, i5) {
+        var label = e4.hostname || e4.org || e4.ip;
+        var country = e4.country_name || e4.country || "";
+        var countryFlag = self._countryFlag(e4.country);
+        var bc = e4.rating === "malicious" ? "badge-critical" : "badge-warn";
+        var details = [];
+        if (e4.vt_malicious != null && e4.vt_malicious > 0) details.push("VT\xA0" + e4.vt_malicious);
+        if (e4.abuse_confidence != null && e4.abuse_confidence > 0) details.push("Abuse\xA0" + e4.abuse_confidence + "%");
+        if (e4.blacklist_info && typeof e4.blacklist_info === "object" && e4.blacklist_info.source) details.push(e4.blacklist_info.source);
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${e4.ip}</span></td><td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</td><td>${countryFlag ? b2`<span title="${country}" style="font-size:15px;line-height:1">${countryFlag}</span>` : b2`<span class="dim">${country || "\u2014"}</span>`}</td><td style="text-align:right">${(e4.flows || 0).toLocaleString()}</td><td><span class="badge ${bc}">${e4.rating}</span></td><td style="font-size:10px;color:var(--muted)">${details.join(", ")}</td></tr>`;
+      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`;
+    }
+    var dnsLog = this._data && this._data.dns_log || [];
+    var dnsStats = this._data && this._data.dns_proxy_stats || {};
+    var dnsChartHtml = (function() {
+      var D_HOURS = 24, D_BAR_W = 18, D_BAR_GAP = 3, D_CHART = 60, D_LABEL = 16;
+      var nowMs = Date.now();
+      var dnsBuckets = new Array(D_HOURS).fill(null).map(function() {
+        return {
+          total: 0,
+          blocked: 0,
+          mal: 0
+        };
+      });
+      var hasTsData = false;
+      for (var ti = 0; ti < allPoints.length; ti++) {
+        var tpt = allPoints[ti];
+        if (tpt.dns_total == null) continue;
+        var tts = new Date(tpt.ts).getTime();
+        var tago = Math.floor((nowMs - tts) / 36e5);
+        if (tago < 0 || tago >= D_HOURS) continue;
+        var tbi = D_HOURS - 1 - tago;
+        dnsBuckets[tbi].total += tpt.dns_total || 0;
+        dnsBuckets[tbi].blocked += tpt.dns_blocked || 0;
+        dnsBuckets[tbi].mal += tpt.dns_malicious || 0;
+        hasTsData = true;
+      }
+      if (!hasTsData) {
+        for (var di = 0; di < dnsLog.length; di++) {
+          var row = dnsLog[di] || {};
+          var rawTs = row.timestamp;
+          var et = rawTs == null ? NaN : typeof rawTs === "number" ? rawTs < 1e12 ? rawTs * 1e3 : rawTs : (function() {
+            var txt = String(rawTs).trim();
+            var n4 = Number(txt);
+            if (!isNaN(n4)) return n4 < 1e12 ? n4 * 1e3 : n4;
+            var m2 = new Date(txt).getTime();
+            return isNaN(m2) ? new Date(txt.replace(" ", "T")).getTime() : m2;
+          })();
+          if (isNaN(et)) continue;
+          var ago = Math.floor((nowMs - et) / 36e5);
+          if (ago < 0 || ago >= D_HOURS) continue;
+          var bi = D_HOURS - 1 - ago;
+          dnsBuckets[bi].total++;
+          if (row.malicious) dnsBuckets[bi].mal++;
+          if (row.status === "blocked") dnsBuckets[bi].blocked++;
+        }
+      }
+      var hasAny = dnsBuckets.some(function(b3) {
+        return b3.total > 0;
+      });
+      if (!hasAny) return b2`<div class="empty-state"><p style="margin:12px 0">${self._t("stats.no_dns_queries", "No DNS queries recorded")}</p></div>`;
+      var maxDns = 1;
+      for (var mi = 0; mi < dnsBuckets.length; mi++) {
+        if (dnsBuckets[mi].total > maxDns) maxDns = dnsBuckets[mi].total;
+      }
+      var dSvgW = D_HOURS * (D_BAR_W + D_BAR_GAP);
+      var dBars = dnsBuckets.map(function(b3, i5) {
+        var x2 = i5 * (D_BAR_W + D_BAR_GAP);
+        var th = Math.max(2, Math.round(b3.total / maxDns * D_CHART));
+        var bkh = b3.blocked > 0 ? Math.max(2, Math.round(b3.blocked / maxDns * D_CHART)) : 0;
+        var mh = b3.mal > 0 ? Math.max(2, Math.round(b3.mal / maxDns * D_CHART)) : 0;
+        var lhour = new Date(nowMs - (D_HOURS - 1 - i5) * 36e5).getHours();
+        var tip = lhour + "h \u2014 " + b3.total + " total" + (b3.blocked > 0 ? ", " + b3.blocked + " blocked" : "") + (b3.mal > 0 ? ", " + b3.mal + " malicious" : "");
+        return w`<rect x="${x2}" y="${D_CHART - th}" width="${D_BAR_W}" height="${th}" fill="rgba(98,232,255,.35)"  rx="2"><title>${tip}</title></rect>${bkh > 0 ? w`<rect x="${x2}" y="${D_CHART - bkh}" width="${D_BAR_W}" height="${bkh}" fill="rgba(191,111,255,.7)"  rx="2"><title>${tip}</title></rect>` : ""}${mh > 0 ? w`<rect x="${x2}" y="${D_CHART - mh}" width="${D_BAR_W}" height="${mh}" fill="rgba(255,77,109,.7)"   rx="2"><title>${tip}</title></rect>` : ""}`;
+      });
+      var dLabels = [];
+      for (var dl = 0; dl < D_HOURS; dl += 4) {
+        var dlx = dl * (D_BAR_W + D_BAR_GAP) + D_BAR_W / 2;
+        var dlHour = new Date(nowMs - (D_HOURS - 1 - dl) * 36e5).getHours();
+        dLabels.push(w`<text x="${dlx}" y="${D_CHART + D_LABEL - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${dlHour}h</text>`);
+      }
+      return b2`<svg viewBox="0 0 ${dSvgW} ${D_CHART + D_LABEL}" width="100%" height="${D_CHART + D_LABEL}" preserveAspectRatio="none" style="display:block">${dBars}${dLabels}</svg><div style="display:flex;gap:12px;margin-top:4px;font-size:10px"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.35);display:inline-block;border-radius:2px"></span>${self._t("stats.total", "Total")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>${self._t("stats.blocked", "Blocked")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>${self._t("stats.malicious", "Malicious")}</span></div>`;
+    })();
+    var topMalDomains = [];
+    (function() {
+      var counts = {};
+      for (var i5 = 0; i5 < dnsLog.length; i5++) {
+        var e4 = dnsLog[i5];
+        if ((e4.malicious || e4.status === "blocked") && e4.domain) {
+          counts[e4.domain] = (counts[e4.domain] || 0) + 1;
+        }
+      }
+      topMalDomains = Object.keys(counts).map(function(d3) {
+        var cat = "other";
+        for (var i6 = 0; i6 < dnsLog.length; i6++) {
+          if (dnsLog[i6].domain === d3) {
+            cat = dnsLog[i6].category || "other";
+            break;
+          }
+        }
+        return {
+          domain: d3,
+          count: counts[d3],
+          category: cat
+        };
+      });
+      topMalDomains.sort(function(a3, b3) {
+        return b3.count - a3.count;
+      });
+      topMalDomains = topMalDomains.slice(0, topN);
+    })();
+    var dnsTopMalHtml;
+    if (!topMalDomains.length) {
+      dnsTopMalHtml = b2`<div class="empty-state"><div class="empty-icon" style="font-size:22px">✅</div><p style="margin:8px 0">${this._t("stats.no_dns_detected", "No malicious or blocked DNS queries detected")}</p></div>`;
+    } else {
+      var DNS_CAT_COLORS_STAT = {
+        malware: "rgba(255,77,109,1)",
+        adult: "rgba(191,111,255,1)",
+        gambling: "rgba(255,179,71,1)",
+        ads: "rgba(255,209,102,1)",
+        tracking: "rgba(107,140,186,1)",
+        social: "rgba(91,170,236,1)",
+        gaming: "rgba(107,255,200,1)",
+        streaming: "rgba(58,197,201,1)",
+        news: "rgba(245,158,11,1)",
+        cdn: "rgba(72,199,142,1)",
+        cloud: "rgba(59,178,255,1)",
+        iot: "rgba(255,159,67,1)",
+        tech: "rgba(155,135,245,1)",
+        intel: "rgba(248,84,84,1)",
+        override: "rgba(98,232,255,1)",
+        other: "rgba(90,106,128,1)"
+      };
+      dnsTopMalHtml = b2`<table class="data-table" style="width:100%;margin-top:8px;table-layout:fixed"><thead><tr><th style="width:26px">#</th><th>Domain</th><th style="width:88px">Category</th><th style="width:64px;text-align:right">Queries</th></tr></thead><tbody>${topMalDomains.map(function(d3, i5) {
+        var cc = DNS_CAT_COLORS_STAT[d3.category] || DNS_CAT_COLORS_STAT["other"];
+        var catPill = b2`<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:${cc.replace(",1)", ",.15)")};color:${cc};border:1px solid ${cc.replace(",1)", ",.35)")}">${d3.category || "other"}</span>`;
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td class="mono" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d3.domain}</td><td>${catPill}</td><td style="text-align:right"><span class="badge badge-malicious">${d3.count}</span></td></tr>`;
+      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="dns">${this._t("stats.view_dns_log", "View DNS log \u2192")}</button>`;
+    }
+    var _STAT_CAT_COLORS = {
+      malware: "rgba(255,77,109,1)",
+      adult: "rgba(191,111,255,1)",
+      gambling: "rgba(255,179,71,1)",
+      ads: "rgba(255,209,102,1)",
+      tracking: "rgba(107,140,186,1)",
+      social: "rgba(91,170,236,1)",
+      gaming: "rgba(107,255,200,1)",
+      streaming: "rgba(58,197,201,1)",
+      news: "rgba(245,158,11,1)",
+      cdn: "rgba(72,199,142,1)",
+      cloud: "rgba(59,178,255,1)",
+      iot: "rgba(255,159,67,1)",
+      tech: "rgba(155,135,245,1)",
+      intel: "rgba(248,84,84,1)",
+      override: "rgba(98,232,255,1)",
+      other: "rgba(90,106,128,1)"
+    };
+    var _STAT_CAT_LABELS = {
+      malware: "Malware",
+      adult: "Adult",
+      gambling: "Gambling",
+      ads: "Ads",
+      tracking: "Tracking",
+      social: "Social",
+      gaming: "Gaming",
+      streaming: "Streaming",
+      news: "News",
+      cdn: "CDN",
+      cloud: "Cloud",
+      iot: "IoT",
+      tech: "Tech",
+      intel: "Threat Intel",
+      override: "Override",
+      other: "Other"
+    };
+    var _dnsCatCounts = {};
+    for (var _dci = 0; _dci < dnsLog.length; _dci++) {
+      var _dce = dnsLog[_dci];
+      if (_dce.malicious || _dce.status === "blocked") {
+        var _dcc = (_dce.category || "other").toLowerCase();
+        _dnsCatCounts[_dcc] = (_dnsCatCounts[_dcc] || 0) + 1;
+      }
+    }
+    var _dnsCatItems = Object.keys(_dnsCatCounts).map(function(c4) {
+      return {
+        cat: c4,
+        count: _dnsCatCounts[c4]
+      };
+    }).sort(function(a3, b3) {
+      return b3.count - a3.count;
+    });
+    var _dnsCatTotal = _dnsCatItems.reduce(function(s4, x2) {
+      return s4 + x2.count;
+    }, 0);
+    var dnsCatSection;
+    if (!_dnsCatTotal) {
+      dnsCatSection = b2`<div class="empty-state"><div class="empty-icon" style="font-size:22px">✅</div><p style="margin:8px 0">${this._t("stats.no_blocked_yet", "No blocked or malicious DNS queries yet")}</p></div>`;
+    } else if (modes.dns_categories === "pie") {
+      var _dnsCatPieColors = _dnsCatItems.map(function(x2) {
+        return _STAT_CAT_COLORS[x2.cat] || _STAT_CAT_COLORS["other"];
+      });
+      var _dnsCatPieSvg = self._pieSvg(_dnsCatItems, function(x2) {
+        return x2.count;
+      }, function(x2) {
+        return (_STAT_CAT_LABELS[x2.cat] || x2.cat) + ": " + x2.count;
+      }, _dnsCatPieColors);
+      var _dnsCatLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_dnsCatItems.map(function(x2) {
+        var col = _STAT_CAT_COLORS[x2.cat] || _STAT_CAT_COLORS["other"];
+        var pct = Math.round(x2.count / _dnsCatTotal * 100);
+        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span style="flex:1;color:var(--fg)">${_STAT_CAT_LABELS[x2.cat] || x2.cat}</span><span style="color:var(--muted);font-variant-numeric:tabular-nums">${x2.count} (${pct}%)</span></div>`;
+      })}</div>`;
+      dnsCatSection = b2`<div class="stats-chart-row">${_dnsCatPieSvg}<div class="stats-chart-legend">${_dnsCatLegend}</div></div>`;
+    } else {
+      var _dnsCatMax = _dnsCatItems[0] ? _dnsCatItems[0].count : 1;
+      dnsCatSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>Category</th><th style="text-align:right">Queries</th><th>Share</th></tr></thead><tbody>${_dnsCatItems.map(function(x2, i5) {
+        var col = _STAT_CAT_COLORS[x2.cat] || _STAT_CAT_COLORS["other"];
+        var pct = _dnsCatMax > 0 ? Math.round(x2.count / _dnsCatMax * 100) : 0;
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span style="font-size:10px;padding:1px 6px;border-radius:8px;background:${col.replace(",1)", ",.15)")};color:${col};border:1px solid ${col.replace(",1)", ",.35)")}">${_STAT_CAT_LABELS[x2.cat] || x2.cat}</span></td><td style="text-align:right">${x2.count}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:${col};border-radius:3px;height:8px"></div></div></td></tr>`;
+      })}</tbody></table>`;
+    }
+    var _dnsClientCounts = {};
+    for (var _dsi = 0; _dsi < dnsLog.length; _dsi++) {
+      var _dse = dnsLog[_dsi];
+      if (_dse.malicious || _dse.status === "blocked") {
+        var _src = String(_dse.src_ip || "").trim();
+        if (!_src) continue;
+        _dnsClientCounts[_src] = (_dnsClientCounts[_src] || 0) + 1;
+      }
+    }
+    var _dnsClientItems = Object.keys(_dnsClientCounts).map(function(ip) {
+      return {
+        ip,
+        count: _dnsClientCounts[ip]
+      };
+    }).sort(function(a3, b3) {
+      return b3.count - a3.count;
+    }).slice(0, topN);
+    var _dnsClientTotal = _dnsClientItems.reduce(function(s4, x2) {
+      return s4 + x2.count;
+    }, 0);
+    var dnsClientSection;
+    if (!_dnsClientTotal) {
+      dnsClientSection = b2`<div class="empty-state"><div class="empty-icon" style="font-size:22px">✅</div><p style="margin:8px 0">${this._t("stats.no_blocked_clients", "No blocked or malicious client queries yet")}</p></div>`;
+    } else if (modes.dns_clients === "pie") {
+      var _dnsClientColors = ["#ff4d6d", "#ff8c42", "#ffc107", "#f472b6", "#fb923c", "#ff6b6b", "#e879f9", "#facc15", "#fd8dac", "#ffb347", "#6bffc8", "#5baaec"];
+      var _dnsClientPieSvg = self._pieSvg(_dnsClientItems, function(x2) {
+        return x2.count;
+      }, function(x2) {
+        var name = nameMap[x2.ip] || x2.ip;
+        return name + ": " + x2.count + " blocked/malicious queries";
+      }, _dnsClientColors);
+      var _dnsClientLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_dnsClientItems.map(function(x2, i5) {
+        var col = _dnsClientColors[i5 % _dnsClientColors.length];
+        var pct = Math.round(x2.count / _dnsClientTotal * 100);
+        var name = nameMap[x2.ip] || x2.ip;
+        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span class="ip" style="flex:1;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x2.ip}">${name}</span><span style="color:var(--muted);font-variant-numeric:tabular-nums">${x2.count} (${pct}%)</span></div>`;
+      })}</div>`;
+      dnsClientSection = b2`<div class="stats-chart-row">${_dnsClientPieSvg}<div class="stats-chart-legend">${_dnsClientLegend}</div></div>`;
+    } else {
+      var _dnsClientMax = _dnsClientItems[0] ? _dnsClientItems[0].count : 1;
+      dnsClientSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>Client IP</th><th style="text-align:right">Blocked/Malicious</th><th>Share</th></tr></thead><tbody>${_dnsClientItems.map(function(x2, i5) {
+        var pct = _dnsClientMax > 0 ? Math.round(x2.count / _dnsClientMax * 100) : 0;
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${x2.ip}</span></td><td style="text-align:right">${x2.count}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:#ff4d6d;border-radius:3px;height:8px"></div></div></td></tr>`;
+      })}</tbody></table>`;
+    }
+    var blInfo = self._data && self._data.baseline || {};
+    var devianceChartHtml = (function() {
+      if ((blInfo.mode || "disabled") !== "active") {
+        return "";
+      }
+      var DV_H = 24, DV_BAR_W = 18, DV_GAP = 3, DV_CHART = 60, DV_LABEL = 16;
+      var dvNow = Date.now();
+      var dvBkts = new Array(DV_H).fill(null);
+      for (var dvi = 0; dvi < allPoints.length; dvi++) {
+        var dvpt = allPoints[dvi];
+        if (dvpt.deviance_score == null) continue;
+        var dago = Math.floor((dvNow - new Date(dvpt.ts).getTime()) / 36e5);
+        if (dago < 0 || dago >= DV_H) continue;
+        var dbi = DV_H - 1 - dago;
+        if (dvBkts[dbi] === null || dvpt.deviance_score > dvBkts[dbi]) dvBkts[dbi] = dvpt.deviance_score;
+      }
+      if (!dvBkts.some(function(v2) {
+        return v2 !== null;
+      })) {
+        return b2`<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">${self._t("stats.no_deviance", "No deviance data yet \u2014 data accumulates every 5 min")}</div>`;
+      }
+      var dvSvgW = DV_H * (DV_BAR_W + DV_GAP);
+      var dvGuides = [25, 50, 75].map(function(g2) {
+        var gy = DV_CHART - Math.round(g2 / 100 * DV_CHART);
+        return w`<line x1="0" y1="${gy}" x2="${dvSvgW}" y2="${gy}" stroke="rgba(255,255,255,.07)" stroke-width="1"/>`;
+      });
+      var dvBars = dvBkts.map(function(v2, i5) {
+        var x2 = i5 * (DV_BAR_W + DV_GAP);
+        if (v2 === null) return w`<rect x="${x2}" y="${DV_CHART - 2}" width="${DV_BAR_W}" height="2" fill="rgba(255,255,255,.06)" rx="1"><title>No data</title></rect>`;
+        var clr = v2 <= 20 ? "#6bffc8" : v2 <= 50 ? "#ffc107" : v2 <= 75 ? "#ff8c42" : "#ff4d6d";
+        var bh = Math.max(2, Math.round(v2 / 100 * DV_CHART));
+        var tip = new Date(dvNow - (DV_H - 1 - i5) * 36e5).getHours() + "h \u2014 deviance\xA0" + v2 + "%";
+        return w`<rect x="${x2}" y="${DV_CHART - bh}" width="${DV_BAR_W}" height="${bh}" fill="${clr}" opacity="0.85" rx="2"><title>${tip}</title></rect>`;
+      });
+      var dvLabels = [];
+      for (var dl = 0; dl < DV_H; dl += 4) {
+        var dlx = dl * (DV_BAR_W + DV_GAP) + DV_BAR_W / 2;
+        dvLabels.push(w`<text x="${dlx}" y="${DV_CHART + DV_LABEL - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${new Date(dvNow - (DV_H - 1 - dl) * 36e5).getHours()}h</text>`);
+      }
+      return b2`<svg viewBox="0 0 ${dvSvgW} ${DV_CHART + DV_LABEL}" width="100%" height="${DV_CHART + DV_LABEL}" preserveAspectRatio="none" style="display:block">${dvGuides}${dvBars}${dvLabels}</svg><div style="display:flex;gap:12px;margin-top:4px;font-size:10px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6bffc8;display:inline-block;border-radius:2px"></span>${self._t("stats.normal", "\u226420% Normal")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ffc107;display:inline-block;border-radius:2px"></span>${self._t("stats.review", "\u226450% Review")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff8c42;display:inline-block;border-radius:2px"></span>${self._t("stats.investigate", "\u226475% Investigate")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff4d6d;display:inline-block;border-radius:2px"></span>${self._t("stats.critical", ">75% Critical")}</span></div>`;
+    })();
+    var _allFindings = (this._data && this._data.findings || []).concat(this._data && this._data.baseline_anomalies || []);
+    var _hostFindCounts = {};
+    for (var _hfi = 0; _hfi < _allFindings.length; _hfi++) {
+      var _hfip = String(_allFindings[_hfi].source_ip || "").trim();
+      if (_hfip) _hostFindCounts[_hfip] = (_hostFindCounts[_hfip] || 0) + 1;
+    }
+    var _hostFindItems = Object.keys(_hostFindCounts).map(function(ip) {
+      return {
+        ip,
+        count: _hostFindCounts[ip]
+      };
+    }).sort(function(a3, b3) {
+      return b3.count - a3.count;
+    }).slice(0, topN);
+    var _hostFindTotal = _hostFindItems.reduce(function(s4, x2) {
+      return s4 + x2.count;
+    }, 0);
+    var _devicesMap = {};
+    (this._data && this._data.devices || []).forEach(function(d3) {
+      if (d3.ip) _devicesMap[d3.ip] = d3;
+    });
+    var _hfColors = ["#ff8c42", "#ffc107", "#ff4d6d", "#8f86ff", "#3ac5c9", "#6bffc8", "#f472b6", "#fb923c", "#a78bfa", "#22d3ee"];
+    var hostFindingsSection;
+    if (!_hostFindTotal) {
+      hostFindingsSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_findings", "No findings recorded yet")}</p></div>`;
+    } else if (modes.host_findings === "pie") {
+      var _hfPieSvg = self._pieSvg(_hostFindItems, function(x2) {
+        return x2.count;
+      }, function(x2) {
+        var name = nameMap[x2.ip] || x2.ip;
+        return name + ": " + x2.count;
+      }, _hfColors);
+      var _hfLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_hostFindItems.map(function(x2, i5) {
+        var col = _hfColors[i5 % _hfColors.length];
+        var name = nameMap[x2.ip] || x2.ip;
+        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x2.ip}">${name}</span><span style="color:var(--muted)">${x2.count} (${Math.round(x2.count / _hostFindTotal * 100)}%)</span></div>`;
+      })}</div>`;
+      hostFindingsSection = b2`<div class="stats-chart-row">${_hfPieSvg}<div class="stats-chart-legend">${_hfLegend}</div></div>`;
+    } else {
+      hostFindingsSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Name / Hostname</th><th style="text-align:right">Deviations</th></tr></thead><tbody>${_hostFindItems.map(function(x2, i5) {
+        var d3 = _devicesMap[x2.ip];
+        var name = d3 && (d3.display_name || d3.hostname) || "";
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${x2.ip}</span></td><td>${name}</td><td style="text-align:right">${x2.count}</td></tr>`;
+      })}</tbody></table>`;
+    }
+    var _blAnoms = this._data && this._data.baseline_anomalies || [];
+    var _extDevCounts = {};
+    for (var _edi = 0; _edi < _blAnoms.length; _edi++) {
+      var _editem = _blAnoms[_edi];
+      if (_editem.category === "anomaly_new_peer" && _editem.details && _editem.details.peer) {
+        var _peer = String(_editem.details.peer).trim();
+        if (_peer) _extDevCounts[_peer] = (_extDevCounts[_peer] || 0) + 1;
+      }
+    }
+    var _extDevItems = Object.keys(_extDevCounts).map(function(ip) {
+      return {
+        ip,
+        count: _extDevCounts[ip]
+      };
+    }).sort(function(a3, b3) {
+      return b3.count - a3.count;
+    }).slice(0, topN);
+    var _extDevTotal = _extDevItems.reduce(function(s4, x2) {
+      return s4 + x2.count;
+    }, 0);
+    var _extIpEnrich = {};
+    (this._data && this._data.external_ips || []).forEach(function(e4) {
+      if (e4.ip) _extIpEnrich[e4.ip] = e4;
+    });
+    var _edColors = ["#ff4d6d", "#ff8c42", "#ffc107", "#f472b6", "#fb923c", "#ff6b6b", "#e879f9", "#facc15", "#fd8dac", "#ffb347"];
+    var extIpDeviationSection;
+    if (!_extDevTotal) {
+      extIpDeviationSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_ext_peers", "No new external peers in baseline deviations")}</p></div>`;
+    } else if (modes.ext_deviations === "pie") {
+      var _edPieSvg = self._pieSvg(_extDevItems, function(x2) {
+        return x2.count;
+      }, function(x2) {
+        var enr = _extIpEnrich[x2.ip];
+        return x2.ip + (enr && enr.org ? " \u2014 " + enr.org : "") + (enr && enr.country ? " [" + enr.country + "]" : "") + ": " + x2.count;
+      }, _edColors);
+      var _edLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_extDevItems.map(function(x2, i5) {
+        var col = _edColors[i5 % _edColors.length];
+        var enr = _extIpEnrich[x2.ip];
+        var label = x2.ip + (enr && enr.org ? " \u2014 " + enr.org : "") + (enr && enr.country ? " [" + enr.country + "]" : "");
+        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x2.ip}">${label}</span><span style="color:var(--muted)">${x2.count} (${Math.round(x2.count / _extDevTotal * 100)}%)</span></div>`;
+      })}</div>`;
+      extIpDeviationSection = b2`<div class="stats-chart-row">${_edPieSvg}<div class="stats-chart-legend">${_edLegend}</div></div>`;
+    } else {
+      extIpDeviationSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Org / Hostname</th><th>Country</th><th style="text-align:right">Deviations</th></tr></thead><tbody>${_extDevItems.map(function(x2, i5) {
+        var enr = _extIpEnrich[x2.ip];
+        var org = enr && (enr.org || enr.hostname) || "";
+        var country = enr && (enr.country_name || enr.country) || "";
+        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${x2.ip}</span></td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${org}</td><td>${country}</td><td style="text-align:right">${x2.count}</td></tr>`;
+      })}</tbody></table>`;
+    }
+    return b2`<div><div class="page-header"><h1 class="page-title">${this._t("page.statistics", "Statistics")} <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">— top ${topN}</span></h1></div><div class="stat-card" style="grid-column:1/-1">${timelineHtml}${devianceChartHtml ? b2`<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${this._t("stats.baseline_deviance_hourly", "Baseline Deviance per hour (last 24 h)")}</div>${devianceChartHtml}</div>` : ""}${dnsProxyEnabled ? b2`<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${this._t("stats.dns_queries_hourly", "DNS Queries per hour (last 24 h)")}</div>${dnsChartHtml}</div>` : ""}</div><div class="two-col stats-two-col" style="margin-top:12px"><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_public_ips", "Top\xA0{n} Public IPs").replace("{n}", topN)}${toggleBtns("public_ips", modes.public_ips)}</div>${ipsSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_countries", "Top\xA0{n} Countries").replace("{n}", topN)}${toggleBtns("countries", modes.countries)}</div>${countriesSection}</div></div><div class="two-col stats-two-col" style="margin-top:12px"><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_internal_talkers", "Top\xA0{n} Internal Talkers").replace("{n}", topN)}${toggleBtns("talkers", modes.talkers)}</div>${talkersSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">${topThr.length ? b2`<span style="display:flex;align-items:center;gap:6px">${this._t("stats.top_threat_ips", "Top\xA0{n} Threat IPs").replace("{n}", topN)} <span class="badge badge-critical" style="font-size:9px">${topThr.length}</span></span>` : this._t("stats.top_threat_ips", "Top\xA0{n} Threat IPs").replace("{n}", topN)}${toggleBtns("threat_ips", modes.threat_ips)}</div>${threatSection}</div></div>${dnsProxyEnabled ? b2`<div class="two-col stats-two-col" style="margin-top:12px"><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.blocked_dns_by_category", "Blocked DNS Queries by Category")}${toggleBtns("dns_categories", modes.dns_categories)}</div>${dnsCatSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_blocked_by_client", "Top\xA0{n} Blocked Queries by Client").replace("{n}", topN)}${toggleBtns("dns_clients", modes.dns_clients)}</div>${dnsClientSection}</div></div>` : ""}<div class="two-col stats-two-col" style="margin-top:12px">${(function() {
+      var blMode = self._data && self._data.baseline && self._data.baseline.mode || "disabled";
+      if (blMode !== "active") return "";
+      return b2`<div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${self._t("stats.top_hosts_deviations", "Top\xA0{n} Hosts in Deviations").replace("{n}", topN)}${toggleBtns("host_findings", modes.host_findings)}</div>${hostFindingsSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${self._t("stats.top_ext_deviations", "Top\xA0{n} External IPs in Deviations").replace("{n}", topN)}${toggleBtns("ext_deviations", modes.ext_deviations)}</div>${extIpDeviationSection}</div>`;
+    })()}</div>${suricataEnabledStats ? (function() {
+      function _sucPie(data, colors, key, title, noDataMsg) {
+        var mode = modes[key] || "pie";
+        var total = data.reduce(function(s4, d4) {
+          return s4 + d4.value;
+        }, 0);
+        var SIZE = 130;
+        var CX = SIZE / 2;
+        var CY = SIZE / 2;
+        var R2 = 52;
+        var IR = 28;
+        var pieSvg = [];
+        if (total > 0) {
+          var startAngle = -Math.PI / 2;
+          for (var i5 = 0; i5 < data.length; i5++) {
+            var frac = data[i5].value / total;
+            var end = startAngle + frac * 2 * Math.PI;
+            var x1 = CX + R2 * Math.cos(startAngle), y1 = CY + R2 * Math.sin(startAngle);
+            var x2 = CX + R2 * Math.cos(end), y22 = CY + R2 * Math.sin(end);
+            var ix1 = CX + IR * Math.cos(startAngle), iy1 = CY + IR * Math.sin(startAngle);
+            var ix2 = CX + IR * Math.cos(end), iy2 = CY + IR * Math.sin(end);
+            var lg = frac > 0.5 ? 1 : 0;
+            var d3 = "M " + ix1 + " " + iy1 + " L " + x1 + " " + y1 + " A " + R2 + " " + R2 + " 0 " + lg + " 1 " + x2 + " " + y22 + " L " + ix2 + " " + iy2 + " A " + IR + " " + IR + " 0 " + lg + " 0 " + ix1 + " " + iy1;
+            pieSvg.push(w`<path d="${d3}" fill="${colors[i5 % colors.length]}" opacity="0.92"/>`);
+            startAngle = end;
+          }
+        }
+        var legend = data.slice(0, 8).map(function(item, i6) {
+          return b2`<div class="row-gap" style="font-size:10px;gap:5px;margin-bottom:3px"><span style="width:9px;height:9px;border-radius:2px;background:${colors[i6 % colors.length]};flex-shrink:0;display:inline-block"></span><span style="color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.label}</span><span style="color:var(--text);font-weight:600;font-variant-numeric:tabular-nums">${item.value}</span></div>`;
+        });
+        var tableHtml = total === 0 ? b2`<div style="color:var(--muted);font-size:12px;padding:12px 0">${noDataMsg || "No data"}</div>` : b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>Label</th><th style="text-align:right">Count</th></tr></thead><tbody>${data.map(function(item, i6) {
+          return b2`<tr><td style="color:var(--muted)">${i6 + 1}</td><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${colors[i6 % colors.length]};margin-right:5px;vertical-align:middle"></span>${item.label}</td><td style="text-align:right">${item.value}</td></tr>`;
+        })}</tbody></table>`;
+        var toggleHtml = b2`<div style="display:flex;gap:4px"><button class="btn${mode === "pie" ? " active" : ""}" style="padding:2px 8px;font-size:10px" data-statstoggle="${key}:pie">${self._t("stats.pie", "Pie")}</button><button class="btn${mode === "bar" ? " active" : ""}" style="padding:2px 8px;font-size:10px" data-statstoggle="${key}:bar">${self._t("stats.list", "List")}</button></div>`;
+        var content = mode === "pie" && total > 0 ? b2`<div class="stats-chart-row"><svg width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}" style="flex-shrink:0">${pieSvg}</svg><div class="stats-chart-legend" style="min-width:0;flex:1">${legend}</div></div>` : tableHtml;
+        return b2`<div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${title}${toggleHtml}</div>${total === 0 ? b2`<div style="color:var(--muted);font-size:12px;padding:8px 0">${noDataMsg || self._t("stats.no_data", "No data")}</div>` : content}</div>`;
+      }
+      return b2`<div class="two-col stats-two-col" style="margin-top:12px">${_sucPie(sucSevData, SUC_SEV_COLORS, "suricata_severity", self._t("stats.suricata_by_severity", "Suricata Alerts \u2014 By Severity"), self._t("stats.no_alerts", "No alerts yet"))}${_sucPie(sucCatData, sucCatColors.length ? sucCatColors : SUC_CAT_PALETTE, "suricata_category", self._t("stats.suricata_by_category", "Suricata Alerts \u2014 By Category"), self._t("stats.no_alerts", "No alerts yet"))}</div><div class="two-col stats-two-col" style="margin-top:12px">${_sucPie(sucSrcData, SUC_SRC_PALETTE, "suricata_src", self._t("stats.suricata_top_source", "Suricata Alerts \u2014 Top\xA0{n} Source IPs").replace("{n}", topN), self._t("stats.no_alerts", "No alerts yet"))}</div>`;
+    })() : ""}${dnsProxyEnabled ? b2`<div class="card" style="margin-top:12px"><div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${topMalDomains.length ? b2`<span style="display:flex;align-items:center;gap:6px">${this._t("stats.top_blocked_domains", "Top\xA0{n} Blocked / Malicious Domains").replace("{n}", topN)} <span class="badge badge-critical" style="font-size:9px">${topMalDomains.length}</span></span>` : this._t("stats.top_blocked_domains", "Top\xA0{n} Blocked / Malicious Domains").replace("{n}", topN)}</div>${dnsTopMalHtml}</div>` : ""}<div class="card" style="margin-top:12px"><div class="card-title">${this._t("stats.enrichment_budget", "Enrichment Budget (Today)")}</div>${enrichSection}</div></div>`;
+  }
+};
+
+// src/views/map.js
+var mapMethods = {
+  _viewMap() {
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
+    if (!netflowEnabled) {
+      return b2`<div class="state-box"><div class="state-icon">⏸</div><p>${this._t("map.disabled", "NetFlow listener is disabled.")} ${this._t("map.enable_in", "Enable it in")} <button class="btn" style="display:inline;padding:2px 10px;font-size:11px" data-view="settings">${this._t("view.settings", "Settings")}</button> ${this._t("map.to_use", "to use the Network Map.")}</p></div>`;
+      return;
+    }
+    var baselineEnabledRaw = this._data && this._data.baseline_enabled;
+    var baselineEnabled = baselineEnabledRaw === true || baselineEnabledRaw === "true" || baselineEnabledRaw === 1 || baselineEnabledRaw === "1";
+    var allDevices = this._mapAllDevices();
+    var connections = this._data && this._data.connections || [];
+    var baselineGraph = this._data && this._data.baseline_graph || null;
+    this._mapBaselineGraph = baselineGraph;
+    var extIPs = this._data && this._data.external_ips || [];
+    var mcIPs = this._data && this._data.multicast_ips || [];
+    var flows = this._data && this._data.summary && this._data.summary.total_flows || 0;
+    var f3 = this._mapFilter;
+    var m2 = this._mapMode;
+    var hasBaselineGraph = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
+    if (!baselineEnabled) m2 = "live";
+    if (m2 !== "live" && !hasBaselineGraph) m2 = "live";
+    this._mapMode = m2;
+    var filters = [{
+      id: "all",
+      label: this._t("map.filter_all", "All")
+    }, {
+      id: "scanned",
+      label: this._t("map.filter_scanned", "Scanned")
+    }, {
+      id: "flow",
+      label: this._t("map.filter_flow_only", "Flow only")
+    }, {
+      id: "external",
+      label: this._t("map.filter_external", "External"),
+      hide: !netflowEnabled
+    }].filter(function(b3) {
+      return !b3.hide;
+    });
+    var filterBtns = filters.map(function(b3) {
+      return b2`<button class="btn map-fbtn${f3 === b3.id ? " active" : ""}" data-mapfilter="${b3.id}">${b3.label}</button>`;
+    });
+    var mapModes = [{
+      id: "live",
+      label: this._t("map.mode_live", "Live")
+    }, {
+      id: "baseline",
+      label: this._t("map.mode_baseline", "Baseline"),
+      disabled: !hasBaselineGraph || !baselineEnabled
+    }, {
+      id: "compare",
+      label: this._t("map.mode_compare", "Compare"),
+      disabled: !hasBaselineGraph || !baselineEnabled
+    }];
+    var modeBtns = baselineEnabled ? mapModes.map(function(mm) {
+      return b2`<button class="btn map-mbtn${m2 === mm.id ? " active" : ""}" data-mapmode="${mm.id}" ?disabled=${mm.disabled}>${mm.label}</button>`;
+    }) : "";
+    var modeLabel = m2 === "baseline" ? this._t("map.label_baseline_snapshot", "Baseline Snapshot") : m2 === "compare" ? this._t("map.label_live_vs_baseline", "Live vs Baseline") : this._t("map.label_live_network", "Live Network Map");
+    var baselineInfo = "";
+    if (hasBaselineGraph) {
+      var edgeCount = (baselineGraph.edges || []).length;
+      var hostCount = (baselineGraph.hosts || []).length;
+      baselineInfo = b2`<span class="chip" style="margin-left:6px">${this._t("map.baseline_chip", "Baseline")} ${hostCount} ${this._t("map.hosts", "hosts")} · ${edgeCount} ${this._t("map.edges", "edges")}</span>`;
+    }
+    var compareSummaryHtml = "";
+    if (m2 === "compare" && hasBaselineGraph) {
+      var _compEdges = this._composeMapEdges(connections, baselineGraph);
+      var _cntNew = 0, _cntMissing = 0, _cntBoth = 0;
+      var _topDelta = [], _topDeltaLabel = "";
+      for (var _ci = 0; _ci < _compEdges.length; _ci++) {
+        var _ce = _compEdges[_ci];
+        if (_ce.edge_mode === "new") _cntNew++;
+        else if (_ce.edge_mode === "missing") _cntMissing++;
+        else if (_ce.edge_mode === "both") _cntBoth++;
+        if (_ce.edge_mode === "both" && _ce.delta != null) _topDelta.push(_ce);
+      }
+      _topDelta.sort(function(a3, b3) {
+        return Math.abs(b3.delta) - Math.abs(a3.delta);
+      });
+      if (_topDelta.length) {
+        var _td = _topDelta[0];
+        var _sign = _td.delta > 0 ? "+" : "";
+        _topDeltaLabel = _td.source + " \u2192 " + _td.target + " (" + _sign + Math.round(_td.delta * 100) / 100 + " flows/snap)";
+      }
+      compareSummaryHtml = b2`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:11px"><span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em">${this._t("map.compare", "Compare:")}</span><span style="background:rgba(50,255,120,.12);border:1px solid rgba(50,255,120,.35);border-radius:100px;padding:2px 10px;color:#32ff78">↑ ${_cntNew} ${this._t(_cntNew === 1 ? "map.new_edge_one" : "map.new_edge_many", _cntNew === 1 ? "new edge" : "new edges")}</span><span style="background:rgba(255,90,50,.12);border:1px solid rgba(255,90,50,.35);border-radius:100px;padding:2px 10px;color:#ff5a32">↓ ${_cntMissing} ${this._t(_cntMissing === 1 ? "map.missing_edge_one" : "map.missing_edge_many", _cntMissing === 1 ? "missing edge" : "missing edges")}</span><span style="background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.2);border-radius:100px;padding:2px 10px;color:var(--accent)">${_cntBoth} ${this._t("map.unchanged", "unchanged")}</span>${_topDeltaLabel ? b2`<span style="background:rgba(255,206,84,.08);border:1px solid rgba(255,206,84,.25);border-radius:100px;padding:2px 10px;color:#ffce54;font-size:10px">${this._t("map.strongest", "\u0394 strongest:")} ${_topDeltaLabel}</span>` : ""}</div>`;
+    }
+    var template = b2`<div><div class="view-header"><h1>${modeLabel}${baselineInfo}</h1><div class="row-gap"><span id="map-stats" style="font-size:11px;color:var(--muted)">${allDevices.length} internal · ${extIPs.length} external${mcIPs.length ? " \xB7 " + mcIPs.length + " multicast" : ""} · ${this._fmtN(flows)} flows</span><button class="btn" id="map-reset-btn">${this._t("map.reset", "\u21BA Reset")}</button></div></div><div class="map-filter-bar" style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:4px">${filterBtns}</div><div style="display:flex;gap:4px">${modeBtns}</div></div>${compareSummaryHtml}<div class="map-wrap"><canvas id="hsa-map-canvas"></canvas><div class="map-tooltip" id="hsa-map-tip" style="display:none"></div><div class="map-legend"><div class="legend-item"><div class="ldot" style="background:#8f86ff"></div>${this._t("map.legend_scanned", "Scanned")}</div><div class="legend-item"><div class="ldot" style="background:#3ac5c9"></div>${this._t("map.legend_flow_only", "Flow only")}</div><div class="legend-item"><div class="ldot" style="background:#88a7c7"></div>${this._t("map.legend_baseline_edge", "Baseline edge")}</div><div class="legend-item"><div class="ldot" style="background:#ff5a32"></div>${this._t("map.legend_missing", "Missing")}</div><div class="legend-item"><div class="ldot" style="background:#32ff78"></div>${this._t("map.legend_new", "New")}</div><div class="legend-item"><div class="ldot" style="background:#ff4d6d"></div>${this._t("map.legend_at_risk", "At risk")}</div><div class="legend-item"><div class="ldot" style="background:#6bffc8"></div>${this._t("map.legend_gateway", "Gateway")}</div><div class="legend-item"><div class="ldot" style="background:#5a6a80"></div>${this._t("map.legend_external", "External")}</div><div class="legend-item"><div class="ldot" style="background:#d4a843"></div>${this._t("map.legend_multicast", "Multicast")}</div></div></div></div>`;
+    var self = this;
+    this._afterRender = () => requestAnimationFrame(function() {
+      var devices = self._applyMapFilter(allDevices);
+      var showExt = self._mapFilter === "all" || self._mapFilter === "external";
+      self._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
+      var btn = self.shadowRoot.getElementById("map-reset-btn");
+      if (btn) btn.onclick = function() {
+        self._stopMap();
+        self._mapZoom = 1;
+        self._mapPanX = 0;
+        self._mapPanY = 0;
+        var d3 = self._applyMapFilter(allDevices);
+        self._initMap(d3, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
+      };
+    });
+    return template;
+  },
+  _mapAllDevices() {
+    var _mapCutoff = Date.now() - 10 * 60 * 1e3;
+    var allDevices = (this._data && this._data.devices || []).filter(function(d4) {
+      return d4.alive || d4.last_seen && new Date(d4.last_seen).getTime() > _mapCutoff;
+    });
+    var baselineGraph = this._data && this._data.baseline_graph || null;
+    var baselineHosts = baselineGraph && baselineGraph.hosts || [];
+    var baselineByIp = {};
+    for (var bi = 0; bi < baselineHosts.length; bi++) {
+      var bh = baselineHosts[bi] || {};
+      if (bh.ip) baselineByIp[bh.ip] = bh;
+    }
+    for (var di = 0; di < allDevices.length; di++) {
+      var d3 = allDevices[di];
+      var b3 = baselineByIp[d3.ip];
+      if (b3) d3.baseline_observation_count = b3.observation_count || 0;
+    }
+    if (this._mapMode !== "live" && baselineHosts.length) {
+      for (var bh = 0; bh < baselineHosts.length; bh++) {
+        var h3 = baselineHosts[bh] || {};
+        if (!h3.ip) continue;
+        var exists = allDevices.some(function(d4) {
+          return d4.ip === h3.ip;
+        });
+        if (!exists) {
+          allDevices.push({
+            ip: h3.ip,
+            display_name: h3.display_name || h3.hostname || h3.ip,
+            hostname: h3.hostname || "",
+            probable_role: h3.probable_role || "unknown",
+            alive: false,
+            total_octets: 0,
+            baseline_only: true,
+            baseline_observation_count: h3.observation_count || 0
+          });
+        }
+      }
+    }
+    return allDevices;
+  },
+  _mapEdgeKey(source, target) {
+    return source + "|" + target;
+  },
+  _buildLiveEdgeIndex(connections) {
+    var idx = {};
+    for (var i5 = 0; i5 < connections.length; i5++) {
+      var c4 = connections[i5] || {};
+      var source = c4.source;
+      var target = c4.target;
+      if (!source || !target) continue;
+      var key = this._mapEdgeKey(source, target);
+      var entry = idx[key];
+      if (!entry) {
+        entry = idx[key] = {
+          source,
+          target,
+          source_kind: c4.source_kind || "",
+          target_kind: c4.target_kind || "",
+          live_octets: 0,
+          live_flows: 0
+        };
+      }
+      entry.live_octets += c4.octets || 0;
+      entry.live_flows += c4.flows || 0;
+    }
+    return idx;
+  },
+  _buildBaselineEdgeIndex(baselineGraph) {
+    var idx = {};
+    var edges = baselineGraph && baselineGraph.edges || [];
+    for (var i5 = 0; i5 < edges.length; i5++) {
+      var e4 = edges[i5] || {};
+      var source = e4.source;
+      var target = e4.target;
+      if (!source || !target) continue;
+      var key = this._mapEdgeKey(source, target);
+      idx[key] = {
+        source,
+        target,
+        source_kind: e4.source_kind || "",
+        target_kind: e4.target_kind || "",
+        active_probability: e4.active_probability || 0,
+        avg_octets: e4.avg_octets_per_snapshot || 0,
+        avg_flows: e4.avg_flows_per_snapshot || 0
+      };
+    }
+    return idx;
+  },
+  _composeMapEdges(connections, baselineGraph) {
+    var live = this._buildLiveEdgeIndex(connections || []);
+    var base = this._buildBaselineEdgeIndex(baselineGraph);
+    var keys = {};
+    Object.keys(live).forEach(function(k2) {
+      keys[k2] = true;
+    });
+    Object.keys(base).forEach(function(k2) {
+      keys[k2] = true;
+    });
+    var list = [];
+    for (var key in keys) {
+      var le = live[key];
+      var be = base[key];
+      if (this._mapMode === "live" && !le) continue;
+      if (this._mapMode === "baseline" && !be) continue;
+      var source = le && le.source || be && be.source;
+      var target = le && le.target || be && be.target;
+      var sourceKind = le && le.source_kind || be && be.source_kind || "";
+      var targetKind = le && le.target_kind || be && be.target_kind || "";
+      var liveOctets = le ? le.live_octets : 0;
+      var baselineOctets = be ? be.avg_octets : 0;
+      var weight = this._mapMode === "baseline" ? Math.max(1, baselineOctets) : Math.max(1, liveOctets || baselineOctets);
+      var edgeMode = "live";
+      if (this._mapMode === "baseline") edgeMode = "baseline";
+      else if (this._mapMode === "compare") edgeMode = le && be ? "both" : le ? "new" : "missing";
+      var liveFlows = le ? le.live_flows : 0;
+      var baselineFlows = be ? be.avg_flows : 0;
+      var deltaFlows = le && be ? liveFlows - baselineFlows : 0;
+      var deltaRatio = 0;
+      if (be && be.avg_octets > 0) deltaRatio = (liveOctets - be.avg_octets) / be.avg_octets;
+      list.push({
+        source,
+        target,
+        source_kind: sourceKind,
+        target_kind: targetKind,
+        weight,
+        edge_mode: edgeMode,
+        live_octets: liveOctets,
+        baseline_octets: baselineOctets,
+        baseline_probability: be ? be.active_probability : 0,
+        delta_ratio: deltaRatio,
+        delta: deltaFlows
+      });
+    }
+    return list;
+  },
+  _applyMapFilter(devices) {
+    var f3 = this._mapFilter;
+    if (f3 === "scanned") return devices.filter(function(d3) {
+      return d3.alive;
+    });
+    if (f3 === "flow") return devices.filter(function(d3) {
+      return (d3.total_octets || 0) > 0;
+    });
+    if (f3 === "external") {
+      var connections = this._data && this._data.connections || [];
+      var baselineGraph = this._data && this._data.baseline_graph || {};
+      var extPeers = {};
+      for (var i5 = 0; i5 < connections.length; i5++) {
+        var c4 = connections[i5];
+        if (c4.target_kind === "external") extPeers[c4.source] = true;
+        if (c4.source_kind === "external") extPeers[c4.target] = true;
+      }
+      if (this._mapMode !== "live") {
+        var bedges = baselineGraph.edges || [];
+        for (var j = 0; j < bedges.length; j++) {
+          var be = bedges[j];
+          if (be.target_kind === "external") extPeers[be.source] = true;
+        }
+      }
+      return devices.filter(function(d3) {
+        return extPeers[d3.ip];
+      });
+    }
+    return devices;
+  },
+  _setMapMode(mode) {
+    if (mode === this._mapMode) return;
+    var baselineGraph = this._data && this._data.baseline_graph || null;
+    var hasBaseline = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
+    if (mode !== "live" && !hasBaseline) return;
+    this._mapMode = mode;
+    if (this._view === "map") this._render();
+  },
+  _setMapFilter(f3) {
+    if (f3 === this._mapFilter) return;
+    this._mapFilter = f3;
+    var btns = this.shadowRoot.querySelectorAll(".map-fbtn");
+    btns.forEach(function(b3) {
+      b3.classList.toggle("active", b3.dataset.mapfilter === f3);
+    });
+    if (!this._data) return;
+    var allDevices = this._mapAllDevices();
+    var devices = this._applyMapFilter(allDevices);
+    var connections = this._data.connections || [];
+    var extIPs = this._data.external_ips || [];
+    this._stopMap();
+    var showExt = f3 === "all" || f3 === "external";
+    var mcIPs = this._data.multicast_ips || [];
+    var baselineGraph = this._data.baseline_graph || null;
+    this._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
+  },
+  _initMap(devices, connections, extIPs, mcIPs, baselineGraph) {
+    var self = this;
+    mcIPs = mcIPs || [];
+    var canvas = this.shadowRoot.getElementById("hsa-map-canvas");
+    if (!canvas) return;
+    var wrap = canvas.parentElement;
+    canvas.width = wrap.clientWidth;
+    canvas.height = wrap.clientHeight;
+    var cx = canvas.width / 2, cy = canvas.height / 2;
+    this._mapNodes = /* @__PURE__ */ new Map();
+    this._mapEdges = [];
+    this._mapParticles = [];
+    var slice = devices.slice(0, 80);
+    for (var i5 = 0; i5 < slice.length; i5++) {
+      var d3 = slice[i5];
+      var theta = i5 / Math.max(slice.length, 1) * Math.PI * 2;
+      var r4 = Math.min(cx, cy) * 0.28;
+      var node = Object.assign({}, d3, {
+        ip: d3.ip,
+        type: "internal",
+        x: cx + Math.cos(theta) * r4 + (Math.random() - 0.5) * 30,
+        y: cy + Math.sin(theta) * r4 + (Math.random() - 0.5) * 30,
+        vx: 0,
+        vy: 0,
+        r: this._nr(d3)
+      });
+      this._mapNodes.set(d3.ip, node);
+    }
+    var extCount = {};
+    var baselineEdges = baselineGraph && baselineGraph.edges || [];
+    if (this._mapMode !== "baseline") {
+      for (var c4 = 0; c4 < connections.length; c4++) {
+        var conn = connections[c4];
+        if (conn.target_kind === "external") extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
+      }
+    }
+    if (this._mapMode !== "live") {
+      for (var bc = 0; bc < baselineEdges.length; bc++) {
+        var bce = baselineEdges[bc];
+        if (bce.target_kind === "external") extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
+      }
+    }
+    var topExt = Object.keys(extCount).sort(function(a3, b3) {
+      return extCount[b3] - extCount[a3];
+    }).slice(0, 25);
+    for (var j = 0; j < topExt.length; j++) {
+      var ip = topExt[j];
+      var ang = j / topExt.length * Math.PI * 2;
+      var rExt = Math.min(cx, cy) * 0.52;
+      var info = extIPs.find(function(e4) {
+        return e4.ip === ip;
+      }) || {};
+      this._mapNodes.set(ip, {
+        ip,
+        type: "external",
+        x: cx + Math.cos(ang) * rExt + (Math.random() - 0.5) * 20,
+        y: cy + Math.sin(ang) * rExt + (Math.random() - 0.5) * 20,
+        vx: 0,
+        vy: 0,
+        r: 4,
+        label: info.hostname || info.org || ip,
+        at_risk: info.blacklisted || false,
+        blacklisted: info.blacklisted || false,
+        country: info.country || "",
+        country_name: info.country_name || "",
+        hostname: info.hostname || "",
+        org: info.org || "",
+        asn: info.asn || "",
+        city: info.city || "",
+        rating: info.rating || "",
+        vt_malicious: info.vt_malicious,
+        abuse_confidence: info.abuse_confidence
+      });
+    }
+    var mcCount = {};
+    if (this._mapMode !== "baseline") {
+      for (var mc = 0; mc < connections.length; mc++) {
+        var mconn = connections[mc];
+        if (mconn.target_kind === "multicast") mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+      }
+    }
+    if (this._mapMode !== "live") {
+      for (var bmc = 0; bmc < baselineEdges.length; bmc++) {
+        var bmce = baselineEdges[bmc];
+        if (bmce.target_kind === "multicast") mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
+      }
+    }
+    var topMc = Object.keys(mcCount).sort(function(a3, b3) {
+      return mcCount[b3] - mcCount[a3];
+    }).slice(0, 15);
+    for (var mi = 0; mi < topMc.length; mi++) {
+      var mip = topMc[mi];
+      var mang = mi / topMc.length * Math.PI * 2 + Math.PI / 4;
+      var rMc = Math.min(cx, cy) * 0.42;
+      var minfo = mcIPs.find(function(e4) {
+        return e4.ip === mip;
+      }) || {};
+      this._mapNodes.set(mip, {
+        ip: mip,
+        type: "multicast",
+        x: cx + Math.cos(mang) * rMc + (Math.random() - 0.5) * 15,
+        y: cy + Math.sin(mang) * rMc + (Math.random() - 0.5) * 15,
+        vx: 0,
+        vy: 0,
+        r: 4,
+        label: minfo.label || mip,
+        internal_sources: minfo.internal_sources || []
+      });
+    }
+    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c5) {
+      return this._mapNodes.has(c5.source) && this._mapNodes.has(c5.target);
+    }.bind(this)).slice(0, 500);
+    this._mapTick = 0;
+    this._spawnParticles();
+    this._startMap(canvas);
+    canvas.addEventListener("mousemove", function(e4) {
+      self._mapHover(e4, canvas);
+    });
+    canvas.addEventListener("mouseleave", function() {
+      var t3 = self.shadowRoot.getElementById("hsa-map-tip");
+      if (t3) t3.style.display = "none";
+    });
+    canvas.addEventListener("wheel", function(e4) {
+      e4.preventDefault();
+      var rect = canvas.getBoundingClientRect();
+      var mx = e4.clientX - rect.left, my = e4.clientY - rect.top;
+      var oldZ = self._mapZoom;
+      var delta = e4.deltaY > 0 ? 0.9 : 1.1;
+      self._mapZoom = Math.max(0.3, Math.min(8, oldZ * delta));
+      self._mapPanX = mx - (mx - self._mapPanX) * (self._mapZoom / oldZ);
+      self._mapPanY = my - (my - self._mapPanY) * (self._mapZoom / oldZ);
+    }, {
+      passive: false
+    });
+    canvas.addEventListener("mousedown", function(e4) {
+      if (e4.button === 0) {
+        self._mapDragging = true;
+        self._mapDragMoved = false;
+        self._mapDragLastX = e4.clientX;
+        self._mapDragLastY = e4.clientY;
+      }
+    });
+    canvas.addEventListener("mousemove", function(e4) {
+      if (self._mapDragging) {
+        var dx = e4.clientX - self._mapDragLastX, dy = e4.clientY - self._mapDragLastY;
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) self._mapDragMoved = true;
+        self._mapPanX += dx;
+        self._mapPanY += dy;
+        self._mapDragLastX = e4.clientX;
+        self._mapDragLastY = e4.clientY;
+      }
+    });
+    canvas.addEventListener("mouseup", function() {
+      self._mapDragging = false;
+    });
+    canvas.addEventListener("mouseleave", function() {
+      self._mapDragging = false;
+    });
+    canvas.addEventListener("touchstart", function(e4) {
+      e4.preventDefault();
+      if (e4.touches.length === 1) {
+        self._mapDragging = true;
+        self._mapDragMoved = false;
+        self._mapDragLastX = e4.touches[0].clientX;
+        self._mapDragLastY = e4.touches[0].clientY;
+        self._mapPinchDist = null;
+      } else if (e4.touches.length === 2) {
+        self._mapDragging = false;
+        var dx = e4.touches[0].clientX - e4.touches[1].clientX;
+        var dy = e4.touches[0].clientY - e4.touches[1].clientY;
+        self._mapPinchDist = Math.sqrt(dx * dx + dy * dy);
+        self._mapPinchMidX = (e4.touches[0].clientX + e4.touches[1].clientX) / 2;
+        self._mapPinchMidY = (e4.touches[0].clientY + e4.touches[1].clientY) / 2;
+      }
+    }, {
+      passive: false
+    });
+    canvas.addEventListener("touchmove", function(e4) {
+      e4.preventDefault();
+      if (e4.touches.length === 1 && self._mapDragging) {
+        var dx = e4.touches[0].clientX - self._mapDragLastX;
+        var dy = e4.touches[0].clientY - self._mapDragLastY;
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) self._mapDragMoved = true;
+        self._mapPanX += dx;
+        self._mapPanY += dy;
+        self._mapDragLastX = e4.touches[0].clientX;
+        self._mapDragLastY = e4.touches[0].clientY;
+      } else if (e4.touches.length === 2 && self._mapPinchDist != null) {
+        var dx2 = e4.touches[0].clientX - e4.touches[1].clientX;
+        var dy2 = e4.touches[0].clientY - e4.touches[1].clientY;
+        var newDist = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+        var rect = canvas.getBoundingClientRect();
+        var mx = self._mapPinchMidX - rect.left;
+        var my = self._mapPinchMidY - rect.top;
+        var oldZ = self._mapZoom;
+        self._mapZoom = Math.max(0.3, Math.min(8, oldZ * (newDist / self._mapPinchDist)));
+        self._mapPanX = mx - (mx - self._mapPanX) * (self._mapZoom / oldZ);
+        self._mapPanY = my - (my - self._mapPanY) * (self._mapZoom / oldZ);
+        self._mapPinchDist = newDist;
+        self._mapPinchMidX = (e4.touches[0].clientX + e4.touches[1].clientX) / 2;
+        self._mapPinchMidY = (e4.touches[0].clientY + e4.touches[1].clientY) / 2;
+      }
+    }, {
+      passive: false
+    });
+    canvas.addEventListener("touchend", function(e4) {
+      if (e4.touches.length === 0) {
+        if (self._mapDragging && !self._mapDragMoved) {
+          var rect = canvas.getBoundingClientRect();
+          var tx = (e4.changedTouches[0].clientX - rect.left - self._mapPanX) / self._mapZoom;
+          var ty = (e4.changedTouches[0].clientY - rect.top - self._mapPanY) / self._mapZoom;
+          for (var it = self._mapNodes.entries(), r22 = it.next(); !r22.done; r22 = it.next()) {
+            var n4 = r22.value[1];
+            if (n4.type === "external" && Math.sqrt((tx - n4.x) * (tx - n4.x) + (ty - n4.y) * (ty - n4.y)) <= n4.r + 8) {
+              self._setView("external");
+              self._doLookup(n4.ip);
+              break;
+            }
+          }
+        }
+        self._mapDragging = false;
+        self._mapPinchDist = null;
+      } else if (e4.touches.length === 1) {
+        self._mapDragging = true;
+        self._mapDragMoved = true;
+        self._mapDragLastX = e4.touches[0].clientX;
+        self._mapDragLastY = e4.touches[0].clientY;
+        self._mapPinchDist = null;
+      }
+    }, {
+      passive: false
+    });
+    canvas.addEventListener("click", function(e4) {
+      if (self._mapDragMoved) return;
+      var rect = canvas.getBoundingClientRect();
+      var mx = (e4.clientX - rect.left - self._mapPanX) / self._mapZoom;
+      var my = (e4.clientY - rect.top - self._mapPanY) / self._mapZoom;
+      for (var it = self._mapNodes.entries(), r22 = it.next(); !r22.done; r22 = it.next()) {
+        var n4 = r22.value[1];
+        if (n4.type === "external" && Math.sqrt((mx - n4.x) * (mx - n4.x) + (my - n4.y) * (my - n4.y)) <= n4.r + 5) {
+          self._setView("external");
+          self._doLookup(n4.ip);
+          return;
+        }
+      }
+    });
+  },
+  _startMap(canvas) {
+    this._stopMap();
+    var self = this;
+    var isBaseline = this._mapMode === "baseline";
+    var loop = function() {
+      try {
+        if (!isBaseline) {
+          self._mapStep(canvas.width, canvas.height);
+          self._mapTick++;
+          self._tickParticles();
+        }
+        self._drawMap(canvas);
+      } catch (e4) {
+        console.error("[HomeSec] map loop error:", e4);
+      }
+      self._mapAnim = requestAnimationFrame(loop);
+    };
+    this._mapAnim = requestAnimationFrame(loop);
+  },
+  _stopMap() {
+    if (this._mapAnim) {
+      cancelAnimationFrame(this._mapAnim);
+      this._mapAnim = null;
+    }
+  },
+  _spawnParticles() {
+    this._mapParticles = [];
+    if (this._mapMode === "baseline") return;
+    for (var i5 = 0; i5 < this._mapEdges.length; i5++) {
+      var e4 = this._mapEdges[i5];
+      if (e4.edge_mode === "missing") continue;
+      var count = Math.min(3, Math.max(1, Math.ceil(Math.log10(e4.weight + 1))));
+      for (var p3 = 0; p3 < count; p3++) {
+        this._mapParticles.push({
+          source: e4.source,
+          target: e4.target,
+          t: Math.random(),
+          speed: 3e-3 + Math.random() * 6e-3,
+          size: 1 + Math.random() * 1.2
+        });
+      }
+    }
+  },
+  _tickParticles() {
+    for (var i5 = 0; i5 < this._mapParticles.length; i5++) {
+      var p3 = this._mapParticles[i5];
+      p3.t += p3.speed;
+      if (p3.t > 1) p3.t -= 1;
+    }
+  },
+  _liveUpdateMap() {
+    if (!this._data) return;
+    var allDevices = this._mapAllDevices();
+    var devices = this._applyMapFilter(allDevices);
+    var connections = this._data.connections || [];
+    var baselineGraph = this._data.baseline_graph || null;
+    var extIPs = this._data.external_ips || [];
+    var mcIPs = this._data.multicast_ips || [];
+    var showExt = this._mapFilter === "all" || this._mapFilter === "external";
+    var canvas = this.shadowRoot.getElementById("hsa-map-canvas");
+    if (!canvas) return;
+    var cx = canvas.width / 2, cy = canvas.height / 2;
+    var hadNew = false;
+    var slice = devices.slice(0, 80);
+    for (var i5 = 0; i5 < slice.length; i5++) {
+      var d3 = slice[i5];
+      var existing = this._mapNodes.get(d3.ip);
+      if (existing) {
+        existing.alive = d3.alive;
+        existing.total_octets = d3.total_octets;
+        existing.at_risk = d3.at_risk;
+        existing.probable_role = d3.probable_role;
+        existing.display_name = d3.display_name;
+        existing.hostname = d3.hostname;
+        existing.r = this._nr(d3);
+      } else {
+        this._mapNodes.set(d3.ip, Object.assign({}, d3, {
+          ip: d3.ip,
+          type: "internal",
+          x: cx + (Math.random() - 0.5) * 80,
+          y: cy + (Math.random() - 0.5) * 80,
+          vx: 0,
+          vy: 0,
+          r: this._nr(d3)
+        }));
+        hadNew = true;
+      }
+    }
+    var extCount = {};
+    if (showExt && this._mapMode !== "baseline") {
+      for (var c4 = 0; c4 < connections.length; c4++) {
+        var conn = connections[c4];
+        if (conn.target_kind === "external") extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
+      }
+    }
+    if (showExt && this._mapMode !== "live") {
+      var baselineEdges = baselineGraph && baselineGraph.edges || [];
+      for (var bc = 0; bc < baselineEdges.length; bc++) {
+        var bce = baselineEdges[bc];
+        if (bce.target_kind === "external") extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
+      }
+    }
+    var topExt = Object.keys(extCount).sort(function(a3, b3) {
+      return extCount[b3] - extCount[a3];
+    }).slice(0, 25);
+    for (var j = 0; j < topExt.length; j++) {
+      var ip = topExt[j];
+      var info = extIPs.find(function(e4) {
+        return e4.ip === ip;
+      }) || {};
+      var extNode = this._mapNodes.get(ip);
+      if (extNode) {
+        extNode.label = info.hostname || info.org || ip;
+        extNode.at_risk = info.blacklisted || false;
+        extNode.blacklisted = info.blacklisted || false;
+        extNode.country = info.country || "";
+        extNode.country_name = info.country_name || "";
+        extNode.hostname = info.hostname || "";
+        extNode.org = info.org || "";
+        extNode.asn = info.asn || "";
+        extNode.city = info.city || "";
+        extNode.rating = info.rating || "";
+        extNode.vt_malicious = info.vt_malicious;
+        extNode.abuse_confidence = info.abuse_confidence;
+      } else {
+        var ang = Math.random() * Math.PI * 2;
+        var rExt = Math.min(cx, cy) * 0.52;
+        this._mapNodes.set(ip, {
+          ip,
+          type: "external",
+          x: cx + Math.cos(ang) * rExt,
+          y: cy + Math.sin(ang) * rExt,
+          vx: 0,
+          vy: 0,
+          r: 4,
+          label: info.hostname || info.org || ip,
+          at_risk: info.blacklisted || false,
+          blacklisted: info.blacklisted || false,
+          country: info.country || "",
+          country_name: info.country_name || "",
+          hostname: info.hostname || "",
+          org: info.org || "",
+          asn: info.asn || "",
+          city: info.city || "",
+          rating: info.rating || "",
+          vt_malicious: info.vt_malicious,
+          abuse_confidence: info.abuse_confidence
+        });
+        hadNew = true;
+      }
+    }
+    var mcCount = {};
+    if (showExt && this._mapMode !== "baseline") {
+      for (var mc = 0; mc < connections.length; mc++) {
+        var mconn = connections[mc];
+        if (mconn.target_kind === "multicast") mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
+      }
+    }
+    if (showExt && this._mapMode !== "live") {
+      var bmcEdges = baselineGraph && baselineGraph.edges || [];
+      for (var bmc = 0; bmc < bmcEdges.length; bmc++) {
+        var bmce = bmcEdges[bmc];
+        if (bmce.target_kind === "multicast") mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
+      }
+    }
+    var topMc = Object.keys(mcCount).sort(function(a3, b3) {
+      return mcCount[b3] - mcCount[a3];
+    }).slice(0, 15);
+    for (var mi = 0; mi < topMc.length; mi++) {
+      var mip = topMc[mi];
+      var minfo = mcIPs.find(function(e4) {
+        return e4.ip === mip;
+      }) || {};
+      var mcNode = this._mapNodes.get(mip);
+      if (mcNode) {
+        mcNode.label = minfo.label || mip;
+        mcNode.internal_sources = minfo.internal_sources || [];
+      } else {
+        var mang = Math.random() * Math.PI * 2;
+        var rMc = Math.min(cx, cy) * 0.42;
+        this._mapNodes.set(mip, {
+          ip: mip,
+          type: "multicast",
+          x: cx + Math.cos(mang) * rMc,
+          y: cy + Math.sin(mang) * rMc,
+          vx: 0,
+          vy: 0,
+          r: 4,
+          label: minfo.label || mip,
+          internal_sources: minfo.internal_sources || []
+        });
+        hadNew = true;
+      }
+    }
+    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c5) {
+      return this._mapNodes.has(c5.source) && this._mapNodes.has(c5.target);
+    }.bind(this)).slice(0, 500);
+    this._spawnParticles();
+    if (hadNew) this._mapTick = Math.min(this._mapTick, 160);
+    var statsEl = this.shadowRoot.getElementById("map-stats");
+    if (statsEl) {
+      var s4 = this._data.summary || {};
+      statsEl.textContent = devices.length + " internal \xB7 " + extIPs.length + " external" + (mcIPs.length ? " \xB7 " + mcIPs.length + " multicast" : "") + " \xB7 " + this._fmtN(s4.total_flows || 0) + " flows";
+    }
+  },
+  _mapStep(W, H2) {
+    var nodes = Array.from(this._mapNodes.values());
+    var settled = this._mapTick > 200;
+    var R2 = settled ? 400 : 1400, A2 = settled ? 1e-3 : 4e-3;
+    var DAMP = settled ? 0.55 : 0.72, MAX_V = settled ? 1.2 : 5;
+    var CENTER_PULL = settled ? 4e-5 : 15e-5;
+    var jitter = settled ? 0.08 : 0;
+    for (var i5 = 0; i5 < nodes.length; i5++) {
+      for (var j = i5 + 1; j < nodes.length; j++) {
+        var dx = nodes[i5].x - nodes[j].x || 0.1, dy = nodes[i5].y - nodes[j].y || 0.1;
+        var d22 = Math.max(dx * dx + dy * dy, 1);
+        var f3 = R2 / d22, inv = 1 / Math.sqrt(d22);
+        nodes[i5].vx += dx * inv * f3;
+        nodes[i5].vy += dy * inv * f3;
+        nodes[j].vx -= dx * inv * f3;
+        nodes[j].vy -= dy * inv * f3;
+      }
+    }
+    for (var ei = 0; ei < this._mapEdges.length; ei++) {
+      var e4 = this._mapEdges[ei];
+      var s4 = this._mapNodes.get(e4.source), t3 = this._mapNodes.get(e4.target);
+      if (!s4 || !t3) continue;
+      var edx = t3.x - s4.x, edy = t3.y - s4.y;
+      var dd = Math.max(Math.sqrt(edx * edx + edy * edy), 1);
+      var ideal = s4.type === "external" || t3.type === "external" ? 100 : 55;
+      var ef = A2 * (dd - ideal);
+      s4.vx += edx / dd * ef;
+      s4.vy += edy / dd * ef;
+      t3.vx -= edx / dd * ef;
+      t3.vy -= edy / dd * ef;
+    }
+    var cx2 = W / 2, cy2 = H2 / 2;
+    for (var ni = 0; ni < nodes.length; ni++) {
+      var n4 = nodes[ni];
+      n4.vx += (cx2 - n4.x) * CENTER_PULL;
+      n4.vy += (cy2 - n4.y) * CENTER_PULL;
+      if (jitter > 0) {
+        n4.vx += (Math.random() - 0.5) * jitter;
+        n4.vy += (Math.random() - 0.5) * jitter;
+      }
+      n4.vx *= DAMP;
+      n4.vy *= DAMP;
+      var spd = Math.sqrt(n4.vx * n4.vx + n4.vy * n4.vy);
+      if (spd > MAX_V) {
+        n4.vx = n4.vx / spd * MAX_V;
+        n4.vy = n4.vy / spd * MAX_V;
+      }
+      n4.x = Math.max(n4.r + 2, Math.min(W - n4.r - 2, n4.x + n4.vx));
+      n4.y = Math.max(n4.r + 2, Math.min(H2 - n4.r - 2, n4.y + n4.vy));
+    }
+  },
+  _drawMap(canvas) {
+    var ctx = canvas.getContext("2d");
+    var W = canvas.width, H2 = canvas.height;
+    ctx.clearRect(0, 0, W, H2);
+    var bg = ctx.createRadialGradient(W / 2, H2 / 2, 0, W / 2, H2 / 2, Math.max(W, H2) * 0.7);
+    bg.addColorStop(0, "rgba(10,18,40,.96)");
+    bg.addColorStop(1, "rgba(4,8,18,.99)");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H2);
+    ctx.save();
+    ctx.translate(this._mapPanX, this._mapPanY);
+    ctx.scale(this._mapZoom, this._mapZoom);
+    for (var ei = 0; ei < this._mapEdges.length; ei++) {
+      var e4 = this._mapEdges[ei];
+      var s4 = this._mapNodes.get(e4.source), t3 = this._mapNodes.get(e4.target);
+      if (!s4 || !t3) continue;
+      var a3 = Math.min(0.35, 0.03 + Math.log10(e4.weight + 1) * 0.05);
+      var mx = (s4.x + t3.x) / 2, my = (s4.y + t3.y) / 2;
+      var dx = t3.x - s4.x, dy = t3.y - s4.y;
+      var curveOff = Math.min(18, Math.sqrt(dx * dx + dy * dy) * 0.08);
+      var cpx = mx + dy * curveOff / Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+      var cpy = my - dx * curveOff / Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+      ctx.beginPath();
+      ctx.moveTo(s4.x, s4.y);
+      ctx.quadraticCurveTo(cpx, cpy, t3.x, t3.y);
+      ctx.setLineDash([]);
+      if (this._mapMode === "baseline") {
+        ctx.strokeStyle = "rgba(136,167,199," + Math.min(0.55, a3 + 0.22) + ")";
+        ctx.lineWidth = Math.min(1.8, 0.6 + Math.log10(e4.weight + 1) * 0.18);
+        ctx.setLineDash([6, 4]);
+      } else if (this._mapMode === "compare") {
+        if (e4.edge_mode === "missing") {
+          ctx.strokeStyle = "rgba(255,90,50," + Math.min(0.82, a3 + 0.55) + ")";
+          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e4.weight + 1) * 0.25);
+          ctx.setLineDash([8, 5]);
+        } else if (e4.edge_mode === "new") {
+          ctx.strokeStyle = "rgba(50,255,120," + Math.min(0.88, a3 + 0.58) + ")";
+          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e4.weight + 1) * 0.25);
+        } else {
+          ctx.strokeStyle = "rgba(98,232,255," + Math.min(0.45, a3 + 0.12) + ")";
+          ctx.lineWidth = Math.min(1.6, 0.4 + Math.log10(e4.weight + 1) * 0.16);
+        }
+      } else {
+        ctx.strokeStyle = "rgba(98,232,255," + a3 + ")";
+        ctx.lineWidth = Math.min(1.8, 0.3 + Math.log10(e4.weight + 1) * 0.18);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    for (var pi = 0; pi < this._mapParticles.length; pi++) {
+      var p3 = this._mapParticles[pi];
+      var ps = this._mapNodes.get(p3.source), pt = this._mapNodes.get(p3.target);
+      if (!ps || !pt) continue;
+      var pmx = (ps.x + pt.x) / 2, pmy = (ps.y + pt.y) / 2;
+      var pdx = pt.x - ps.x, pdy = pt.y - ps.y;
+      var plen = Math.max(Math.sqrt(pdx * pdx + pdy * pdy), 1);
+      var pcOff = Math.min(18, plen * 0.08);
+      var pcpx = pmx + pdy * pcOff / plen, pcpy = pmy - pdx * pcOff / plen;
+      var tt = p3.t, it = 1 - tt;
+      var px = it * it * ps.x + 2 * it * tt * pcpx + tt * tt * pt.x;
+      var py = it * it * ps.y + 2 * it * tt * pcpy + tt * tt * pt.y;
+      var pa = 0.5 + 0.5 * Math.sin(p3.t * Math.PI);
+      ctx.beginPath();
+      ctx.arc(px, py, p3.size, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(98,232,255," + pa * 0.7 + ")";
+      ctx.fill();
+    }
+    var sorted = Array.from(this._mapNodes.values()).sort(function(a4, b3) {
+      var order = {
+        external: 0,
+        multicast: 1,
+        internal: 2
+      };
+      return (order[a4.type] || 2) - (order[b3.type] || 2);
+    });
+    var now = Date.now();
+    var pulse = 0.7 + Math.sin(now * 4e-3) * 0.3;
+    for (var ni = 0; ni < sorted.length; ni++) {
+      var n4 = sorted[ni];
+      var col = this._nc(n4);
+      var nodeR = n4.r;
+      if (n4.type !== "external" && n4.type !== "multicast" && (n4.alive || (n4.total_octets || 0) > 0)) {
+        var phase = (now * 3e-3 + ni * 0.7) % (Math.PI * 2);
+        nodeR = n4.r * (0.92 + Math.sin(phase) * 0.08);
+      }
+      if (n4.at_risk) {
+        var glowR = nodeR + 4 + Math.sin(now * 5e-3) * 3;
+        ctx.beginPath();
+        ctx.arc(n4.x, n4.y, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,77,109," + (0.08 + Math.sin(now * 5e-3) * 0.06) + ")";
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(n4.x, n4.y, nodeR, 0, Math.PI * 2);
+      ctx.fillStyle = col;
+      ctx.globalAlpha = n4.alive || n4.type === "external" || (n4.total_octets || 0) > 0 ? 1 : 0.45;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = n4.at_risk ? "#ff4d6d" : "rgba(255,255,255,0.12)";
+      ctx.lineWidth = n4.at_risk ? 1.5 : 0.5;
+      ctx.stroke();
+      if (n4.type === "external" && n4.country) {
+        var flag = this._countryFlag(n4.country);
+        if (flag) {
+          ctx.font = "10px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(flag, n4.x, n4.y - nodeR - 3);
+        }
+      }
+      ctx.font = "8px IBM Plex Mono, monospace";
+      ctx.textAlign = "center";
+      if (n4.type === "internal") {
+        ctx.fillStyle = "rgba(180,210,240,.6)";
+        ctx.fillText((n4.ip || "").substring(0, 18), n4.x, n4.y + nodeR + 9);
+        var trackerName = (n4.display_name || n4.hostname || "").substring(0, 18);
+        if (trackerName && trackerName !== (n4.ip || "").substring(0, 18)) {
+          ctx.fillStyle = n4.at_risk ? "#ff9aae" : "rgba(140,200,255,.85)";
+          ctx.font = "bold 8px IBM Plex Mono, monospace";
+          ctx.fillText(trackerName, n4.x, n4.y + nodeR + 19);
+        }
+      } else if (n4.type === "external") {
+        ctx.fillStyle = n4.at_risk ? "#ff9aae" : "rgba(180,210,240,.55)";
+        ctx.fillText((n4.ip || "").substring(0, 16), n4.x, n4.y + nodeR + 9);
+        var extMeta = (n4.org || n4.hostname || "").substring(0, 16);
+        if (extMeta) {
+          ctx.fillStyle = n4.at_risk ? "rgba(255,154,174,.7)" : "rgba(140,170,210,.45)";
+          ctx.fillText(extMeta, n4.x, n4.y + nodeR + 18);
+        }
+      } else {
+        var label = (n4.label || n4.ip || "").substring(0, 16);
+        ctx.fillStyle = n4.at_risk ? "#ff9aae" : n4.type === "multicast" ? "#d4a843" : "rgba(180,210,240,.6)";
+        ctx.fillText(label, n4.x, n4.y + nodeR + 9);
+      }
+    }
+    ctx.restore();
+    var zPct = Math.round(this._mapZoom * 100);
+    if (zPct !== 100) {
+      ctx.fillStyle = "rgba(98,232,255,.5)";
+      ctx.font = "10px IBM Plex Mono, monospace";
+      ctx.textAlign = "right";
+      ctx.fillText(zPct + "%", W - 10, 16);
+    }
+  },
+  _mapHover(e4, canvas) {
+    if (this._mapDragging) return;
+    var rect = canvas.getBoundingClientRect();
+    var sx = e4.clientX - rect.left, sy = e4.clientY - rect.top;
+    var mx = (sx - this._mapPanX) / this._mapZoom;
+    var my = (sy - this._mapPanY) / this._mapZoom;
+    var tip = this.shadowRoot.getElementById("hsa-map-tip");
+    if (!tip) return;
+    for (var it = this._mapNodes.entries(), r22 = it.next(); !r22.done; r22 = it.next()) {
+      var ip = r22.value[0], n4 = r22.value[1];
+      if (Math.sqrt((mx - n4.x) * (mx - n4.x) + (my - n4.y) * (my - n4.y)) <= n4.r + 5) {
+        var lbl = n4.display_name || n4.hostname || ip;
+        var role = n4.probable_role ? b2`<br><span style="color:#8a9dbf">${n4.probable_role}</span>` : "";
+        var risk = n4.at_risk ? b2`<br><span style="color:#ff4d6d">⚠ ${this._t("map.at_risk", "At risk")}</span>` : "";
+        var baselineStats = this._data && this._data.baseline || {};
+        var baselineSnapshots = (baselineStats.training_stats || {}).snapshots_seen || 0;
+        var flagEmoji = n4.country ? this._countryFlag(n4.country) : "";
+        var ctryLabel = n4.country_name || n4.country || "";
+        var ctry = ctryLabel ? b2`<br><span style="color:#8a9dbf">${flagEmoji ? flagEmoji + " " : ""}${ctryLabel}${n4.city ? ", " + n4.city : ""}</span>` : "";
+        var extra = [];
+        if (n4.type === "multicast") {
+          if (n4.label && n4.label !== ip) extra.push(b2`<br><span style="color:#d4a843;font-size:10px">${n4.label}</span>`);
+          extra.push(b2`<br><span style="color:#8a9dbf;font-size:10px">${this._t("map.multicast_note", "Multicast \xB7 not internet-routed")}</span>`);
+          if (n4.internal_sources && n4.internal_sources.length) extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${this._t("map.sources", "Sources")}: ${n4.internal_sources.join(", ")}</span>`);
+        } else if (n4.type === "external") {
+          if (n4.org) extra.push(b2`<br><span style="color:#8a9dbf;font-size:10px">${n4.org.substring(0, 40)}</span>`);
+          if (n4.rating) extra.push(b2`<br>${this._rating(n4.rating)}`);
+          var vtLine = n4.vt_malicious != null ? "VT: " + n4.vt_malicious + " malicious" : "";
+          var abLine = n4.abuse_confidence != null ? "Abuse: " + n4.abuse_confidence + "%" : "";
+          var intelParts = [vtLine, abLine].filter(Boolean).join(" \xB7 ");
+          if (intelParts) extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${intelParts}</span>`);
+          extra.push(b2`<br><span style="color:var(--accent);font-size:9px;opacity:.6">${this._t("map.click_full_lookup", "Click for full lookup")}</span>`);
+        } else {
+          if (this._mapMode !== "live") {
+            var obs = n4.baseline_observation_count || 0;
+            var presence = baselineSnapshots > 0 ? Math.min(1, obs / baselineSnapshots) : 0;
+            var presencePct = Math.round(presence * 100);
+            var liveLoad = Math.min(1, Math.log10((n4.total_octets || 0) + 1) / 8);
+            var livePct = Math.round(liveLoad * 100);
+            extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${this._t("map.baseline_presence", "Baseline presence")}: ${presencePct}%</span>`);
+            extra.push(b2`<div style="margin-top:2px;height:4px;background:rgba(136,167,199,.18);border-radius:3px;overflow:hidden"><div style="height:4px;width:${presencePct}%;background:#88a7c7"></div></div>`);
+            extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${this._t("map.live_load", "Live load index")}: ${livePct}%</span>`);
+            extra.push(b2`<div style="margin-top:2px;height:4px;background:rgba(0,224,255,.15);border-radius:3px;overflow:hidden"><div style="height:4px;width:${livePct}%;background:#00e0ff"></div></div>`);
+          }
+        }
+        D(b2`<strong style="color:#62e8ff">${lbl}</strong><br><span class="ip">${ip}</span>${role}${ctry}${extra}${risk}`, tip);
+        var tipX = n4.x * this._mapZoom + this._mapPanX + 14;
+        var tipY = n4.y * this._mapZoom + this._mapPanY - 14;
+        tip.style.cssText = "display:block;left:" + tipX + "px;top:" + tipY + "px";
+        canvas.style.cursor = n4.type === "external" ? "pointer" : "grab";
+        return;
+      }
+    }
+    tip.style.display = "none";
+    canvas.style.cursor = "grab";
+  }
+};
+
+// src/views/hosts.js
+var hostsMethods = {
+  _hostThead() {
+    var self = this;
+    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
+    var cols = [{
+      key: "ip",
+      label: "IP"
+    }, {
+      key: "name",
+      label: this._t("hosts.col_name", "Name")
+    }, {
+      key: "os",
+      label: "OS"
+    }, {
+      key: "role",
+      label: this._t("hosts.col_role", "Role")
+    }, {
+      key: null,
+      label: this._t("hosts.col_open_ports", "Open ports")
+    }, {
+      key: "cve",
+      label: "CVEs"
+    }, {
+      key: "ping",
+      label: "Ping"
+    }];
+    if (netflowEnabled) cols.push({
+      key: "traffic",
+      label: this._t("hosts.col_traffic", "Traffic")
+    });
+    return b2`<tr>${cols.map(function(c4) {
+      if (!c4.key) return b2`<th>${c4.label}</th>`;
+      var arrow = self._hostSort === c4.key ? self._hostSortDir > 0 ? " \u25B2" : " \u25BC" : "";
+      return b2`<th class="sortable-th" data-hostsort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
+    })}</tr>`;
+  },
+  _viewHosts() {
+    var displayDevices = (this._data && this._data.devices || []).filter(function(d3) {
+      return d3.alive || d3.enriched;
+    });
+    var cnt = displayDevices.length;
+    return b2`<div><div class="view-header"><h1>${this._t("hosts.page_title", "Network Hosts")} <span class="dim">(${cnt} ${this._t("hosts.alive_suffix", "alive")})</span></h1><input id="hsa-host-filter" class="search-bar" type="search" placeholder="${this._t("hosts.filter_placeholder", "Filter by IP, name, role\u2026")}" value="${this._hostFilter}"></div><div class="card table-card"><table class="data-table"><thead id="hsa-host-thead">${this._hostThead()}</thead><tbody id="hsa-host-tbody">${this._hostRows()}</tbody></table></div></div>`;
+  },
+  _hostRows() {
+    var netflowEnabledRaw2 = this._data && this._data.netflow_listener_enabled;
+    var netflowEnabled = netflowEnabledRaw2 === true || netflowEnabledRaw2 === "true" || netflowEnabledRaw2 === 1 || netflowEnabledRaw2 === "1";
+    var colCount = netflowEnabled ? 8 : 7;
+    var q = this._hostFilter.toLowerCase();
+    var devices = (this._data && this._data.devices || []).filter(function(d3) {
+      if (!d3.alive && !d3.enriched) return false;
+      return !q || (d3.ip || "").indexOf(q) >= 0 || (d3.display_name || "").toLowerCase().indexOf(q) >= 0 || (d3.hostname || "").toLowerCase().indexOf(q) >= 0 || (d3.probable_role || "").indexOf(q) >= 0;
+    });
+    if (!devices.length) return b2`<tr><td colspan="${colCount}"><div class="empty-state"><div class="empty-icon">🔍</div><p>${this._t("hosts.no_match", "No hosts match the filter")}</p></div></td></tr>`;
+    var sortKey = this._hostSort;
+    var sortDir = this._hostSortDir;
+    devices.sort(function(a3, b3) {
+      var va, vb;
+      if (sortKey === "ip") {
+        va = (a3.ip || "").split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join(".");
+        vb = (b3.ip || "").split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join(".");
+      } else if (sortKey === "name") {
+        va = (a3.display_name || a3.hostname || "").toLowerCase();
+        vb = (b3.display_name || b3.hostname || "").toLowerCase();
+      } else if (sortKey === "os") {
+        va = (a3.os_guess || "").toLowerCase();
+        vb = (b3.os_guess || "").toLowerCase();
+      } else if (sortKey === "role") {
+        va = (a3.probable_role || "").toLowerCase();
+        vb = (b3.probable_role || "").toLowerCase();
+      } else if (sortKey === "cve") {
+        va = (a3.vulnerabilities || []).length;
+        vb = (b3.vulnerabilities || []).length;
+      } else if (sortKey === "ping") {
+        va = a3.ping_ms != null ? a3.ping_ms : Infinity;
+        vb = b3.ping_ms != null ? b3.ping_ms : Infinity;
+      } else if (sortKey === "traffic") {
+        va = a3.total_octets || 0;
+        vb = b3.total_octets || 0;
+      } else {
+        return 0;
+      }
+      if (va < vb) return -1 * sortDir;
+      if (va > vb) return 1 * sortDir;
+      return 0;
+    });
+    var self = this;
+    var builtInRoles = ["unknown", "camera", "printer", "media_device", "mobile_device", "nas_or_desktop", "dns_or_gateway", "linux_host", "web_service", "iot_device"];
+    var customRoleValues = Object.values(this._data && this._data.role_overrides || {}).filter(function(r4) {
+      return builtInRoles.indexOf(r4) === -1;
+    });
+    var knownCustomRoles = Array.from(new Set(customRoleValues));
+    var overrides = this._data && this._data.role_overrides || {};
+    var nameOverrides = this._data && this._data.name_overrides || {};
+    return devices.map(function(d3) {
+      var name = d3.display_name || d3.hostname || "";
+      var vulns = (d3.vulnerabilities || []).length;
+      var alive = d3.at_risk ? "#ff4d6d" : d3.alive ? "#6bffc8" : "#4a5a72";
+      var ports = (d3.scanned_services || []).map(function(s4) {
+        return s4.port;
+      }).join(", ") || (d3.exposed_ports || []).slice(0, 6).join(", ") || "\u2014";
+      var id = "hsa-dr-" + d3.ip.replace(/\./g, "-");
+      var curRole = d3.probable_role || "unknown";
+      var isOverride = d3.ip in overrides;
+      var isNameOverride = d3.ip in nameOverrides;
+      var isCustom = builtInRoles.indexOf(curRole) === -1;
+      var roleOpts = builtInRoles.map(function(r4) {
+        return b2`<option value="${r4}" ?selected=${r4 === curRole}>${r4.replace(/_/g, " ")}</option>`;
+      });
+      roleOpts = roleOpts.concat(knownCustomRoles.map(function(r4) {
+        return b2`<option value="${r4}" ?selected=${r4 === curRole}>${r4.replace(/_/g, " ")}</option>`;
+      }));
+      if (isCustom && knownCustomRoles.indexOf(curRole) === -1) roleOpts.push(b2`<option value="${curRole}" selected>${curRole.replace(/_/g, " ")}</option>`);
+      roleOpts.push(b2`<option value="__custom__">custom…</option>`);
+      var roleSelect = b2`<select class="role-select" data-roleip="${d3.ip}" title="Click to change role">${roleOpts}</select>${isOverride ? b2` <span class="dim" style="font-size:9px">${self._t("hosts.manual", "(manual)")}</span>` : ""}`;
+      var nameCell = b2`${name ? b2`<strong>${name}</strong>` : b2`<span class="dim">—</span>`} <button class="btn" data-editname="${d3.ip}">${self._t("hosts.rename", "Rename")}</button>${isNameOverride ? b2` <span class="dim" style="font-size:9px">${self._t("hosts.manual", "(manual)")}</span>` : ""}`;
+      return b2`<tr class="expandable" data-ip="${d3.ip}"><td><span style="color:${alive};font-size:8px">●</span> <span class="ip">${d3.ip}</span></td><td>${nameCell}</td><td><span style="font-size:11px">${d3.os_guess || "\u2014"}</span></td><td>${roleSelect}</td><td style="font-size:11px;font-family:monospace">${ports}</td><td>${vulns ? b2`<span class="badge badge-high">${vulns} CVE${vulns > 1 ? "s" : ""}</span>` : b2`<span class="dim">—</span>`}</td><td style="font-variant-numeric:tabular-nums">${d3.ping_ms != null ? d3.ping_ms.toFixed(1) + " ms" : d3.alive ? "alive" : "\u2014"}</td>${netflowEnabled ? b2`<td>${self._bytes(d3.total_octets)}</td>` : ""}</tr><tr class="detail-row" id="${id}" style="display:none"><td colspan="${colCount}">${self._hostDetail(d3)}</td></tr>`;
+    });
+  },
+  _hostDetail(d3) {
+    var svcs = d3.scanned_services || [];
+    var vulns = d3.vulnerabilities || [];
+    var self = this;
+    var dismissedMap = {};
+    (this._data && this._data.dismissed_findings || []).forEach(function(f3) {
+      if (f3.key) dismissedMap[f3.key] = f3.dismiss_note || "";
+    });
+    var svcRows = svcs.map(function(s4) {
+      var techs = (s4.technologies || []).join(", ");
+      return b2`<tr><td><span class="chip">${s4.port}/${s4.protocol}</span></td><td>${s4.service_name || "\u2014"}</td><td class="mono dim">${(s4.banner || "").substring(0, 60) || "\u2014"}</td><td>${s4.version || "\u2014"}</td><td>${techs ? techs : "\u2014"}</td></tr>`;
+    });
+    var vulnCards = vulns.map(function(v2) {
+      var key = "vuln:" + d3.ip + ":" + (v2.port || 0) + ":" + (v2.cve_id || "");
+      var isDismissed = Object.prototype.hasOwnProperty.call(dismissedMap, key);
+      var note = isDismissed ? dismissedMap[key] : "";
+      var dismissedBadge = isDismissed ? b2` <span class="chip" style="background:#444;color:#999;font-size:9px">${self._t("findings.dismissed", "dismissed")}</span>` : "";
+      var noteHtml = isDismissed && note ? b2`<div class="dim" style="font-size:10px;margin-top:4px;font-style:italic">${self._t("hosts.note", "Note")}: ${note}</div>` : "";
+      return b2`<div class="finding-card sev-${v2.severity}" style="margin-bottom:6px;padding:10px${isDismissed ? ";opacity:0.45" : ""}"><div class="finding-header">${self._sev(v2.severity)}<span class="finding-title">${v2.cve_id} · ${v2.service}</span><span class="dim" style="font-size:10px">CVSS ${v2.cvss || "?"}</span>${dismissedBadge}</div><div class="finding-body">${v2.summary || ""}</div>${v2.remediation ? b2`<div class="fix-hint">${self._t("hosts.fix", "Fix")}: ${v2.remediation}</div>` : ""}${noteHtml}</div>`;
+    });
+    return b2`<div class="host-detail-wrap"><div>${this._kv("IP", d3.ip)}${this._kv(this._t("hosts.kv_hostname", "Hostname"), d3.hostname || "\u2014")}${this._kv("MAC", d3.mac_address || "\u2014")}${this._kv(this._t("hosts.kv_manufacturer", "Manufacturer"), d3.manufacturer || "\u2014")}${this._kv("OS", d3.os_guess ? d3.os_guess + " (" + d3.os_confidence + ")" : "\u2014")}${this._kv("Ping", d3.ping_ms != null ? d3.ping_ms.toFixed(1) + " ms" : d3.alive ? "alive" : "no response")}${this._kv(this._t("hosts.kv_flows", "Flows"), (d3.total_flows || 0).toLocaleString())}${this._kv("Traffic", this._bytes(d3.total_octets))}${this._kv(this._t("hosts.kv_external_peers", "External peers"), (d3.external_peers || []).length)}${this._kv(this._t("hosts.kv_last_seen", "Last seen"), this._ago(d3.last_seen))}${svcs.length ? b2`<div style="margin-top:12px"><div class="section-label">${this._t("hosts.section_open_ports", "Open Ports")}</div><table class="data-table" style="font-size:11px"><thead><tr><th>${this._t("hosts.port", "Port")}</th><th>${this._t("hosts.service", "Service")}</th><th>${this._t("hosts.banner", "Banner")}</th><th>${this._t("hosts.version", "Version")}</th><th>${this._t("hosts.technologies", "Technologies")}</th></tr></thead><tbody>${svcRows}</tbody></table></div>` : ""}</div><div>${vulns.length ? b2`<div class="section-label" style="margin-bottom:8px">${this._t("hosts.section_vulnerabilities", "Vulnerabilities")}</div>${vulnCards}` : b2`<div class="empty-state" style="margin-top:20px"><div class="empty-icon">✓</div><p>${this._t("hosts.no_vulnerabilities", "No vulnerabilities detected")}</p></div>`}</div></div>`;
+  },
+  _toggleRow(ip) {
+    var row = this.shadowRoot.getElementById("hsa-dr-" + ip.replace(/\./g, "-"));
+    if (row) row.style.display = row.style.display === "none" ? "" : "none";
+  },
+  _setHostSort(col) {
+    if (this._hostSort === col) {
+      this._hostSortDir *= -1;
+    } else {
+      this._hostSort = col;
+      this._hostSortDir = 1;
+    }
+    this._render();
+  }
+};
+
+// src/views/findings.js
+var findingsMethods = {
+  _viewFindings() {
+    var BASELINE_ONLY_CATS = {
+      anomaly_new_host: true,
+      anomaly_new_peer: true,
+      anomaly_new_port: true,
+      anomaly_new_dns_domain: true,
+      anomaly_new_dns_category: true
+    };
+    var findings = (this._data && this._data.findings || []).filter(function(f3) {
+      return !BASELINE_ONLY_CATS[f3.category];
+    });
+    var baselineAnomalies = this._data && this._data.baseline_anomalies || [];
+    var allDismissed = this._data && this._data.dismissed_findings || [];
+    var allDismissedList = allDismissed.map(function(f3) {
+      return Object.assign({}, f3, {
+        _isBaseline: !!BASELINE_ONLY_CATS[f3.category]
+      });
+    });
+    var findingsGroupMode = this._findingsGroupMode || "category";
+    var dismissedGroupMode = this._dismissedGroupMode || "category";
+    var baselineGroupMode = this._baselineGroupMode;
+    var self = this;
+    var SEV_ORDER = {
+      critical: 0,
+      high: 1,
+      medium: 2,
+      low: 3,
+      info: 4
+    };
+    var _sevRank = function(s4) {
+      var r4 = SEV_ORDER[s4];
+      return r4 != null ? r4 : 99;
+    };
+    var findingsQ = (self._findingsSearch || "").toLowerCase().trim();
+    var baselineQ = (self._baselineSearch || "").toLowerCase().trim();
+    var dismissedQ = (self._dismissedSearch || "").toLowerCase().trim();
+    var _match = function(f3, q) {
+      if (!q) return true;
+      return (f3.summary || "").toLowerCase().includes(q) || (f3.source_ip || "").toLowerCase().includes(q) || (f3.category || "").toLowerCase().includes(q) || (f3.details && f3.details.cve_id || "").toLowerCase().includes(q);
+    };
+    var filteredFindings = findingsQ ? findings.filter(function(f3) {
+      return _match(f3, findingsQ);
+    }) : findings;
+    var filteredBaseline = baselineQ ? baselineAnomalies.filter(function(f3) {
+      return _match(f3, baselineQ);
+    }) : baselineAnomalies;
+    var filteredDismissed = dismissedQ ? allDismissedList.filter(function(f3) {
+      return _match(f3, dismissedQ);
+    }) : allDismissedList;
+    var topBar = b2`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px"><div class="page-header" style="margin:0"><h1 class="page-title">${this._t("page.findings", "Findings")}</h1></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">${this._t("findings.pattern", "\u{1F5D1}\xA0Pattern\u2026")}</button></div></div>`;
+    var renderCard = function(f3, isDismissed, isBaseline) {
+      var det = f3.details || {};
+      var cve = det.cve_id ? b2`<span class="chip">${det.cve_id}</span>` : "";
+      var portChip = det.port ? b2`<span class="chip">port ${det.port}</span>` : "";
+      var detRows = joinTemplates(Object.keys(det).filter(function(k2) {
+        return k2 !== "cve_id" && k2 !== "port" && k2 !== "remediation";
+      }).map(function(k2) {
+        return b2`<dt>${k2}:</dt> <dd>${String(det[k2])}</dd>`;
+      }), " ");
+      var noteHtml = isDismissed && f3.dismiss_note ? b2`<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>${self._t("findings.note", "Note")}:</strong> ${f3.dismiss_note}</div>` : "";
+      var baselineBadge = isBaseline ? b2`<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">${self._t("findings.baseline_badge", "Baseline")}</span>` : "";
+      return b2`<div class="finding-card sev-${f3.severity}" style=${isDismissed ? "opacity:.55" : A}><div class="finding-header">${self._sev(f3.severity)}${cve}${portChip}<span class="finding-title">${f3.summary}${baselineBadge}</span>${isDismissed ? b2`<button class="btn" data-undismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Restore finding">${self._t("findings.restore", "Restore")}</button>` : b2`<button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Dismiss finding">${self._t("findings.dismiss", "Dismiss")}</button>`}</div><div class="finding-meta"><span>${self._t("findings.source", "Source")}: <span class="ip">${f3.source_ip}</span></span>${det.port ? b2`<span>${self._t("findings.port", "Port")}: <strong>${det.port}</strong></span>` : ""}<span>${self._t("findings.category", "Category")}: ${FINDING_CAT_LABELS[f3.category] || f3.category || ""}</span>${f3.count ? b2`<span>${f3.count}× ${self._t("findings.seen", "seen")}</span>` : ""}<span>${self._ago(f3.last_seen)}</span></div>${detRows ? b2`<div class="finding-detail"><dl>${detRows}</dl></div>` : ""}${det.remediation ? b2`<div class="fix-hint">${self._t("findings.remediation", "Remediation")}: ${det.remediation}</div>` : ""}${noteHtml}</div>`;
+    };
+    var renderGrouped = function(findingsList, isDismissed) {
+      if (!findingsList.length) return "";
+      var groupMap = {};
+      findingsList.forEach(function(f3) {
+        var gkey = f3.summary || f3.category || "Unknown";
+        if (!groupMap[gkey]) {
+          groupMap[gkey] = {
+            summary: gkey,
+            findings: [],
+            severity: f3.severity,
+            category: f3.category,
+            isBaseline: !!f3._isBaseline
+          };
+        } else if (_sevRank(f3.severity) < _sevRank(groupMap[gkey].severity)) {
+          groupMap[gkey].severity = f3.severity;
+        }
+        groupMap[gkey].findings.push(f3);
+      });
+      return Object.values(groupMap).sort(function(a3, b3) {
+        return _sevRank(a3.severity) - _sevRank(b3.severity);
+      }).map(function(g2) {
+        var isExpanded = self._expandedFindingGroup === g2.summary;
+        var totalCount = g2.findings.reduce(function(s4, f3) {
+          return s4 + (f3.count || 1);
+        }, 0);
+        var latestSeen = g2.findings.reduce(function(lat, f3) {
+          return !lat || f3.last_seen > lat ? f3.last_seen : lat;
+        }, "");
+        var det0 = g2.findings[0] && g2.findings[0].details || {};
+        var cve = det0.cve_id ? b2`<span class="chip">${det0.cve_id}</span>` : "";
+        var portChip = det0.port ? b2`<span class="chip">port ${det0.port}</span>` : "";
+        var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${g2.findings.length}${g2.findings.length === 1 ? " " + self._t("findings.host_one", "host") : " " + self._t("findings.host_many", "hosts")}</span>`;
+        var blBadge = g2.isBaseline ? b2`<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">${self._t("findings.baseline_badge", "Baseline")}</span>` : "";
+        var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
+        var groupActionBtn = isDismissed ? b2`<button class="btn" data-undismiss-group="${g2.summary}">${self._t("findings.restore", "Restore")}${g2.findings.length > 1 ? " " + self._t("findings.restore_all", "all") + "\xA0" + g2.findings.length : ""}</button>` : b2`<button class="btn btn-dismiss" data-dismiss-group="${g2.summary}">${self._t("findings.dismiss", "Dismiss")}${g2.findings.length > 1 ? " " + self._t("findings.dismiss_all", "all") + "\xA0" + g2.findings.length : ""}</button>`;
+        var header = b2`<div class="finding-card sev-${g2.severity} finding-group-card" data-expand-group="${g2.summary}"><div class="finding-header">${self._sev(g2.severity)}${cve}${portChip}${countBadge}${blBadge}<span class="finding-title">${g2.summary}</span>${groupActionBtn}${chevron}</div><div class="finding-meta"><span>${self._t("findings.category", "Category")}: ${g2.category || "\u2014"}</span><span>${totalCount}× ${self._t("findings.total", "total")}</span><span>${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
+        var rows = "";
+        if (isExpanded) {
+          rows = b2`<div class="finding-group-rows">${g2.findings.map(function(f3) {
+            var det = f3.details || {};
+            var detRows = joinTemplates(Object.keys(det).filter(function(k2) {
+              return k2 !== "cve_id" && k2 !== "port" && k2 !== "remediation";
+            }).map(function(k2) {
+              return b2`<dt>${k2}:</dt><dd>${String(det[k2])}</dd>`;
+            }), " ");
+            var rowActionBtn = isDismissed ? b2`<button class="btn" data-undismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Restore this finding">${self._t("findings.restore", "Restore")}</button>` : b2`<button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Dismiss this finding">${self._t("findings.dismiss", "Dismiss")}</button>`;
+            return b2`<div class="finding-row"><span class="ip">${f3.source_ip || ""}</span>${det.port ? b2`<span class="chip">:${det.port}</span>` : ""}<span class="dim" style="font-size:10px">${f3.count || 1}× · ${self._ago(f3.last_seen)}</span>${det.remediation ? b2`<span style="font-size:10px;color:var(--success);flex:1">${self._t("hosts.fix", "Fix")}: ${det.remediation}</span>` : b2`<span style="flex:1"></span>`}${detRows ? b2`<div class="finding-detail" style="margin:4px 0;width:100%"><dl>${detRows}</dl></div>` : ""}${rowActionBtn}</div>`;
+          })}</div>`;
+        }
+        return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
+      });
+    };
+    var _baselineExpandRows = function(list) {
+      return list.map(function(f3) {
+        var det = f3.details || {};
+        return b2`<div class="finding-row">${self._sev(f3.severity)}<span style="flex:1;font-size:12px">${f3.summary}</span>${det.port ? b2`<span class="chip" style="font-size:9px">:${det.port}</span>` : ""}<span class="dim" style="font-size:10px;flex-shrink:0">${self._ago(f3.last_seen)}</span><button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Dismiss">${self._t("findings.dismiss", "Dismiss")}</button></div>`;
+      });
+    };
+    var renderBaselineByCategory = function(list) {
+      if (!list.length) return "";
+      var BL_CAT_LABELS = {
+        anomaly_new_host: self._t("findings.cat_new_host", "New Host Detected"),
+        anomaly_new_peer: self._t("findings.cat_new_peer", "New External Peer"),
+        anomaly_new_port: self._t("findings.cat_new_port", "New Open Port"),
+        anomaly_new_dns_domain: self._t("findings.cat_new_dns_domain", "New DNS Domain"),
+        anomaly_new_dns_category: self._t("findings.cat_new_dns_category", "New DNS Category"),
+        anomaly_missing_host: self._t("findings.cat_missing_host", "Known Host Missing"),
+        anomaly_missing_peer: self._t("findings.cat_missing_peer", "Known Peer Missing")
+      };
+      var catMap = {};
+      list.forEach(function(f3) {
+        var cat = f3.category || "unknown";
+        if (!catMap[cat]) catMap[cat] = {
+          category: cat,
+          findings: [],
+          maxSev: "info"
+        };
+        if (_sevRank(f3.severity) < _sevRank(catMap[cat].maxSev)) catMap[cat].maxSev = f3.severity;
+        catMap[cat].findings.push(f3);
+      });
+      return Object.values(catMap).sort(function(a3, b3) {
+        var sd = _sevRank(a3.maxSev) - _sevRank(b3.maxSev);
+        return sd !== 0 ? sd : a3.category.localeCompare(b3.category);
+      }).map(function(c4) {
+        var gkey = "bcat:" + c4.category;
+        var isExpanded = self._expandedBaselineGroup === gkey;
+        var latestSeen = c4.findings.reduce(function(lat, f3) {
+          return !lat || f3.last_seen > lat ? f3.last_seen : lat;
+        }, "");
+        var uniqueHosts = {};
+        c4.findings.forEach(function(f3) {
+          uniqueHosts[f3.source_ip] = true;
+        });
+        var hostCount = Object.keys(uniqueHosts).length;
+        var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${c4.findings.length} ${c4.findings.length === 1 ? self._t("findings.finding_one", "finding") : self._t("findings.finding_many", "findings")} · ${hostCount} ${hostCount === 1 ? self._t("findings.host_one", "host") : self._t("findings.host_many", "hosts")}</span>`;
+        var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
+        var dismissAllBtn = b2`<button class="btn btn-dismiss" data-dismiss-group="${gkey}">${self._t("findings.dismiss_all", "Dismiss all")} ${c4.findings.length}</button>`;
+        var header = b2`<div class="finding-card sev-${c4.maxSev} finding-group-card" data-expand-baseline-group="${gkey}"><div class="finding-header">${self._sev(c4.maxSev)}${countBadge}<span class="finding-title">${BL_CAT_LABELS[c4.category] || c4.category}</span>${dismissAllBtn}${chevron}</div><div class="finding-meta"><span>${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
+        var sortedByCategory = c4.findings.slice().sort(function(a3, b3) {
+          return _sevRank(a3.severity) - _sevRank(b3.severity);
+        });
+        var rows = isExpanded ? b2`<div class="finding-group-rows">${_baselineExpandRows(sortedByCategory)}</div>` : "";
+        return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
+      });
+    };
+    var renderBaselineByHost = function(list) {
+      if (!list.length) return "";
+      var hostMap = {};
+      list.forEach(function(f3) {
+        var ip = f3.source_ip || "unknown";
+        if (!hostMap[ip]) hostMap[ip] = {
+          ip,
+          findings: [],
+          maxSev: "info"
+        };
+        if (_sevRank(f3.severity) < _sevRank(hostMap[ip].maxSev)) hostMap[ip].maxSev = f3.severity;
+        hostMap[ip].findings.push(f3);
+      });
+      return Object.values(hostMap).sort(function(a3, b3) {
+        var sd = _sevRank(a3.maxSev) - _sevRank(b3.maxSev);
+        if (sd !== 0) return sd;
+        return a3.ip.split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join(".").localeCompare(b3.ip.split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join("."));
+      }).map(function(h3) {
+        var gkey = "bhost:" + h3.ip;
+        var isExpanded = self._expandedBaselineGroup === gkey;
+        var latestSeen = h3.findings.reduce(function(lat, f3) {
+          return !lat || f3.last_seen > lat ? f3.last_seen : lat;
+        }, "");
+        var catCounts = {};
+        h3.findings.forEach(function(f3) {
+          catCounts[f3.category] = (catCounts[f3.category] || 0) + 1;
+        });
+        var catChips = joinTemplates(Object.keys(catCounts).slice(0, 5).map(function(c4) {
+          return b2`<span class="chip" style="font-size:9px">${c4} (${catCounts[c4]})</span>`;
+        }), " ");
+        var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${h3.findings.length} ${h3.findings.length === 1 ? self._t("findings.finding_one", "finding") : self._t("findings.finding_many", "findings")}</span>`;
+        var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
+        var dismissAllBtn = b2`<button class="btn btn-dismiss" data-dismiss-group="${gkey}">${self._t("findings.dismiss_all", "Dismiss all")} ${h3.findings.length}</button>`;
+        var header = b2`<div class="finding-card sev-${h3.maxSev} finding-group-card" data-expand-baseline-group="${gkey}"><div class="finding-header">${self._sev(h3.maxSev)}${countBadge}<span class="finding-title" style="font-family:monospace">${h3.ip}</span>${dismissAllBtn}${chevron}</div><div class="finding-meta">${catChips}<span style="flex-shrink:0">${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
+        var rows = isExpanded ? b2`<div class="finding-group-rows">${_baselineExpandRows(h3.findings)}</div>` : "";
+        return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
+      });
+    };
+    var _mkFindingGroup = function(gkey, label, sev, itemList, isDismissed) {
+      var expandKey = isDismissed ? "dismissed:" + gkey : gkey;
+      var isExpanded = self._expandedFindingGroup === expandKey;
+      var totalCount = itemList.reduce(function(s4, f3) {
+        return s4 + (f3.count || 1);
+      }, 0);
+      var latestSeen = itemList.reduce(function(lat, f3) {
+        return !lat || f3.last_seen > lat ? f3.last_seen : lat;
+      }, "");
+      var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${itemList.length} ${itemList.length === 1 ? self._t("findings.finding_one", "finding") : self._t("findings.finding_many", "findings")}</span>`;
+      var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
+      var actionBtn = isDismissed ? b2`<button class="btn" data-undismiss-group="${gkey}">${self._t("findings.restore_all", "Restore all")} ${itemList.length}</button>` : b2`<button class="btn btn-dismiss" data-dismiss-group="${gkey}">${self._t("findings.dismiss_all", "Dismiss all")} ${itemList.length}</button>`;
+      var header = b2`<div class="finding-card sev-${sev} finding-group-card" data-expand-group="${expandKey}"><div class="finding-header">${self._sev(sev)}${countBadge}<span class="finding-title">${label}</span>${actionBtn}${chevron}</div><div class="finding-meta"><span>${totalCount}× ${self._t("findings.total", "total")}</span><span>${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
+      var rows = "";
+      if (isExpanded) {
+        rows = b2`<div class="finding-group-rows">${itemList.slice().sort(function(a3, b3) {
+          return _sevRank(a3.severity) - _sevRank(b3.severity);
+        }).map(function(f3) {
+          var det = f3.details || {};
+          var detRows = joinTemplates(Object.keys(det).filter(function(k2) {
+            return k2 !== "cve_id" && k2 !== "port" && k2 !== "remediation";
+          }).map(function(k2) {
+            return b2`<dt>${k2}:</dt><dd>${String(det[k2])}</dd>`;
+          }), " ");
+          var blBadge = f3._isBaseline ? b2`<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">${self._t("findings.baseline_badge", "Baseline")}</span>` : "";
+          var rowActionBtn = isDismissed ? b2`<button class="btn" data-undismiss="${f3.key || f3.source_ip + ":" + f3.category}">${self._t("findings.restore", "Restore")}</button>` : b2`<button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}">${self._t("findings.dismiss", "Dismiss")}</button>`;
+          return b2`<div class="finding-row">${self._sev(f3.severity)}<span class="ip">${f3.source_ip || ""}</span>${blBadge}${det.cve_id ? b2`<span class="chip">${det.cve_id}</span>` : ""}${det.port ? b2`<span class="chip">:${det.port}</span>` : ""}<span style="flex:1;font-size:11px">${f3.summary || f3.category || ""}</span><span class="dim" style="font-size:10px">${f3.count || 1}× · ${self._ago(f3.last_seen)}</span>${detRows ? b2`<div class="finding-detail" style="margin:4px 0;width:100%"><dl>${detRows}</dl></div>` : ""}${rowActionBtn}</div>`;
+        })}</div>`;
+      }
+      return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
+    };
+    var FINDING_CAT_LABELS = {
+      vulnerability: self._t("findings.cat_vulnerability", "Vulnerability / CVE"),
+      port_scan: self._t("findings.cat_port_scan", "Port Scan"),
+      suspicious_port: self._t("findings.cat_suspicious_port", "Suspicious Open Port"),
+      high_egress: self._t("findings.cat_high_egress", "High Egress Traffic")
+    };
+    var renderFindingsByCategory = function(list, isDismissed) {
+      if (!list.length) return "";
+      var catMap = {};
+      list.forEach(function(f3) {
+        var k2 = f3.category || "unknown";
+        if (!catMap[k2]) catMap[k2] = {
+          sev: f3.severity,
+          items: []
+        };
+        else if (_sevRank(f3.severity) < _sevRank(catMap[k2].sev)) catMap[k2].sev = f3.severity;
+        catMap[k2].items.push(f3);
+      });
+      return Object.values(catMap).sort(function(a3, b3) {
+        return _sevRank(a3.sev) - _sevRank(b3.sev);
+      }).map(function(g2) {
+        var cat = g2.items[0].category || "unknown";
+        var label = FINDING_CAT_LABELS[cat] || cat;
+        return _mkFindingGroup("fcat:" + cat, label, g2.sev, g2.items, isDismissed);
+      });
+    };
+    var renderFindingsByHost = function(list, isDismissed) {
+      if (!list.length) return "";
+      var hostMap = {};
+      list.forEach(function(f3) {
+        var ip = f3.source_ip || "unknown";
+        if (!hostMap[ip]) hostMap[ip] = {
+          sev: f3.severity,
+          items: []
+        };
+        else if (_sevRank(f3.severity) < _sevRank(hostMap[ip].sev)) hostMap[ip].sev = f3.severity;
+        hostMap[ip].items.push(f3);
+      });
+      return Object.values(hostMap).sort(function(a3, b3) {
+        var sd = _sevRank(a3.sev) - _sevRank(b3.sev);
+        if (sd !== 0) return sd;
+        return a3.items[0].source_ip.split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join(".").localeCompare(b3.items[0].source_ip.split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join("."));
+      }).map(function(g2) {
+        var ip = g2.items[0].source_ip || "unknown";
+        var label = b2`<span style="font-family:monospace">${ip}</span>`;
+        return _mkFindingGroup("fhost:" + ip, label, g2.sev, g2.items, isDismissed);
+      });
+    };
+    var SEV_LABELS = {
+      critical: self._t("findings.sev_critical", "Critical"),
+      high: self._t("findings.sev_high", "High"),
+      medium: self._t("findings.sev_medium", "Medium"),
+      low: self._t("findings.sev_low", "Low"),
+      info: self._t("findings.sev_info", "Info")
+    };
+    var renderFindingsBySeverity = function(list, isDismissed) {
+      if (!list.length) return "";
+      var sevMap = {};
+      list.forEach(function(f3) {
+        var s4 = f3.severity || "info";
+        if (!sevMap[s4]) sevMap[s4] = [];
+        sevMap[s4].push(f3);
+      });
+      return ["critical", "high", "medium", "low", "info"].filter(function(s4) {
+        return sevMap[s4];
+      }).map(function(s4) {
+        return _mkFindingGroup("fsev:" + s4, SEV_LABELS[s4] || s4, s4, sevMap[s4], isDismissed);
+      });
+    };
+    var _renderFindingCards = function(list, isDismissed, mode) {
+      if (!list.length) return "";
+      if (mode === "host") return renderFindingsByHost(list, isDismissed);
+      if (mode === "severity") return renderFindingsBySeverity(list, isDismissed);
+      if (mode === "flat") return list.map(function(f3) {
+        return renderCard(f3, isDismissed, !!f3._isBaseline);
+      });
+      return renderFindingsByCategory(list, isDismissed);
+    };
+    var baselineSection = "";
+    if (baselineAnomalies.length) {
+      var blModeBtn = function(mode, label) {
+        var active = baselineGroupMode === mode;
+        return b2`<button class="btn${active ? " active" : ""}" data-baseline-group-mode="${mode}">${label}</button>`;
+      };
+      var blSearchInput = b2`<input type="search" data-baseline-search placeholder="Search + Enter" value="${self._baselineSearch || ""}" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">`;
+      var blToolbar = b2`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${blModeBtn("category", self._t("findings.by_category", "By Category"))}${blModeBtn("host", self._t("findings.by_host", "By Host"))}${blModeBtn("flat", self._t("findings.flat", "Flat"))}<span style="flex:1"></span>${blSearchInput}</div>`;
+      var blCards;
+      if (baselineGroupMode === "host") blCards = renderBaselineByHost(filteredBaseline);
+      else if (baselineGroupMode === "flat") blCards = filteredBaseline.map(function(f3) {
+        return renderCard(f3, false, true);
+      });
+      else blCards = renderBaselineByCategory(filteredBaseline);
+      var blContent = baselineQ && !filteredBaseline.length ? b2`<div class="empty-state card" style="height:100px"><p>${self._t("findings.no_results", "No results for")} &ldquo;${baselineQ}&rdquo;.</p></div>` : blCards;
+      baselineSection = b2`<div style="margin-bottom:28px"><div class="view-header"><h1>${this._t("findings.baseline", "Baseline Anomalies")} <span class="dim">(${baselineAnomalies.length}${baselineQ && filteredBaseline.length !== baselineAnomalies.length ? ", " + filteredBaseline.length + " " + this._t("findings.shown", "shown") : ""})</span></h1></div>${blToolbar}${blContent}</div>`;
+    }
+    var cards = _renderFindingCards(filteredFindings, false, findingsGroupMode);
+    var findingsHeader = findings.length ? b2`${this._t("findings.security", "Security Findings")} <span class="dim">(${findings.length} ${this._t("findings.actionable", "actionable")}${findingsQ && filteredFindings.length !== findings.length ? ", " + filteredFindings.length + " " + this._t("findings.shown", "shown") : ""}${allDismissedList.length ? ", " + allDismissedList.length + " " + this._t("findings.dismissed", "dismissed") : ""})</span>` : b2`${this._t("findings.security", "Security Findings")}${allDismissedList.length ? b2` <span class="dim">(${allDismissedList.length} ${this._t("findings.dismissed", "dismissed")})</span>` : ""}`;
+    var _fModeBtn = function(mode, label) {
+      return b2`<button class="btn${findingsGroupMode === mode ? " active" : ""}" data-findings-group-mode="${mode}" style="font-size:10px;padding:3px 8px">${label}</button>`;
+    };
+    var findingsToggle = b2`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${_fModeBtn("category", this._t("findings.by_category", "By Category"))}${_fModeBtn("host", this._t("findings.by_host", "By Host"))}${_fModeBtn("severity", this._t("findings.by_severity", "By Severity"))}${_fModeBtn("flat", this._t("findings.flat", "Flat"))}<span style="flex:1"></span><input type="search" data-findings-search placeholder="${self._t("common.search_enter", "Search + Enter")}" value="${self._findingsSearch || ""}" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none"></div>`;
+    var activeSection = b2`<div><div class="view-header"><h1>${findingsHeader}</h1></div>${findingsToggle}${findings.some(function(f3) {
+      return f3.category === "vulnerability";
+    }) ? this._bannerDisclaimer("margin:0 2px 10px") : ""}${findings.length ? filteredFindings.length ? cards : b2`<div class="empty-state card" style="height:100px"><p>${self._t("findings.no_results", "No results for")} &ldquo;${findingsQ}&rdquo;.</p></div>` : b2`<div class="empty-state card" style="height:180px"><div class="empty-icon">✓</div><p>${this._t("findings.no_active", "No active high or critical findings.")}</p></div>`}</div>`;
+    var dismissedCards = _renderFindingCards(filteredDismissed, true, dismissedGroupMode);
+    var _dModeBtn = function(mode, label) {
+      return b2`<button class="btn${dismissedGroupMode === mode ? " active" : ""}" data-dismissed-group-mode="${mode}" style="font-size:10px;padding:3px 8px">${label}</button>`;
+    };
+    var dismissedToggle = b2`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${_dModeBtn("category", this._t("findings.by_category", "By Category"))}${_dModeBtn("host", this._t("findings.by_host", "By Host"))}${_dModeBtn("severity", this._t("findings.by_severity", "By Severity"))}${_dModeBtn("flat", this._t("findings.flat", "Flat"))}<span style="flex:1"></span><input type="search" data-dismissed-search placeholder="${self._t("common.search_enter", "Search + Enter")}" value="${self._dismissedSearch || ""}" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none"></div>`;
+    var dismissedSection = allDismissedList.length ? b2`<div style="margin-top:28px;opacity:.7"><div class="view-header"><h1>${this._t("findings.dismissed_title", "Dismissed")} <span class="dim">(${allDismissedList.length}${dismissedQ && filteredDismissed.length !== allDismissedList.length ? ", " + filteredDismissed.length + " " + this._t("findings.shown", "shown") : ""})</span></h1></div>${dismissedToggle}${filteredDismissed.length ? dismissedCards : b2`<div class="empty-state card" style="height:100px"><p>${self._t("findings.no_results", "No results for")} &ldquo;${dismissedQ}&rdquo;.</p></div>`}</div>` : "";
+    return b2`${topBar}${baselineSection}${activeSection}${dismissedSection}`;
+  },
+  _dismissFinding(key) {
+    if (!key) return;
+    this._openEditor({
+      mode: "dismiss",
+      ip: key,
+      title: "Dismiss Finding",
+      help: 'Optionally add a note explaining why this finding is dismissed (e.g. "false positive", "patched", "accepted risk"). Leave blank to dismiss without a note.',
+      placeholder: "Reason for dismissing (optional)",
+      value: ""
+    });
+  },
+  _regexPreviewHtml() {
+    var pattern = this._regexDismissPattern;
+    if (!pattern) return b2`<div style="font-size:11px;color:var(--muted)">Enter a regex above to preview matches.</div>`;
+    var rx = null;
+    var rxErr = "";
+    try {
+      rx = new RegExp(pattern, "i");
+    } catch (e4) {
+      rxErr = e4.message;
+    }
+    if (rxErr) return b2`<div style="font-size:11px;color:var(--danger)">⚠ Invalid regex: ${rxErr}</div>`;
+    var findings = this._data && this._data.findings || [];
+    var matched = findings.filter(function(f3) {
+      return rx.test(f3.summary || "") || rx.test(f3.key || "");
+    });
+    if (!matched.length) return b2`<div style="font-size:11px;color:var(--muted)">No active findings match this pattern.</div>`;
+    var self = this;
+    return b2`<div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Would dismiss ${matched.length} finding${matched.length !== 1 ? "s" : ""}:</div>${matched.map(function(f3) {
+      return b2`<div style="display:flex;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid rgba(98,232,255,.06);flex-wrap:wrap">${self._sev(f3.severity)}<span class="ip" style="font-size:11px">${f3.source_ip || ""}</span><span style="font-size:11px;color:var(--text);flex:1">${f3.summary || ""}</span></div>`;
+    })}`;
+  },
+  _regexDismissModal() {
+    var self = this;
+    return b2`<div id="hsa-regex-dismiss-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(640px,96vw);margin:0;border:1px solid rgba(98,232,255,.26)"><div class="view-header" style="margin-bottom:10px"><h1 style="font-size:16px">🗑 Dismiss by Pattern</h1></div><div class="dim" style="font-size:11px;margin-bottom:12px">Enter a regular expression to match against finding summaries or keys. All matching <strong>active</strong> findings will be dismissed.</div><label class="dim" style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">Regex pattern</label><input id="hsa-regex-pattern" class="search-bar" style="width:100%;font-family:monospace" type="text" maxlength="200" placeholder="e.g. port.scan|high.egress" value="${self._regexDismissPattern}" autocomplete="off" spellcheck="false"><label class="dim" style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-top:10px;margin-bottom:4px">Dismiss note (optional)</label><input id="hsa-regex-note" class="search-bar" style="width:100%" type="text" maxlength="500" placeholder="e.g. accepted risk, false positive" value="${self._regexDismissNote}"><div id="hsa-regex-preview" style="margin-top:12px;padding:10px;background:rgba(0,0,0,.25);border-radius:6px;max-height:200px;overflow-y:auto">${self._regexPreviewHtml()}</div><div class="row-gap" style="justify-content:flex-end;margin-top:14px;gap:8px"><button class="btn" data-regex-dismiss-close>Cancel</button><button class="btn" style="background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.4);color:#ff4d6d" data-regex-dismiss-confirm>Dismiss matching</button></div></div></div>`;
+  }
+};
+
+// src/views/external.js
+var externalMethods = {
+  _extThead() {
+    var self = this;
+    var cols = [{
+      key: "ip",
+      label: "IP"
+    }, {
+      key: "hostname",
+      label: this._t("external.col_hostname", "Hostname")
+    }, {
+      key: "traffic_kb",
+      label: this._t("external.col_traffic_kb", "Traffic (KB)")
+    }, {
+      key: "country",
+      label: this._t("external.col_country", "Country")
+    }, {
+      key: "org",
+      label: this._t("external.col_asn_org", "ASN / Org")
+    }, {
+      key: "rating",
+      label: this._t("external.col_rating", "Rating")
+    }, {
+      key: "vt",
+      label: this._t("external.col_vt_hits", "VT hits")
+    }, {
+      key: "abuse",
+      label: this._t("external.col_abuse", "Abuse%")
+    }, {
+      key: null,
+      label: this._t("external.col_ports", "Ports")
+    }, {
+      key: "direction",
+      label: this._t("external.col_direction", "Direction")
+    }, {
+      key: "internal_host",
+      label: this._t("external.col_internal_host", "Internal host")
+    }, {
+      key: "last_seen",
+      label: this._t("external.col_last_seen", "Last seen")
+    }];
+    return b2`<tr>${cols.map(function(c4) {
+      if (!c4.key) return b2`<th>${c4.label}</th>`;
+      var arrow = self._extSort === c4.key ? self._extSortDir > 0 ? " \u25B2" : " \u25BC" : "";
+      return b2`<th class="sortable-th" data-extsort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
+    })}</tr>`;
+  },
+  _extPreparedList() {
+    var q = this._extFilter.toLowerCase();
+    var sortKey = this._extSort;
+    var sortDir = this._extSortDir;
+    var extIPs = (this._data && this._data.external_ips || []).slice();
+    var nameMap = {};
+    (this._data && this._data.devices || []).forEach(function(d3) {
+      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
+    });
+    if (q) {
+      extIPs = extIPs.filter(function(e4) {
+        return (e4.ip || "").indexOf(q) >= 0 || (e4.hostname || "").toLowerCase().indexOf(q) >= 0 || (e4.country_name || e4.country || "").toLowerCase().indexOf(q) >= 0 || (e4.org || e4.asn || "").toLowerCase().indexOf(q) >= 0 || (e4.rating || "").toLowerCase().indexOf(q) >= 0 || (e4.direction || "").toLowerCase().indexOf(q) >= 0 || (e4.internal_sources || []).some(function(s4) {
+          return s4.indexOf(q) >= 0 || nameMap[s4] && nameMap[s4].toLowerCase().indexOf(q) >= 0;
+        }) || (e4.dst_ports || []).some(function(p3) {
+          return String(p3).indexOf(q) >= 0;
+        });
+      });
+    }
+    extIPs.sort(function(a3, b3) {
+      var va, vb;
+      if (sortKey === "ip") {
+        va = (a3.ip || "").split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join(".");
+        vb = (b3.ip || "").split(".").map(function(n4) {
+          return ("000" + n4).slice(-3);
+        }).join(".");
+      } else if (sortKey === "hostname") {
+        va = (a3.hostname || "").toLowerCase();
+        vb = (b3.hostname || "").toLowerCase();
+      } else if (sortKey === "traffic_kb") {
+        va = a3.total_octets || 0;
+        vb = b3.total_octets || 0;
+        return (va - vb) * sortDir;
+      } else if (sortKey === "country") {
+        va = (a3.country_name || a3.country || "").toLowerCase();
+        vb = (b3.country_name || b3.country || "").toLowerCase();
+      } else if (sortKey === "org") {
+        va = (a3.org || a3.asn || "").toLowerCase();
+        vb = (b3.org || b3.asn || "").toLowerCase();
+      } else if (sortKey === "rating") {
+        var rOrder = {
+          malicious: 0,
+          suspicious: 1,
+          clean: 2,
+          "": 3
+        };
+        va = rOrder[a3.rating || (a3.blacklisted ? "malicious" : "")] !== void 0 ? rOrder[a3.rating || (a3.blacklisted ? "malicious" : "")] : 3;
+        vb = rOrder[b3.rating || (b3.blacklisted ? "malicious" : "")] !== void 0 ? rOrder[b3.rating || (b3.blacklisted ? "malicious" : "")] : 3;
+        return (va - vb) * sortDir;
+      } else if (sortKey === "vt") {
+        va = (a3.vt_malicious || 0) + (a3.vt_suspicious || 0) * 0.1;
+        vb = (b3.vt_malicious || 0) + (b3.vt_suspicious || 0) * 0.1;
+        return (va - vb) * sortDir;
+      } else if (sortKey === "abuse") {
+        va = a3.abuse_confidence != null ? a3.abuse_confidence : -1;
+        vb = b3.abuse_confidence != null ? b3.abuse_confidence : -1;
+        return (va - vb) * sortDir;
+      } else if (sortKey === "direction") {
+        var dOrder = {
+          outbound: 0,
+          inbound: 1,
+          both: 2
+        };
+        va = dOrder[a3.direction || "outbound"] !== void 0 ? dOrder[a3.direction || "outbound"] : 0;
+        vb = dOrder[b3.direction || "outbound"] !== void 0 ? dOrder[b3.direction || "outbound"] : 0;
+        return (va - vb) * sortDir;
+      } else if (sortKey === "internal_host") {
+        va = (a3.internal_sources || a3.sources || []).map(function(s4) {
+          return nameMap[s4] || s4;
+        }).sort().join(",").toLowerCase();
+        vb = (b3.internal_sources || b3.sources || []).map(function(s4) {
+          return nameMap[s4] || s4;
+        }).sort().join(",").toLowerCase();
+      } else if (sortKey === "last_seen") {
+        va = a3.last_seen || "";
+        vb = b3.last_seen || "";
+      } else {
+        return 0;
+      }
+      if (va < vb) return -1 * sortDir;
+      if (va > vb) return 1 * sortDir;
+      return 0;
+    });
+    return extIPs;
+  },
+  _extPageBar() {
+    var total = this._extPreparedList().length;
+    var totalPages = Math.max(1, Math.ceil(total / this._extPageSize));
+    var page = Math.min(this._extPage, totalPages);
+    var start = total === 0 ? 0 : (page - 1) * this._extPageSize + 1;
+    var end = Math.min(total, page * this._extPageSize);
+    return b2`<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap"><div class="row-gap" style="font-size:11px;color:var(--muted)">${this._t("external.showing", "Showing")} ${start}-${end} of ${total}</div><div class="row-gap" style="gap:6px"><label class="dim" style="font-size:11px">${this._t("common.rows", "Rows")}</label><select id="hsa-ext-pagesize" class="role-select">${[10, 25, 50, 100].map((n4) => b2`<option value="${n4}" ?selected=${n4 === this._extPageSize}>${n4}</option>`)}</select><button class="btn" data-extpage="prev" ?disabled=${page <= 1}>${this._t("common.previous", "Previous")}</button><span class="dim" style="font-size:11px;min-width:70px;text-align:center">${page} / ${totalPages}</span><button class="btn" data-extpage="next" ?disabled=${page >= totalPages}>${this._t("common.next", "Next")}</button></div></div>`;
+  },
+  _extRows() {
+    var extIPs = this._extPreparedList();
+    var totalPages = Math.max(1, Math.ceil(extIPs.length / this._extPageSize));
+    this._extPage = Math.min(Math.max(1, this._extPage), totalPages);
+    var start = (this._extPage - 1) * this._extPageSize;
+    extIPs = extIPs.slice(start, start + this._extPageSize);
+    if (!extIPs.length) return b2`<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🔍</div><p>${this._t("external.no_match", "No external IPs match the filter")}</p></div></td></tr>`;
+    var self = this;
+    var nameMap = {};
+    (this._data && this._data.devices || []).forEach(function(d3) {
+      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
+    });
+    return extIPs.map(function(e4) {
+      var rating = e4.rating || (e4.blacklisted ? "malicious" : "");
+      var vt = e4.vt_malicious != null ? e4.vt_malicious + "/" + ((e4.vt_malicious || 0) + (e4.vt_suspicious || 0) + (e4.vt_harmless || 0)) : "\u2014";
+      var abuse = e4.abuse_confidence != null ? e4.abuse_confidence + "%" : "\u2014";
+      var trafficKb = ((e4.total_octets || 0) / 1024).toFixed(1);
+      var host = e4.hostname || "";
+      var dstPorts = (e4.dst_ports || []).slice(0, 8);
+      var portsHtml = dstPorts.length ? b2`${joinTemplates(dstPorts.map(function(p3) {
+        return b2`<span class="chip">${p3}</span>`;
+      }), " ")}${e4.dst_ports.length > 8 ? b2` <span class="dim">+${e4.dst_ports.length - 8}</span>` : ""}` : b2`<span class="dim">—</span>`;
+      var dir = e4.direction || "outbound";
+      var directionHtml = dir === "both" ? b2`<span style="color:#a78bfa;font-size:11px">${self._t("external.direction_both", "\u2195 Both")}${e4.direction_alert ? b2` <span title="Different internal hosts involved in each direction — an external IP contacted a server that did not initiate the outbound relationship. Review recommended." style="cursor:help;color:#f59e0b">⚠</span>` : ""}</span>` : dir === "inbound" ? b2`<span style="color:#fb923c;font-size:11px">${self._t("external.direction_inbound", "\u2193 Inbound")}</span>` : b2`<span style="color:#34d399;font-size:11px">${self._t("external.direction_outbound", "\u2191 Outbound")}</span>`;
+      var sources = e4.internal_sources || e4.sources || [];
+      var sourcesHtml = sources.length ? joinTemplates(sources.map(function(s4) {
+        var name = nameMap[s4] || s4;
+        return b2`<span class="ip-chip" title="${s4}">${name}</span>`;
+      }), " ") : b2`<span class="dim">—</span>`;
+      var ratingHtml = rating ? self._ratingWithSource(rating, e4.rating_source) : b2`<span class="dim">—</span>`;
+      var countryFlag = self._countryFlag(e4.country);
+      var countryTitle = e4.country_name || e4.country || "";
+      return b2`<tr style="cursor:pointer" data-ext-ip-row="${e4.ip}"><td>${e4.blacklisted ? b2`<span style="color:#ff4d6d;margin-right:3px">⚠</span>` : ""}<span class="ip">${e4.ip}</span></td><td style="font-size:11px">${host ? host : b2`<span class="dim">—</span>`}</td><td style="font-family:monospace;font-size:11px;text-align:right">${trafficKb}</td><td style="font-size:11px">${countryFlag ? b2`<span title="${countryTitle}" style="font-size:15px;line-height:1">${countryFlag}</span>` : b2`<span class="dim">—</span>`}</td><td style="font-size:11px">${(e4.org || "").substring(0, 30) || e4.asn || "\u2014"}</td><td>${ratingHtml}</td><td style="font-family:monospace;font-size:11px">${vt}</td><td style="font-family:monospace;font-size:11px">${abuse}</td><td style="font-size:11px">${portsHtml}</td><td style="font-size:11px">${directionHtml}</td><td style="font-size:11px">${sourcesHtml}</td><td style="font-size:10px;color:var(--muted)">${self._ago(e4.last_seen)}</td></tr>`;
+    });
+  },
+  _viewExternal() {
+    var totalCount = (this._data && this._data.external_ips || []).length;
+    return b2`<div><div class="view-header"><h1>${this._t("external.page_title", "External IPs")} <span class="dim">(${totalCount})</span></h1><input id="hsa-ext-filter" class="search-bar" type="search" placeholder="${this._t("external.filter_placeholder", "Filter by IP, hostname, country, org\u2026")}" value="${this._extFilter}"></div><div id="hsa-ext-pagebar">${this._extPageBar()}</div><div class="card table-card"><table class="data-table"><thead id="hsa-ext-thead">${this._extThead()}</thead><tbody id="hsa-ext-tbody">${this._extRows()}</tbody></table></div></div>`;
+  },
+  _ipDetail(d3, internalSources, direction) {
+    var ip = d3.ip || "";
+    var self = this;
+    var reportLinks = ip ? [["ipwho.is", "https://ipwho.is/" + encodeURIComponent(ip)], ["AbuseIPDB", "https://www.abuseipdb.com/check/" + encodeURIComponent(ip)], ["VirusTotal", "https://www.virustotal.com/gui/ip-address/" + encodeURIComponent(ip)]] : [];
+    var pairs = [[this._t("external.modal_hostname", "Hostname"), d3.hostname], [this._t("external.modal_country", "Country"), d3.country_name || d3.country], [this._t("external.modal_asn", "ASN"), d3.asn], [this._t("external.modal_org_isp", "ISP / Org"), d3.org || d3.isp], [this._t("external.modal_city", "City"), d3.city], [this._t("external.modal_timezone", "Timezone"), d3.timezone], [this._t("external.modal_vt", "VirusTotal"), d3.vt_malicious != null ? d3.vt_malicious + " " + self._t("external.modal_malicious", "malicious") + ", " + d3.vt_suspicious + " " + self._t("external.modal_suspicious", "suspicious") + ", " + d3.vt_harmless + " " + self._t("external.modal_harmless", "harmless") : null], [this._t("external.modal_vt_rep", "VT Reputation"), d3.vt_reputation != null ? String(d3.vt_reputation) : null], [this._t("external.modal_abuse", "Abuse score"), d3.abuse_confidence != null ? d3.abuse_confidence + "% (" + d3.abuse_total_reports + " " + self._t("external.modal_reports", "reports") + ")" : null], [this._t("external.modal_rating_source", "Rating source"), d3.rating_source || null], [this._t("external.blacklisted", "Blacklisted"), d3.blacklisted ? self._t("external.modal_yes", "Yes") + " \u2013 " + (d3.blacklist_info && d3.blacklist_info.source || "threat_intel") : self._t("external.modal_no", "No")], [this._t("external.modal_direction", "Direction"), (function(dir) {
+      return dir.charAt(0).toUpperCase() + dir.slice(1);
+    })(direction || d3.direction || "outbound")], [this._t("external.modal_data_sources", "Data sources"), d3.sources && d3.sources.join(", ") || "\u2014"], [this._t("external.modal_enriched_at", "Enriched at"), d3.enriched_at ? this._ago(d3.enriched_at) : null]].filter(function(p3) {
+      return p3[1] != null && p3[1] !== "";
+    });
+    var pairsHtml = pairs.map(function(p3) {
+      return b2`<div class="detail-pair"><span class="detail-key">${p3[0]}</span><span class="detail-val">${String(p3[1])}</span></div>`;
+    });
+    var linksHtml = reportLinks.length ? b2`<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">${this._t("external.modal_reports", "Reports")}</span><span class="detail-val">${joinTemplates(reportLinks.map(function(item) {
+      return b2`<a class="ext-report-link" href="${item[1]}" target="_blank" rel="noopener noreferrer">${item[0]}</a>`;
+    }), " ")}</span></div>` : "";
+    var sources = internalSources || d3.internal_sources || [];
+    var sourcesHtml = sources.length ? b2`<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">${this._t("external.modal_internal_host", "Internal host")}</span><span class="detail-val">${joinTemplates(sources.map(function(s4) {
+      return b2`<span class="ip-chip">${s4}</span>`;
+    }), " ")}</span></div>` : "";
+    return b2`<div class="ip-detail-panel"><h3>🔍 ${d3.ip} ${d3.rating ? this._rating(d3.rating) : ""}</h3><div class="detail-grid">${pairsHtml}${linksHtml}${sourcesHtml}</div>${d3.error ? b2`<div style="color:var(--danger);margin-top:8px;font-size:11px">⚠ ${this._t("external.modal_error", "Enrichment error:")} ${d3.error}</div>` : ""}</div>`;
+  },
+  _extIPDetailModal() {
+    var e4 = this._extIPDetail;
+    if (!e4) return "";
+    var self = this;
+    var nameMap = {};
+    (this._data && this._data.devices || []).forEach(function(d3) {
+      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
+    });
+    var ip = e4.ip || "";
+    var isLooking = self._lookupIP === ip && self._lookingUp;
+    var enriched = self._lookupResult && self._lookupIP === ip ? self._lookupResult : null;
+    function row(label, value) {
+      return b2`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:11px;color:var(--muted);min-width:120px;flex-shrink:0">${label}</span><span style="font-size:12px;word-break:break-all">${value}</span></div>`;
+    }
+    var rating = e4.rating || (e4.blacklisted ? "malicious" : "");
+    var ratingBadge = rating ? self._ratingWithSource(rating, e4.rating_source) : b2`<span class="dim">—</span>`;
+    var countryFlag = self._countryFlag(e4.country);
+    var countryDisplay = b2`${countryFlag ? b2`<span style="font-size:15px">${countryFlag}</span> ` : ""}${e4.country_name || e4.country || "\u2014"}`;
+    var vtHtml = e4.vt_malicious != null ? e4.vt_malicious + "/" + ((e4.vt_malicious || 0) + (e4.vt_suspicious || 0) + (e4.vt_harmless || 0)) + " " + self._t("external.modal_malicious", "malicious") : "\u2014";
+    var abuseHtml = e4.abuse_confidence != null ? e4.abuse_confidence + "%" + (e4.abuse_total_reports ? " (" + e4.abuse_total_reports + " " + self._t("external.modal_reports", "reports") + ")" : "") : "\u2014";
+    var blacklistHtml = e4.blacklisted ? b2`<span style="color:#ff4d6d">⚠ ${self._t("external.modal_yes", "Yes")}${e4.blacklist_info && e4.blacklist_info.source ? " \u2013 " + e4.blacklist_info.source : ""}</span>` : b2`<span style="color:#6bffc8">${self._t("external.modal_no", "No")}</span>`;
+    var dir = e4.direction || "outbound";
+    var directionHtml = dir === "both" ? b2`<span style="color:#a78bfa">↕ ${self._t("external.direction_both", "Both")}</span>` : dir === "inbound" ? b2`<span style="color:#fb923c">↓ ${self._t("external.direction_inbound", "Inbound")}</span>` : b2`<span style="color:#34d399">↑ ${self._t("external.direction_outbound", "Outbound")}</span>`;
+    var dstPorts = (e4.dst_ports || []).slice(0, 16);
+    var portsHtml = dstPorts.length ? b2`${joinTemplates(dstPorts.map(function(p3) {
+      return b2`<span class="chip">${p3}</span>`;
+    }), " ")}${e4.dst_ports.length > 16 ? b2` <span class="dim">+${e4.dst_ports.length - 16}</span>` : ""}` : "\u2014";
+    var sources = e4.internal_sources || e4.sources || [];
+    var sourcesHtml = sources.length ? joinTemplates(sources.map(function(s4) {
+      var name = nameMap[s4] || s4;
+      return b2`<span class="ip-chip" title="${s4}">${name}</span>`;
+    }), " ") : "\u2014";
+    var trafficKb = ((e4.total_octets || 0) / 1024).toFixed(1) + " KB";
+    var enrichSection = "";
+    if (isLooking) {
+      enrichSection = b2`<div style="display:flex;align-items:center;gap:8px;padding:12px 0;color:var(--muted);font-size:12px"><span class="spin"></span> ${this._t("external.running_lookup", "Running enrichment lookup\u2026")}</div>`;
+    } else if (enriched) {
+      var enrichPairs = [[self._t("external.modal_city", "City"), enriched.city], [self._t("external.modal_timezone", "Timezone"), enriched.timezone], [self._t("external.modal_isp", "ISP"), enriched.isp], [self._t("external.modal_vt_rep", "VT Reputation"), enriched.vt_reputation != null ? String(enriched.vt_reputation) : null], [self._t("external.modal_enriched_at", "Enriched at"), enriched.enriched_at ? self._ago(enriched.enriched_at) : null]].filter(function(p3) {
+        return p3[1] != null && p3[1] !== "";
+      });
+      if (enrichPairs.length || enriched.error) {
+        enrichSection = b2`<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("external.enrichment_details", "Enrichment Details")}</div>${enrichPairs.map(function(p3) {
+          return row(p3[0], String(p3[1]));
+        })}${enriched.error ? b2`<div style="color:var(--danger);font-size:11px;margin-top:6px">⚠ ${enriched.error}</div>` : ""}`;
+      }
+    } else {
+      enrichSection = b2`<div style="margin-top:10px"><button class="btn" data-ext-lookup="${ip}">${this._t("external.run_full_lookup", "\u{1F50D} Run Full Lookup")}</button></div>`;
+    }
+    var linksHtml = ip ? b2`<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">${[b2`<a href="https://ipwho.is/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">ipwho.is</a>`, b2`<a href="https://www.abuseipdb.com/check/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">AbuseIPDB</a>`, b2`<a href="https://www.virustotal.com/gui/ip-address/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">VirusTotal</a>`, b2`<a href="https://www.shodan.io/host/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Shodan</a>`]}</div>` : "";
+    return b2`<div id="hsa-ext-ip-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(620px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(98,232,255,.26)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h1 style="font-size:15px;color:var(--accent);margin:0;font-family:monospace">${ip}</h1><button class="btn" data-ext-close="1">✕ ${this._t("common.close", "Close")}</button></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">${ratingBadge}${e4.blacklisted ? b2` <span class="badge badge-critical">⚠ ${this._t("external.blacklisted", "Blacklisted")}</span>` : ""}</div><div class="card-title" style="margin-bottom:6px">${this._t("external.ip_info", "IP Info")}</div>${row(this._t("external.modal_hostname", "Hostname"), e4.hostname || "\u2014")}${row(this._t("external.modal_country", "Country"), countryDisplay)}${row(this._t("external.modal_asn", "ASN"), e4.asn || "\u2014")}${row(this._t("external.modal_org_isp", "Org / ISP"), e4.org || e4.isp || "\u2014")}${row(this._t("external.modal_vt", "VirusTotal"), vtHtml)}${row(this._t("external.modal_abuse", "Abuse score"), abuseHtml)}${row(this._t("external.blacklisted", "Blacklisted"), blacklistHtml)}<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("external.traffic", "Traffic")}</div>${row(this._t("external.modal_direction", "Direction"), directionHtml)}${row(this._t("external.ports_contacted", "Ports contacted"), portsHtml)}${row(this._t("external.internal_hosts", "Internal hosts"), sourcesHtml)}${row(this._t("external.total_traffic", "Total traffic"), trafficKb)}${row(this._t("external.modal_last_seen", "Last seen"), self._ago(e4.last_seen))}${enrichSection}${linksHtml}</div></div>`;
+  },
+  _setExtSort(col) {
+    if (this._extSort === col) {
+      this._extSortDir *= -1;
+    } else {
+      this._extSort = col;
+      var descFirst = {
+        vt: 1,
+        abuse: 1,
+        traffic_kb: 1,
+        rating: 1
+      };
+      this._extSortDir = descFirst[col] ? -1 : 1;
+    }
+    this._extPage = 1;
+    this._render();
+  }
+};
+
+// src/views/vulnerabilities.js
+var vulnerabilitiesMethods = {
+  _viewVulns() {
+    var self = this;
+    if (!this._vulnData && !this._vulnLoading) {
+      this._vulnLoading = true;
+      this._hass.callApi("GET", "homesec/vulnerabilities").then(function(d4) {
+        self._vulnData = d4;
+        self._vulnLoading = false;
+        self._render();
+      }).catch(function() {
+        self._vulnLoading = false;
+        self._vulnData = {
+          vulnerabilities: [],
+          total: 0,
+          detected_cves: 0,
+          kev_matches: 0,
+          kev_total: 0
+        };
+        self._render();
+      });
+      return b2`<div><div class="view-header"><h1>${this._t("vuln.page_title", "Vulnerability Browser")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("vuln.loading", "Loading vulnerabilities\u2026")}</p></div></div>`;
+    }
+    if (this._vulnLoading) {
+      return b2`<div><div class="view-header"><h1>${this._t("vuln.page_title", "Vulnerability Browser")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("vuln.loading", "Loading vulnerabilities\u2026")}</p></div></div>`;
+    }
+    var d3 = this._vulnData || {
+      vulnerabilities: [],
+      total: 0,
+      detected_cves: 0,
+      kev_matches: 0,
+      kev_total: 0
+    };
+    var allVulns = d3.vulnerabilities || [];
+    var q = this._vulnFilter.toLowerCase().trim();
+    var filtered = allVulns;
+    if (q) {
+      filtered = allVulns.filter(function(v2) {
+        return (v2.cve_id || "").toLowerCase().indexOf(q) !== -1 || (v2.summary || "").toLowerCase().indexOf(q) !== -1 || (v2.severity || "").toLowerCase().indexOf(q) !== -1 || (v2.services || []).some(function(s4) {
+          return s4.toLowerCase().indexOf(q) !== -1;
+        }) || (v2.ports || []).some(function(p3) {
+          return String(p3).indexOf(q) !== -1;
+        }) || (v2.cpe_criteria || []).some(function(c4) {
+          return c4.toLowerCase().indexOf(q) !== -1;
+        }) || (v2.affected_hosts || []).some(function(h3) {
+          return h3.indexOf(q) !== -1;
+        }) || (v2.kev_vendor || "").toLowerCase().indexOf(q) !== -1 || (v2.kev_product || "").toLowerCase().indexOf(q) !== -1;
+      });
+    }
+    var sevOrder = {
+      critical: 0,
+      high: 1,
+      medium: 2,
+      low: 3,
+      info: 4
+    };
+    var sortKey = this._vulnSort;
+    var sortDir = this._vulnSortDir;
+    filtered = filtered.slice().sort(function(a3, b3) {
+      var av, bv;
+      if (sortKey === "cvss") {
+        av = a3.cvss || 0;
+        bv = b3.cvss || 0;
+      } else if (sortKey === "severity") {
+        av = sevOrder[a3.severity] !== void 0 ? sevOrder[a3.severity] : 99;
+        bv = sevOrder[b3.severity] !== void 0 ? sevOrder[b3.severity] : 99;
+      } else if (sortKey === "published") {
+        av = a3.published || "";
+        bv = b3.published || "";
+      } else if (sortKey === "cve_id") {
+        av = a3.cve_id || "";
+        bv = b3.cve_id || "";
+      } else if (sortKey === "hosts") {
+        av = (a3.affected_hosts || []).length;
+        bv = (b3.affected_hosts || []).length;
+      } else if (sortKey === "kev") {
+        av = a3.in_kev ? 1 : 0;
+        bv = b3.in_kev ? 1 : 0;
+      } else if (sortKey === "services") {
+        av = (a3.services || []).join(",");
+        bv = (b3.services || []).join(",");
+      } else if (sortKey === "ports") {
+        av = (a3.ports || []).length;
+        bv = (b3.ports || []).length;
+      } else {
+        av = a3.cve_id || "";
+        bv = b3.cve_id || "";
+      }
+      if (av < bv) return -sortDir;
+      if (av > bv) return sortDir;
+      return 0;
+    });
+    var total = filtered.length;
+    var pages = Math.max(1, Math.ceil(total / this._vulnPageSize));
+    if (this._vulnPage > pages) this._vulnPage = pages;
+    var start = (this._vulnPage - 1) * this._vulnPageSize;
+    var page = filtered.slice(start, start + this._vulnPageSize);
+    function sevClass(cvss) {
+      if (cvss >= 9) return "critical";
+      if (cvss >= 7) return "high";
+      if (cvss >= 4) return "medium";
+      return "low";
+    }
+    var header = b2`<div class="view-header"><h1>${this._t("vuln.page_title", "Vulnerability Browser")}</h1><div class="row-gap"><input class="search-bar" type="text" placeholder="${this._t("vuln.search_placeholder", "Search CVE, port, service, CPE, keyword\u2026")}" value="${this._vulnFilter}" data-vuln-search /><button class="btn" data-vuln-refresh>${this._t("vuln.refresh", "\u21BB Refresh")}</button></div></div><div class="tldr-bar"><span><strong>${d3.total}</strong> ${this._t("vuln.stat_cves_db", "CVEs in database")}</span><span><strong>${d3.detected_cves || 0}</strong> ${this._t("vuln.stat_detected_network", "detected on network")}</span><span><strong>${d3.kev_matches}</strong> ${this._t("vuln.stat_in_kev", "in CISA KEV")}</span><span><strong>${total}</strong> ${this._t("vuln.stat_matching", "matching results")}</span></div>${this._bannerDisclaimer("margin:-4px 2px 12px")}`;
+    var thead = b2`<thead><tr>${(function() {
+      var cols = [{
+        key: "cve_id",
+        label: self._t("vuln.col_cve_id", "CVE ID")
+      }, {
+        key: "published",
+        label: self._t("vuln.col_published", "Published")
+      }, {
+        key: "cvss",
+        label: self._t("vuln.col_cvss", "CVSS")
+      }, {
+        key: "severity",
+        label: self._t("vuln.col_severity", "Severity")
+      }, {
+        key: "services",
+        label: self._t("vuln.col_services", "Services")
+      }, {
+        key: "ports",
+        label: self._t("vuln.col_ports", "Ports")
+      }, {
+        key: "hosts",
+        label: self._t("vuln.col_hosts", "Hosts")
+      }, {
+        key: "kev",
+        label: "KEV"
+      }];
+      return b2`${cols.map(function(c4) {
+        var arrow = self._vulnSort === c4.key ? self._vulnSortDir > 0 ? " \u25B2" : " \u25BC" : "";
+        return b2`<th class="sortable-th" data-vulnsort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
+      })}<th style="min-width:320px">${self._t("vuln.col_summary", "Summary")}</th>`;
+    })()}</tr></thead>`;
+    var rows = [];
+    page.forEach(function(v2) {
+      var cid = v2.cve_id || "";
+      var cvss = v2.cvss || 0;
+      var sc = sevClass(cvss);
+      var kevBadge = v2.in_kev ? b2`<span class="badge badge-critical" title="CISA Known Exploited Vulnerability">KEV</span>` : "";
+      var services = (v2.services || []).map(function(s4) {
+        return b2`<span class="chip">${s4}</span>`;
+      });
+      if (!services.length) services = "\u2014";
+      var ports = (v2.ports || []).map(function(p3) {
+        return b2`<span class="chip">${p3}</span>`;
+      });
+      if (!ports.length) ports = "\u2014";
+      var hosts = (v2.affected_hosts || []).length;
+      var hostsStr = hosts > 0 ? b2`<span class="ip-chip">${hosts} host${hosts > 1 ? "s" : ""}</span>` : b2`<span class="dim" style="font-size:10px">${self._t("vuln.not_detected", "not detected")}</span>`;
+      var summary = (v2.summary || "").substring(0, 200);
+      if ((v2.summary || "").length > 200) summary += "\u2026";
+      var cveBtn = cid ? b2`<a class="ext-report-link" style="cursor:pointer" data-vuln-detail="${cid}" title="View details">${cid}</a>` : cid;
+      var published = v2.published || "\u2014";
+      rows.push(b2`<tr><td>${cveBtn}</td><td style="font-size:10px;color:var(--muted);white-space:nowrap">${published}</td><td><span class="badge badge-${sc}">${cvss.toFixed(1)}</span></td><td>${self._sev(v2.severity || sc)}</td><td>${services}</td><td>${ports}</td><td>${hostsStr}</td><td>${kevBadge}</td><td style="font-size:11px;color:var(--muted)">${summary}</td></tr>`);
+    });
+    var pagination = pages > 1 ? b2`<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px"><button class="btn" data-vuln-page="${Math.max(1, this._vulnPage - 1)}" ?disabled=${this._vulnPage <= 1}>${this._t("vuln.prev", "\u25C0 Prev")}</button><span class="dim" style="font-size:12px">${this._t("vuln.page", "Page")} ${this._vulnPage} ${this._t("vuln.of", "of")} ${pages}</span><button class="btn" data-vuln-page="${Math.min(pages, this._vulnPage + 1)}" ?disabled=${this._vulnPage >= pages}>${this._t("vuln.next", "Next \u25B6")}</button></div>` : "";
+    return b2`<div>${header}<div class="card table-card"><table class="data-table">${thead}<tbody>${rows}</tbody></table></div>${pagination}</div>`;
+  },
+  _openVulnDetail(cveId) {
+    if (!this._vulnData || !cveId) return;
+    var v2 = (this._vulnData.vulnerabilities || []).find(function(x2) {
+      return x2.cve_id === cveId;
+    });
+    if (!v2) return;
+    this._vulnDetail = v2;
+    this._render();
+  },
+  _bannerDisclaimer(style) {
+    return b2`<div class="dim" style="font-size:11px;line-height:1.5;${style || ""}">⚠️ ${this._t("vuln.banner_disclaimer", "CVE matches are based on the product and version reported in service banners. Distributions such as Ubuntu, Debian or RHEL often backport security fixes without changing the upstream version, so a match may be a false positive. Check your vendor\u2019s security tracker and dismiss findings that do not apply.")}</div>`;
+  },
+  _vulnDetailModal() {
+    var v2 = this._vulnDetail;
+    if (!v2) return "";
+    var self = this;
+    var cid = v2.cve_id || "";
+    var cvss = v2.cvss || 0;
+    function sevClass(c4) {
+      return c4 >= 9 ? "critical" : c4 >= 7 ? "high" : c4 >= 4 ? "medium" : "low";
+    }
+    var sc = sevClass(cvss);
+    var services = joinTemplates((v2.services || []).map(function(s4) {
+      return b2`<span class="chip">${s4}</span>`;
+    }), " ") || "\u2014";
+    var ports = joinTemplates((v2.ports || []).map(function(p3) {
+      return b2`<span class="chip">${p3}</span>`;
+    }), " ") || "\u2014";
+    var hosts = joinTemplates((v2.affected_hosts || []).map(function(h3) {
+      return b2`<span class="ip-chip">${h3}</span>`;
+    }), " ") || b2`<span class="dim">${this._t("vuln.not_detected_network", "Not detected on this network")}</span>`;
+    var cpes = (v2.cpe_criteria || []).slice(0, 10).map(function(c4) {
+      return b2`<div class="mono" style="font-size:10px;color:var(--muted);word-break:break-all">${c4}</div>`;
+    });
+    if ((v2.cpe_criteria || []).length > 10) cpes.push(b2`<div class="dim" style="font-size:10px">+${v2.cpe_criteria.length - 10} more</div>`);
+    if (!cpes.length) cpes = b2`<span class="dim">—</span>`;
+    var kevSection = "";
+    if (v2.in_kev) {
+      kevSection = b2`<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.25)"><div style="font-size:11px;font-weight:700;color:#ff4d6d;margin-bottom:6px">⚠ ${this._t("vuln.kev_title", "CISA Known Exploited Vulnerability")}</div>${v2.kev_name ? b2`<div style="font-size:11px;margin-bottom:4px"><strong>${this._t("vuln.name", "Name")}:</strong> ${v2.kev_name}</div>` : ""}${v2.kev_vendor || v2.kev_product ? b2`<div style="font-size:11px;margin-bottom:4px"><strong>${this._t("vuln.product", "Product")}:</strong> ${(v2.kev_vendor || "") + (v2.kev_vendor && v2.kev_product ? " / " : "") + (v2.kev_product || "")}</div>` : ""}${v2.kev_date_added ? b2`<div style="font-size:11px;margin-bottom:4px"><strong>${this._t("vuln.added_to_kev", "Added to KEV")}:</strong> ${v2.kev_date_added}</div>` : ""}${v2.kev_action ? b2`<div style="font-size:11px"><strong>${this._t("vuln.required_action", "Required action")}:</strong> ${v2.kev_action}</div>` : ""}</div>`;
+    }
+    return b2`<div id="hsa-vuln-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.68);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" data-vuln-close="1"><div class="card" style="width:min(680px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(98,232,255,.26)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h1 style="font-size:16px;color:var(--accent)">${cid}</h1><button class="btn" data-vuln-close="1">✕ ${this._t("common.close", "Close")}</button></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px"><span class="badge badge-${sc}" style="font-size:12px;padding:3px 10px">CVSS ${cvss.toFixed(1)}</span>${this._sev(v2.severity || sc)}${v2.published ? b2`<span class="dim" style="font-size:11px">${this._t("vuln.col_published", "Published")}: ${v2.published}</span>` : ""}${v2.in_kev ? b2`<span class="badge badge-critical">KEV</span>` : ""}</div><div class="card-title">${this._t("vuln.summary_title", "Summary")}</div><div style="font-size:12px;line-height:1.6;color:var(--text);margin-bottom:14px">${v2.summary || this._t("vuln.no_description", "No description available.")}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px"><div><div class="card-title">${this._t("vuln.col_services", "Services")}</div><div>${services}</div></div><div><div class="card-title">${this._t("vuln.col_ports", "Ports")}</div><div>${ports}</div></div></div><div class="card-title">${this._t("vuln.affected_hosts", "Affected Hosts")}</div><div style="margin-bottom:14px;font-size:12px">${hosts}</div>${this._bannerDisclaimer("margin-bottom:14px")}<div class="card-title">${this._t("vuln.cpe_criteria", "CPE Criteria")}</div><div style="margin-bottom:14px">${cpes}</div>${kevSection}<div style="margin-top:14px;display:flex;gap:8px"><a href="https://nvd.nist.gov/vuln/detail/${cid}" target="_blank" rel="noopener noreferrer" class="ext-report-link">${this._t("vuln.view_on_nvd", "View on NVD")}</a><a href="https://www.cvedetails.com/cve/${cid}/" target="_blank" rel="noopener noreferrer" class="ext-report-link">${this._t("vuln.cve_details", "CVE Details")}</a></div></div></div>`;
+  },
+  _setVulnSort(col) {
+    if (this._vulnSort === col) {
+      this._vulnSortDir *= -1;
+    } else {
+      this._vulnSort = col;
+      this._vulnSortDir = col === "cve_id" || col === "severity" || col === "published" ? 1 : -1;
+    }
+    this._render();
+  }
+};
+
+// src/views/suricata.js
+var suricataMethods = {
+  // ── Suricata view ────────────────────────────────────────────────────────────
+  _viewSuricata() {
+    var self = this;
+    var stats = this._data && this._data.suricata_stats || {};
+    var log = this._data && this._data.suricata_log || [];
+    var filteredLog = this._suricataFilteredLog(log);
+    var sortedLog = this._suricataSortedLog(filteredLog);
+    var SEV_COLORS = {
+      1: "rgba(255,77,109,1)",
+      2: "rgba(255,179,71,1)",
+      3: "rgba(107,255,200,1)"
+    };
+    var SEV_LABELS = {
+      1: self._t("suricata.sev_critical", "Critical"),
+      2: self._t("suricata.sev_major", "Major"),
+      3: self._t("suricata.sev_minor", "Minor")
+    };
+    function sevColor(s4) {
+      return SEV_COLORS[s4] || "rgba(90,106,128,1)";
+    }
+    function sevLabel(s4) {
+      return SEV_LABELS[s4] || self._t("suricata.sev_unknown", "Unknown");
+    }
+    function sevBadge(s4) {
+      var c4 = sevColor(s4);
+      var l3 = sevLabel(s4);
+      return b2`<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:${c4.replace(",1)", ",0.18)")};color:${c4};border:1px solid ${c4.replace(",1)", ",0.4)")}">${l3}</span>`;
+    }
+    var critCount = log.filter(function(e4) {
+      return e4.severity === 1;
+    }).length;
+    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="suricata-search" placeholder="${self._t("suricata.filter_placeholder", "Filter by IP, signature\u2026")}" style="width:230px" value="${this._suricataSearch}" onkeydown="if(event.key==='Enter')this.getRootNode().host._suricataFilter()" /><select id="suricata-sev-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._suricataFilter()"><option value="">${self._t("suricata.all_severities", "All severities")}</option>${[1, 2, 3].map(function(s4) {
+      return b2`<option value="${s4}" ?selected=${self._suricataSeverityFilter === String(s4)}>${sevLabel(s4)}</option>`;
+    })}</select><select id="suricata-action-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._suricataFilter()"><option value="">${self._t("suricata.all_actions", "All actions")}</option><option value="allowed" ?selected=${self._suricataActionFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._suricataActionFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><span style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.suricata_log_total || 0)} ${self._t("suricata.entries", "entries")}</span></div>`;
+    var PAGE_SIZE = this._suricataPageSize || 25;
+    var page = this._suricataPage || 0;
+    var totalPages = Math.max(1, Math.ceil(sortedLog.length / PAGE_SIZE));
+    if (page >= totalPages) page = totalPages - 1;
+    var pageLog = sortedLog.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    var pageStart = sortedLog.length === 0 ? 0 : page * PAGE_SIZE + 1;
+    var pageEnd = Math.min(sortedLog.length, (page + 1) * PAGE_SIZE);
+    var topPagination = b2`<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap"><div class="row-gap" style="font-size:11px;color:var(--muted)">${self._t("suricata.showing", "Showing")} ${pageStart}–${pageEnd} of ${sortedLog.length}</div><div class="row-gap" style="gap:6px"><label class="dim" style="font-size:11px">${self._t("common.rows", "Rows")}</label><select id="hsa-suricata-pagesize" class="role-select">${[10, 25, 50, 100].map(function(n4) {
+      return b2`<option value="${n4}" ?selected=${n4 === PAGE_SIZE}>${n4}</option>`;
+    })}</select><button class="btn" data-suricata-page="${page - 1}" ?disabled=${page <= 0}>${self._t("common.previous", "Previous")}</button><span class="dim" style="font-size:11px;min-width:70px;text-align:center">${page + 1} / ${totalPages}</span><button class="btn" data-suricata-page="${page + 1}" ?disabled=${page >= totalPages - 1}>${self._t("common.next", "Next")}</button></div></div>`;
+    var SORT_COLS = [{
+      key: "time",
+      label: self._t("suricata.col_time", "Time")
+    }, {
+      key: "src_ip",
+      label: self._t("suricata.col_src_ip", "Src IP")
+    }, {
+      key: "dest_ip",
+      label: self._t("suricata.col_dest_ip", "Dest IP")
+    }, {
+      key: "proto",
+      label: self._t("suricata.col_proto", "Proto")
+    }, {
+      key: "signature",
+      label: self._t("suricata.col_signature", "Signature")
+    }, {
+      key: "category",
+      label: self._t("suricata.col_category", "Category")
+    }, {
+      key: "severity",
+      label: self._t("suricata.col_severity", "Severity")
+    }, {
+      key: "action",
+      label: self._t("suricata.col_action", "Action")
+    }];
+    var thead = b2`<thead><tr>${SORT_COLS.map(function(c4) {
+      var arrow = self._suricataSort === c4.key ? self._suricataSortDir > 0 ? " \u25B2" : " \u25BC" : "";
+      return b2`<th class="sortable-th" data-suricatasort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
+    })}</tr></thead>`;
+    var rows = pageLog.map(function(e4, rowIdx) {
+      var ts = e4.timestamp ? new Date(e4.timestamp).toLocaleTimeString() : "\u2014";
+      var sip = e4.src_ip || "\u2014";
+      var dip = e4.dest_ip || "\u2014";
+      var sproto = e4.proto || "";
+      var sig = e4.signature || "\u2014";
+      var cat = e4.category || "\u2014";
+      var sev = parseInt(e4.severity) || 3;
+      var action = (e4.action || "allowed").toLowerCase();
+      var actionBadge = action === "blocked" ? b2`<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">${self._t("suricata.badge_blocked", "\u{1F6AB} Blocked")}</span>` : b2`<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">${self._t("suricata.badge_allowed", "\u2713 Allowed")}</span>`;
+      var rowBg = sev === 1 ? "rgba(255,77,109,.06)" : sev === 2 ? "rgba(255,179,71,.04)" : "";
+      var rowStyle = "cursor:pointer" + (rowBg ? ";background:" + rowBg : "");
+      return b2`<tr style="${rowStyle}" data-suricata-alert-idx="${rowIdx}" title="${self._t("suricata.click_details", "Click for details")}"><td class="mono" style="white-space:nowrap;font-size:11px">${ts}</td><td class="mono ip">${sip}</td><td class="mono ip">${dip}</td><td><span class="chip">${sproto}</span></td><td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${sig}">${sig}</td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)" title="${cat}">${cat}</td><td>${sevBadge(sev)}</td><td>${actionBadge}</td></tr>`;
+    });
+    var critBadge = critCount > 0 ? b2`<span class="badge badge-malicious" style="margin-left:8px">${critCount} ${self._t("suricata.critical_badge", "critical")}</span>` : "";
+    return b2`<div><div class="view-header"><h1>${this._t("page.suricata_alerts", "Suricata Alerts")} ${critBadge}</h1></div><div class="card table-card"><div style="padding:14px 14px 8px">${filterBar}</div>${topPagination}<div style="overflow-x:auto"><table class="data-table" style="min-width:960px">${thead}<tbody>${rows}</tbody></table></div></div></div>`;
+  },
+  _suricataFilter() {
+    this._suricataSearch = ((this.shadowRoot.getElementById("suricata-search") || {}).value || "").toLowerCase().trim();
+    this._suricataSeverityFilter = (this.shadowRoot.getElementById("suricata-sev-filter") || {}).value || "";
+    this._suricataActionFilter = (this.shadowRoot.getElementById("suricata-action-filter") || {}).value || "";
+    this._suricataPage = 0;
+    this._render();
+  },
+  _suricataFilteredLog(log) {
+    var search = this._suricataSearch || "";
+    var sevF = this._suricataSeverityFilter || "";
+    var actF = this._suricataActionFilter || "";
+    return (log || []).filter(function(e4) {
+      if (sevF && String(e4.severity) !== sevF) return false;
+      if (actF && (e4.action || "allowed").toLowerCase() !== actF) return false;
+      if (search) {
+        var hay = [e4.src_ip, e4.dest_ip, e4.signature, e4.category, e4.proto, e4.app_proto].join(" ").toLowerCase();
+        if (hay.indexOf(search) < 0) return false;
+      }
+      return true;
+    });
+  },
+  _suricataSortedLog(log) {
+    var self = this;
+    var key = this._suricataSort || "time";
+    var dir = this._suricataSortDir || -1;
+    var out = (log || []).slice();
+    out.sort(function(a3, b3) {
+      var va, vb;
+      if (key === "time") {
+        va = Date.parse(a3.timestamp || "") || 0;
+        vb = Date.parse(b3.timestamp || "") || 0;
+      } else if (key === "severity") {
+        va = parseInt(a3.severity) || 3;
+        vb = parseInt(b3.severity) || 3;
+      } else if (key === "src_ip") {
+        va = self._dnsIpSortKey(a3.src_ip);
+        vb = self._dnsIpSortKey(b3.src_ip);
+      } else if (key === "dest_ip") {
+        va = self._dnsIpSortKey(a3.dest_ip);
+        vb = self._dnsIpSortKey(b3.dest_ip);
+      } else {
+        va = String(a3[key] || "").toLowerCase();
+        vb = String(b3[key] || "").toLowerCase();
+      }
+      if (va < vb) return -dir;
+      if (va > vb) return dir;
+      return 0;
+    });
+    return out;
+  },
+  _setSuricataSort(col) {
+    if (this._suricataSort === col) {
+      this._suricataSortDir *= -1;
+    } else {
+      this._suricataSort = col;
+      this._suricataSortDir = col === "time" ? -1 : 1;
+    }
+    this._suricataPage = 0;
+    this._render();
+  },
+  _suricataAlertDetailModal() {
+    var a3 = this._suricataAlertDetail;
+    if (!a3) return "";
+    var self = this;
+    var SEV_COLORS = {
+      1: "rgba(255,77,109,1)",
+      2: "rgba(255,179,71,1)",
+      3: "rgba(107,255,200,1)"
+    };
+    var SEV_LABELS = {
+      1: this._t("suricata.sev_critical", "Critical"),
+      2: this._t("suricata.sev_major", "Major"),
+      3: this._t("suricata.sev_minor", "Minor")
+    };
+    var sev = parseInt(a3.severity) || 3;
+    var sevColor = SEV_COLORS[sev] || "rgba(90,106,128,1)";
+    var sevLabel = SEV_LABELS[sev] || this._t("suricata.sev_unknown", "Unknown");
+    var sevBadge = b2`<span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;background:${sevColor.replace(",1)", ",0.18)")};color:${sevColor};border:1px solid ${sevColor.replace(",1)", ",0.4)")}">${sevLabel}</span>`;
+    var action = (a3.action || "allowed").toLowerCase();
+    var actionBadge = action === "blocked" ? b2`<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">${this._t("suricata.badge_blocked", "\u{1F6AB} Blocked")}</span>` : b2`<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">${this._t("suricata.badge_allowed", "\u2713 Allowed")}</span>`;
+    var allHosts = this._data && this._data.devices || [];
+    var srcHost = allHosts.find(function(h3) {
+      return h3.ip === a3.src_ip;
+    });
+    var destHost = allHosts.find(function(h3) {
+      return h3.ip === a3.dest_ip;
+    });
+    function hostInfo(h3) {
+      if (!h3) return b2`<span class="dim">—</span>`;
+      var parts = [];
+      if (h3.hostname) parts.push(b2`<b>${h3.hostname}</b>`);
+      if (h3.vendor) parts.push(h3.vendor);
+      if (h3.os) parts.push(h3.os);
+      return parts.length ? joinTemplates(parts, " \xB7 ") : b2`<span class="dim">—</span>`;
+    }
+    var sigId = /^[0-9]{1,10}$/.test(String(a3.signature_id == null ? "" : a3.signature_id)) ? String(a3.signature_id) : "";
+    var sigLinks = "";
+    if (sigId) {
+      var etLink = b2`<a href="https://doc.emergingthreats.net/bin/view/Main/SidFAQ?topic=${encodeURIComponent(sigId)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Emerging Threats</a>`;
+      var snortLink = b2`<a href="https://www.snort.org/rule_docs/${encodeURIComponent(sigId)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Snort Rule Docs</a>`;
+      var searchLink = b2`<a href="https://www.google.com/search?q=suricata+rule+sid+${encodeURIComponent(sigId)}+${encodeURIComponent(a3.signature || "")}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search</a>`;
+      sigLinks = b2`<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${etLink}${snortLink}${searchLink}</div>`;
+    } else if (a3.signature) {
+      var searchLink2 = b2`<a href="https://www.google.com/search?q=suricata+alert+${encodeURIComponent(a3.signature)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search rule</a>`;
+      sigLinks = b2`<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${searchLink2}</div>`;
+    }
+    function row(label, value) {
+      return b2`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:11px;color:var(--muted);min-width:110px;flex-shrink:0">${label}</span><span style="font-size:12px;color:var(--fg);word-break:break-all">${value}</span></div>`;
+    }
+    var ts = a3.timestamp ? new Date(a3.timestamp).toLocaleString() : "\u2014";
+    var srcPort = a3.src_port ? ":" + a3.src_port : "";
+    var destPort = a3.dest_port ? ":" + a3.dest_port : "";
+    var flow = b2`<span class="mono" style="font-size:12px">${(a3.src_ip || "\u2014") + srcPort}</span> <span style="color:var(--muted)">→</span> <span class="mono" style="font-size:12px">${(a3.dest_ip || "\u2014") + destPort}</span>`;
+    var proto = joinTemplates([a3.proto, a3.app_proto].filter(Boolean).map(function(p3) {
+      return b2`<span class="chip">${p3}</span>`;
+    }), " ");
+    return b2`<div id="hsa-suricata-detail-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" data-suricata-close="1"><div class="card" style="width:min(660px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(255,77,109,.26)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h1 style="font-size:15px;color:var(--accent);margin:0">${this._t("suricata.detail_title", "Alert Detail")}</h1><button class="btn" data-suricata-close="1">✕ ${this._t("common.close", "Close")}</button></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">${sevBadge} ${actionBadge}${sigId ? b2`<span class="dim" style="font-size:11px">SID ${sigId}</span>` : ""}</div><div class="card-title" style="margin-bottom:6px">${this._t("suricata.alert_info", "Alert Info")}</div>${row(this._t("suricata.timestamp", "Timestamp"), ts)}${row(this._t("suricata.flow", "Flow"), flow)}${row(this._t("suricata.protocol", "Protocol"), proto || "\u2014")}${row(this._t("suricata.interface", "Interface"), a3.in_iface || "\u2014")}${row("Signature", b2`<span style="font-weight:600">${a3.signature || "\u2014"}</span>`)}${sigId ? row(this._t("suricata.signature_id", "Signature ID"), String(sigId)) : ""}${row(this._t("suricata.col_category", "Category"), a3.category || "\u2014")}${row(this._t("suricata.col_severity", "Severity"), sevBadge)}${row(this._t("suricata.col_action", "Action"), actionBadge)}${a3.flow_id ? row("Flow ID", String(a3.flow_id)) : ""}<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("suricata.source_host", "Source Host")}</div>${row("IP", b2`<span class="mono">${a3.src_ip || "\u2014"}</span>`)}${row(this._t("suricata.host_info", "Host info"), hostInfo(srcHost))}<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("suricata.destination_host", "Destination Host")}</div>${row("IP", b2`<span class="mono">${a3.dest_ip || "\u2014"}</span>`)}${row(this._t("suricata.host_info", "Host info"), hostInfo(destHost))}${sigLinks}</div></div>`;
+  }
+};
+
+// src/views/dns.js
+var dnsMethods = {
+  _viewDns() {
+    var self = this;
+    var stats = this._data && this._data.dns_proxy_stats || {};
+    var log = this._data && this._data.dns_log || [];
+    var filteredLog = this._dnsFilteredLog(log);
+    var sortedLog = this._dnsSortedLog(filteredLog);
+    var CATEGORIES = ["malware", "adult", "gambling", "ads", "tracking", "social", "gaming", "streaming", "news", "cdn", "cloud", "iot", "tech", "intel", "override", "other"];
+    var CAT_COLORS = {
+      malware: "rgba(255,77,109,1)",
+      adult: "rgba(191,111,255,1)",
+      gambling: "rgba(255,179,71,1)",
+      ads: "rgba(255,209,102,1)",
+      tracking: "rgba(107,140,186,1)",
+      social: "rgba(91,170,236,1)",
+      gaming: "rgba(107,255,200,1)",
+      streaming: "rgba(58,197,201,1)",
+      news: "rgba(245,158,11,1)",
+      cdn: "rgba(72,199,142,1)",
+      cloud: "rgba(59,178,255,1)",
+      iot: "rgba(255,159,67,1)",
+      tech: "rgba(155,135,245,1)",
+      intel: "rgba(248,84,84,1)",
+      override: "rgba(98,232,255,1)",
+      other: "rgba(90,106,128,1)"
+    };
+    var CAT_LABELS = {
+      malware: "Malware",
+      adult: "Adult",
+      gambling: "Gambling",
+      ads: "Ads",
+      tracking: "Tracking",
+      social: "Social",
+      gaming: "Gaming",
+      streaming: "Streaming",
+      news: "News",
+      cdn: "CDN",
+      cloud: "Cloud",
+      iot: "IoT",
+      tech: "Tech",
+      intel: "Threat Intel",
+      override: self._t("dns.cat.override", "Override"),
+      other: "Other"
+    };
+    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="dns-search" placeholder="${self._t("dns.filter_placeholder", "Filter by IP or domain\u2026")}" style="width:220px" value="${this._dnsSearch}" onkeydown="if(event.key==='Enter')this.getRootNode().host._dnsFilter()" /><select id="dns-cat-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._dnsFilter()"><option value="">${self._t("dns.all_categories", "All categories")}</option>${CATEGORIES.map(function(c4) {
+      return b2`<option value="${c4}" ?selected=${self._dnsCategoryFilter === c4}>${CAT_LABELS[c4]}</option>`;
+    })}</select><select id="dns-status-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._dnsFilter()"><option value="">${self._t("dns.all_status", "All status")}</option><option value="allowed" ?selected=${self._dnsStatusFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._dnsStatusFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()" ?checked=${self._dnsMaliciousOnly}> ${self._t("dns.malicious_only", "Malicious only")}</label><span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.dns_log_total || 0)} ${self._t("dns.entries", "entries")}</span></div>`;
+    var DNS_PAGE_SIZE = this._dnsPageSize || 25;
+    var dnsPage = this._dnsPage || 0;
+    var totalDnsPages = Math.max(1, Math.ceil(sortedLog.length / DNS_PAGE_SIZE));
+    if (dnsPage >= totalDnsPages) dnsPage = totalDnsPages - 1;
+    var pageLog = sortedLog.slice(dnsPage * DNS_PAGE_SIZE, (dnsPage + 1) * DNS_PAGE_SIZE);
+    var dnsPageStart = sortedLog.length === 0 ? 0 : dnsPage * DNS_PAGE_SIZE + 1;
+    var dnsPageEnd = Math.min(sortedLog.length, (dnsPage + 1) * DNS_PAGE_SIZE);
+    var topPaginationHtml = b2`<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap"><div class="row-gap" style="font-size:11px;color:var(--muted)">${self._t("dns.showing", "Showing")} ${dnsPageStart}–${dnsPageEnd} of ${sortedLog.length}</div><div class="row-gap" style="gap:6px"><label class="dim" style="font-size:11px">${self._t("common.rows", "Rows")}</label><select id="hsa-dns-pagesize" class="role-select">${[10, 25, 50, 100].map(function(n4) {
+      return b2`<option value="${n4}" ?selected=${n4 === DNS_PAGE_SIZE}>${n4}</option>`;
+    })}</select><button class="btn" data-dns-page="${dnsPage - 1}" ?disabled=${dnsPage <= 0}>${self._t("common.previous", "Previous")}</button><span class="dim" style="font-size:11px;min-width:70px;text-align:center">${dnsPage + 1} / ${totalDnsPages}</span><button class="btn" data-dns-page="${dnsPage + 1}" ?disabled=${dnsPage >= totalDnsPages - 1}>${self._t("common.next", "Next")}</button></div></div>`;
+    var maliciousCount = log.filter(function(e4) {
+      return e4.malicious;
+    }).length;
+    var summaryBadge = maliciousCount > 0 ? b2`<span class="badge badge-malicious" style="margin-left:8px">${maliciousCount} ${self._t("dns.malicious_badge", "malicious")}</span>` : "";
+    var dnsSortCols = [{
+      key: "time",
+      label: self._t("dns.col_time", "Time")
+    }, {
+      key: "client_ip",
+      label: self._t("dns.col_client_ip", "Client IP")
+    }, {
+      key: "domain",
+      label: self._t("dns.col_domain", "Domain")
+    }, {
+      key: "type",
+      label: self._t("dns.col_type", "Type")
+    }, {
+      key: "category",
+      label: self._t("dns.col_category", "Category")
+    }];
+    var tableHead = b2`<thead><tr>${dnsSortCols.map(function(c4) {
+      var arrow = self._dnsSort === c4.key ? self._dnsSortDir > 0 ? " \u25B2" : " \u25BC" : "";
+      return b2`<th class="sortable-th" data-dnssort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
+    })}<th>${self._t("dns.col_response", "Response")}</th><th>${self._t("dns.col_answer", "Answer")}</th>${(function() {
+      var arrow = self._dnsSort === "status" ? self._dnsSortDir > 0 ? " \u25B2" : " \u25BC" : "";
+      return b2`<th class="sortable-th" data-dnssort="status">${self._t("dns.col_status", "Status")}<span class="sort-arrow">${arrow}</span></th>`;
+    })()}</tr></thead>`;
+    var tableRows = pageLog.map(function(e4) {
+      var ts = e4.timestamp ? new Date(e4.timestamp).toLocaleTimeString() : "\u2014";
+      var ip = e4.src_ip || "\u2014";
+      var dom = e4.domain || "\u2014";
+      var qtype = e4.qtype || "A";
+      var rcode = e4.rcode || "\u2026";
+      var ans = e4.answer ? e4.answer : b2`<span style="color:var(--muted)">—</span>`;
+      var mal = e4.malicious;
+      var cat = (e4.category || "other").toLowerCase();
+      var status = (e4.status || "allowed").toLowerCase();
+      var catColor = CAT_COLORS[cat] || CAT_COLORS["other"];
+      var catLabel = CAT_LABELS[cat] || cat;
+      var catBadge = b2`<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:${catColor.replace(",1)", ",.18)").replace("rgba(", "rgba(")};color:${catColor};border:1px solid ${catColor.replace(",1)", ",.4)")}">${catLabel}</span>`;
+      var rcodeColor = rcode === "NOERROR" ? "var(--success)" : rcode === "NXDOMAIN" ? "var(--warn)" : rcode === "\u2026" ? "var(--muted)" : "var(--danger)";
+      var statusBadge;
+      if (status === "blocked") {
+        statusBadge = b2`<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">🚫 ${self._t("common.blocked", "Blocked")}</span>`;
+      } else {
+        statusBadge = b2`<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">✓ ${self._t("common.allowed", "Allowed")}</span>`;
+      }
+      var rowBg = status === "blocked" ? "rgba(255,77,109,.06)" : mal ? "rgba(255,77,109,.03)" : "";
+      return b2`<tr style=${rowBg ? "background:" + rowBg : A} data-malicious="${mal ? "1" : "0"}" data-cat="${cat}" data-status="${status}" data-ip="${ip.toLowerCase()}" data-domain="${dom.toLowerCase()}"><td class="mono" style="white-space:nowrap;font-size:11px">${ts}</td><td class="mono ip">${ip}</td><td class="mono" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${dom}">${dom}</td><td><span class="chip">${qtype}</span></td><td>${catBadge}</td><td class="mono" style="font-size:11px;color:${rcodeColor}">${rcode}</td><td class="mono" style="font-size:11px">${ans}</td><td>${statusBadge}</td></tr>`;
+    });
+    var paginationHtml = "";
+    return b2`<div><div class="view-header"><h1>${this._t("page.dns_queries", "DNS Queries")} ${summaryBadge}</h1></div><div class="card table-card"><div style="padding:14px 14px 8px">${filterBar}</div>${topPaginationHtml}<div style="overflow-x:auto"><table class="data-table" id="dns-table" style="min-width:900px">${tableHead}<tbody>${tableRows}</tbody></table></div></div></div>`;
+  },
+  _dnsFilter() {
+    var root = this.shadowRoot;
+    var prevSearch = this._dnsSearch;
+    var prevMalOnly = this._dnsMaliciousOnly;
+    var prevCat = this._dnsCategoryFilter;
+    var prevStatus = this._dnsStatusFilter;
+    this._dnsSearch = ((root.getElementById("dns-search") || {
+      value: ""
+    }).value || "").toLowerCase().trim();
+    this._dnsMaliciousOnly = !!(root.getElementById("dns-malicious-only") || {
+      checked: false
+    }).checked;
+    this._dnsCategoryFilter = (root.getElementById("dns-cat-filter") || {
+      value: ""
+    }).value || "";
+    this._dnsStatusFilter = (root.getElementById("dns-status-filter") || {
+      value: ""
+    }).value || "";
+    var searchChanged = this._dnsSearch !== prevSearch;
+    var otherFiltersChanged = this._dnsMaliciousOnly !== prevMalOnly || this._dnsCategoryFilter !== prevCat || this._dnsStatusFilter !== prevStatus;
+    if (otherFiltersChanged || !searchChanged) {
+      this._dnsPage = 0;
+    }
+    this._render();
+  },
+  _dnsFilteredLog(log) {
+    var search = (this._dnsSearch || "").toLowerCase().trim();
+    var malOnly = !!this._dnsMaliciousOnly;
+    var catFilter = this._dnsCategoryFilter || "";
+    var statusFilter = this._dnsStatusFilter || "";
+    return (log || []).filter(function(e4) {
+      var ip = String(e4.src_ip || "").toLowerCase();
+      var domain = String(e4.domain || "").toLowerCase();
+      var mal = !!e4.malicious;
+      var cat = String(e4.category || "other").toLowerCase();
+      var status = String(e4.status || "allowed").toLowerCase();
+      return (!malOnly || mal) && (!search || ip.indexOf(search) >= 0 || domain.indexOf(search) >= 0) && (!catFilter || cat === catFilter) && (!statusFilter || status === statusFilter);
+    });
+  },
+  _dnsSortedLog(log) {
+    var self = this;
+    var sortKey = this._dnsSort || "time";
+    var sortDir = this._dnsSortDir || -1;
+    var out = (log || []).slice();
+    out.sort(function(a3, b3) {
+      var va;
+      var vb;
+      if (sortKey === "time") {
+        va = Date.parse(a3.timestamp || "") || 0;
+        vb = Date.parse(b3.timestamp || "") || 0;
+      } else if (sortKey === "client_ip") {
+        va = self._dnsIpSortKey(a3.src_ip);
+        vb = self._dnsIpSortKey(b3.src_ip);
+      } else if (sortKey === "domain") {
+        va = String(a3.domain || "").toLowerCase();
+        vb = String(b3.domain || "").toLowerCase();
+      } else if (sortKey === "type") {
+        va = String(a3.qtype || "").toLowerCase();
+        vb = String(b3.qtype || "").toLowerCase();
+      } else if (sortKey === "category") {
+        va = String(a3.category || "other").toLowerCase();
+        vb = String(b3.category || "other").toLowerCase();
+      } else if (sortKey === "status") {
+        va = String(a3.status || "allowed").toLowerCase();
+        vb = String(b3.status || "allowed").toLowerCase();
+      } else {
+        va = "";
+        vb = "";
+      }
+      if (va < vb) return -1 * sortDir;
+      if (va > vb) return 1 * sortDir;
+      var ta = Date.parse(a3.timestamp || "") || 0;
+      var tb = Date.parse(b3.timestamp || "") || 0;
+      if (ta > tb) return -1;
+      if (ta < tb) return 1;
+      return 0;
+    });
+    return out;
+  },
+  _clearBlockedDns(btn) {
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Clearing\u2026";
+    }
+    var self = this;
+    this._hass.callApi("POST", "homesec/dns/log/clear_blocked").then(function() {
+      if (self._data && self._data.dns_log) {
+        self._data.dns_log = self._data.dns_log.filter(function(e4) {
+          return !e4.malicious && e4.status !== "blocked";
+        });
+        self._dnsPage = 0;
+        self._render();
+      }
+    }).catch(function() {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "\u{1F6AB} Clear blocked";
+      }
+    });
+  },
+  _setDnsSort(col) {
+    if (this._dnsSort === col) {
+      this._dnsSortDir *= -1;
+    } else {
+      this._dnsSort = col;
+      this._dnsSortDir = col === "time" ? -1 : 1;
+    }
+    this._dnsPage = 0;
+    this._render();
+  },
+  _dnsIpSortKey(ip) {
+    var raw = String(ip || "").trim();
+    if (raw.indexOf(":") >= 0) return "1:" + raw.toLowerCase();
+    var parts = raw.split(".");
+    if (parts.length !== 4) return "0:" + raw.toLowerCase();
+    for (var i5 = 0; i5 < parts.length; i5++) {
+      if (!/^\d+$/.test(parts[i5])) return "0:" + raw.toLowerCase();
+    }
+    return "0:" + parts.map(function(p3) {
+      var n4 = Math.max(0, Math.min(255, parseInt(p3, 10)));
+      return ("000" + n4).slice(-3);
+    }).join(".");
+  }
+};
+
+// src/views/recommendations.js
+var recommendationsMethods = {
+  _viewRecs() {
+    var recs = this._data && this._data.recommendations || [];
+    if (!recs.length) return b2`<div><div class="view-header"><h1>${this._t("recs.page_title", "Security Recommendations")}</h1></div><div class="empty-state card" style="height:180px"><div class="empty-icon">✓</div><p>${this._t("recs.no_recommendations", "No recommendations at this time.")}</p></div></div>`;
+    var icons = {
+      critical: "\u{1F6A8}",
+      high: "\u26A0\uFE0F",
+      medium: "\u{1F4A1}",
+      low: "\u2139\uFE0F"
+    };
+    var self = this;
+    function _formatTemplate(template, values) {
+      return template.replace(/\{([a-zA-Z0-9_]+)\}/g, function(_2, key) {
+        return values[key] != null ? String(values[key]) : "";
+      });
+    }
+    function _localizedRec(r4) {
+      var countHosts = r4.hosts && r4.hosts.length || 0;
+      var countFindings = r4.findings_refs && r4.findings_refs.length || 0;
+      switch (r4.category) {
+        case "patch_vulnerable":
+          return {
+            title: self._t("recs.title_patch_vulnerable", "Patch vulnerable devices"),
+            detail: _formatTemplate(self._t("recs.detail_patch_vulnerable", "{n} device(s) have known high or critical CVE vulnerabilities. Update firmware/software or restrict network access immediately."), {
+              n: countHosts || 1
+            })
+          };
+        case "vulnerability":
+          return {
+            title: self._t("recs.title_review_vulnerability_findings", "Review vulnerability findings"),
+            detail: self._t("recs.detail_review_vulnerability_findings", "Active scanning found services with known security issues. Check the findings tab for CVE details and remediation steps.")
+          };
+        case "no_exporter":
+          return {
+            title: self._t("recs.title_connect_exporter", "Connect a flow exporter"),
+            detail: self._t("recs.detail_connect_exporter", "No NetFlow or IPFIX exporters have been observed yet. Configure your gateway, firewall, or switch to export flows to HomeSec.")
+          };
+        case "exporter_unreachable":
+          return {
+            title: self._t("recs.title_verify_exporter", "Verify exporter reachability"),
+            detail: self._t("recs.detail_verify_exporter", "Exporters are configured but HomeSec has not received any datagrams yet. Check exporter target IP/port, firewall rules, and container networking.")
+          };
+        case "bad_flow_format":
+          return {
+            title: self._t("recs.title_check_flow_format", "Check flow export format"),
+            detail: self._t("recs.detail_check_flow_format", "Datagrams are arriving but none produced records. Confirm exporter uses NetFlow v5/v9/IPFIX with IPv4 fields and valid templates.")
+          };
+        case "suspicious_port":
+          return {
+            title: self._t("recs.title_restrict_risky_ports", "Restrict risky outbound ports"),
+            detail: self._t("recs.detail_restrict_risky_ports", "At least one device reached a commonly abused external port such as Telnet or RDP. Block or alert on these ports at the gateway and patch the source device.")
+          };
+        case "port_scan":
+          return {
+            title: self._t("recs.title_isolate_scanning_hosts", "Isolate scanning hosts"),
+            detail: self._t("recs.detail_isolate_scanning_hosts", "A device is touching many ports in a short time window. Move it to an isolated VLAN or guest network until you confirm the behavior is expected.")
+          };
+        case "high_egress":
+          return {
+            title: self._t("recs.title_review_high_egress_devices", "Review high egress devices"),
+            detail: self._t("recs.detail_review_high_egress_devices", "One or more devices exceeded the outbound data threshold. Confirm whether the traffic matches backups, cameras, or media uploads instead of malware or exfiltration.")
+          };
+        case "unknown_roles":
+          return {
+            title: self._t("recs.title_improve_device_identity_coverage", "Improve device identity coverage"),
+            detail: _formatTemplate(self._t("recs.detail_improve_device_identity_coverage", "{n} devices still have unknown roles. Add router, DHCP, or tracker integrations so HomeSec can correlate names, MAC addresses, and hostnames."), {
+              n: countHosts || 1
+            })
+          };
+        case "no_tracker":
+          return {
+            title: self._t("recs.title_enable_device_tracker_enrichment", "Enable device tracker enrichment"),
+            detail: self._t("recs.detail_enable_device_tracker_enrichment", "HomeSec is seeing devices but none were enriched from Home Assistant trackers. Adding router or presence integrations will make the dashboard much more readable.")
+          };
+        case "dropped_datagrams":
+          return {
+            title: self._t("recs.title_stabilize_exporter_templates", "Stabilize exporter templates"),
+            detail: self._t("recs.detail_stabilize_exporter_templates", "Some flow datagrams were dropped or arrived before their templates. Reduce exporter restarts or shorten template refresh intervals on the exporter.")
+          };
+        default:
+          return {
+            title: r4.title,
+            detail: r4.detail
+          };
+      }
+    }
+    function _recDetail(r4) {
+      var hosts = r4.hosts || [];
+      var frefs = r4.findings_refs || [];
+      if (!hosts.length && !frefs.length) return "";
+      var hostRows = hosts.map(function(h3) {
+        var nameHtml = h3.name && h3.name !== h3.ip ? b2`<span style="color:rgba(140,200,255,.85);font-weight:600;margin-left:6px">${h3.name}</span>` : "";
+        var roleHtml = h3.role && h3.role !== "unknown" ? b2`<span class="badge badge-dim" style="margin-left:6px">${h3.role.replace(/_/g, " ")}</span>` : "";
+        var cvesHtml = "";
+        if (h3.cves && h3.cves.length) {
+          cvesHtml = b2`<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">${h3.cves.map(function(c4) {
+            return b2`<a class="ext-report-link" style="cursor:pointer" data-vuln-detail="${c4}">${c4}</a>`;
+          })}</div>`;
+        } else if (h3.vuln_count > 0) {
+          cvesHtml = b2`<span style="font-size:10px;color:var(--muted);margin-left:6px">${h3.vuln_count} CVE${h3.vuln_count !== 1 ? "s" : ""}</span>`;
+        }
+        return b2`<div class="rec-expand-row"><span class="ip">${h3.ip}</span>${nameHtml}${roleHtml}${cvesHtml}</div>`;
+      });
+      var findingRows = frefs.map(function(f3) {
+        var det = f3.detail || {};
+        var port = det.port ? b2`<span class="chip" style="margin-left:6px">port ${det.port}</span>` : "";
+        var cve = det.cve_id ? b2`<a class="ext-report-link" style="cursor:pointer;margin-left:6px" data-vuln-detail="${det.cve_id}">${det.cve_id}</a>` : "";
+        var cnt = f3.count > 1 ? b2`<span style="font-size:10px;color:var(--muted);margin-left:6px">${f3.count}×</span>` : "";
+        return b2`<div class="rec-expand-row">${self._sev(f3.severity)}<span class="ip" style="margin-left:6px">${f3.source_ip}</span>${port}${cve}${cnt}<span style="font-size:11px;color:var(--muted);margin-left:8px">${f3.summary}</span></div>`;
+      });
+      return b2`<div class="rec-expand-panel">${hosts.length ? b2`<div class="rec-expand-section"><div class="rec-expand-label">${self._t("recs.affected_hosts", "Affected hosts")} (${hosts.length})</div><div class="rec-expand-rows">${hostRows}</div></div>` : ""}${frefs.length ? b2`<div class="rec-expand-section"><div class="rec-expand-label">${self._t("recs.related_findings", "Related findings")} (${frefs.length})</div><div class="rec-expand-rows">${findingRows}</div></div>` : ""}</div>`;
+    }
+    return b2`<div><div class="view-header"><h1>${this._t("recs.page_title", "Security Recommendations")}</h1></div>${recs.map(function(r4, idx) {
+      var expanded = self._expandedRec === idx;
+      var hasDetail = r4.hosts && r4.hosts.length || r4.findings_refs && r4.findings_refs.length;
+      var text = _localizedRec(r4);
+      var chevron = hasDetail ? b2`<span style="margin-left:auto;font-size:11px;color:var(--muted);transition:transform .15s;display:inline-block;transform:rotate(${expanded ? "90" : "0"}deg)">▶</span>` : "";
+      return b2`<div class="rec-card${hasDetail ? " rec-card-clickable" : ""}" data-rec-idx=${hasDetail ? idx : A}><div class="rec-icon">${icons[r4.priority] || "\u{1F4A1}"}</div><div style="flex:1;min-width:0"><div class="rec-title">${text.title} ${self._sev(r4.priority)}${chevron}</div><div class="rec-detail">${text.detail}</div>${expanded ? _recDetail(r4) : ""}</div></div>`;
+    })}</div>`;
+  }
+};
+
+// node_modules/lit-html/directives/if-defined.js
+var o5 = (o6) => o6 ?? A;
 
 // src/i18n/de.json
 var de_default = {
@@ -3055,6 +6791,207 @@ var it_default = {
 var UI_I18N = { de: de_default.ui, es: es_default.ui, fr: fr_default.ui, it: it_default.ui };
 var SETTINGS_SCHEMA_I18N = { de: de_default.settings, es: es_default.settings, fr: fr_default.settings, it: it_default.settings };
 
+// src/views/settings.js
+var settingsMethods = {
+  // ── Settings view ────────────────────────────────────────────────────
+  _viewSettings() {
+    var self = this;
+    var docsUrl = this._docsUrlForLanguage();
+    var schemaLocale = SETTINGS_SCHEMA_I18N[this._activeLocale()] || null;
+    if (!this._settingsData && !this._settingsLoading) {
+      this._settingsLoading = true;
+      this._settingsRetries = this._settingsRetries || 0;
+      this._hass.callApi("GET", "homesec/settings").then(function(d3) {
+        self._settingsData = d3;
+        self._settingsLoading = false;
+        self._settingsRetries = 0;
+        self._render();
+      }).catch(function(e4) {
+        self._settingsLoading = false;
+        var status = e4 && typeof e4 === "object" ? e4.status_code || e4.status || 0 : 0;
+        if ((status === 404 || status === 0) && self._settingsRetries < 8) {
+          self._settingsRetries++;
+          setTimeout(function() {
+            if (self._view === "settings") {
+              self._settingsLoading = false;
+              self._settingsData = null;
+              self._render();
+            }
+          }, 2e3);
+          return;
+        }
+        self._settingsRetries = 0;
+        var msg;
+        if (typeof e4 === "string") {
+          msg = e4;
+        } else if (e4 instanceof Error) {
+          msg = e4.message;
+        } else if (e4 && typeof e4 === "object") {
+          msg = e4.message || e4.error || e4.body || e4.detail || (typeof e4.status_code === "number" ? "HTTP " + e4.status_code : null) || JSON.stringify(e4);
+        } else {
+          msg = String(e4);
+        }
+        self._settingsMsg = self._t("settings.failed_load", "Failed to load settings: ") + msg;
+        self._settingsMsgType = "error";
+        self._render();
+      });
+      return b2`<div><div class="view-header"><h1>${this._t("settings.title", "Settings")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("settings.loading", "Loading settings\u2026")}</p></div></div>`;
+    }
+    if (this._settingsLoading) {
+      return b2`<div><div class="view-header"><h1>${this._t("settings.title", "Settings")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("settings.loading_short", "Loading\u2026")}</p></div></div>`;
+    }
+    var schema = this._settingsData && this._settingsData.schema || [];
+    var config = this._settingsData && this._settingsData.config || {};
+    this._settingsDraft = this._settingsDraft || {};
+    var msgHtml = "";
+    if (this._settingsMsg) {
+      var msgColor = this._settingsMsgType === "error" ? "var(--danger)" : "var(--success)";
+      msgHtml = b2`<div style="background:rgba(0,0,0,.25);border:1px solid ${msgColor};border-radius:8px;padding:10px 14px;margin-bottom:14px;color:${msgColor};font-size:12px">${this._settingsMsg}</div>`;
+    }
+    var dirtyHtml = this._settingsDirty ? b2`<div style="background:rgba(255,179,71,.09);border:1px solid rgba(255,179,71,.4);border-radius:8px;padding:10px 14px;margin-bottom:14px;color:var(--warn);font-size:12px">${this._t("settings.unsaved", "You have unsaved changes.")}</div>` : "";
+    var fieldsHtml = schema.map(function(section) {
+      var rows = (section.fields || []).map(function(f3) {
+        var cfgVal = config[f3.key] !== void 0 ? config[f3.key] : f3.default !== void 0 ? f3.default : "";
+        var hasDraft = Object.prototype.hasOwnProperty.call(self._settingsDraft, f3.key);
+        var val = hasDraft ? self._settingsDraft[f3.key] : cfgVal;
+        var inputHtml = "";
+        if (f3.type === "boolean" || f3.type === "bool") {
+          var checked = val === true || val === "true" || val === 1 || val === "1";
+          inputHtml = b2`<input type="checkbox" id="hsa-setting-${f3.key}"  ?checked=${checked} style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">`;
+        } else if (f3.type === "number") {
+          inputHtml = b2`<input type="number" id="hsa-setting-${f3.key}" value="${String(val)}" min=${o5(f3.min)} max=${o5(f3.max)} style="width:160px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">`;
+        } else if (f3.type === "password") {
+          inputHtml = b2`<input type="password" id="hsa-setting-${f3.key}" value="${String(val)}" style="width:340px;max-width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">`;
+        } else {
+          inputHtml = b2`<input type="text" id="hsa-setting-${f3.key}" value="${String(val)}" style="width:340px;max-width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">`;
+        }
+        return b2`<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(98,232,255,.04)"><div style="flex:0 0 240px;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${schemaLocale && schemaLocale.labels && schemaLocale.labels[f3.key] || f3.label}</div>${f3.help ? b2`<div style="font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4">${schemaLocale && schemaLocale.helps && schemaLocale.helps[f3.key] || f3.help}</div>` : ""}</div><div style="flex:1;min-width:0">${inputHtml}</div></div>`;
+      });
+      return b2`<div class="card" style="margin-bottom:12px"><div class="card-title">${schemaLocale && schemaLocale.sections && schemaLocale.sections[section.section] || section.section}</div>${rows}</div>`;
+    });
+    var linksCard = b2`<div class="card" style="margin-top:14px"><div class="card-title">${this._t("settings.links", "Links")}</div><div style="font-size:12px;color:var(--text);line-height:1.7">${this._t("settings.project", "Project")}: <a class="ext-report-link" href="https://github.com/domo-monster/HomeSecurityAssistant" target="_blank" rel="noopener noreferrer">${this._t("settings.github_repo", "GitHub Repository")}</a><br>${this._t("settings.documentation", "Documentation")}: <a class="ext-report-link" href="${docsUrl}" target="_blank" rel="noopener noreferrer">${this._t("settings.open_documentation", "Open Documentation")}</a></div></div>`;
+    return b2`<div><div class="view-header"><h1>${this._t("settings.title", "Settings")}</h1><div style="font-size:11px;color:var(--muted)">${this._t("settings.subtitle", "Changes take effect after reloading the integration.")}</div></div>${msgHtml}${dirtyHtml}${fieldsHtml}<div style="margin-top:6px"><button class="btn" data-settings-save style="padding:6px 18px;font-size:12px">${this._t("settings.save", "Save settings")}</button> <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">${this._t("settings.reload_server", "Reload from server")}</button></div>${linksCard}</div>`;
+  },
+  _onSettingsSave() {
+    var self = this;
+    var schema = this._settingsData && this._settingsData.schema || [];
+    var payload = {};
+    var root = this.shadowRoot;
+    schema.forEach(function(section) {
+      (section.fields || []).forEach(function(f3) {
+        var el = root && root.getElementById("hsa-setting-" + f3.key);
+        if (!el) return;
+        if (f3.type === "boolean" || f3.type === "bool") {
+          payload[f3.key] = el.checked;
+        } else if (f3.type === "number") {
+          payload[f3.key] = Number(el.value);
+        } else {
+          payload[f3.key] = el.value;
+        }
+      });
+    });
+    this._hass.callApi("POST", "homesec/settings/save", payload).then(function() {
+      self._settingsMsg = self._t("settings.saved_reload", "Settings saved. Changes are applied in a moment (some require a short integration reload).");
+      self._settingsMsgType = "ok";
+      self._settingsDraft = {};
+      self._settingsDirty = false;
+      self._pendingView = null;
+      self._unregisterBeforeUnload();
+      if (self._settingsData && self._settingsData.config) {
+        Object.assign(self._settingsData.config, payload);
+      }
+      self._render();
+    }).catch(function(e4) {
+      var msg;
+      if (typeof e4 === "string") {
+        msg = e4;
+      } else if (e4 instanceof Error) {
+        msg = e4.message;
+      } else if (e4 && typeof e4 === "object") {
+        msg = e4.body && typeof e4.body === "object" && e4.body.error || e4.message || e4.error || (typeof e4.body === "string" ? e4.body : null) || e4.detail || (typeof e4.status_code === "number" ? "HTTP " + e4.status_code : null) || JSON.stringify(e4);
+      } else {
+        msg = String(e4);
+      }
+      self._settingsMsg = self._t("settings.failed_save", "Failed to save settings: ") + msg;
+      self._settingsMsgType = "error";
+      self._render();
+    });
+  },
+  _docsUrlForLanguage() {
+    var lang = this._langCode();
+    if (lang.indexOf("fr") === 0) return "https://domotic.monster/homesec_fr.html";
+    if (lang.indexOf("de") === 0) return "https://domotic.monster/homesec_de.html";
+    return "https://domotic.monster/homesec.html";
+  },
+  _unsavedConfirmModal() {
+    return b2`<div id="hsa-unsaved-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(420px,94vw);margin:0;border:1px solid rgba(255,180,0,.3)"><div class="view-header" style="margin-bottom:10px"><h1 style="font-size:16px">⚠️ ${this._t("settings.unsaved_title", "Unsaved Changes")}</h1></div><p class="dim" style="font-size:13px;margin:0 0 18px">${this._t("settings.unsaved_body", "You have unsaved settings changes. If you leave now they will be discarded.")}</p><div class="row-gap" style="justify-content:flex-end;gap:8px"><button class="btn" data-unsaved-stay>${this._t("settings.stay", "Stay on Settings")}</button><button class="btn" style="background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.4);color:#ff4d6d" data-unsaved-leave>${this._t("settings.discard_leave", "Discard &amp; Leave")}</button></div></div></div>`;
+  }
+};
+
+// src/views/editor.js
+var editorMethods = {
+  _openEditor(cfg) {
+    this._editorOpen = true;
+    this._editorMode = cfg.mode || "";
+    this._editorIP = cfg.ip || "";
+    this._editorTitle = cfg.title || "Edit";
+    this._editorHelp = cfg.help || "";
+    this._editorValue = cfg.value || "";
+    this._editorPlaceholder = cfg.placeholder || "";
+    this._render();
+    var self = this;
+    requestAnimationFrame(function() {
+      var input = self.shadowRoot && self.shadowRoot.getElementById("hsa-editor-input");
+      if (input) input.focus();
+    });
+  },
+  _closeEditor() {
+    this._editorOpen = false;
+    this._editorMode = "";
+    this._editorIP = "";
+    this._editorTitle = "";
+    this._editorHelp = "";
+    this._editorValue = "";
+    this._editorPlaceholder = "";
+    this._render();
+  },
+  _editorModal() {
+    return b2`<div id="hsa-editor-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.68);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(560px,96vw);margin:0;border:1px solid rgba(98,232,255,.26)"><div class="view-header" style="margin-bottom:10px"><h1 style="font-size:16px">${this._editorTitle}</h1></div>${this._editorHelp ? b2`<div class="dim" style="font-size:11px;margin-bottom:8px">${this._editorHelp}</div>` : ""}<input id="hsa-editor-input" class="search-bar" style="width:100%" type="text" maxlength="${this._editorMode === "dismiss" ? "500" : "64"}" placeholder="${this._editorPlaceholder || ""}" value="${this._editorValue || ""}"><div class="row-gap" style="justify-content:flex-end;margin-top:12px"><button class="btn" data-editor-close="1">Cancel</button><button class="btn" data-editor-save="1">${this._editorMode === "dismiss" ? "Dismiss" : "Save"}</button></div></div></div>`;
+  },
+  _editHostName(ip) {
+    if (!this._data || !ip) return;
+    var devices = this._data.devices || [];
+    var d3 = devices.find(function(x2) {
+      return x2.ip === ip;
+    }) || {};
+    var current = (d3.display_name || d3.hostname || "").trim();
+    this._openEditor({
+      mode: "name",
+      ip,
+      title: "Rename Host",
+      help: "Leave empty and Save to clear the manual name.",
+      value: current,
+      placeholder: "Kitchen Camera"
+    });
+  }
+};
+
+// src/constants.js
+var VIEWS = ["overview", "map", "hosts", "findings", "external", "vulnerabilities", "statistics", "dns", "suricata", "recommendations", "settings"];
+var VIEW_LABELS = {
+  "overview": "Overview",
+  "map": "Network Map",
+  "hosts": "Hosts",
+  "findings": "Findings",
+  "external": "External IPs",
+  "vulnerabilities": "Vulnerabilities",
+  "statistics": "Statistics",
+  "dns": "DNS Queries",
+  "suricata": "Suricata Alerts",
+  "recommendations": "Recommendations",
+  "settings": "Settings"
+};
+
 // src/icons.js
 var VIEW_ICONS = {
   overview: b2`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>`,
@@ -3740,213 +7677,6 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
       this._render();
     }
   }
-  _setVulnSort(col) {
-    if (this._vulnSort === col) {
-      this._vulnSortDir *= -1;
-    } else {
-      this._vulnSort = col;
-      this._vulnSortDir = col === "cve_id" || col === "severity" || col === "published" ? 1 : -1;
-    }
-    this._render();
-  }
-  _setHostSort(col) {
-    if (this._hostSort === col) {
-      this._hostSortDir *= -1;
-    } else {
-      this._hostSort = col;
-      this._hostSortDir = 1;
-    }
-    this._render();
-  }
-  _setExtSort(col) {
-    if (this._extSort === col) {
-      this._extSortDir *= -1;
-    } else {
-      this._extSort = col;
-      var descFirst = {
-        vt: 1,
-        abuse: 1,
-        traffic_kb: 1,
-        rating: 1
-      };
-      this._extSortDir = descFirst[col] ? -1 : 1;
-    }
-    this._extPage = 1;
-    this._render();
-  }
-  _setDnsSort(col) {
-    if (this._dnsSort === col) {
-      this._dnsSortDir *= -1;
-    } else {
-      this._dnsSort = col;
-      this._dnsSortDir = col === "time" ? -1 : 1;
-    }
-    this._dnsPage = 0;
-    this._render();
-  }
-  _dnsIpSortKey(ip) {
-    var raw = String(ip || "").trim();
-    if (raw.indexOf(":") >= 0) return "1:" + raw.toLowerCase();
-    var parts = raw.split(".");
-    if (parts.length !== 4) return "0:" + raw.toLowerCase();
-    for (var i5 = 0; i5 < parts.length; i5++) {
-      if (!/^\d+$/.test(parts[i5])) return "0:" + raw.toLowerCase();
-    }
-    return "0:" + parts.map(function(p3) {
-      var n4 = Math.max(0, Math.min(255, parseInt(p3, 10)));
-      return ("000" + n4).slice(-3);
-    }).join(".");
-  }
-  // ── Suricata view ────────────────────────────────────────────────────────────
-  _viewSuricata() {
-    var self = this;
-    var stats = this._data && this._data.suricata_stats || {};
-    var log = this._data && this._data.suricata_log || [];
-    var filteredLog = this._suricataFilteredLog(log);
-    var sortedLog = this._suricataSortedLog(filteredLog);
-    var SEV_COLORS = {
-      1: "rgba(255,77,109,1)",
-      2: "rgba(255,179,71,1)",
-      3: "rgba(107,255,200,1)"
-    };
-    var SEV_LABELS = {
-      1: self._t("suricata.sev_critical", "Critical"),
-      2: self._t("suricata.sev_major", "Major"),
-      3: self._t("suricata.sev_minor", "Minor")
-    };
-    function sevColor(s4) {
-      return SEV_COLORS[s4] || "rgba(90,106,128,1)";
-    }
-    function sevLabel(s4) {
-      return SEV_LABELS[s4] || self._t("suricata.sev_unknown", "Unknown");
-    }
-    function sevBadge(s4) {
-      var c4 = sevColor(s4);
-      var l3 = sevLabel(s4);
-      return b2`<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:${c4.replace(",1)", ",0.18)")};color:${c4};border:1px solid ${c4.replace(",1)", ",0.4)")}">${l3}</span>`;
-    }
-    var critCount = log.filter(function(e4) {
-      return e4.severity === 1;
-    }).length;
-    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="suricata-search" placeholder="${self._t("suricata.filter_placeholder", "Filter by IP, signature\u2026")}" style="width:230px" value="${this._suricataSearch}" onkeydown="if(event.key==='Enter')this.getRootNode().host._suricataFilter()" /><select id="suricata-sev-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._suricataFilter()"><option value="">${self._t("suricata.all_severities", "All severities")}</option>${[1, 2, 3].map(function(s4) {
-      return b2`<option value="${s4}" ?selected=${self._suricataSeverityFilter === String(s4)}>${sevLabel(s4)}</option>`;
-    })}</select><select id="suricata-action-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._suricataFilter()"><option value="">${self._t("suricata.all_actions", "All actions")}</option><option value="allowed" ?selected=${self._suricataActionFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._suricataActionFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><span style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.suricata_log_total || 0)} ${self._t("suricata.entries", "entries")}</span></div>`;
-    var PAGE_SIZE = this._suricataPageSize || 25;
-    var page = this._suricataPage || 0;
-    var totalPages = Math.max(1, Math.ceil(sortedLog.length / PAGE_SIZE));
-    if (page >= totalPages) page = totalPages - 1;
-    var pageLog = sortedLog.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-    var pageStart = sortedLog.length === 0 ? 0 : page * PAGE_SIZE + 1;
-    var pageEnd = Math.min(sortedLog.length, (page + 1) * PAGE_SIZE);
-    var topPagination = b2`<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap"><div class="row-gap" style="font-size:11px;color:var(--muted)">${self._t("suricata.showing", "Showing")} ${pageStart}–${pageEnd} of ${sortedLog.length}</div><div class="row-gap" style="gap:6px"><label class="dim" style="font-size:11px">${self._t("common.rows", "Rows")}</label><select id="hsa-suricata-pagesize" class="role-select">${[10, 25, 50, 100].map(function(n4) {
-      return b2`<option value="${n4}" ?selected=${n4 === PAGE_SIZE}>${n4}</option>`;
-    })}</select><button class="btn" data-suricata-page="${page - 1}" ?disabled=${page <= 0}>${self._t("common.previous", "Previous")}</button><span class="dim" style="font-size:11px;min-width:70px;text-align:center">${page + 1} / ${totalPages}</span><button class="btn" data-suricata-page="${page + 1}" ?disabled=${page >= totalPages - 1}>${self._t("common.next", "Next")}</button></div></div>`;
-    var SORT_COLS = [{
-      key: "time",
-      label: self._t("suricata.col_time", "Time")
-    }, {
-      key: "src_ip",
-      label: self._t("suricata.col_src_ip", "Src IP")
-    }, {
-      key: "dest_ip",
-      label: self._t("suricata.col_dest_ip", "Dest IP")
-    }, {
-      key: "proto",
-      label: self._t("suricata.col_proto", "Proto")
-    }, {
-      key: "signature",
-      label: self._t("suricata.col_signature", "Signature")
-    }, {
-      key: "category",
-      label: self._t("suricata.col_category", "Category")
-    }, {
-      key: "severity",
-      label: self._t("suricata.col_severity", "Severity")
-    }, {
-      key: "action",
-      label: self._t("suricata.col_action", "Action")
-    }];
-    var thead = b2`<thead><tr>${SORT_COLS.map(function(c4) {
-      var arrow = self._suricataSort === c4.key ? self._suricataSortDir > 0 ? " \u25B2" : " \u25BC" : "";
-      return b2`<th class="sortable-th" data-suricatasort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
-    })}</tr></thead>`;
-    var rows = pageLog.map(function(e4, rowIdx) {
-      var ts = e4.timestamp ? new Date(e4.timestamp).toLocaleTimeString() : "\u2014";
-      var sip = e4.src_ip || "\u2014";
-      var dip = e4.dest_ip || "\u2014";
-      var sproto = e4.proto || "";
-      var sig = e4.signature || "\u2014";
-      var cat = e4.category || "\u2014";
-      var sev = parseInt(e4.severity) || 3;
-      var action = (e4.action || "allowed").toLowerCase();
-      var actionBadge = action === "blocked" ? b2`<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">${self._t("suricata.badge_blocked", "\u{1F6AB} Blocked")}</span>` : b2`<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">${self._t("suricata.badge_allowed", "\u2713 Allowed")}</span>`;
-      var rowBg = sev === 1 ? "rgba(255,77,109,.06)" : sev === 2 ? "rgba(255,179,71,.04)" : "";
-      var rowStyle = "cursor:pointer" + (rowBg ? ";background:" + rowBg : "");
-      return b2`<tr style="${rowStyle}" data-suricata-alert-idx="${rowIdx}" title="${self._t("suricata.click_details", "Click for details")}"><td class="mono" style="white-space:nowrap;font-size:11px">${ts}</td><td class="mono ip">${sip}</td><td class="mono ip">${dip}</td><td><span class="chip">${sproto}</span></td><td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${sig}">${sig}</td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)" title="${cat}">${cat}</td><td>${sevBadge(sev)}</td><td>${actionBadge}</td></tr>`;
-    });
-    var critBadge = critCount > 0 ? b2`<span class="badge badge-malicious" style="margin-left:8px">${critCount} ${self._t("suricata.critical_badge", "critical")}</span>` : "";
-    return b2`<div><div class="view-header"><h1>${this._t("page.suricata_alerts", "Suricata Alerts")} ${critBadge}</h1></div><div class="card table-card"><div style="padding:14px 14px 8px">${filterBar}</div>${topPagination}<div style="overflow-x:auto"><table class="data-table" style="min-width:960px">${thead}<tbody>${rows}</tbody></table></div></div></div>`;
-  }
-  _suricataFilter() {
-    this._suricataSearch = ((this.shadowRoot.getElementById("suricata-search") || {}).value || "").toLowerCase().trim();
-    this._suricataSeverityFilter = (this.shadowRoot.getElementById("suricata-sev-filter") || {}).value || "";
-    this._suricataActionFilter = (this.shadowRoot.getElementById("suricata-action-filter") || {}).value || "";
-    this._suricataPage = 0;
-    this._render();
-  }
-  _suricataFilteredLog(log) {
-    var search = this._suricataSearch || "";
-    var sevF = this._suricataSeverityFilter || "";
-    var actF = this._suricataActionFilter || "";
-    return (log || []).filter(function(e4) {
-      if (sevF && String(e4.severity) !== sevF) return false;
-      if (actF && (e4.action || "allowed").toLowerCase() !== actF) return false;
-      if (search) {
-        var hay = [e4.src_ip, e4.dest_ip, e4.signature, e4.category, e4.proto, e4.app_proto].join(" ").toLowerCase();
-        if (hay.indexOf(search) < 0) return false;
-      }
-      return true;
-    });
-  }
-  _suricataSortedLog(log) {
-    var self = this;
-    var key = this._suricataSort || "time";
-    var dir = this._suricataSortDir || -1;
-    var out = (log || []).slice();
-    out.sort(function(a3, b3) {
-      var va, vb;
-      if (key === "time") {
-        va = Date.parse(a3.timestamp || "") || 0;
-        vb = Date.parse(b3.timestamp || "") || 0;
-      } else if (key === "severity") {
-        va = parseInt(a3.severity) || 3;
-        vb = parseInt(b3.severity) || 3;
-      } else if (key === "src_ip") {
-        va = self._dnsIpSortKey(a3.src_ip);
-        vb = self._dnsIpSortKey(b3.src_ip);
-      } else if (key === "dest_ip") {
-        va = self._dnsIpSortKey(a3.dest_ip);
-        vb = self._dnsIpSortKey(b3.dest_ip);
-      } else {
-        va = String(a3[key] || "").toLowerCase();
-        vb = String(b3[key] || "").toLowerCase();
-      }
-      if (va < vb) return -dir;
-      if (va > vb) return dir;
-      return 0;
-    });
-    return out;
-  }
-  _setSuricataSort(col) {
-    if (this._suricataSort === col) {
-      this._suricataSortDir *= -1;
-    } else {
-      this._suricataSort = col;
-      this._suricataSortDir = col === "time" ? -1 : 1;
-    }
-    this._suricataPage = 0;
-    this._render();
-  }
   _onChange(e4) {
     if (e4.target && e4.target.id && e4.target.id.indexOf("hsa-setting-") === 0) {
       var key = e4.target.id.slice("hsa-setting-".length);
@@ -3991,17 +7721,6 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
         this._saveRole(ip, role);
       }
     }
-  }
-  _dismissFinding(key) {
-    if (!key) return;
-    this._openEditor({
-      mode: "dismiss",
-      ip: key,
-      title: "Dismiss Finding",
-      help: 'Optionally add a note explaining why this finding is dismissed (e.g. "false positive", "patched", "accepted risk"). Leave blank to dismiss without a note.',
-      placeholder: "Reason for dismissing (optional)",
-      value: ""
-    });
   }
   async _undismissGroup(groupKey) {
     var dismissed = this._data && this._data.dismissed_findings || [];
@@ -4136,34 +7855,6 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
       alert("Failed to dismiss findings: " + (err.message || String(err)));
     }
   }
-  _regexPreviewHtml() {
-    var pattern = this._regexDismissPattern;
-    if (!pattern) return b2`<div style="font-size:11px;color:var(--muted)">Enter a regex above to preview matches.</div>`;
-    var rx = null;
-    var rxErr = "";
-    try {
-      rx = new RegExp(pattern, "i");
-    } catch (e4) {
-      rxErr = e4.message;
-    }
-    if (rxErr) return b2`<div style="font-size:11px;color:var(--danger)">⚠ Invalid regex: ${rxErr}</div>`;
-    var findings = this._data && this._data.findings || [];
-    var matched = findings.filter(function(f3) {
-      return rx.test(f3.summary || "") || rx.test(f3.key || "");
-    });
-    if (!matched.length) return b2`<div style="font-size:11px;color:var(--muted)">No active findings match this pattern.</div>`;
-    var self = this;
-    return b2`<div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">Would dismiss ${matched.length} finding${matched.length !== 1 ? "s" : ""}:</div>${matched.map(function(f3) {
-      return b2`<div style="display:flex;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid rgba(98,232,255,.06);flex-wrap:wrap">${self._sev(f3.severity)}<span class="ip" style="font-size:11px">${f3.source_ip || ""}</span><span style="font-size:11px;color:var(--text);flex:1">${f3.summary || ""}</span></div>`;
-    })}`;
-  }
-  _regexDismissModal() {
-    var self = this;
-    return b2`<div id="hsa-regex-dismiss-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(640px,96vw);margin:0;border:1px solid rgba(98,232,255,.26)"><div class="view-header" style="margin-bottom:10px"><h1 style="font-size:16px">🗑 Dismiss by Pattern</h1></div><div class="dim" style="font-size:11px;margin-bottom:12px">Enter a regular expression to match against finding summaries or keys. All matching <strong>active</strong> findings will be dismissed.</div><label class="dim" style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">Regex pattern</label><input id="hsa-regex-pattern" class="search-bar" style="width:100%;font-family:monospace" type="text" maxlength="200" placeholder="e.g. port.scan|high.egress" value="${self._regexDismissPattern}" autocomplete="off" spellcheck="false"><label class="dim" style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-top:10px;margin-bottom:4px">Dismiss note (optional)</label><input id="hsa-regex-note" class="search-bar" style="width:100%" type="text" maxlength="500" placeholder="e.g. accepted risk, false positive" value="${self._regexDismissNote}"><div id="hsa-regex-preview" style="margin-top:12px;padding:10px;background:rgba(0,0,0,.25);border-radius:6px;max-height:200px;overflow-y:auto">${self._regexPreviewHtml()}</div><div class="row-gap" style="justify-content:flex-end;margin-top:14px;gap:8px"><button class="btn" data-regex-dismiss-close>Cancel</button><button class="btn" style="background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.4);color:#ff4d6d" data-regex-dismiss-confirm>Dismiss matching</button></div></div></div>`;
-  }
-  _unsavedConfirmModal() {
-    return b2`<div id="hsa-unsaved-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(420px,94vw);margin:0;border:1px solid rgba(255,180,0,.3)"><div class="view-header" style="margin-bottom:10px"><h1 style="font-size:16px">⚠️ ${this._t("settings.unsaved_title", "Unsaved Changes")}</h1></div><p class="dim" style="font-size:13px;margin:0 0 18px">${this._t("settings.unsaved_body", "You have unsaved settings changes. If you leave now they will be discarded.")}</p><div class="row-gap" style="justify-content:flex-end;gap:8px"><button class="btn" data-unsaved-stay>${this._t("settings.stay", "Stay on Settings")}</button><button class="btn" style="background:rgba(255,77,109,.12);border-color:rgba(255,77,109,.4);color:#ff4d6d" data-unsaved-leave>${this._t("settings.discard_leave", "Discard &amp; Leave")}</button></div></div></div>`;
-  }
   async _saveRole(ip, role) {
     try {
       await this._hass.callApi("POST", "homesec/device/role", {
@@ -4185,31 +7876,6 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
     } catch (err) {
       alert("Failed to save name: " + (err.message || String(err)));
     }
-  }
-  _openEditor(cfg) {
-    this._editorOpen = true;
-    this._editorMode = cfg.mode || "";
-    this._editorIP = cfg.ip || "";
-    this._editorTitle = cfg.title || "Edit";
-    this._editorHelp = cfg.help || "";
-    this._editorValue = cfg.value || "";
-    this._editorPlaceholder = cfg.placeholder || "";
-    this._render();
-    var self = this;
-    requestAnimationFrame(function() {
-      var input = self.shadowRoot && self.shadowRoot.getElementById("hsa-editor-input");
-      if (input) input.focus();
-    });
-  }
-  _closeEditor() {
-    this._editorOpen = false;
-    this._editorMode = "";
-    this._editorIP = "";
-    this._editorTitle = "";
-    this._editorHelp = "";
-    this._editorValue = "";
-    this._editorPlaceholder = "";
-    this._render();
   }
   async _saveEditor() {
     var input = this.shadowRoot && this.shadowRoot.getElementById("hsa-editor-input");
@@ -4239,25 +7905,6 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
       if (!slug || slug === "__custom__") return;
       await this._saveRole(ip, slug);
     }
-  }
-  _editorModal() {
-    return b2`<div id="hsa-editor-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.68);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(560px,96vw);margin:0;border:1px solid rgba(98,232,255,.26)"><div class="view-header" style="margin-bottom:10px"><h1 style="font-size:16px">${this._editorTitle}</h1></div>${this._editorHelp ? b2`<div class="dim" style="font-size:11px;margin-bottom:8px">${this._editorHelp}</div>` : ""}<input id="hsa-editor-input" class="search-bar" style="width:100%" type="text" maxlength="${this._editorMode === "dismiss" ? "500" : "64"}" placeholder="${this._editorPlaceholder || ""}" value="${this._editorValue || ""}"><div class="row-gap" style="justify-content:flex-end;margin-top:12px"><button class="btn" data-editor-close="1">Cancel</button><button class="btn" data-editor-save="1">${this._editorMode === "dismiss" ? "Dismiss" : "Save"}</button></div></div></div>`;
-  }
-  _editHostName(ip) {
-    if (!this._data || !ip) return;
-    var devices = this._data.devices || [];
-    var d3 = devices.find(function(x2) {
-      return x2.ip === ip;
-    }) || {};
-    var current = (d3.display_name || d3.hostname || "").trim();
-    this._openEditor({
-      mode: "name",
-      ip,
-      title: "Rename Host",
-      help: "Leave empty and Save to clear the manual name.",
-      value: current,
-      placeholder: "Kitchen Camera"
-    });
   }
   _sidebar() {
     var _BL_ONLY = {
@@ -4311,2834 +7958,6 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
     var status = exporters.length > 0 ? "online" : "waiting";
     return b2`<div class="brand"><img src="/api/homesec/frontend/hsa-logo.svg" alt="logo" style="height:32px;width:32px;margin-right:10px;border-radius:8px;box-shadow:0 0 8px #62e8ff55;vertical-align:middle"><div class="brand-text"><span class="brand-name">Security</span><span class="brand-sub">Assistant</span><span class="brand-tagline">${this._t("sidebar.tagline", "Network security telemetry with live flow context")}</span></div></div><ul class="nav-list">${items}</ul><div class="sidebar-status ${status}"><div class="status-dot"></div><span>${status === "online" ? this._t("sidebar.collector_active", "Collector active") : this._t("sidebar.awaiting_flows", "Awaiting flows")}</span><span style="margin-left:auto;opacity:.45;font-size:9px">v${this._data && this._data.summary && this._data.summary.version || "\u2026"}</span></div><div class="sidebar-copy"><a href="https://domotic.monster" target="_blank" rel="noopener noreferrer">© 2026 domotic.monster</a></div>`;
   }
-  _viewOverview() {
-    var _BL_ONLY_OV = {
-      anomaly_new_host: 1,
-      anomaly_new_peer: 1,
-      anomaly_new_port: 1,
-      anomaly_new_dns_domain: 1,
-      anomaly_new_dns_category: 1
-    };
-    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
-    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
-    var baselineEnabledRaw = this._data && this._data.baseline_enabled;
-    var baselineEnabled = baselineEnabledRaw === true || baselineEnabledRaw === "true" || baselineEnabledRaw === 1 || baselineEnabledRaw === "1";
-    var s4 = this._data && this._data.summary || {};
-    var findings = (this._data && this._data.findings || []).filter(function(f3) {
-      return !_BL_ONLY_OV[f3.category];
-    });
-    var dismissed = (this._data && this._data.dismissed_findings || []).filter(function(f3) {
-      return !_BL_ONLY_OV[f3.category];
-    });
-    var dismissedVulns = dismissed.filter(function(f3) {
-      return f3.category === "vulnerability";
-    }).length;
-    var recent = findings.slice(0, 5);
-    var exporters = s4.exporters || [];
-    var totalDatagrams = s4.total_datagrams || 0;
-    var parsed = s4.parsed_datagrams || 0;
-    var dropped = s4.dropped_datagrams || 0;
-    var pct = totalDatagrams > 0 ? Math.round(parsed / totalDatagrams * 100) : 0;
-    var self = this;
-    var findingsLabel = b2`${this._t("overview.active_findings", "Active Findings")}${dismissed.length ? b2` <span class="dim" style="font-size:10px;text-transform:none">(${dismissed.length} ${this._t("overview.dismissed", "dismissed")})</span>` : ""}`;
-    var cvesLabel = b2`${this._t("overview.active_cves", "Active CVEs")}${dismissedVulns ? b2` <span class="dim" style="font-size:10px;text-transform:none">(${dismissedVulns} ${this._t("overview.dismissed", "dismissed")})</span>` : ""}`;
-    var nvdTs = this._data && this._data.nvd_last_updated;
-    var nvdTtl = this._data && this._data.nvd_ttl_hours != null ? this._data.nvd_ttl_hours + "\xA0h" : "\u2014";
-    var nvdTotalCves = this._data && this._data.nvd_total_cves != null ? this._data.nvd_total_cves : 0;
-    var nvdMinYear = this._data && this._data.nvd_min_year != null ? this._data.nvd_min_year : null;
-    var nvdAge = nvdTs ? this._ago(nvdTs) : this._t("overview.never_fetched", "never fetched");
-    var nvdStatus = nvdTs ? Date.now() - new Date(nvdTs).getTime() < 26 * 3600 * 1e3 ? "good" : "warn" : "warn";
-    var suricataEnabledOv = this._data && this._data.suricata_stats && this._data.suricata_stats.running || false;
-    var suricataStatsOv = this._data && this._data.suricata_stats || {};
-    var suricataLogOv = this._data && this._data.suricata_log || [];
-    var suricataTotalOv = suricataLogOv.length;
-    var suricataCritOv = suricataLogOv.filter(function(e4) {
-      return e4.severity === 1;
-    }).length;
-    var baseline = this._data && this._data.baseline || {};
-    var baselineMode = baseline.mode || "disabled";
-    var baselineModeLabel = baselineMode === "training" ? this._t("overview.baseline_learning", "Learning") : baselineMode === "active" ? this._t("overview.baseline_active", "Active") : this._t("overview.baseline_disabled", "Disabled");
-    var baselineIcon = baselineMode === "training" ? "\u{1F9E0}" : baselineMode === "active" ? "\u2705" : "\u23F8";
-    var sinceStr = baseline.baseline_completed_at ? self._ago(baseline.baseline_completed_at) : "";
-    var trainingElapsed = "";
-    if (baselineMode === "training") {
-      var started = baseline.training_started_at;
-      var ends = baseline.training_ends_at;
-      var now = Date.now();
-      var startMs = started ? new Date(started).getTime() : null;
-      var endMs = ends ? new Date(ends).getTime() : null;
-      var elapsed = startMs ? Math.max(0, Math.min(now, endMs || now) - startMs) : 0;
-      var trainingTotalMs = endMs && startMs ? endMs - startMs : null;
-      var trainingPct = trainingTotalMs ? Math.round(elapsed / trainingTotalMs * 100) : 0;
-      trainingElapsed = b2`<div><span style="font-size:13px">${self._t("overview.elapsed", "Elapsed")}: <b>${self._ago(started)}</b></span>${trainingTotalMs ? b2` &nbsp; <span style="font-size:13px">${self._t("overview.progress", "Progress")}: <b>${trainingPct}%</b></span>` : ""}</div>`;
-    }
-    var btns = [];
-    btns.push(b2`<button class="btn" data-baseline-action="start">${this._t("overview.btn_start_training", "Start Training")}</button>`);
-    btns.push(b2`<button class="btn" data-baseline-action="stop">${this._t("overview.btn_stop_training", "Stop Training")}</button>`);
-    btns.push(b2`<button class="btn" data-baseline-action="retrain">${this._t("overview.btn_retrain", "Retrain")}</button>`);
-    btns.push(b2`<button class="btn" data-baseline-action="clear">${this._t("overview.btn_clear", "Clear")}</button>`);
-    var baselineCard = b2`<div class="card" id="baseline-card" style="margin-bottom:12px${this._baselineWorking ? ";position:relative" : ""}">${this._baselineWorking ? b2`<div id="baseline-working-overlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.45);border-radius:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10"><div style="width:32px;height:32px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite"></div><div style="color:#fff;font-size:13px;font-weight:600">${this._baselineWorking}…</div></div>` : A}<div class="card-title">${this._t("overview.baseline_title", "Baseline")} <span style="font-size:18px;margin-left:6px">${baselineIcon}</span></div><div style="margin-bottom:6px"><b>${this._t("overview.mode_label", "Mode")}:</b> ${baselineModeLabel}</div>${baselineMode === "training" ? trainingElapsed : ""}${baselineMode === "active" && sinceStr ? b2`<div><b>${this._t("overview.baseline_created_label", "Baseline created")}:</b> ${sinceStr}</div>` : ""}<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">${btns}</div></div>`;
-    return b2`<div><div class="page-header"><h1 class="page-title">${this._t("page.overview", "Overview")}</h1></div><div class="stat-grid">${this._stat(s4.devices || 0, this._t("overview.stat_devices", "Devices"), "success")}${this._stat((this._data && this._data.scan_hosts_found) != null ? this._data.scan_hosts_found : s4.scanned_devices || 0, this._t("overview.stat_scanned", "Scanned"), "")}${this._stat(s4.findings || 0, findingsLabel, (s4.findings || 0) > 0 ? "danger" : "")}${this._stat(s4.vulnerability_count || 0, cvesLabel, (s4.vulnerability_count || 0) > 0 ? "warn" : "")}${this._stat(nvdTotalCves, b2`${this._t("overview.stat_nvd_cves", "NVD CVEs")}${nvdMinYear ? b2` <span class="dim" style="font-size:10px;text-transform:none">(≥ ${nvdMinYear})</span>` : ""}`, "")}${this._stat(this._data && this._data.kev_total || 0, this._t("overview.stat_cisa_kev", "CISA KEV"), "")}${this._stat(this._fmtN(s4.total_flows || 0), this._t("overview.stat_flows", "Flows"), "")}${this._stat(exporters.length, this._t("overview.stat_exporters", "Exporters"), exporters.length > 0 ? "success" : "warn")}${suricataEnabledOv ? [this._stat(suricataTotalOv, this._t("overview.stat_suricata_alerts", "Suricata Alerts"), suricataTotalOv > 0 ? "warn" : ""), this._stat(suricataCritOv, this._t("overview.stat_critical_alerts", "Critical Alerts"), suricataCritOv > 0 ? "danger" : "")] : ""}</div><div class="two-col">${netflowEnabled ? b2`<div class="card"><div class="card-title">${this._t("overview.netflow_title", "NetFlow Listener Health")}</div>${this._hrow(this._t("overview.status_label", "Status"), (function() {
-      var lf = s4.last_flow_at;
-      if (!lf) return self._t("overview.no_flows_seen", "No flows seen");
-      var age = Date.now() - new Date(lf).getTime();
-      return age < 9e4 ? self._t("overview.receiving_flows", "Receiving flows") : self._t("overview.no_flows_idle_prefix", "No flows (idle ") + (age < 36e5 ? Math.floor(age / 6e4) + "m" : Math.floor(age / 36e5) + "h") + ")";
-    })(), (function() {
-      var lf = s4.last_flow_at;
-      return lf && Date.now() - new Date(lf).getTime() < 9e4 ? "good" : "warn";
-    })())}${this._hrow(this._t("overview.uptime_label", "Uptime"), this._uptime(s4.collector_started_at), "")}${this._hrow(this._t("overview.exporters_label", "Exporters"), exporters.join(", ") || "\u2014", "")}${this._hrow(this._t("overview.flow_versions", "Flow versions"), (s4.versions_seen || []).join(", ") || "\u2014", "")}${this._hrow(this._t("overview.total_datagrams", "Total datagrams"), totalDatagrams.toLocaleString(), "")}${this._hrow(this._t("overview.parsed", "Parsed"), parsed.toLocaleString() + " (" + pct + "%)", pct > 90 ? "good" : pct > 50 ? "warn" : "bad")}${this._hrow(this._t("overview.dropped", "Dropped"), dropped.toLocaleString(), dropped > 0 ? "warn" : "good")}${this._hrow(this._t("overview.last_flow", "Last flow"), this._ago(s4.last_flow_at), "")}${s4.last_parser_error ? this._hrow(this._t("overview.last_error", "Last error"), s4.last_parser_error, "bad") : ""}<div style="margin-top:10px"><button class="btn" data-view="statistics">${this._t("overview.view_statistics", "View Statistics \u2192")}</button></div></div>` : ""}<div class="card" style=${!netflowEnabled ? "grid-column:1/-1" : A}><div class="card-title">${this._t("overview.recent_alerts", "Recent Alerts")}</div>${recent.length === 0 ? b2`<div class="empty-state"><div class="empty-icon">✓</div><p>${self._t("overview.no_active_findings", "No active high/critical findings")}</p></div>` : recent.map(function(f3) {
-      return b2`<div class="alert-row">${self._sev(f3.severity)}<div class="alert-body"><div class="alert-sum">${f3.summary}</div><div class="alert-meta"><span class="ip">${f3.source_ip}</span> · ${self._ago(f3.last_seen)}</div></div></div>`;
-    })}${findings.length > 5 ? b2`<button class="btn" style="margin-top:10px" data-view="findings">${self._t("overview.view_all_findings", "View all findings \u2192")}</button>` : ""}</div></div>${(function() {
-      var scanAt = self._data && self._data.scan_last_at;
-      var scanDur = self._data && self._data.scan_duration;
-      var scanHosts = self._data && self._data.scan_hosts_found;
-      var scanInterval = self._data && self._data.scan_interval;
-      var scanResult = self._data && self._data.scan_last_status;
-      var scanTargets = self._data && self._data.scan_last_targets;
-      var scanAge = scanAt ? self._ago(scanAt) : self._t("overview.never", "never");
-      var scanStatus = scanAt ? Date.now() - new Date(scanAt).getTime() < (scanInterval || 300) * 2 * 1e3 ? "good" : "warn" : "warn";
-      var durStr = scanDur != null ? scanDur < 60 ? scanDur.toFixed(1) + "\xA0s" : (scanDur / 60).toFixed(1) + "\xA0min" : "\u2014";
-      var hostsStr = scanHosts != null ? scanHosts.toLocaleString() : "\u2014";
-      var intervalStr = scanInterval != null ? scanInterval < 60 ? scanInterval + "\xA0s" : Math.round(scanInterval / 60) + "\xA0min" : "\u2014";
-      var targetsStr = scanTargets != null ? scanTargets.toLocaleString() : "\u2014";
-      var resultText = "\u2014", resultTone = "";
-      if (scanResult === "ok") {
-        resultText = self._t("overview.scan_completed", "Completed");
-        resultTone = "good";
-      } else if (scanResult === "no_targets") {
-        resultText = self._t("overview.scan_skipped", "Skipped \u2014 no targets discovered yet");
-        resultTone = "warn";
-      }
-      return b2`<div class="card" style="margin-top:12px"><div class="card-title">${self._t("overview.active_scan_title", "Active Scan")}</div>${self._hrow(self._t("overview.last_scan", "Last scan"), scanAge, scanStatus)}${self._hrow(self._t("overview.last_result", "Last result"), resultText, resultTone)}${self._hrow(self._t("overview.duration", "Duration"), durStr, "")}${self._hrow(self._t("overview.hosts_found", "Hosts found"), hostsStr, scanHosts > 0 ? "" : "warn")}${self._hrow(self._t("overview.targets_scanned", "Targets scanned"), targetsStr, scanTargets != null && scanTargets > 0 ? "" : "warn")}${self._hrow(self._t("overview.scan_interval", "Scan interval"), intervalStr, "")}<div style="margin-top:10px"><button class="btn" data-service-action="trigger_scan">${self._t("overview.force_scan_btn", "Force hosts scan \u21BB")}</button></div></div>`;
-    })()}<div class="card" style="margin-top:12px"><div class="card-title">${this._t("overview.nvd_title", "Vulnerability Intelligence (NVD)")}</div>${this._hrow(this._t("overview.last_db_fetch", "Last database fetch"), nvdAge, nvdStatus)}${this._hrow(this._t("overview.cache_ttl", "Cache TTL"), nvdTtl, "")}${this._hrow(this._t("overview.cves_in_db", "CVEs in database"), nvdTotalCves.toLocaleString(), "")}${this._hrow(this._t("overview.min_pub_year", "Min publication year"), nvdMinYear ? nvdMinYear : this._t("overview.all_years", "All years"), "")}${(function() {
-      var kws = self._data && self._data.nvd_keywords || [];
-      if (!kws.length) return self._hrow(self._t("overview.keywords_label", "Keywords"), self._t("overview.none_loaded", "None loaded yet"), "warn");
-      var configured = kws.filter(function(k2) {
-        return k2.source === "custom";
-      });
-      var dynamic = kws.filter(function(k2) {
-        return k2.source !== "custom";
-      });
-      var cfgStyle = "background:rgba(158,150,255,.22);border-color:rgba(158,150,255,.5);color:#c4bfff";
-      var dynStyle = "background:rgba(107,255,200,.18);border-color:rgba(107,255,200,.45);color:#6bffc8";
-      function renderChips(list, style) {
-        return joinTemplates(list.map(function(k2) {
-          return b2`<span class="chip" style="${style}" title="${k2.keyword} · ${k2.cve_count} CVEs · source: ${k2.source}">${k2.keyword} <span style="opacity:.55;font-size:9px">(${k2.cve_count})</span></span>`;
-        }), " ");
-      }
-      var legend = b2`<div style="display:flex;gap:14px;align-items:center;font-size:10px;color:var(--muted);margin-bottom:6px"><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(158,150,255,.7);background:rgba(158,150,255,.35)"></span> ${self._t("overview.kw_configured", "Configured")}</span><span style="display:inline-flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(107,255,200,.6);background:rgba(107,255,200,.3)"></span> ${self._t("overview.kw_from_scans", "From scans")}</span></div>`;
-      return b2`<div class="section-label" style="margin-top:10px;margin-bottom:4px">NVD ${self._t("overview.keywords_label", "Keywords")} (${kws.length})</div>${legend}<div style="line-height:2">${configured.length ? renderChips(configured, cfgStyle) : ""}${configured.length && dynamic.length ? " " : ""}${dynamic.length ? renderChips(dynamic, dynStyle) : ""}</div>`;
-    })()}<div style="margin-top:10px"><button class="btn" data-view="vulnerabilities">${this._t("overview.browse_vulns_btn", "Browse all vulnerabilities \u2192")}</button> <button class="btn" data-service-action="nvd_refresh">${this._t("overview.force_nvd_refresh_btn", "Force intelligence refresh \u21BB")}</button></div></div>${(function() {
-      var kevTotal = self._data && self._data.kev_total != null ? self._data.kev_total : 0;
-      var kevTs = self._data && self._data.kev_last_updated;
-      var kevTtl = self._data && self._data.kev_ttl_hours != null ? self._data.kev_ttl_hours + "\xA0h" : "\u2014";
-      var kevAge = kevTs ? self._ago(kevTs) : self._t("overview.never_fetched", "never fetched");
-      var kevStatus = kevTs ? Date.now() - new Date(kevTs).getTime() < 26 * 3600 * 1e3 ? "good" : "warn" : "warn";
-      return b2`<div class="card"><div class="card-title">${self._t("overview.kev_title", "CISA Known Exploited Vulnerabilities (KEV)")}</div>${self._hrow(self._t("overview.last_catalog_fetch", "Last catalog fetch"), kevAge, kevStatus)}${self._hrow(self._t("overview.cache_ttl", "Cache TTL"), kevTtl, "")}${self._hrow(self._t("overview.catalog_size", "Catalog size"), kevTotal.toLocaleString(), kevTotal > 0 ? "" : "warn")}</div>`;
-    })()}${(function() {
-      var dnsStats = self._data && self._data.dns_proxy_stats || {};
-      var dnsLog = self._data && self._data.dns_log || [];
-      var bs = self._data && self._data.blacklist_stats || {};
-      var dnsRunning = dnsStats.running || false;
-      if (!dnsRunning) return "";
-      var dnsMal = dnsLog.filter(function(e4) {
-        return e4.malicious;
-      }).length;
-      var dnsTotal = dnsStats.total_queries != null ? dnsStats.total_queries : dnsLog.length;
-      var blDomains = bs.bad_domains || 0;
-      var blIPs = bs.bad_ips || 0;
-      var blTotal = blDomains + blIPs;
-      var blLoaded = blTotal > 0;
-      var blParts = [];
-      if (blDomains > 0) blParts.push(blDomains.toLocaleString() + " " + self._t("overview.dns_domains", "domains"));
-      if (blIPs > 0) blParts.push(blIPs.toLocaleString() + " IPs");
-      var blLabel = blLoaded ? blParts.join(" + ") + " " + self._t("overview.dns_blocked_suffix", "blocked") : bs.last_refresh ? self._t("overview.dns_bl_empty", "0 entries \u2014 check URLs") : self._t("overview.dns_bl_downloading", "Downloading\u2026");
-      var blStatus = blLoaded ? "good" : bs.last_refresh ? "bad" : "";
-      return b2`<div class="card" style="margin-top:12px"><div class="card-title">${self._t("overview.dns_proxy_title", "DNS Proxy")}</div>${self._hrow(self._t("overview.status_label", "Status"), self._t("overview.dns_running", "Running"), "good")}${self._hrow(self._t("overview.port_label", "Port"), String(dnsStats.port || "\u2014"), "")}${self._hrow(self._t("overview.upstream_label", "Upstream"), String(dnsStats.upstream || "\u2014"), "")}${self._hrow(self._t("overview.blocklist_label", "Blocklist"), blLabel, blStatus)}${bs.last_refresh ? self._hrow(self._t("overview.last_refreshed", "Last refreshed"), self._ago(bs.last_refresh), "") : ""}${self._hrow(self._t("overview.queries_in_log", "Queries in log"), dnsLog.length.toLocaleString(), "")}${self._hrow(self._t("overview.malicious_queries", "Malicious queries"), dnsMal.toLocaleString(), dnsMal > 0 ? "bad" : "good")}${(function() {
-        var dnsBlocked = dnsLog.filter(function(e4) {
-          return e4.status === "blocked";
-        }).length;
-        return dnsBlocked > 0 ? self._hrow(self._t("overview.blocked_queries", "Blocked queries"), dnsBlocked.toLocaleString(), "bad") : "";
-      })()}<div style="margin-top:10px"><button class="btn" data-view="dns">${self._t("overview.view_dns_btn", "View DNS Queries \u2192")}</button></div></div>`;
-    })()}${(function() {
-      if (!suricataEnabledOv) return "";
-      var sStats = suricataStatsOv;
-      var sLog = suricataLogOv;
-      var sRunning = sStats.running || false;
-      var sPort = sStats.port || "\u2014";
-      var sUptime = sStats.started_at ? self._uptime(sStats.started_at) : "\u2014";
-      var sExporters = sStats.exporter_ips && sStats.exporter_ips.length ? sStats.exporter_ips.join(", ") : "\u2014";
-      var sTotal = sLog.length;
-      var sCrit = sLog.filter(function(e4) {
-        return e4.severity === 1;
-      }).length;
-      var sConns = sStats.active_connections != null ? sStats.active_connections : 0;
-      return b2`<div class="card" style="margin-top:12px"><div class="card-title">${self._t("overview.suricata_listener_title", "Suricata Alert Listener")}</div>${self._hrow(self._t("overview.status_label", "Status"), sRunning ? self._t("overview.suricata_active", "Active") : self._t("overview.suricata_inactive", "Inactive"), sRunning ? "good" : "warn")}${self._hrow(self._t("overview.port_label", "Port"), String(sPort), "")}${self._hrow(self._t("overview.uptime_label", "Uptime"), sUptime, "")}${self._hrow(self._t("overview.exporter_ips_label", "Exporter IP(s)"), sExporters, sConns > 0 ? "good" : "")}${self._hrow(self._t("overview.active_connections", "Active connections"), String(sConns), sConns > 0 ? "good" : "")}${self._hrow(self._t("overview.alerts_in_log", "Alerts in log"), sTotal.toLocaleString(), sTotal > 0 ? "warn" : "good")}${self._hrow(self._t("overview.critical_alerts_label", "Critical alerts"), sCrit.toLocaleString(), sCrit > 0 ? "bad" : "good")}<div style="margin-top:10px"><button class="btn" data-view="suricata">${self._t("overview.view_suricata_btn", "View Suricata Alerts \u2192")}</button></div></div>`;
-    })()}${baselineEnabled ? [baselineCard, self._baselineDevianceCard()] : ""}</div>`;
-  }
-  // ── Baseline deviance score card ─────────────────────────────────────
-  _baselineDevianceCard() {
-    var self = this;
-    var baseline = this._data && this._data.baseline || {};
-    if ((baseline.mode || "disabled") !== "active") return "";
-    var baselineGraph = this._data && this._data.baseline_graph || null;
-    if (!baselineGraph || !(baselineGraph.edges && baselineGraph.edges.length)) return "";
-    var connections = this._data && this._data.connections || [];
-    var live = this._buildLiveEdgeIndex(connections);
-    var base = this._buildBaselineEdgeIndex(baselineGraph);
-    var keys = {};
-    Object.keys(live).forEach(function(k2) {
-      keys[k2] = true;
-    });
-    Object.keys(base).forEach(function(k2) {
-      keys[k2] = true;
-    });
-    var cntNew = 0, cntMissing = 0, cntBoth = 0;
-    var topDelta = null, topDeltaAbs = 0;
-    for (var key in keys) {
-      var le = live[key];
-      var be = base[key];
-      if (le && be) {
-        cntBoth++;
-        var d3 = (le.live_flows || 0) - (be.avg_flows || 0);
-        if (Math.abs(d3) > topDeltaAbs) {
-          topDeltaAbs = Math.abs(d3);
-          topDelta = {
-            source: le.source,
-            target: le.target,
-            delta: d3
-          };
-        }
-      } else if (le && !be) {
-        cntNew++;
-      } else {
-        cntMissing++;
-      }
-    }
-    var activeLive = cntNew + cntBoth;
-    var totalKnown = cntBoth + cntMissing;
-    var newRatio = activeLive > 0 ? cntNew / activeLive : 0;
-    var missingRatio = totalKnown > 0 ? cntMissing / totalKnown : 0;
-    var score = Math.min(100, Math.round(newRatio * 80 + missingRatio * 20));
-    var band, bandColor, bandBg, bandBorder, bandDesc;
-    if (score <= 20) {
-      band = this._t("overview.band_normal", "Normal");
-      bandColor = "#3ddc84";
-      bandBg = "rgba(61,220,132,.10)";
-      bandBorder = "rgba(61,220,132,.35)";
-      bandDesc = this._t("overview.band_desc_normal", "Traffic closely matches your baseline. No action needed.");
-    } else if (score <= 50) {
-      band = this._t("overview.band_review", "Review");
-      bandColor = "#ffce54";
-      bandBg = "rgba(255,206,84,.10)";
-      bandBorder = "rgba(255,206,84,.35)";
-      bandDesc = this._t("overview.band_desc_review", "Some deviation from baseline detected. Worth a quick look.");
-    } else if (score <= 75) {
-      band = this._t("overview.band_investigate", "Investigate");
-      bandColor = "#ff9640";
-      bandBg = "rgba(255,150,64,.10)";
-      bandBorder = "rgba(255,150,64,.35)";
-      bandDesc = this._t("overview.band_desc_investigate", "Noticeable deviation from baseline. Review unexpected connections.");
-    } else {
-      band = this._t("overview.band_critical", "Critical");
-      bandColor = "#ff5a32";
-      bandBg = "rgba(255,90,50,.10)";
-      bandBorder = "rgba(255,90,50,.40)";
-      bandDesc = this._t("overview.band_desc_critical", "Significant deviation from baseline. Investigate immediately.");
-    }
-    var barFill = score <= 20 ? "#3ddc84" : score <= 50 ? "#ffce54" : score <= 75 ? "#ff9640" : "#ff5a32";
-    function row(icon, count, label, note, iconColor) {
-      return b2`<div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:16px;line-height:1.2;flex-shrink:0;color:${iconColor}">${icon}</span><div style="flex:1;min-width:0"><span style="font-size:14px;font-weight:600;color:${iconColor}">${count}</span> <span style="font-size:12px;color:var(--fg)">${label}</span><div style="font-size:11px;color:var(--muted);margin-top:1px">${note}</div></div></div>`;
-    }
-    var topDeltaHtml = "";
-    if (topDelta) {
-      var d3 = topDelta.delta;
-      var abs = Math.abs(d3);
-      var dirKey = d3 > 0 ? "busier" : "quieter";
-      var magKey = abs > 1e4 ? "far" : abs > 1e3 ? "noticeably" : abs > 100 ? "somewhat" : "slightly";
-      var trafficMagDir = self._t("overview.traffic_" + magKey + "_" + dirKey, magKey + " " + dirKey);
-      var sign = d3 > 0 ? "+" : "";
-      topDeltaHtml = b2`<div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(255,206,84,.07);border:1px solid rgba(255,206,84,.22);font-size:11px"><span style="color:#ffce54;font-weight:600">${self._t("overview.biggest_traffic_change", "\u0394 Biggest traffic change")}</span><div style="margin-top:3px;color:var(--fg)"><span style="font-family:monospace;font-size:11px">${topDelta.source} → ${topDelta.target}</span></div><div style="color:var(--muted);margin-top:2px">${self._t("overview.traffic_change_pre", "This known connection is")} <b style="color:var(--fg)">${trafficMagDir}</b> ${self._t("overview.traffic_change_mid", "than usual")} (${sign}${Math.round(d3)} ${self._t("overview.traffic_change_post", "flows/snapshot).")}${abs > 1e3 ? " " + self._t("overview.traffic_change_file_hint", "Could be a file transfer, backup, or update in progress.") : ""}</div></div>`;
-    }
-    return b2`<div class="card" style="margin-top:12px"><div class="card-title">${this._t("overview.network_behaviour_title", "Network Behaviour")}</div><div style="display:flex;align-items:center;gap:14px;margin-bottom:10px"><div style="position:relative;flex-shrink:0"><svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/><circle cx="32" cy="32" r="26" fill="none" stroke="${barFill}" stroke-width="7" stroke-dasharray="163.4" stroke-dashoffset="${(163.4 * (1 - score / 100)).toFixed(1)}" stroke-linecap="round" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="${barFill}">${score}</text></svg></div><div style="flex:1"><div style="display:inline-block;padding:3px 12px;border-radius:100px;background:${bandBg};border:1px solid ${bandBorder};color:${bandColor};font-size:12px;font-weight:600;margin-bottom:5px">${band}</div><div style="font-size:12px;color:var(--muted)">${bandDesc}</div></div></div>${// Breakdown rows
-    row("\u2191", cntNew, cntNew === 1 ? self._t("overview.new_conn_single", "unexpected new connection") : self._t("overview.new_conn_plural", "unexpected new connections"), cntNew === 0 ? self._t("overview.new_conn_note_none", "No unknown activity \u2014 all current traffic was seen during training.") : self._t("overview.new_conn_note_some", "These connections were not present during baseline training.") + " " + (cntNew > 5 ? self._t("overview.new_conn_note_investigate", "This is the main driver of your score \u2014 investigate.") : self._t("overview.new_conn_note_review", "Review to confirm they are expected.")), cntNew === 0 ? "#3ddc84" : cntNew <= 3 ? "#ffce54" : "#ff5a32")}${row("\u2193", cntMissing, cntMissing === 1 ? self._t("overview.missing_conn_single", "baseline connection not active now") : self._t("overview.missing_conn_plural", "baseline connections not active now"), self._t("overview.missing_conn_note", "Connections seen during training that are quiet right now. This is usually normal \u2014 devices don\u2019t maintain all connections at all times.") + " " + (cntMissing > totalKnown * 0.9 ? self._t("overview.missing_conn_note_high", "The count is very high, but your baseline likely captured many short-lived flows over a long training window.") : ""), "#88a7c7")}${row("=", cntBoth, cntBoth === 1 ? self._t("overview.both_conn_single", "connection matches baseline exactly") : self._t("overview.both_conn_plural", "connections match baseline exactly"), cntBoth > 0 ? self._t("overview.both_conn_note_some", "These connections are active now and were seen during training \u2014 your expected, normal traffic.") : self._t("overview.both_conn_note_none", "No currently active connections were seen in the baseline yet."), "#3ac5c9")}${topDeltaHtml}<div style="margin-top:10px"><button class="btn" data-view="map" data-map-mode="compare">${self._t("overview.view_map_btn", "View on Network Map \u2192")}</button></div></div>`;
-  }
-  // ── SVG donut-pie chart helper ───────────────────────────────────────
-  _pieSvg(items, getVal, getLabel, colors) {
-    var self = this;
-    var total = items.reduce(function(s4, it) {
-      return s4 + getVal(it);
-    }, 0);
-    if (!total) return b2`<div style="text-align:center;color:var(--muted);padding:20px;font-size:11px">No data</div>`;
-    var size = 130, cx = 65, cy = 65, r4 = 52, ri = 28;
-    var TAU = Math.PI * 2;
-    var angle = -Math.PI / 2;
-    var GAP = 0.018;
-    var paths = [];
-    items.forEach(function(it, i5) {
-      var val = getVal(it);
-      if (!val) return;
-      var sweep = val / total * TAU;
-      if (sweep < 4e-3) return;
-      var a1 = angle + GAP / 2;
-      var a22 = angle + sweep - GAP / 2;
-      var x1 = (cx + r4 * Math.cos(a1)).toFixed(2), y1 = (cy + r4 * Math.sin(a1)).toFixed(2);
-      var x2 = (cx + r4 * Math.cos(a22)).toFixed(2), y22 = (cy + r4 * Math.sin(a22)).toFixed(2);
-      var xi1 = (cx + ri * Math.cos(a1)).toFixed(2), yi1 = (cy + ri * Math.sin(a1)).toFixed(2);
-      var xi2 = (cx + ri * Math.cos(a22)).toFixed(2), yi2 = (cy + ri * Math.sin(a22)).toFixed(2);
-      var large = a22 - a1 > Math.PI ? 1 : 0;
-      var d3 = "M " + x1 + " " + y1 + " A " + r4 + " " + r4 + " 0 " + large + " 1 " + x2 + " " + y22 + " L " + xi2 + " " + yi2 + " A " + ri + " " + ri + " 0 " + large + " 0 " + xi1 + " " + yi1 + " Z";
-      paths.push(w`<path d="${d3}" fill="${colors[i5 % colors.length]}" opacity="0.88"><title>${getLabel(it)}</title></path>`);
-      angle += sweep;
-    });
-    return b2`<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="flex-shrink:0">${paths}</svg>`;
-  }
-  // ── Pie chart legend helper ──────────────────────────────────────────
-  _statsLegend(items, getVal, getLabel, colors) {
-    var self = this;
-    var total = items.reduce(function(s4, it) {
-      return s4 + getVal(it);
-    }, 0);
-    return items.map(function(it, i5) {
-      var val = getVal(it);
-      var pct = total > 0 ? Math.round(val / total * 100) : 0;
-      return b2`<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${colors[i5 % colors.length]};opacity:.88"></div><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${getLabel(it)}</span><span style="color:var(--muted);white-space:nowrap;margin-left:4px">${pct}%</span></div>`;
-    });
-  }
-  // ── SVG line/area chart helper ───────────────────────────────────────
-  // series: [{key, label, color}]  points: array of timeseries objects with a "ts" field
-  _lineChart(points, series) {
-    var W = 560, H2 = 120, ML = 42, MR = 14, MT = 8, MB = 28;
-    var PW = W - ML - MR, PH = H2 - MT - MB;
-    if (!points || points.length < 2) {
-      return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Not enough data yet — check back after a few minutes</div>`;
-    }
-    var parsed = [];
-    for (var i5 = 0; i5 < points.length; i5++) {
-      var t3 = new Date(points[i5].ts).getTime();
-      if (!isNaN(t3)) parsed.push({
-        t: t3,
-        d: points[i5]
-      });
-    }
-    if (parsed.length < 2) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No data for this period</div>`;
-    var tMin = parsed[0].t, tMax = parsed[parsed.length - 1].t, tRange = tMax - tMin || 1;
-    function xp(t4) {
-      return (ML + (t4 - tMin) / tRange * PW).toFixed(1);
-    }
-    var svgOut = [];
-    svgOut.push(w`<rect x="${ML}" y="${MT}" width="${PW}" height="${PH}" fill="none" stroke="rgba(255,255,255,.08)" rx="2"/>`);
-    [0.25, 0.5, 0.75].forEach(function(f3) {
-      var gy = (MT + PH * f3).toFixed(1);
-      svgOut.push(w`<line x1="${ML}" y1="${gy}" x2="${ML + PW}" y2="${gy}" stroke="rgba(255,255,255,.05)"/>`);
-    });
-    var xRangeH = tRange / 36e5;
-    for (var ti = 0; ti <= 5; ti++) {
-      var tt = tMin + tRange * ti / 5;
-      var tx = xp(tt);
-      var dd = new Date(tt);
-      var lbl = xRangeH <= 48 ? dd.getHours().toString().padStart(2, "0") + ":" + dd.getMinutes().toString().padStart(2, "0") : dd.getMonth() + 1 + "/" + dd.getDate();
-      svgOut.push(w`<line x1="${tx}" y1="${MT + PH}" x2="${tx}" y2="${MT + PH + 4}" stroke="rgba(255,255,255,.15)"/>`);
-      svgOut.push(w`<text x="${tx}" y="${MT + PH + 14}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${lbl}</text>`);
-      if (ti > 0 && ti < 5) svgOut.push(w`<line x1="${tx}" y1="${MT}" x2="${tx}" y2="${MT + PH}" stroke="rgba(255,255,255,.04)"/>`);
-    }
-    var yMaxAll = 1;
-    series.forEach(function(s4) {
-      parsed.forEach(function(p3) {
-        var v2 = Number(p3.d[s4.key] || 0);
-        if (v2 > yMaxAll) yMaxAll = v2;
-      });
-    });
-    [0, 0.5, 1].forEach(function(f3) {
-      var yv = Math.round(yMaxAll * f3);
-      var yy = (MT + PH - f3 * PH).toFixed(1);
-      svgOut.push(w`<text x="${ML - 4}" y="${yy}" dy="0.35em" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="end">${yv}</text>`);
-    });
-    series.forEach(function(s4, si) {
-      var gradId = "tlg-" + s4.key;
-      svgOut.push(w`<defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${s4.color}" stop-opacity="0.28"/><stop offset="100%" stop-color="${s4.color}" stop-opacity="0.02"/></linearGradient></defs>`);
-      function yp(v2) {
-        return (MT + PH - Math.min(v2, yMaxAll) / yMaxAll * PH).toFixed(1);
-      }
-      var lineD = parsed.map(function(p3, i6) {
-        return (i6 === 0 ? "M" : "L") + xp(p3.t) + "," + yp(Number(p3.d[s4.key] || 0));
-      }).join(" ");
-      var areaD = lineD + " L" + xp(parsed[parsed.length - 1].t) + "," + (MT + PH) + " L" + xp(parsed[0].t) + "," + (MT + PH) + " Z";
-      svgOut.push(w`<path d="${areaD}" fill="url(#${gradId})"/>`);
-      svgOut.push(w`<path d="${lineD}" fill="none" stroke="${s4.color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>`);
-    });
-    var legend = series.map(function(s4) {
-      return b2`<span style="color:${s4.color};font-size:10px;margin-right:10px"><svg width="14" height="2" style="vertical-align:middle;margin-right:3px;overflow:visible"><line x1="0" y1="1" x2="14" y2="1" stroke="${s4.color}" stroke-width="2"/></svg>${s4.label}</span>`;
-    });
-    return b2`<div style="width:100%;height:${H2}px"><svg viewBox="0 0 ${W} ${H2}" width="100%" height="100%" preserveAspectRatio="none">${svgOut}</svg></div><div style="text-align:right;margin-top:3px">${legend}</div>`;
-  }
-  // ── Hourly bar chart (max value per 1-hour bucket) ────────────────────
-  _hourlyBarChart(points, key, color) {
-    var W = 560, H2 = 120, ML = 42, MR = 14, MT = 8, MB = 28;
-    var PW = W - ML - MR, PH = H2 - MT - MB;
-    if (!points || points.length < 2) {
-      return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">Not enough data yet — check back after a few minutes</div>`;
-    }
-    var tMin = Infinity, tMax = -Infinity;
-    for (var i5 = 0; i5 < points.length; i5++) {
-      var t3 = new Date(points[i5].ts).getTime();
-      if (!isNaN(t3)) {
-        if (t3 < tMin) tMin = t3;
-        if (t3 > tMax) tMax = t3;
-      }
-    }
-    if (!isFinite(tMin)) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No data for this period</div>`;
-    var tMinHour = Math.floor(tMin / 36e5) * 36e5;
-    var numBuckets = Math.max(1, Math.ceil((tMax - tMinHour) / 36e5));
-    if (numBuckets > 168) numBuckets = 168;
-    var buckets = new Array(numBuckets).fill(0);
-    for (var i5 = 0; i5 < points.length; i5++) {
-      var t3 = new Date(points[i5].ts).getTime();
-      if (isNaN(t3)) continue;
-      var bi = Math.floor((t3 - tMinHour) / 36e5);
-      if (bi < 0) bi = 0;
-      if (bi >= numBuckets) bi = numBuckets - 1;
-      var v2 = Number(points[i5][key] || 0);
-      if (v2 > buckets[bi]) buckets[bi] = v2;
-    }
-    var yMax = 1;
-    for (var i5 = 0; i5 < buckets.length; i5++) {
-      if (buckets[i5] > yMax) yMax = buckets[i5];
-    }
-    var barW = Math.max(1, PW / numBuckets - 1);
-    var svgOut = [];
-    svgOut.push(w`<rect x="${ML}" y="${MT}" width="${PW}" height="${PH}" fill="none" stroke="rgba(255,255,255,.08)" rx="2"/>`);
-    [0.25, 0.5, 0.75].forEach(function(f3) {
-      var gy = (MT + PH * f3).toFixed(1);
-      svgOut.push(w`<line x1="${ML}" y1="${gy}" x2="${ML + PW}" y2="${gy}" stroke="rgba(255,255,255,.05)"/>`);
-    });
-    for (var i5 = 0; i5 < numBuckets; i5++) {
-      var bh = buckets[i5] / yMax * PH;
-      var bx = (ML + i5 * (PW / numBuckets)).toFixed(1);
-      var by = (MT + PH - bh).toFixed(1);
-      svgOut.push(w`<rect x="${bx}" y="${by}" width="${barW.toFixed(1)}" height="${bh.toFixed(1)}" fill="${color}" opacity="0.75" rx="1"/>`);
-    }
-    var tickCount = Math.min(6, numBuckets);
-    for (var ti = 0; ti <= tickCount; ti++) {
-      var frac = ti / tickCount;
-      var tx = (ML + frac * PW).toFixed(1);
-      var tt = tMinHour + frac * (numBuckets * 36e5);
-      var dd = new Date(tt);
-      var lbl = numBuckets <= 48 ? dd.getHours().toString().padStart(2, "0") + ":00" : dd.getMonth() + 1 + "/" + dd.getDate();
-      svgOut.push(w`<line x1="${tx}" y1="${MT + PH}" x2="${tx}" y2="${MT + PH + 4}" stroke="rgba(255,255,255,.15)"/>`);
-      svgOut.push(w`<text x="${tx}" y="${MT + PH + 14}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${lbl}</text>`);
-    }
-    [0, 0.5, 1].forEach(function(f3) {
-      var yv = Math.round(yMax * f3);
-      var yy = (MT + PH - f3 * PH).toFixed(1);
-      svgOut.push(w`<text x="${ML - 4}" y="${yy}" dy="0.35em" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="end">${yv}</text>`);
-    });
-    return b2`<div style="width:100%;height:${H2}px"><svg viewBox="0 0 ${W} ${H2}" width="100%" height="100%" preserveAspectRatio="none">${svgOut}</svg></div>`;
-  }
-  // ── Statistics view ──────────────────────────────────────────────────
-  _viewStatistics() {
-    var self = this;
-    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
-    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
-    var dnsProxyEnabledRaw = this._data && this._data.dns_proxy_enabled;
-    var dnsProxyEnabled = dnsProxyEnabledRaw === true || dnsProxyEnabledRaw === "true" || dnsProxyEnabledRaw === 1 || dnsProxyEnabledRaw === "1";
-    var suricataEnabledStats = this._data && this._data.suricata_stats && this._data.suricata_stats.running || false;
-    var modes = this._statsViewModes;
-    var topN = this._data && this._data.stats_top_n || 10;
-    var COLORS = ["#8f86ff", "#3ac5c9", "#6bffc8", "#ffc107", "#ff8c42", "#ff4d6d", "#7fb3f5", "#d4a843", "#a8e063", "#f472b6", "#60a5fa", "#34d399", "#fb923c", "#a78bfa", "#22d3ee"];
-    var suricataLogStats = this._data && this._data.suricata_log || [];
-    var SUC_SEV_COLORS = ["rgba(255,77,109,1)", "rgba(255,179,71,1)", "rgba(107,255,200,1)"];
-    var SUC_CAT_PALETTE = ["rgba(255,77,109,1)", "rgba(255,179,71,1)", "rgba(107,255,200,1)", "rgba(98,232,255,1)", "rgba(191,111,255,1)", "rgba(59,178,255,1)", "rgba(72,199,142,1)", "rgba(255,159,67,1)"];
-    var SUC_SRC_PALETTE = ["rgba(98,232,255,1)", "rgba(59,178,255,1)", "rgba(72,199,142,1)", "rgba(191,111,255,1)", "rgba(255,179,71,1)", "rgba(255,77,109,1)", "rgba(107,255,200,1)", "rgba(155,135,245,1)"];
-    var sucSevLabels = {
-      1: this._t("suricata.sev_critical", "Critical"),
-      2: this._t("suricata.sev_major", "Major"),
-      3: this._t("suricata.sev_minor", "Minor")
-    };
-    var sucSevData = [1, 2, 3].filter(function(s4) {
-      return suricataLogStats.some(function(e4) {
-        return e4.severity === s4;
-      });
-    }).map(function(s4) {
-      return {
-        label: sucSevLabels[s4],
-        value: suricataLogStats.filter(function(e4) {
-          return e4.severity === s4;
-        }).length
-      };
-    });
-    var sucCatCounts = {};
-    var sucCatColors = [];
-    var nameMap = {};
-    (this._data && this._data.devices || []).forEach(function(d3) {
-      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
-    });
-    suricataLogStats.forEach(function(e4) {
-      var c4 = e4.category || "Other";
-      sucCatCounts[c4] = (sucCatCounts[c4] || 0) + 1;
-    });
-    var sucCatData = Object.keys(sucCatCounts).sort(function(a3, b3) {
-      return sucCatCounts[b3] - sucCatCounts[a3];
-    }).map(function(k2, i5) {
-      sucCatColors.push(SUC_CAT_PALETTE[i5 % SUC_CAT_PALETTE.length]);
-      return {
-        label: k2,
-        value: sucCatCounts[k2]
-      };
-    });
-    var sucSrcCounts = {};
-    suricataLogStats.forEach(function(e4) {
-      var ip = e4.src_ip || "unknown";
-      sucSrcCounts[ip] = (sucSrcCounts[ip] || 0) + 1;
-    });
-    var sucSrcData = Object.keys(sucSrcCounts).sort(function(a3, b3) {
-      return sucSrcCounts[b3] - sucSrcCounts[a3];
-    }).slice(0, topN).map(function(k2) {
-      var name = nameMap[k2] || k2;
-      var label = name === k2 ? k2 : name + " (" + k2 + ")";
-      return {
-        label,
-        value: sucSrcCounts[k2]
-      };
-    });
-    var allPoints = this._data && this._data.timeseries || [];
-    var _extIpsList = this._data && this._data.external_ips || [];
-    var _now = Date.now();
-    var extIps1h = _extIpsList.filter(function(e4) {
-      return e4.last_seen && _now - new Date(e4.last_seen).getTime() <= 36e5;
-    }).length;
-    var extIps24h = _extIpsList.filter(function(e4) {
-      return e4.last_seen && _now - new Date(e4.last_seen).getTime() <= 864e5;
-    }).length;
-    var extIps7d = _extIpsList.filter(function(e4) {
-      return e4.last_seen && _now - new Date(e4.last_seen).getTime() <= 6048e5;
-    }).length;
-    var extIpsTotal = _extIpsList.length;
-    var extIpsBadges = b2`<span style="font-size:10px;color:var(--muted)">1h <strong style="color:var(--fg)">${extIps1h}</strong> · 24h <strong style="color:var(--fg)">${extIps24h}</strong> · 7d <strong style="color:var(--fg)">${extIps7d}</strong> · all <strong style="color:var(--fg)">${extIpsTotal}</strong></span>`;
-    var timelineHtml = b2`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span class="card-title" style="margin-bottom:0">${this._t("stats.activity_timeline", "ACTIVITY TIMELINE")}</span></div><div style="margin-bottom:16px"><div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;color:var(--muted)">${this._t("stats.public_ips_per_hour", "Public IPs seen per hour (last 24h)")}</span>${extIpsBadges}</div>${(function() {
-      var EXT_H = 24, BAR_W = 18, BAR_GAP = 3, CHART_H = 60, LABEL_H = 16;
-      var nowMs = Date.now();
-      var extBuckets = new Array(EXT_H).fill(0);
-      for (var ei = 0; ei < _extIpsList.length; ei++) {
-        var fs = _extIpsList[ei].first_seen;
-        if (!fs) continue;
-        var ago = Math.floor((nowMs - new Date(fs).getTime()) / 36e5);
-        if (ago >= 0 && ago < EXT_H) extBuckets[EXT_H - 1 - ago]++;
-      }
-      var maxExt = Math.max.apply(null, extBuckets) || 1;
-      var svgW = EXT_H * (BAR_W + BAR_GAP);
-      var bars = extBuckets.map(function(cnt, i5) {
-        var x2 = i5 * (BAR_W + BAR_GAP);
-        var bh = Math.max(2, Math.round(cnt / maxExt * CHART_H));
-        var lhour2 = new Date(nowMs - (EXT_H - 1 - i5) * 36e5).getHours();
-        var tip = lhour2 + "h \u2014 " + cnt + " IP" + (cnt !== 1 ? "s" : "");
-        return w`<rect x="${x2}" y="${CHART_H - bh}" width="${BAR_W}" height="${bh}" fill="#8f86ff" opacity="0.75" rx="2"><title>${tip}</title></rect>`;
-      });
-      var labels = [];
-      for (var li = 0; li < EXT_H; li += 4) {
-        var lx = li * (BAR_W + BAR_GAP) + BAR_W / 2;
-        var lhour = new Date(nowMs - (EXT_H - 1 - li) * 36e5).getHours();
-        labels.push(w`<text x="${lx}" y="${CHART_H + LABEL_H - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${lhour}h</text>`);
-      }
-      if (!_extIpsList.length) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">${self._t("stats.no_public_ips", "No public IPs tracked yet")}</div>`;
-      return b2`<svg viewBox="0 0 ${svgW} ${CHART_H + LABEL_H}" width="100%" height="${CHART_H + LABEL_H}" preserveAspectRatio="none" style="display:block">${bars}${labels}</svg>`;
-    })()}</div><div style="margin-top:16px"><div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span style="font-size:10px;color:var(--muted)">${this._t("stats.hosts_per_hour", "Hosts per hour (last 24h)")}</span></div>${(function() {
-      var H_HOURS = 24, H_BAR_W = 18, H_BAR_GAP = 3, H_CHART = 60, H_LABEL = 16;
-      var nowMs2 = Date.now();
-      var hostBkts = [], scannedBkts = [];
-      for (var hbi = 0; hbi < H_HOURS; hbi++) {
-        var hbEnd = nowMs2 - hbi * 36e5, hbStart = hbEnd - 36e5;
-        var mxH = 0, mxS = 0;
-        for (var hpi = 0; hpi < allPoints.length; hpi++) {
-          var hpt = new Date(allPoints[hpi].ts).getTime();
-          if (hpt >= hbStart && hpt < hbEnd) {
-            var hv = Number(allPoints[hpi].hosts || 0), sv = Number(allPoints[hpi].scanned || 0);
-            if (hv > mxH) mxH = hv;
-            if (sv > mxS) mxS = sv;
-          }
-        }
-        hostBkts.unshift(mxH);
-        scannedBkts.unshift(mxS);
-      }
-      if (!allPoints.length) return b2`<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">${self._t("stats.no_host_data", "No host data yet")}</div>`;
-      var mxAll = Math.max.apply(null, hostBkts) || 1;
-      var hSvgW = H_HOURS * (H_BAR_W + H_BAR_GAP);
-      var hBars = hostBkts.map(function(h3, i5) {
-        var s4 = scannedBkts[i5];
-        var x2 = i5 * (H_BAR_W + H_BAR_GAP);
-        var bh = Math.max(2, Math.round(h3 / mxAll * H_CHART));
-        var sh = s4 > 0 ? Math.max(2, Math.round(s4 / mxAll * H_CHART)) : 0;
-        var lhour = new Date(nowMs2 - (H_HOURS - 1 - i5) * 36e5).getHours();
-        var tip = lhour + "h \u2014 " + h3 + " host" + (h3 !== 1 ? "s" : "") + (s4 > 0 ? " (" + s4 + " scanned)" : "");
-        return w`<rect x="${x2}" y="${H_CHART - bh}" width="${H_BAR_W}" height="${bh}" fill="rgba(58,197,201,.45)" rx="2"><title>${tip}</title></rect>${sh > 0 ? w`<rect x="${x2}" y="${H_CHART - sh}" width="${H_BAR_W}" height="${sh}" fill="rgba(107,255,200,.75)" rx="2"><title>${tip}</title></rect>` : ""}`;
-      });
-      var hLabels = [];
-      for (var hl = 0; hl < H_HOURS; hl += 4) {
-        var hlx = hl * (H_BAR_W + H_BAR_GAP) + H_BAR_W / 2;
-        var hlHour = new Date(nowMs2 - (H_HOURS - 1 - hl) * 36e5).getHours();
-        hLabels.push(w`<text x="${hlx}" y="${H_CHART + H_LABEL - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${hlHour}h</text>`);
-      }
-      return b2`<svg viewBox="0 0 ${hSvgW} ${H_CHART + H_LABEL}" width="100%" height="${H_CHART + H_LABEL}" preserveAspectRatio="none" style="display:block">${hBars}${hLabels}</svg><div style="display:flex;gap:12px;margin-top:4px;font-size:10px"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(58,197,201,.45);display:inline-block;border-radius:2px"></span>${self._t("stats.hosts_seen", "Hosts seen")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(107,255,200,.75);display:inline-block;border-radius:2px"></span>${self._t("stats.scanned_alive", "Scanned alive")}</span></div>`;
-    })()}</div>`;
-    function toggleBtns(id, current) {
-      return b2`<span style="display:flex;gap:4px;flex-shrink:0"><button class="btn${current === "pie" ? " active" : ""}" style="padding:3px 8px;font-size:10px" data-statstoggle="${id}:pie"><svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M7 1.07A7 7 0 1 0 15 9H7V1.07z"/><path d="M8.5.5v7h7A7.5 7.5 0 0 0 8.5.5z"/></svg>${self._t("stats.pie", "Pie")}</button><button class="btn${current === "list" ? " active" : ""}" style="padding:3px 8px;font-size:10px" data-statstoggle="${id}:list"><svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>${self._t("stats.list", "List")}</button></span>`;
-    }
-    function chartSection(svgHtml, legendHtml) {
-      return b2`<div class="stats-chart-row">${svgHtml}<div class="stats-chart-legend">${legendHtml}</div></div>`;
-    }
-    var topIPs = this._data && this._data.top_public_ips || [];
-    var ipsSection;
-    if (!topIPs.length) {
-      ipsSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_external_flow_data", "No external flow data yet")}</p></div>`;
-    } else if (modes.public_ips === "pie") {
-      ipsSection = chartSection(self._pieSvg(topIPs, function(e4) {
-        return e4.flows;
-      }, function(e4) {
-        return (e4.hostname || e4.org || e4.ip) + (e4.country ? " [" + e4.country + "]" : "");
-      }, COLORS), b2`${self._statsLegend(topIPs, function(e4) {
-        return e4.flows;
-      }, function(e4) {
-        return (e4.hostname || e4.org || e4.ip) + (e4.country ? " [" + e4.country + "]" : "") + (e4.blacklisted ? " \u26A0" : "");
-      }, COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.ranked_by_flow_count", "Ranked by flow count")}</div><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`);
-    } else {
-      ipsSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Hostname / Org</th><th>Country</th><th style="text-align:right">Flows</th><th>Rating</th></tr></thead><tbody>${topIPs.map(function(e4, i5) {
-        var label = e4.hostname || e4.org || e4.ip;
-        var country = e4.country_name || e4.country || "";
-        var countryFlag = self._countryFlag(e4.country);
-        var bc = e4.blacklisted ? "badge-critical" : e4.rating === "suspicious" ? "badge-warn" : "badge-ok";
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${e4.ip}</span></td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</td><td>${countryFlag ? b2`<span title="${country}" style="font-size:15px;line-height:1">${countryFlag}</span>` : b2`<span class="dim">${country || "\u2014"}</span>`}</td><td style="text-align:right">${e4.flows.toLocaleString()}</td><td><span class="badge ${bc}">${e4.blacklisted ? "malicious" : e4.rating || "ok"}</span></td></tr>`;
-      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`;
-    }
-    var topC = this._data && this._data.top_countries || [];
-    var countriesSection;
-    if (!topC.length) {
-      countriesSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_country_data", "No country data yet")}</p></div>`;
-    } else if (modes.countries === "pie") {
-      countriesSection = chartSection(self._pieSvg(topC, function(c4) {
-        return c4.flow_count;
-      }, function(c4) {
-        return (c4.country_name || c4.country) + " (" + c4.ip_count + " IPs)";
-      }, COLORS), b2`${self._statsLegend(topC, function(c4) {
-        return c4.flow_count;
-      }, function(c4) {
-        return (c4.country_name || c4.country || "\u2014") + " (" + c4.ip_count + " IPs)";
-      }, COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.ranked_by_flow_count", "Ranked by flow count")}</div>`);
-    } else {
-      var maxFlows = topC[0] ? topC[0].flow_count : 1;
-      countriesSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>CC</th><th>Country</th><th style="text-align:right">Unique IPs</th><th style="text-align:right">Flows</th><th>Share</th></tr></thead><tbody>${topC.map(function(c4, i5) {
-        var pct = maxFlows > 0 ? Math.round(c4.flow_count / maxFlows * 100) : 0;
-        var ccFlag = self._countryFlag(c4.country);
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><b>${ccFlag ? b2`<span title="${c4.country || "\u2014"}" style="font-size:15px;line-height:1">${ccFlag}</span>` : c4.country || "\u2014"}</b></td><td>${c4.country_name || c4.country || "\u2014"}</td><td style="text-align:right">${c4.ip_count.toLocaleString()}</td><td style="text-align:right">${c4.flow_count.toLocaleString()}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:var(--accent,#8f86ff);border-radius:3px;height:8px"></div></div></td></tr>`;
-      })}</tbody></table>`;
-    }
-    var topT = this._data && this._data.top_internal_talkers || [];
-    var talkersSection;
-    if (!topT.length) {
-      talkersSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_traffic_data", "No traffic data yet")}</p></div>`;
-    } else if (modes.talkers === "pie") {
-      talkersSection = chartSection(self._pieSvg(topT, function(d3) {
-        return d3.total_octets;
-      }, function(d3) {
-        return d3.display_name || d3.ip;
-      }, COLORS), b2`${self._statsLegend(topT, function(d3) {
-        return d3.total_octets;
-      }, function(d3) {
-        return (d3.display_name || d3.ip) + " \xB7 " + self._bytes(d3.total_octets);
-      }, COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.ranked_by_total_traffic", "Ranked by total traffic")}</div><button class="btn" style="margin-top:8px" data-view="hosts">${this._t("stats.view_all_hosts", "View all hosts \u2192")}</button>`);
-    } else {
-      var maxOct = topT[0] ? topT[0].total_octets : 1;
-      talkersSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Name</th><th>Role</th><th style="text-align:right">Traffic</th><th>Share</th></tr></thead><tbody>${topT.map(function(d3, i5) {
-        var pct = maxOct > 0 ? Math.round(d3.total_octets / maxOct * 100) : 0;
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${d3.ip}</span></td><td>${d3.display_name}</td><td>${d3.probable_role || "\u2014"}</td><td style="text-align:right">${self._bytes(d3.total_octets)}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:#3ac5c9;border-radius:3px;height:8px"></div></div></td></tr>`;
-      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="hosts">${this._t("stats.view_all_hosts", "View all hosts \u2192")}</button>`;
-    }
-    var eStats = this._data && this._data.enrichment_stats || [];
-    var enrichSection;
-    if (!eStats.length) {
-      enrichSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_enrichment_data", "No enrichment data")}</p></div>`;
-    } else {
-      enrichSection = b2`<div style="overflow-x:auto"><table class="data-table" style="width:100%;min-width:480px"><thead><tr><th>${this._t("stats.provider", "Provider")}</th><th style="width:80px;text-align:right">${this._t("stats.used_today", "Used today")}</th><th style="width:90px;text-align:right">${this._t("stats.daily_budget", "Daily budget")}</th><th style="width:110px">${this._t("stats.usage", "Usage")}</th><th style="width:80px">${this._t("stats.status", "Status")}</th><th>${this._t("stats.errors_notes", "Errors / Notes")}</th></tr></thead><tbody>${eStats.map(function(s4) {
-        var PROV_LABELS = {
-          ipwho: "ipwho.is",
-          virustotal: "VirusTotal",
-          abuseipdb: "AbuseIPDB"
-        };
-        var provLabel = (PROV_LABELS[s4.provider] || s4.provider) + (s4.variant ? " (" + s4.variant + ")" : "");
-        var unlimited = s4.budget === null || s4.budget === void 0;
-        var pct = !unlimited && s4.budget > 0 ? Math.min(100, Math.round(s4.used / s4.budget * 100)) : 0;
-        var barColor = s4.exhausted ? "#ff4d6d" : unlimited || pct <= 80 ? "#6bffc8" : "#ffc107";
-        var badge = !s4.configured ? b2`<span class="badge badge-dim">${self._t("stats.not_configured", "not configured")}</span>` : s4.exhausted ? b2`<span class="badge badge-critical">${self._t("stats.exhausted", "exhausted")}</span>` : unlimited ? b2`<span class="badge badge-ok">${self._t("stats.unlimited", "\u221E unlimited")}</span>` : pct > 80 ? b2`<span class="badge badge-warn">${self._t("stats.high", "high")}</span>` : b2`<span class="badge badge-ok">${self._t("stats.ok", "ok")}</span>`;
-        var errCell = "";
-        if (s4.last_error) {
-          var errStr = String(s4.last_error);
-          var errColor = errStr.indexOf("401") !== -1 || errStr.indexOf("403") !== -1 ? "#ffc107" : "#ff4d6d";
-          errCell = b2`<span style="color:${errColor};font-size:11px;font-weight:600">⚠️ ${errStr}</span>`;
-        }
-        return b2`<tr><td><b>${provLabel}</b></td><td style="text-align:right">${s4.used.toLocaleString()}</td><td style="text-align:right">${unlimited ? "\u221E" : s4.budget.toLocaleString()}</td><td style="width:120px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${unlimited ? 100 : pct}%;background:${barColor};border-radius:3px;height:8px"></div></div></td><td>${badge}</td><td>${errCell}</td></tr>`;
-      })}</tbody></table></div>`;
-    }
-    var THREAT_COLORS = ["#ff4d6d", "#ff8c42", "#ffc107", "#f472b6", "#fb923c", "#ff6b6b", "#e879f9", "#facc15", "#fd8dac", "#ffb347"];
-    var topThr = this._data && this._data.top_threat_ips || [];
-    var threatSection;
-    if (!topThr.length) {
-      threatSection = b2`<div class="empty-state"><div class="empty-icon" style="font-size:24px">✅</div><p style="margin:8px 0">${this._t("stats.no_threat_ips", "No suspicious or malicious IPs detected")}</p></div>`;
-    } else if (modes.threat_ips === "pie") {
-      threatSection = chartSection(self._pieSvg(topThr, function(e4) {
-        return Math.max(e4.flows, 1);
-      }, function(e4) {
-        return e4.ip + (e4.hostname ? " (" + e4.hostname + ")" : "") + " \u2014 " + e4.rating;
-      }, THREAT_COLORS), b2`${self._statsLegend(topThr, function(e4) {
-        return Math.max(e4.flows, 1);
-      }, function(e4) {
-        var label = e4.hostname || e4.org || e4.ip;
-        return label + " \xB7 " + e4.rating + (e4.flows ? " \xB7 " + e4.flows.toLocaleString() + " flows" : "");
-      }, THREAT_COLORS)}<div style="margin-top:8px;font-size:10px;color:var(--muted)">${this._t("stats.malicious_first", "Malicious first, then by flow count")}</div><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`);
-    } else {
-      threatSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Hostname / Org</th><th>Country</th><th style="text-align:right">Flows</th><th>Rating</th><th>Details</th></tr></thead><tbody>${topThr.map(function(e4, i5) {
-        var label = e4.hostname || e4.org || e4.ip;
-        var country = e4.country_name || e4.country || "";
-        var countryFlag = self._countryFlag(e4.country);
-        var bc = e4.rating === "malicious" ? "badge-critical" : "badge-warn";
-        var details = [];
-        if (e4.vt_malicious != null && e4.vt_malicious > 0) details.push("VT\xA0" + e4.vt_malicious);
-        if (e4.abuse_confidence != null && e4.abuse_confidence > 0) details.push("Abuse\xA0" + e4.abuse_confidence + "%");
-        if (e4.blacklist_info && typeof e4.blacklist_info === "object" && e4.blacklist_info.source) details.push(e4.blacklist_info.source);
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${e4.ip}</span></td><td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</td><td>${countryFlag ? b2`<span title="${country}" style="font-size:15px;line-height:1">${countryFlag}</span>` : b2`<span class="dim">${country || "\u2014"}</span>`}</td><td style="text-align:right">${(e4.flows || 0).toLocaleString()}</td><td><span class="badge ${bc}">${e4.rating}</span></td><td style="font-size:10px;color:var(--muted)">${details.join(", ")}</td></tr>`;
-      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="external">${this._t("stats.view_all_external_ips", "View all external IPs \u2192")}</button>`;
-    }
-    var dnsLog = this._data && this._data.dns_log || [];
-    var dnsStats = this._data && this._data.dns_proxy_stats || {};
-    var dnsChartHtml = (function() {
-      var D_HOURS = 24, D_BAR_W = 18, D_BAR_GAP = 3, D_CHART = 60, D_LABEL = 16;
-      var nowMs = Date.now();
-      var dnsBuckets = new Array(D_HOURS).fill(null).map(function() {
-        return {
-          total: 0,
-          blocked: 0,
-          mal: 0
-        };
-      });
-      var hasTsData = false;
-      for (var ti = 0; ti < allPoints.length; ti++) {
-        var tpt = allPoints[ti];
-        if (tpt.dns_total == null) continue;
-        var tts = new Date(tpt.ts).getTime();
-        var tago = Math.floor((nowMs - tts) / 36e5);
-        if (tago < 0 || tago >= D_HOURS) continue;
-        var tbi = D_HOURS - 1 - tago;
-        dnsBuckets[tbi].total += tpt.dns_total || 0;
-        dnsBuckets[tbi].blocked += tpt.dns_blocked || 0;
-        dnsBuckets[tbi].mal += tpt.dns_malicious || 0;
-        hasTsData = true;
-      }
-      if (!hasTsData) {
-        for (var di = 0; di < dnsLog.length; di++) {
-          var row = dnsLog[di] || {};
-          var rawTs = row.timestamp;
-          var et = rawTs == null ? NaN : typeof rawTs === "number" ? rawTs < 1e12 ? rawTs * 1e3 : rawTs : (function() {
-            var txt = String(rawTs).trim();
-            var n4 = Number(txt);
-            if (!isNaN(n4)) return n4 < 1e12 ? n4 * 1e3 : n4;
-            var m2 = new Date(txt).getTime();
-            return isNaN(m2) ? new Date(txt.replace(" ", "T")).getTime() : m2;
-          })();
-          if (isNaN(et)) continue;
-          var ago = Math.floor((nowMs - et) / 36e5);
-          if (ago < 0 || ago >= D_HOURS) continue;
-          var bi = D_HOURS - 1 - ago;
-          dnsBuckets[bi].total++;
-          if (row.malicious) dnsBuckets[bi].mal++;
-          if (row.status === "blocked") dnsBuckets[bi].blocked++;
-        }
-      }
-      var hasAny = dnsBuckets.some(function(b3) {
-        return b3.total > 0;
-      });
-      if (!hasAny) return b2`<div class="empty-state"><p style="margin:12px 0">${self._t("stats.no_dns_queries", "No DNS queries recorded")}</p></div>`;
-      var maxDns = 1;
-      for (var mi = 0; mi < dnsBuckets.length; mi++) {
-        if (dnsBuckets[mi].total > maxDns) maxDns = dnsBuckets[mi].total;
-      }
-      var dSvgW = D_HOURS * (D_BAR_W + D_BAR_GAP);
-      var dBars = dnsBuckets.map(function(b3, i5) {
-        var x2 = i5 * (D_BAR_W + D_BAR_GAP);
-        var th = Math.max(2, Math.round(b3.total / maxDns * D_CHART));
-        var bkh = b3.blocked > 0 ? Math.max(2, Math.round(b3.blocked / maxDns * D_CHART)) : 0;
-        var mh = b3.mal > 0 ? Math.max(2, Math.round(b3.mal / maxDns * D_CHART)) : 0;
-        var lhour = new Date(nowMs - (D_HOURS - 1 - i5) * 36e5).getHours();
-        var tip = lhour + "h \u2014 " + b3.total + " total" + (b3.blocked > 0 ? ", " + b3.blocked + " blocked" : "") + (b3.mal > 0 ? ", " + b3.mal + " malicious" : "");
-        return w`<rect x="${x2}" y="${D_CHART - th}" width="${D_BAR_W}" height="${th}" fill="rgba(98,232,255,.35)"  rx="2"><title>${tip}</title></rect>${bkh > 0 ? w`<rect x="${x2}" y="${D_CHART - bkh}" width="${D_BAR_W}" height="${bkh}" fill="rgba(191,111,255,.7)"  rx="2"><title>${tip}</title></rect>` : ""}${mh > 0 ? w`<rect x="${x2}" y="${D_CHART - mh}" width="${D_BAR_W}" height="${mh}" fill="rgba(255,77,109,.7)"   rx="2"><title>${tip}</title></rect>` : ""}`;
-      });
-      var dLabels = [];
-      for (var dl = 0; dl < D_HOURS; dl += 4) {
-        var dlx = dl * (D_BAR_W + D_BAR_GAP) + D_BAR_W / 2;
-        var dlHour = new Date(nowMs - (D_HOURS - 1 - dl) * 36e5).getHours();
-        dLabels.push(w`<text x="${dlx}" y="${D_CHART + D_LABEL - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${dlHour}h</text>`);
-      }
-      return b2`<svg viewBox="0 0 ${dSvgW} ${D_CHART + D_LABEL}" width="100%" height="${D_CHART + D_LABEL}" preserveAspectRatio="none" style="display:block">${dBars}${dLabels}</svg><div style="display:flex;gap:12px;margin-top:4px;font-size:10px"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(98,232,255,.35);display:inline-block;border-radius:2px"></span>${self._t("stats.total", "Total")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(191,111,255,.7);display:inline-block;border-radius:2px"></span>${self._t("stats.blocked", "Blocked")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(255,77,109,.7);display:inline-block;border-radius:2px"></span>${self._t("stats.malicious", "Malicious")}</span></div>`;
-    })();
-    var topMalDomains = [];
-    (function() {
-      var counts = {};
-      for (var i5 = 0; i5 < dnsLog.length; i5++) {
-        var e4 = dnsLog[i5];
-        if ((e4.malicious || e4.status === "blocked") && e4.domain) {
-          counts[e4.domain] = (counts[e4.domain] || 0) + 1;
-        }
-      }
-      topMalDomains = Object.keys(counts).map(function(d3) {
-        var cat = "other";
-        for (var i6 = 0; i6 < dnsLog.length; i6++) {
-          if (dnsLog[i6].domain === d3) {
-            cat = dnsLog[i6].category || "other";
-            break;
-          }
-        }
-        return {
-          domain: d3,
-          count: counts[d3],
-          category: cat
-        };
-      });
-      topMalDomains.sort(function(a3, b3) {
-        return b3.count - a3.count;
-      });
-      topMalDomains = topMalDomains.slice(0, topN);
-    })();
-    var dnsTopMalHtml;
-    if (!topMalDomains.length) {
-      dnsTopMalHtml = b2`<div class="empty-state"><div class="empty-icon" style="font-size:22px">✅</div><p style="margin:8px 0">${this._t("stats.no_dns_detected", "No malicious or blocked DNS queries detected")}</p></div>`;
-    } else {
-      var DNS_CAT_COLORS_STAT = {
-        malware: "rgba(255,77,109,1)",
-        adult: "rgba(191,111,255,1)",
-        gambling: "rgba(255,179,71,1)",
-        ads: "rgba(255,209,102,1)",
-        tracking: "rgba(107,140,186,1)",
-        social: "rgba(91,170,236,1)",
-        gaming: "rgba(107,255,200,1)",
-        streaming: "rgba(58,197,201,1)",
-        news: "rgba(245,158,11,1)",
-        cdn: "rgba(72,199,142,1)",
-        cloud: "rgba(59,178,255,1)",
-        iot: "rgba(255,159,67,1)",
-        tech: "rgba(155,135,245,1)",
-        intel: "rgba(248,84,84,1)",
-        override: "rgba(98,232,255,1)",
-        other: "rgba(90,106,128,1)"
-      };
-      dnsTopMalHtml = b2`<table class="data-table" style="width:100%;margin-top:8px;table-layout:fixed"><thead><tr><th style="width:26px">#</th><th>Domain</th><th style="width:88px">Category</th><th style="width:64px;text-align:right">Queries</th></tr></thead><tbody>${topMalDomains.map(function(d3, i5) {
-        var cc = DNS_CAT_COLORS_STAT[d3.category] || DNS_CAT_COLORS_STAT["other"];
-        var catPill = b2`<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:${cc.replace(",1)", ",.15)")};color:${cc};border:1px solid ${cc.replace(",1)", ",.35)")}">${d3.category || "other"}</span>`;
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td class="mono" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d3.domain}</td><td>${catPill}</td><td style="text-align:right"><span class="badge badge-malicious">${d3.count}</span></td></tr>`;
-      })}</tbody></table><button class="btn" style="margin-top:8px" data-view="dns">${this._t("stats.view_dns_log", "View DNS log \u2192")}</button>`;
-    }
-    var _STAT_CAT_COLORS = {
-      malware: "rgba(255,77,109,1)",
-      adult: "rgba(191,111,255,1)",
-      gambling: "rgba(255,179,71,1)",
-      ads: "rgba(255,209,102,1)",
-      tracking: "rgba(107,140,186,1)",
-      social: "rgba(91,170,236,1)",
-      gaming: "rgba(107,255,200,1)",
-      streaming: "rgba(58,197,201,1)",
-      news: "rgba(245,158,11,1)",
-      cdn: "rgba(72,199,142,1)",
-      cloud: "rgba(59,178,255,1)",
-      iot: "rgba(255,159,67,1)",
-      tech: "rgba(155,135,245,1)",
-      intel: "rgba(248,84,84,1)",
-      override: "rgba(98,232,255,1)",
-      other: "rgba(90,106,128,1)"
-    };
-    var _STAT_CAT_LABELS = {
-      malware: "Malware",
-      adult: "Adult",
-      gambling: "Gambling",
-      ads: "Ads",
-      tracking: "Tracking",
-      social: "Social",
-      gaming: "Gaming",
-      streaming: "Streaming",
-      news: "News",
-      cdn: "CDN",
-      cloud: "Cloud",
-      iot: "IoT",
-      tech: "Tech",
-      intel: "Threat Intel",
-      override: "Override",
-      other: "Other"
-    };
-    var _dnsCatCounts = {};
-    for (var _dci = 0; _dci < dnsLog.length; _dci++) {
-      var _dce = dnsLog[_dci];
-      if (_dce.malicious || _dce.status === "blocked") {
-        var _dcc = (_dce.category || "other").toLowerCase();
-        _dnsCatCounts[_dcc] = (_dnsCatCounts[_dcc] || 0) + 1;
-      }
-    }
-    var _dnsCatItems = Object.keys(_dnsCatCounts).map(function(c4) {
-      return {
-        cat: c4,
-        count: _dnsCatCounts[c4]
-      };
-    }).sort(function(a3, b3) {
-      return b3.count - a3.count;
-    });
-    var _dnsCatTotal = _dnsCatItems.reduce(function(s4, x2) {
-      return s4 + x2.count;
-    }, 0);
-    var dnsCatSection;
-    if (!_dnsCatTotal) {
-      dnsCatSection = b2`<div class="empty-state"><div class="empty-icon" style="font-size:22px">✅</div><p style="margin:8px 0">${this._t("stats.no_blocked_yet", "No blocked or malicious DNS queries yet")}</p></div>`;
-    } else if (modes.dns_categories === "pie") {
-      var _dnsCatPieColors = _dnsCatItems.map(function(x2) {
-        return _STAT_CAT_COLORS[x2.cat] || _STAT_CAT_COLORS["other"];
-      });
-      var _dnsCatPieSvg = self._pieSvg(_dnsCatItems, function(x2) {
-        return x2.count;
-      }, function(x2) {
-        return (_STAT_CAT_LABELS[x2.cat] || x2.cat) + ": " + x2.count;
-      }, _dnsCatPieColors);
-      var _dnsCatLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_dnsCatItems.map(function(x2) {
-        var col = _STAT_CAT_COLORS[x2.cat] || _STAT_CAT_COLORS["other"];
-        var pct = Math.round(x2.count / _dnsCatTotal * 100);
-        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span style="flex:1;color:var(--fg)">${_STAT_CAT_LABELS[x2.cat] || x2.cat}</span><span style="color:var(--muted);font-variant-numeric:tabular-nums">${x2.count} (${pct}%)</span></div>`;
-      })}</div>`;
-      dnsCatSection = b2`<div class="stats-chart-row">${_dnsCatPieSvg}<div class="stats-chart-legend">${_dnsCatLegend}</div></div>`;
-    } else {
-      var _dnsCatMax = _dnsCatItems[0] ? _dnsCatItems[0].count : 1;
-      dnsCatSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>Category</th><th style="text-align:right">Queries</th><th>Share</th></tr></thead><tbody>${_dnsCatItems.map(function(x2, i5) {
-        var col = _STAT_CAT_COLORS[x2.cat] || _STAT_CAT_COLORS["other"];
-        var pct = _dnsCatMax > 0 ? Math.round(x2.count / _dnsCatMax * 100) : 0;
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span style="font-size:10px;padding:1px 6px;border-radius:8px;background:${col.replace(",1)", ",.15)")};color:${col};border:1px solid ${col.replace(",1)", ",.35)")}">${_STAT_CAT_LABELS[x2.cat] || x2.cat}</span></td><td style="text-align:right">${x2.count}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:${col};border-radius:3px;height:8px"></div></div></td></tr>`;
-      })}</tbody></table>`;
-    }
-    var _dnsClientCounts = {};
-    for (var _dsi = 0; _dsi < dnsLog.length; _dsi++) {
-      var _dse = dnsLog[_dsi];
-      if (_dse.malicious || _dse.status === "blocked") {
-        var _src = String(_dse.src_ip || "").trim();
-        if (!_src) continue;
-        _dnsClientCounts[_src] = (_dnsClientCounts[_src] || 0) + 1;
-      }
-    }
-    var _dnsClientItems = Object.keys(_dnsClientCounts).map(function(ip) {
-      return {
-        ip,
-        count: _dnsClientCounts[ip]
-      };
-    }).sort(function(a3, b3) {
-      return b3.count - a3.count;
-    }).slice(0, topN);
-    var _dnsClientTotal = _dnsClientItems.reduce(function(s4, x2) {
-      return s4 + x2.count;
-    }, 0);
-    var dnsClientSection;
-    if (!_dnsClientTotal) {
-      dnsClientSection = b2`<div class="empty-state"><div class="empty-icon" style="font-size:22px">✅</div><p style="margin:8px 0">${this._t("stats.no_blocked_clients", "No blocked or malicious client queries yet")}</p></div>`;
-    } else if (modes.dns_clients === "pie") {
-      var _dnsClientColors = ["#ff4d6d", "#ff8c42", "#ffc107", "#f472b6", "#fb923c", "#ff6b6b", "#e879f9", "#facc15", "#fd8dac", "#ffb347", "#6bffc8", "#5baaec"];
-      var _dnsClientPieSvg = self._pieSvg(_dnsClientItems, function(x2) {
-        return x2.count;
-      }, function(x2) {
-        var name = nameMap[x2.ip] || x2.ip;
-        return name + ": " + x2.count + " blocked/malicious queries";
-      }, _dnsClientColors);
-      var _dnsClientLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_dnsClientItems.map(function(x2, i5) {
-        var col = _dnsClientColors[i5 % _dnsClientColors.length];
-        var pct = Math.round(x2.count / _dnsClientTotal * 100);
-        var name = nameMap[x2.ip] || x2.ip;
-        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span class="ip" style="flex:1;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x2.ip}">${name}</span><span style="color:var(--muted);font-variant-numeric:tabular-nums">${x2.count} (${pct}%)</span></div>`;
-      })}</div>`;
-      dnsClientSection = b2`<div class="stats-chart-row">${_dnsClientPieSvg}<div class="stats-chart-legend">${_dnsClientLegend}</div></div>`;
-    } else {
-      var _dnsClientMax = _dnsClientItems[0] ? _dnsClientItems[0].count : 1;
-      dnsClientSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>Client IP</th><th style="text-align:right">Blocked/Malicious</th><th>Share</th></tr></thead><tbody>${_dnsClientItems.map(function(x2, i5) {
-        var pct = _dnsClientMax > 0 ? Math.round(x2.count / _dnsClientMax * 100) : 0;
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${x2.ip}</span></td><td style="text-align:right">${x2.count}</td><td style="width:100px"><div style="background:rgba(255,255,255,.08);border-radius:3px;height:8px"><div style="width:${pct}%;background:#ff4d6d;border-radius:3px;height:8px"></div></div></td></tr>`;
-      })}</tbody></table>`;
-    }
-    var blInfo = self._data && self._data.baseline || {};
-    var devianceChartHtml = (function() {
-      if ((blInfo.mode || "disabled") !== "active") {
-        return "";
-      }
-      var DV_H = 24, DV_BAR_W = 18, DV_GAP = 3, DV_CHART = 60, DV_LABEL = 16;
-      var dvNow = Date.now();
-      var dvBkts = new Array(DV_H).fill(null);
-      for (var dvi = 0; dvi < allPoints.length; dvi++) {
-        var dvpt = allPoints[dvi];
-        if (dvpt.deviance_score == null) continue;
-        var dago = Math.floor((dvNow - new Date(dvpt.ts).getTime()) / 36e5);
-        if (dago < 0 || dago >= DV_H) continue;
-        var dbi = DV_H - 1 - dago;
-        if (dvBkts[dbi] === null || dvpt.deviance_score > dvBkts[dbi]) dvBkts[dbi] = dvpt.deviance_score;
-      }
-      if (!dvBkts.some(function(v2) {
-        return v2 !== null;
-      })) {
-        return b2`<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">${self._t("stats.no_deviance", "No deviance data yet \u2014 data accumulates every 5 min")}</div>`;
-      }
-      var dvSvgW = DV_H * (DV_BAR_W + DV_GAP);
-      var dvGuides = [25, 50, 75].map(function(g2) {
-        var gy = DV_CHART - Math.round(g2 / 100 * DV_CHART);
-        return w`<line x1="0" y1="${gy}" x2="${dvSvgW}" y2="${gy}" stroke="rgba(255,255,255,.07)" stroke-width="1"/>`;
-      });
-      var dvBars = dvBkts.map(function(v2, i5) {
-        var x2 = i5 * (DV_BAR_W + DV_GAP);
-        if (v2 === null) return w`<rect x="${x2}" y="${DV_CHART - 2}" width="${DV_BAR_W}" height="2" fill="rgba(255,255,255,.06)" rx="1"><title>No data</title></rect>`;
-        var clr = v2 <= 20 ? "#6bffc8" : v2 <= 50 ? "#ffc107" : v2 <= 75 ? "#ff8c42" : "#ff4d6d";
-        var bh = Math.max(2, Math.round(v2 / 100 * DV_CHART));
-        var tip = new Date(dvNow - (DV_H - 1 - i5) * 36e5).getHours() + "h \u2014 deviance\xA0" + v2 + "%";
-        return w`<rect x="${x2}" y="${DV_CHART - bh}" width="${DV_BAR_W}" height="${bh}" fill="${clr}" opacity="0.85" rx="2"><title>${tip}</title></rect>`;
-      });
-      var dvLabels = [];
-      for (var dl = 0; dl < DV_H; dl += 4) {
-        var dlx = dl * (DV_BAR_W + DV_GAP) + DV_BAR_W / 2;
-        dvLabels.push(w`<text x="${dlx}" y="${DV_CHART + DV_LABEL - 3}" font-size="9" fill="rgba(255,255,255,.4)" text-anchor="middle">${new Date(dvNow - (DV_H - 1 - dl) * 36e5).getHours()}h</text>`);
-      }
-      return b2`<svg viewBox="0 0 ${dvSvgW} ${DV_CHART + DV_LABEL}" width="100%" height="${DV_CHART + DV_LABEL}" preserveAspectRatio="none" style="display:block">${dvGuides}${dvBars}${dvLabels}</svg><div style="display:flex;gap:12px;margin-top:4px;font-size:10px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#6bffc8;display:inline-block;border-radius:2px"></span>${self._t("stats.normal", "\u226420% Normal")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ffc107;display:inline-block;border-radius:2px"></span>${self._t("stats.review", "\u226450% Review")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff8c42;display:inline-block;border-radius:2px"></span>${self._t("stats.investigate", "\u226475% Investigate")}</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#ff4d6d;display:inline-block;border-radius:2px"></span>${self._t("stats.critical", ">75% Critical")}</span></div>`;
-    })();
-    var _allFindings = (this._data && this._data.findings || []).concat(this._data && this._data.baseline_anomalies || []);
-    var _hostFindCounts = {};
-    for (var _hfi = 0; _hfi < _allFindings.length; _hfi++) {
-      var _hfip = String(_allFindings[_hfi].source_ip || "").trim();
-      if (_hfip) _hostFindCounts[_hfip] = (_hostFindCounts[_hfip] || 0) + 1;
-    }
-    var _hostFindItems = Object.keys(_hostFindCounts).map(function(ip) {
-      return {
-        ip,
-        count: _hostFindCounts[ip]
-      };
-    }).sort(function(a3, b3) {
-      return b3.count - a3.count;
-    }).slice(0, topN);
-    var _hostFindTotal = _hostFindItems.reduce(function(s4, x2) {
-      return s4 + x2.count;
-    }, 0);
-    var _devicesMap = {};
-    (this._data && this._data.devices || []).forEach(function(d3) {
-      if (d3.ip) _devicesMap[d3.ip] = d3;
-    });
-    var _hfColors = ["#ff8c42", "#ffc107", "#ff4d6d", "#8f86ff", "#3ac5c9", "#6bffc8", "#f472b6", "#fb923c", "#a78bfa", "#22d3ee"];
-    var hostFindingsSection;
-    if (!_hostFindTotal) {
-      hostFindingsSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_findings", "No findings recorded yet")}</p></div>`;
-    } else if (modes.host_findings === "pie") {
-      var _hfPieSvg = self._pieSvg(_hostFindItems, function(x2) {
-        return x2.count;
-      }, function(x2) {
-        var name = nameMap[x2.ip] || x2.ip;
-        return name + ": " + x2.count;
-      }, _hfColors);
-      var _hfLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_hostFindItems.map(function(x2, i5) {
-        var col = _hfColors[i5 % _hfColors.length];
-        var name = nameMap[x2.ip] || x2.ip;
-        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x2.ip}">${name}</span><span style="color:var(--muted)">${x2.count} (${Math.round(x2.count / _hostFindTotal * 100)}%)</span></div>`;
-      })}</div>`;
-      hostFindingsSection = b2`<div class="stats-chart-row">${_hfPieSvg}<div class="stats-chart-legend">${_hfLegend}</div></div>`;
-    } else {
-      hostFindingsSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Name / Hostname</th><th style="text-align:right">Deviations</th></tr></thead><tbody>${_hostFindItems.map(function(x2, i5) {
-        var d3 = _devicesMap[x2.ip];
-        var name = d3 && (d3.display_name || d3.hostname) || "";
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${x2.ip}</span></td><td>${name}</td><td style="text-align:right">${x2.count}</td></tr>`;
-      })}</tbody></table>`;
-    }
-    var _blAnoms = this._data && this._data.baseline_anomalies || [];
-    var _extDevCounts = {};
-    for (var _edi = 0; _edi < _blAnoms.length; _edi++) {
-      var _editem = _blAnoms[_edi];
-      if (_editem.category === "anomaly_new_peer" && _editem.details && _editem.details.peer) {
-        var _peer = String(_editem.details.peer).trim();
-        if (_peer) _extDevCounts[_peer] = (_extDevCounts[_peer] || 0) + 1;
-      }
-    }
-    var _extDevItems = Object.keys(_extDevCounts).map(function(ip) {
-      return {
-        ip,
-        count: _extDevCounts[ip]
-      };
-    }).sort(function(a3, b3) {
-      return b3.count - a3.count;
-    }).slice(0, topN);
-    var _extDevTotal = _extDevItems.reduce(function(s4, x2) {
-      return s4 + x2.count;
-    }, 0);
-    var _extIpEnrich = {};
-    (this._data && this._data.external_ips || []).forEach(function(e4) {
-      if (e4.ip) _extIpEnrich[e4.ip] = e4;
-    });
-    var _edColors = ["#ff4d6d", "#ff8c42", "#ffc107", "#f472b6", "#fb923c", "#ff6b6b", "#e879f9", "#facc15", "#fd8dac", "#ffb347"];
-    var extIpDeviationSection;
-    if (!_extDevTotal) {
-      extIpDeviationSection = b2`<div class="empty-state"><p style="margin:12px 0">${this._t("stats.no_ext_peers", "No new external peers in baseline deviations")}</p></div>`;
-    } else if (modes.ext_deviations === "pie") {
-      var _edPieSvg = self._pieSvg(_extDevItems, function(x2) {
-        return x2.count;
-      }, function(x2) {
-        var enr = _extIpEnrich[x2.ip];
-        return x2.ip + (enr && enr.org ? " \u2014 " + enr.org : "") + (enr && enr.country ? " [" + enr.country + "]" : "") + ": " + x2.count;
-      }, _edColors);
-      var _edLegend = b2`<div style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:180px;justify-content:center">${_extDevItems.map(function(x2, i5) {
-        var col = _edColors[i5 % _edColors.length];
-        var enr = _extIpEnrich[x2.ip];
-        var label = x2.ip + (enr && enr.org ? " \u2014 " + enr.org : "") + (enr && enr.country ? " [" + enr.country + "]" : "");
-        return b2`<div style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;flex-shrink:0;background:${col}"></span><span class="ip" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x2.ip}">${label}</span><span style="color:var(--muted)">${x2.count} (${Math.round(x2.count / _extDevTotal * 100)}%)</span></div>`;
-      })}</div>`;
-      extIpDeviationSection = b2`<div class="stats-chart-row">${_edPieSvg}<div class="stats-chart-legend">${_edLegend}</div></div>`;
-    } else {
-      extIpDeviationSection = b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>IP</th><th>Org / Hostname</th><th>Country</th><th style="text-align:right">Deviations</th></tr></thead><tbody>${_extDevItems.map(function(x2, i5) {
-        var enr = _extIpEnrich[x2.ip];
-        var org = enr && (enr.org || enr.hostname) || "";
-        var country = enr && (enr.country_name || enr.country) || "";
-        return b2`<tr><td style="color:var(--muted)">${i5 + 1}</td><td><span class="ip">${x2.ip}</span></td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${org}</td><td>${country}</td><td style="text-align:right">${x2.count}</td></tr>`;
-      })}</tbody></table>`;
-    }
-    return b2`<div><div class="page-header"><h1 class="page-title">${this._t("page.statistics", "Statistics")} <span class="dim" style="font-size:12px;font-weight:400;text-transform:none">— top ${topN}</span></h1></div><div class="stat-card" style="grid-column:1/-1">${timelineHtml}${devianceChartHtml ? b2`<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${this._t("stats.baseline_deviance_hourly", "Baseline Deviance per hour (last 24 h)")}</div>${devianceChartHtml}</div>` : ""}${dnsProxyEnabled ? b2`<div style="margin-top:16px"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${this._t("stats.dns_queries_hourly", "DNS Queries per hour (last 24 h)")}</div>${dnsChartHtml}</div>` : ""}</div><div class="two-col stats-two-col" style="margin-top:12px"><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_public_ips", "Top\xA0{n} Public IPs").replace("{n}", topN)}${toggleBtns("public_ips", modes.public_ips)}</div>${ipsSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_countries", "Top\xA0{n} Countries").replace("{n}", topN)}${toggleBtns("countries", modes.countries)}</div>${countriesSection}</div></div><div class="two-col stats-two-col" style="margin-top:12px"><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_internal_talkers", "Top\xA0{n} Internal Talkers").replace("{n}", topN)}${toggleBtns("talkers", modes.talkers)}</div>${talkersSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">${topThr.length ? b2`<span style="display:flex;align-items:center;gap:6px">${this._t("stats.top_threat_ips", "Top\xA0{n} Threat IPs").replace("{n}", topN)} <span class="badge badge-critical" style="font-size:9px">${topThr.length}</span></span>` : this._t("stats.top_threat_ips", "Top\xA0{n} Threat IPs").replace("{n}", topN)}${toggleBtns("threat_ips", modes.threat_ips)}</div>${threatSection}</div></div>${dnsProxyEnabled ? b2`<div class="two-col stats-two-col" style="margin-top:12px"><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.blocked_dns_by_category", "Blocked DNS Queries by Category")}${toggleBtns("dns_categories", modes.dns_categories)}</div>${dnsCatSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${this._t("stats.top_blocked_by_client", "Top\xA0{n} Blocked Queries by Client").replace("{n}", topN)}${toggleBtns("dns_clients", modes.dns_clients)}</div>${dnsClientSection}</div></div>` : ""}<div class="two-col stats-two-col" style="margin-top:12px">${(function() {
-      var blMode = self._data && self._data.baseline && self._data.baseline.mode || "disabled";
-      if (blMode !== "active") return "";
-      return b2`<div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${self._t("stats.top_hosts_deviations", "Top\xA0{n} Hosts in Deviations").replace("{n}", topN)}${toggleBtns("host_findings", modes.host_findings)}</div>${hostFindingsSection}</div><div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${self._t("stats.top_ext_deviations", "Top\xA0{n} External IPs in Deviations").replace("{n}", topN)}${toggleBtns("ext_deviations", modes.ext_deviations)}</div>${extIpDeviationSection}</div>`;
-    })()}</div>${suricataEnabledStats ? (function() {
-      function _sucPie(data, colors, key, title, noDataMsg) {
-        var mode = modes[key] || "pie";
-        var total = data.reduce(function(s4, d4) {
-          return s4 + d4.value;
-        }, 0);
-        var SIZE = 130;
-        var CX = SIZE / 2;
-        var CY = SIZE / 2;
-        var R2 = 52;
-        var IR = 28;
-        var pieSvg = [];
-        if (total > 0) {
-          var startAngle = -Math.PI / 2;
-          for (var i5 = 0; i5 < data.length; i5++) {
-            var frac = data[i5].value / total;
-            var end = startAngle + frac * 2 * Math.PI;
-            var x1 = CX + R2 * Math.cos(startAngle), y1 = CY + R2 * Math.sin(startAngle);
-            var x2 = CX + R2 * Math.cos(end), y22 = CY + R2 * Math.sin(end);
-            var ix1 = CX + IR * Math.cos(startAngle), iy1 = CY + IR * Math.sin(startAngle);
-            var ix2 = CX + IR * Math.cos(end), iy2 = CY + IR * Math.sin(end);
-            var lg = frac > 0.5 ? 1 : 0;
-            var d3 = "M " + ix1 + " " + iy1 + " L " + x1 + " " + y1 + " A " + R2 + " " + R2 + " 0 " + lg + " 1 " + x2 + " " + y22 + " L " + ix2 + " " + iy2 + " A " + IR + " " + IR + " 0 " + lg + " 0 " + ix1 + " " + iy1;
-            pieSvg.push(w`<path d="${d3}" fill="${colors[i5 % colors.length]}" opacity="0.92"/>`);
-            startAngle = end;
-          }
-        }
-        var legend = data.slice(0, 8).map(function(item, i6) {
-          return b2`<div class="row-gap" style="font-size:10px;gap:5px;margin-bottom:3px"><span style="width:9px;height:9px;border-radius:2px;background:${colors[i6 % colors.length]};flex-shrink:0;display:inline-block"></span><span style="color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.label}</span><span style="color:var(--text);font-weight:600;font-variant-numeric:tabular-nums">${item.value}</span></div>`;
-        });
-        var tableHtml = total === 0 ? b2`<div style="color:var(--muted);font-size:12px;padding:12px 0">${noDataMsg || "No data"}</div>` : b2`<table class="data-table" style="width:100%;margin-top:8px"><thead><tr><th>#</th><th>Label</th><th style="text-align:right">Count</th></tr></thead><tbody>${data.map(function(item, i6) {
-          return b2`<tr><td style="color:var(--muted)">${i6 + 1}</td><td><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${colors[i6 % colors.length]};margin-right:5px;vertical-align:middle"></span>${item.label}</td><td style="text-align:right">${item.value}</td></tr>`;
-        })}</tbody></table>`;
-        var toggleHtml = b2`<div style="display:flex;gap:4px"><button class="btn${mode === "pie" ? " active" : ""}" style="padding:2px 8px;font-size:10px" data-statstoggle="${key}:pie">${self._t("stats.pie", "Pie")}</button><button class="btn${mode === "bar" ? " active" : ""}" style="padding:2px 8px;font-size:10px" data-statstoggle="${key}:bar">${self._t("stats.list", "List")}</button></div>`;
-        var content = mode === "pie" && total > 0 ? b2`<div class="stats-chart-row"><svg width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}" style="flex-shrink:0">${pieSvg}</svg><div class="stats-chart-legend" style="min-width:0;flex:1">${legend}</div></div>` : tableHtml;
-        return b2`<div class="card stats-panel-card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center">${title}${toggleHtml}</div>${total === 0 ? b2`<div style="color:var(--muted);font-size:12px;padding:8px 0">${noDataMsg || self._t("stats.no_data", "No data")}</div>` : content}</div>`;
-      }
-      return b2`<div class="two-col stats-two-col" style="margin-top:12px">${_sucPie(sucSevData, SUC_SEV_COLORS, "suricata_severity", self._t("stats.suricata_by_severity", "Suricata Alerts \u2014 By Severity"), self._t("stats.no_alerts", "No alerts yet"))}${_sucPie(sucCatData, sucCatColors.length ? sucCatColors : SUC_CAT_PALETTE, "suricata_category", self._t("stats.suricata_by_category", "Suricata Alerts \u2014 By Category"), self._t("stats.no_alerts", "No alerts yet"))}</div><div class="two-col stats-two-col" style="margin-top:12px">${_sucPie(sucSrcData, SUC_SRC_PALETTE, "suricata_src", self._t("stats.suricata_top_source", "Suricata Alerts \u2014 Top\xA0{n} Source IPs").replace("{n}", topN), self._t("stats.no_alerts", "No alerts yet"))}</div>`;
-    })() : ""}${dnsProxyEnabled ? b2`<div class="card" style="margin-top:12px"><div class="card-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${topMalDomains.length ? b2`<span style="display:flex;align-items:center;gap:6px">${this._t("stats.top_blocked_domains", "Top\xA0{n} Blocked / Malicious Domains").replace("{n}", topN)} <span class="badge badge-critical" style="font-size:9px">${topMalDomains.length}</span></span>` : this._t("stats.top_blocked_domains", "Top\xA0{n} Blocked / Malicious Domains").replace("{n}", topN)}</div>${dnsTopMalHtml}</div>` : ""}<div class="card" style="margin-top:12px"><div class="card-title">${this._t("stats.enrichment_budget", "Enrichment Budget (Today)")}</div>${enrichSection}</div></div>`;
-  }
-  _viewMap() {
-    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
-    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
-    if (!netflowEnabled) {
-      return b2`<div class="state-box"><div class="state-icon">⏸</div><p>${this._t("map.disabled", "NetFlow listener is disabled.")} ${this._t("map.enable_in", "Enable it in")} <button class="btn" style="display:inline;padding:2px 10px;font-size:11px" data-view="settings">${this._t("view.settings", "Settings")}</button> ${this._t("map.to_use", "to use the Network Map.")}</p></div>`;
-      return;
-    }
-    var baselineEnabledRaw = this._data && this._data.baseline_enabled;
-    var baselineEnabled = baselineEnabledRaw === true || baselineEnabledRaw === "true" || baselineEnabledRaw === 1 || baselineEnabledRaw === "1";
-    var allDevices = this._mapAllDevices();
-    var connections = this._data && this._data.connections || [];
-    var baselineGraph = this._data && this._data.baseline_graph || null;
-    this._mapBaselineGraph = baselineGraph;
-    var extIPs = this._data && this._data.external_ips || [];
-    var mcIPs = this._data && this._data.multicast_ips || [];
-    var flows = this._data && this._data.summary && this._data.summary.total_flows || 0;
-    var f3 = this._mapFilter;
-    var m2 = this._mapMode;
-    var hasBaselineGraph = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
-    if (!baselineEnabled) m2 = "live";
-    if (m2 !== "live" && !hasBaselineGraph) m2 = "live";
-    this._mapMode = m2;
-    var filters = [{
-      id: "all",
-      label: this._t("map.filter_all", "All")
-    }, {
-      id: "scanned",
-      label: this._t("map.filter_scanned", "Scanned")
-    }, {
-      id: "flow",
-      label: this._t("map.filter_flow_only", "Flow only")
-    }, {
-      id: "external",
-      label: this._t("map.filter_external", "External"),
-      hide: !netflowEnabled
-    }].filter(function(b3) {
-      return !b3.hide;
-    });
-    var filterBtns = filters.map(function(b3) {
-      return b2`<button class="btn map-fbtn${f3 === b3.id ? " active" : ""}" data-mapfilter="${b3.id}">${b3.label}</button>`;
-    });
-    var mapModes = [{
-      id: "live",
-      label: this._t("map.mode_live", "Live")
-    }, {
-      id: "baseline",
-      label: this._t("map.mode_baseline", "Baseline"),
-      disabled: !hasBaselineGraph || !baselineEnabled
-    }, {
-      id: "compare",
-      label: this._t("map.mode_compare", "Compare"),
-      disabled: !hasBaselineGraph || !baselineEnabled
-    }];
-    var modeBtns = baselineEnabled ? mapModes.map(function(mm) {
-      return b2`<button class="btn map-mbtn${m2 === mm.id ? " active" : ""}" data-mapmode="${mm.id}" ?disabled=${mm.disabled}>${mm.label}</button>`;
-    }) : "";
-    var modeLabel = m2 === "baseline" ? this._t("map.label_baseline_snapshot", "Baseline Snapshot") : m2 === "compare" ? this._t("map.label_live_vs_baseline", "Live vs Baseline") : this._t("map.label_live_network", "Live Network Map");
-    var baselineInfo = "";
-    if (hasBaselineGraph) {
-      var edgeCount = (baselineGraph.edges || []).length;
-      var hostCount = (baselineGraph.hosts || []).length;
-      baselineInfo = b2`<span class="chip" style="margin-left:6px">${this._t("map.baseline_chip", "Baseline")} ${hostCount} ${this._t("map.hosts", "hosts")} · ${edgeCount} ${this._t("map.edges", "edges")}</span>`;
-    }
-    var compareSummaryHtml = "";
-    if (m2 === "compare" && hasBaselineGraph) {
-      var _compEdges = this._composeMapEdges(connections, baselineGraph);
-      var _cntNew = 0, _cntMissing = 0, _cntBoth = 0;
-      var _topDelta = [], _topDeltaLabel = "";
-      for (var _ci = 0; _ci < _compEdges.length; _ci++) {
-        var _ce = _compEdges[_ci];
-        if (_ce.edge_mode === "new") _cntNew++;
-        else if (_ce.edge_mode === "missing") _cntMissing++;
-        else if (_ce.edge_mode === "both") _cntBoth++;
-        if (_ce.edge_mode === "both" && _ce.delta != null) _topDelta.push(_ce);
-      }
-      _topDelta.sort(function(a3, b3) {
-        return Math.abs(b3.delta) - Math.abs(a3.delta);
-      });
-      if (_topDelta.length) {
-        var _td = _topDelta[0];
-        var _sign = _td.delta > 0 ? "+" : "";
-        _topDeltaLabel = _td.source + " \u2192 " + _td.target + " (" + _sign + Math.round(_td.delta * 100) / 100 + " flows/snap)";
-      }
-      compareSummaryHtml = b2`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:11px"><span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em">${this._t("map.compare", "Compare:")}</span><span style="background:rgba(50,255,120,.12);border:1px solid rgba(50,255,120,.35);border-radius:100px;padding:2px 10px;color:#32ff78">↑ ${_cntNew} ${this._t(_cntNew === 1 ? "map.new_edge_one" : "map.new_edge_many", _cntNew === 1 ? "new edge" : "new edges")}</span><span style="background:rgba(255,90,50,.12);border:1px solid rgba(255,90,50,.35);border-radius:100px;padding:2px 10px;color:#ff5a32">↓ ${_cntMissing} ${this._t(_cntMissing === 1 ? "map.missing_edge_one" : "map.missing_edge_many", _cntMissing === 1 ? "missing edge" : "missing edges")}</span><span style="background:rgba(98,232,255,.08);border:1px solid rgba(98,232,255,.2);border-radius:100px;padding:2px 10px;color:var(--accent)">${_cntBoth} ${this._t("map.unchanged", "unchanged")}</span>${_topDeltaLabel ? b2`<span style="background:rgba(255,206,84,.08);border:1px solid rgba(255,206,84,.25);border-radius:100px;padding:2px 10px;color:#ffce54;font-size:10px">${this._t("map.strongest", "\u0394 strongest:")} ${_topDeltaLabel}</span>` : ""}</div>`;
-    }
-    var template = b2`<div><div class="view-header"><h1>${modeLabel}${baselineInfo}</h1><div class="row-gap"><span id="map-stats" style="font-size:11px;color:var(--muted)">${allDevices.length} internal · ${extIPs.length} external${mcIPs.length ? " \xB7 " + mcIPs.length + " multicast" : ""} · ${this._fmtN(flows)} flows</span><button class="btn" id="map-reset-btn">${this._t("map.reset", "\u21BA Reset")}</button></div></div><div class="map-filter-bar" style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:4px">${filterBtns}</div><div style="display:flex;gap:4px">${modeBtns}</div></div>${compareSummaryHtml}<div class="map-wrap"><canvas id="hsa-map-canvas"></canvas><div class="map-tooltip" id="hsa-map-tip" style="display:none"></div><div class="map-legend"><div class="legend-item"><div class="ldot" style="background:#8f86ff"></div>${this._t("map.legend_scanned", "Scanned")}</div><div class="legend-item"><div class="ldot" style="background:#3ac5c9"></div>${this._t("map.legend_flow_only", "Flow only")}</div><div class="legend-item"><div class="ldot" style="background:#88a7c7"></div>${this._t("map.legend_baseline_edge", "Baseline edge")}</div><div class="legend-item"><div class="ldot" style="background:#ff5a32"></div>${this._t("map.legend_missing", "Missing")}</div><div class="legend-item"><div class="ldot" style="background:#32ff78"></div>${this._t("map.legend_new", "New")}</div><div class="legend-item"><div class="ldot" style="background:#ff4d6d"></div>${this._t("map.legend_at_risk", "At risk")}</div><div class="legend-item"><div class="ldot" style="background:#6bffc8"></div>${this._t("map.legend_gateway", "Gateway")}</div><div class="legend-item"><div class="ldot" style="background:#5a6a80"></div>${this._t("map.legend_external", "External")}</div><div class="legend-item"><div class="ldot" style="background:#d4a843"></div>${this._t("map.legend_multicast", "Multicast")}</div></div></div></div>`;
-    var self = this;
-    this._afterRender = () => requestAnimationFrame(function() {
-      var devices = self._applyMapFilter(allDevices);
-      var showExt = self._mapFilter === "all" || self._mapFilter === "external";
-      self._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
-      var btn = self.shadowRoot.getElementById("map-reset-btn");
-      if (btn) btn.onclick = function() {
-        self._stopMap();
-        self._mapZoom = 1;
-        self._mapPanX = 0;
-        self._mapPanY = 0;
-        var d3 = self._applyMapFilter(allDevices);
-        self._initMap(d3, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
-      };
-    });
-    return template;
-  }
-  _mapAllDevices() {
-    var _mapCutoff = Date.now() - 10 * 60 * 1e3;
-    var allDevices = (this._data && this._data.devices || []).filter(function(d4) {
-      return d4.alive || d4.last_seen && new Date(d4.last_seen).getTime() > _mapCutoff;
-    });
-    var baselineGraph = this._data && this._data.baseline_graph || null;
-    var baselineHosts = baselineGraph && baselineGraph.hosts || [];
-    var baselineByIp = {};
-    for (var bi = 0; bi < baselineHosts.length; bi++) {
-      var bh = baselineHosts[bi] || {};
-      if (bh.ip) baselineByIp[bh.ip] = bh;
-    }
-    for (var di = 0; di < allDevices.length; di++) {
-      var d3 = allDevices[di];
-      var b3 = baselineByIp[d3.ip];
-      if (b3) d3.baseline_observation_count = b3.observation_count || 0;
-    }
-    if (this._mapMode !== "live" && baselineHosts.length) {
-      for (var bh = 0; bh < baselineHosts.length; bh++) {
-        var h3 = baselineHosts[bh] || {};
-        if (!h3.ip) continue;
-        var exists = allDevices.some(function(d4) {
-          return d4.ip === h3.ip;
-        });
-        if (!exists) {
-          allDevices.push({
-            ip: h3.ip,
-            display_name: h3.display_name || h3.hostname || h3.ip,
-            hostname: h3.hostname || "",
-            probable_role: h3.probable_role || "unknown",
-            alive: false,
-            total_octets: 0,
-            baseline_only: true,
-            baseline_observation_count: h3.observation_count || 0
-          });
-        }
-      }
-    }
-    return allDevices;
-  }
-  _mapEdgeKey(source, target) {
-    return source + "|" + target;
-  }
-  _buildLiveEdgeIndex(connections) {
-    var idx = {};
-    for (var i5 = 0; i5 < connections.length; i5++) {
-      var c4 = connections[i5] || {};
-      var source = c4.source;
-      var target = c4.target;
-      if (!source || !target) continue;
-      var key = this._mapEdgeKey(source, target);
-      var entry = idx[key];
-      if (!entry) {
-        entry = idx[key] = {
-          source,
-          target,
-          source_kind: c4.source_kind || "",
-          target_kind: c4.target_kind || "",
-          live_octets: 0,
-          live_flows: 0
-        };
-      }
-      entry.live_octets += c4.octets || 0;
-      entry.live_flows += c4.flows || 0;
-    }
-    return idx;
-  }
-  _buildBaselineEdgeIndex(baselineGraph) {
-    var idx = {};
-    var edges = baselineGraph && baselineGraph.edges || [];
-    for (var i5 = 0; i5 < edges.length; i5++) {
-      var e4 = edges[i5] || {};
-      var source = e4.source;
-      var target = e4.target;
-      if (!source || !target) continue;
-      var key = this._mapEdgeKey(source, target);
-      idx[key] = {
-        source,
-        target,
-        source_kind: e4.source_kind || "",
-        target_kind: e4.target_kind || "",
-        active_probability: e4.active_probability || 0,
-        avg_octets: e4.avg_octets_per_snapshot || 0,
-        avg_flows: e4.avg_flows_per_snapshot || 0
-      };
-    }
-    return idx;
-  }
-  _composeMapEdges(connections, baselineGraph) {
-    var live = this._buildLiveEdgeIndex(connections || []);
-    var base = this._buildBaselineEdgeIndex(baselineGraph);
-    var keys = {};
-    Object.keys(live).forEach(function(k2) {
-      keys[k2] = true;
-    });
-    Object.keys(base).forEach(function(k2) {
-      keys[k2] = true;
-    });
-    var list = [];
-    for (var key in keys) {
-      var le = live[key];
-      var be = base[key];
-      if (this._mapMode === "live" && !le) continue;
-      if (this._mapMode === "baseline" && !be) continue;
-      var source = le && le.source || be && be.source;
-      var target = le && le.target || be && be.target;
-      var sourceKind = le && le.source_kind || be && be.source_kind || "";
-      var targetKind = le && le.target_kind || be && be.target_kind || "";
-      var liveOctets = le ? le.live_octets : 0;
-      var baselineOctets = be ? be.avg_octets : 0;
-      var weight = this._mapMode === "baseline" ? Math.max(1, baselineOctets) : Math.max(1, liveOctets || baselineOctets);
-      var edgeMode = "live";
-      if (this._mapMode === "baseline") edgeMode = "baseline";
-      else if (this._mapMode === "compare") edgeMode = le && be ? "both" : le ? "new" : "missing";
-      var liveFlows = le ? le.live_flows : 0;
-      var baselineFlows = be ? be.avg_flows : 0;
-      var deltaFlows = le && be ? liveFlows - baselineFlows : 0;
-      var deltaRatio = 0;
-      if (be && be.avg_octets > 0) deltaRatio = (liveOctets - be.avg_octets) / be.avg_octets;
-      list.push({
-        source,
-        target,
-        source_kind: sourceKind,
-        target_kind: targetKind,
-        weight,
-        edge_mode: edgeMode,
-        live_octets: liveOctets,
-        baseline_octets: baselineOctets,
-        baseline_probability: be ? be.active_probability : 0,
-        delta_ratio: deltaRatio,
-        delta: deltaFlows
-      });
-    }
-    return list;
-  }
-  _applyMapFilter(devices) {
-    var f3 = this._mapFilter;
-    if (f3 === "scanned") return devices.filter(function(d3) {
-      return d3.alive;
-    });
-    if (f3 === "flow") return devices.filter(function(d3) {
-      return (d3.total_octets || 0) > 0;
-    });
-    if (f3 === "external") {
-      var connections = this._data && this._data.connections || [];
-      var baselineGraph = this._data && this._data.baseline_graph || {};
-      var extPeers = {};
-      for (var i5 = 0; i5 < connections.length; i5++) {
-        var c4 = connections[i5];
-        if (c4.target_kind === "external") extPeers[c4.source] = true;
-        if (c4.source_kind === "external") extPeers[c4.target] = true;
-      }
-      if (this._mapMode !== "live") {
-        var bedges = baselineGraph.edges || [];
-        for (var j = 0; j < bedges.length; j++) {
-          var be = bedges[j];
-          if (be.target_kind === "external") extPeers[be.source] = true;
-        }
-      }
-      return devices.filter(function(d3) {
-        return extPeers[d3.ip];
-      });
-    }
-    return devices;
-  }
-  _setMapMode(mode) {
-    if (mode === this._mapMode) return;
-    var baselineGraph = this._data && this._data.baseline_graph || null;
-    var hasBaseline = !!(baselineGraph && baselineGraph.edges && baselineGraph.edges.length);
-    if (mode !== "live" && !hasBaseline) return;
-    this._mapMode = mode;
-    if (this._view === "map") this._render();
-  }
-  _setMapFilter(f3) {
-    if (f3 === this._mapFilter) return;
-    this._mapFilter = f3;
-    var btns = this.shadowRoot.querySelectorAll(".map-fbtn");
-    btns.forEach(function(b3) {
-      b3.classList.toggle("active", b3.dataset.mapfilter === f3);
-    });
-    if (!this._data) return;
-    var allDevices = this._mapAllDevices();
-    var devices = this._applyMapFilter(allDevices);
-    var connections = this._data.connections || [];
-    var extIPs = this._data.external_ips || [];
-    this._stopMap();
-    var showExt = f3 === "all" || f3 === "external";
-    var mcIPs = this._data.multicast_ips || [];
-    var baselineGraph = this._data.baseline_graph || null;
-    this._initMap(devices, connections, showExt ? extIPs : [], showExt ? mcIPs : [], baselineGraph);
-  }
-  _initMap(devices, connections, extIPs, mcIPs, baselineGraph) {
-    var self = this;
-    mcIPs = mcIPs || [];
-    var canvas = this.shadowRoot.getElementById("hsa-map-canvas");
-    if (!canvas) return;
-    var wrap = canvas.parentElement;
-    canvas.width = wrap.clientWidth;
-    canvas.height = wrap.clientHeight;
-    var cx = canvas.width / 2, cy = canvas.height / 2;
-    this._mapNodes = /* @__PURE__ */ new Map();
-    this._mapEdges = [];
-    this._mapParticles = [];
-    var slice = devices.slice(0, 80);
-    for (var i5 = 0; i5 < slice.length; i5++) {
-      var d3 = slice[i5];
-      var theta = i5 / Math.max(slice.length, 1) * Math.PI * 2;
-      var r4 = Math.min(cx, cy) * 0.28;
-      var node = Object.assign({}, d3, {
-        ip: d3.ip,
-        type: "internal",
-        x: cx + Math.cos(theta) * r4 + (Math.random() - 0.5) * 30,
-        y: cy + Math.sin(theta) * r4 + (Math.random() - 0.5) * 30,
-        vx: 0,
-        vy: 0,
-        r: this._nr(d3)
-      });
-      this._mapNodes.set(d3.ip, node);
-    }
-    var extCount = {};
-    var baselineEdges = baselineGraph && baselineGraph.edges || [];
-    if (this._mapMode !== "baseline") {
-      for (var c4 = 0; c4 < connections.length; c4++) {
-        var conn = connections[c4];
-        if (conn.target_kind === "external") extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
-      }
-    }
-    if (this._mapMode !== "live") {
-      for (var bc = 0; bc < baselineEdges.length; bc++) {
-        var bce = baselineEdges[bc];
-        if (bce.target_kind === "external") extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
-      }
-    }
-    var topExt = Object.keys(extCount).sort(function(a3, b3) {
-      return extCount[b3] - extCount[a3];
-    }).slice(0, 25);
-    for (var j = 0; j < topExt.length; j++) {
-      var ip = topExt[j];
-      var ang = j / topExt.length * Math.PI * 2;
-      var rExt = Math.min(cx, cy) * 0.52;
-      var info = extIPs.find(function(e4) {
-        return e4.ip === ip;
-      }) || {};
-      this._mapNodes.set(ip, {
-        ip,
-        type: "external",
-        x: cx + Math.cos(ang) * rExt + (Math.random() - 0.5) * 20,
-        y: cy + Math.sin(ang) * rExt + (Math.random() - 0.5) * 20,
-        vx: 0,
-        vy: 0,
-        r: 4,
-        label: info.hostname || info.org || ip,
-        at_risk: info.blacklisted || false,
-        blacklisted: info.blacklisted || false,
-        country: info.country || "",
-        country_name: info.country_name || "",
-        hostname: info.hostname || "",
-        org: info.org || "",
-        asn: info.asn || "",
-        city: info.city || "",
-        rating: info.rating || "",
-        vt_malicious: info.vt_malicious,
-        abuse_confidence: info.abuse_confidence
-      });
-    }
-    var mcCount = {};
-    if (this._mapMode !== "baseline") {
-      for (var mc = 0; mc < connections.length; mc++) {
-        var mconn = connections[mc];
-        if (mconn.target_kind === "multicast") mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
-      }
-    }
-    if (this._mapMode !== "live") {
-      for (var bmc = 0; bmc < baselineEdges.length; bmc++) {
-        var bmce = baselineEdges[bmc];
-        if (bmce.target_kind === "multicast") mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
-      }
-    }
-    var topMc = Object.keys(mcCount).sort(function(a3, b3) {
-      return mcCount[b3] - mcCount[a3];
-    }).slice(0, 15);
-    for (var mi = 0; mi < topMc.length; mi++) {
-      var mip = topMc[mi];
-      var mang = mi / topMc.length * Math.PI * 2 + Math.PI / 4;
-      var rMc = Math.min(cx, cy) * 0.42;
-      var minfo = mcIPs.find(function(e4) {
-        return e4.ip === mip;
-      }) || {};
-      this._mapNodes.set(mip, {
-        ip: mip,
-        type: "multicast",
-        x: cx + Math.cos(mang) * rMc + (Math.random() - 0.5) * 15,
-        y: cy + Math.sin(mang) * rMc + (Math.random() - 0.5) * 15,
-        vx: 0,
-        vy: 0,
-        r: 4,
-        label: minfo.label || mip,
-        internal_sources: minfo.internal_sources || []
-      });
-    }
-    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c5) {
-      return this._mapNodes.has(c5.source) && this._mapNodes.has(c5.target);
-    }.bind(this)).slice(0, 500);
-    this._mapTick = 0;
-    this._spawnParticles();
-    this._startMap(canvas);
-    canvas.addEventListener("mousemove", function(e4) {
-      self._mapHover(e4, canvas);
-    });
-    canvas.addEventListener("mouseleave", function() {
-      var t3 = self.shadowRoot.getElementById("hsa-map-tip");
-      if (t3) t3.style.display = "none";
-    });
-    canvas.addEventListener("wheel", function(e4) {
-      e4.preventDefault();
-      var rect = canvas.getBoundingClientRect();
-      var mx = e4.clientX - rect.left, my = e4.clientY - rect.top;
-      var oldZ = self._mapZoom;
-      var delta = e4.deltaY > 0 ? 0.9 : 1.1;
-      self._mapZoom = Math.max(0.3, Math.min(8, oldZ * delta));
-      self._mapPanX = mx - (mx - self._mapPanX) * (self._mapZoom / oldZ);
-      self._mapPanY = my - (my - self._mapPanY) * (self._mapZoom / oldZ);
-    }, {
-      passive: false
-    });
-    canvas.addEventListener("mousedown", function(e4) {
-      if (e4.button === 0) {
-        self._mapDragging = true;
-        self._mapDragMoved = false;
-        self._mapDragLastX = e4.clientX;
-        self._mapDragLastY = e4.clientY;
-      }
-    });
-    canvas.addEventListener("mousemove", function(e4) {
-      if (self._mapDragging) {
-        var dx = e4.clientX - self._mapDragLastX, dy = e4.clientY - self._mapDragLastY;
-        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) self._mapDragMoved = true;
-        self._mapPanX += dx;
-        self._mapPanY += dy;
-        self._mapDragLastX = e4.clientX;
-        self._mapDragLastY = e4.clientY;
-      }
-    });
-    canvas.addEventListener("mouseup", function() {
-      self._mapDragging = false;
-    });
-    canvas.addEventListener("mouseleave", function() {
-      self._mapDragging = false;
-    });
-    canvas.addEventListener("touchstart", function(e4) {
-      e4.preventDefault();
-      if (e4.touches.length === 1) {
-        self._mapDragging = true;
-        self._mapDragMoved = false;
-        self._mapDragLastX = e4.touches[0].clientX;
-        self._mapDragLastY = e4.touches[0].clientY;
-        self._mapPinchDist = null;
-      } else if (e4.touches.length === 2) {
-        self._mapDragging = false;
-        var dx = e4.touches[0].clientX - e4.touches[1].clientX;
-        var dy = e4.touches[0].clientY - e4.touches[1].clientY;
-        self._mapPinchDist = Math.sqrt(dx * dx + dy * dy);
-        self._mapPinchMidX = (e4.touches[0].clientX + e4.touches[1].clientX) / 2;
-        self._mapPinchMidY = (e4.touches[0].clientY + e4.touches[1].clientY) / 2;
-      }
-    }, {
-      passive: false
-    });
-    canvas.addEventListener("touchmove", function(e4) {
-      e4.preventDefault();
-      if (e4.touches.length === 1 && self._mapDragging) {
-        var dx = e4.touches[0].clientX - self._mapDragLastX;
-        var dy = e4.touches[0].clientY - self._mapDragLastY;
-        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) self._mapDragMoved = true;
-        self._mapPanX += dx;
-        self._mapPanY += dy;
-        self._mapDragLastX = e4.touches[0].clientX;
-        self._mapDragLastY = e4.touches[0].clientY;
-      } else if (e4.touches.length === 2 && self._mapPinchDist != null) {
-        var dx2 = e4.touches[0].clientX - e4.touches[1].clientX;
-        var dy2 = e4.touches[0].clientY - e4.touches[1].clientY;
-        var newDist = Math.sqrt(dx2 * dx2 + dy2 * dy2);
-        var rect = canvas.getBoundingClientRect();
-        var mx = self._mapPinchMidX - rect.left;
-        var my = self._mapPinchMidY - rect.top;
-        var oldZ = self._mapZoom;
-        self._mapZoom = Math.max(0.3, Math.min(8, oldZ * (newDist / self._mapPinchDist)));
-        self._mapPanX = mx - (mx - self._mapPanX) * (self._mapZoom / oldZ);
-        self._mapPanY = my - (my - self._mapPanY) * (self._mapZoom / oldZ);
-        self._mapPinchDist = newDist;
-        self._mapPinchMidX = (e4.touches[0].clientX + e4.touches[1].clientX) / 2;
-        self._mapPinchMidY = (e4.touches[0].clientY + e4.touches[1].clientY) / 2;
-      }
-    }, {
-      passive: false
-    });
-    canvas.addEventListener("touchend", function(e4) {
-      if (e4.touches.length === 0) {
-        if (self._mapDragging && !self._mapDragMoved) {
-          var rect = canvas.getBoundingClientRect();
-          var tx = (e4.changedTouches[0].clientX - rect.left - self._mapPanX) / self._mapZoom;
-          var ty = (e4.changedTouches[0].clientY - rect.top - self._mapPanY) / self._mapZoom;
-          for (var it = self._mapNodes.entries(), r22 = it.next(); !r22.done; r22 = it.next()) {
-            var n4 = r22.value[1];
-            if (n4.type === "external" && Math.sqrt((tx - n4.x) * (tx - n4.x) + (ty - n4.y) * (ty - n4.y)) <= n4.r + 8) {
-              self._setView("external");
-              self._doLookup(n4.ip);
-              break;
-            }
-          }
-        }
-        self._mapDragging = false;
-        self._mapPinchDist = null;
-      } else if (e4.touches.length === 1) {
-        self._mapDragging = true;
-        self._mapDragMoved = true;
-        self._mapDragLastX = e4.touches[0].clientX;
-        self._mapDragLastY = e4.touches[0].clientY;
-        self._mapPinchDist = null;
-      }
-    }, {
-      passive: false
-    });
-    canvas.addEventListener("click", function(e4) {
-      if (self._mapDragMoved) return;
-      var rect = canvas.getBoundingClientRect();
-      var mx = (e4.clientX - rect.left - self._mapPanX) / self._mapZoom;
-      var my = (e4.clientY - rect.top - self._mapPanY) / self._mapZoom;
-      for (var it = self._mapNodes.entries(), r22 = it.next(); !r22.done; r22 = it.next()) {
-        var n4 = r22.value[1];
-        if (n4.type === "external" && Math.sqrt((mx - n4.x) * (mx - n4.x) + (my - n4.y) * (my - n4.y)) <= n4.r + 5) {
-          self._setView("external");
-          self._doLookup(n4.ip);
-          return;
-        }
-      }
-    });
-  }
-  _startMap(canvas) {
-    this._stopMap();
-    var self = this;
-    var isBaseline = this._mapMode === "baseline";
-    var loop = function() {
-      try {
-        if (!isBaseline) {
-          self._mapStep(canvas.width, canvas.height);
-          self._mapTick++;
-          self._tickParticles();
-        }
-        self._drawMap(canvas);
-      } catch (e4) {
-        console.error("[HomeSec] map loop error:", e4);
-      }
-      self._mapAnim = requestAnimationFrame(loop);
-    };
-    this._mapAnim = requestAnimationFrame(loop);
-  }
-  _stopMap() {
-    if (this._mapAnim) {
-      cancelAnimationFrame(this._mapAnim);
-      this._mapAnim = null;
-    }
-  }
-  _spawnParticles() {
-    this._mapParticles = [];
-    if (this._mapMode === "baseline") return;
-    for (var i5 = 0; i5 < this._mapEdges.length; i5++) {
-      var e4 = this._mapEdges[i5];
-      if (e4.edge_mode === "missing") continue;
-      var count = Math.min(3, Math.max(1, Math.ceil(Math.log10(e4.weight + 1))));
-      for (var p3 = 0; p3 < count; p3++) {
-        this._mapParticles.push({
-          source: e4.source,
-          target: e4.target,
-          t: Math.random(),
-          speed: 3e-3 + Math.random() * 6e-3,
-          size: 1 + Math.random() * 1.2
-        });
-      }
-    }
-  }
-  _tickParticles() {
-    for (var i5 = 0; i5 < this._mapParticles.length; i5++) {
-      var p3 = this._mapParticles[i5];
-      p3.t += p3.speed;
-      if (p3.t > 1) p3.t -= 1;
-    }
-  }
-  _liveUpdateMap() {
-    if (!this._data) return;
-    var allDevices = this._mapAllDevices();
-    var devices = this._applyMapFilter(allDevices);
-    var connections = this._data.connections || [];
-    var baselineGraph = this._data.baseline_graph || null;
-    var extIPs = this._data.external_ips || [];
-    var mcIPs = this._data.multicast_ips || [];
-    var showExt = this._mapFilter === "all" || this._mapFilter === "external";
-    var canvas = this.shadowRoot.getElementById("hsa-map-canvas");
-    if (!canvas) return;
-    var cx = canvas.width / 2, cy = canvas.height / 2;
-    var hadNew = false;
-    var slice = devices.slice(0, 80);
-    for (var i5 = 0; i5 < slice.length; i5++) {
-      var d3 = slice[i5];
-      var existing = this._mapNodes.get(d3.ip);
-      if (existing) {
-        existing.alive = d3.alive;
-        existing.total_octets = d3.total_octets;
-        existing.at_risk = d3.at_risk;
-        existing.probable_role = d3.probable_role;
-        existing.display_name = d3.display_name;
-        existing.hostname = d3.hostname;
-        existing.r = this._nr(d3);
-      } else {
-        this._mapNodes.set(d3.ip, Object.assign({}, d3, {
-          ip: d3.ip,
-          type: "internal",
-          x: cx + (Math.random() - 0.5) * 80,
-          y: cy + (Math.random() - 0.5) * 80,
-          vx: 0,
-          vy: 0,
-          r: this._nr(d3)
-        }));
-        hadNew = true;
-      }
-    }
-    var extCount = {};
-    if (showExt && this._mapMode !== "baseline") {
-      for (var c4 = 0; c4 < connections.length; c4++) {
-        var conn = connections[c4];
-        if (conn.target_kind === "external") extCount[conn.target] = (extCount[conn.target] || 0) + (conn.flows || 1);
-      }
-    }
-    if (showExt && this._mapMode !== "live") {
-      var baselineEdges = baselineGraph && baselineGraph.edges || [];
-      for (var bc = 0; bc < baselineEdges.length; bc++) {
-        var bce = baselineEdges[bc];
-        if (bce.target_kind === "external") extCount[bce.target] = (extCount[bce.target] || 0) + (bce.avg_flows_per_snapshot || 1);
-      }
-    }
-    var topExt = Object.keys(extCount).sort(function(a3, b3) {
-      return extCount[b3] - extCount[a3];
-    }).slice(0, 25);
-    for (var j = 0; j < topExt.length; j++) {
-      var ip = topExt[j];
-      var info = extIPs.find(function(e4) {
-        return e4.ip === ip;
-      }) || {};
-      var extNode = this._mapNodes.get(ip);
-      if (extNode) {
-        extNode.label = info.hostname || info.org || ip;
-        extNode.at_risk = info.blacklisted || false;
-        extNode.blacklisted = info.blacklisted || false;
-        extNode.country = info.country || "";
-        extNode.country_name = info.country_name || "";
-        extNode.hostname = info.hostname || "";
-        extNode.org = info.org || "";
-        extNode.asn = info.asn || "";
-        extNode.city = info.city || "";
-        extNode.rating = info.rating || "";
-        extNode.vt_malicious = info.vt_malicious;
-        extNode.abuse_confidence = info.abuse_confidence;
-      } else {
-        var ang = Math.random() * Math.PI * 2;
-        var rExt = Math.min(cx, cy) * 0.52;
-        this._mapNodes.set(ip, {
-          ip,
-          type: "external",
-          x: cx + Math.cos(ang) * rExt,
-          y: cy + Math.sin(ang) * rExt,
-          vx: 0,
-          vy: 0,
-          r: 4,
-          label: info.hostname || info.org || ip,
-          at_risk: info.blacklisted || false,
-          blacklisted: info.blacklisted || false,
-          country: info.country || "",
-          country_name: info.country_name || "",
-          hostname: info.hostname || "",
-          org: info.org || "",
-          asn: info.asn || "",
-          city: info.city || "",
-          rating: info.rating || "",
-          vt_malicious: info.vt_malicious,
-          abuse_confidence: info.abuse_confidence
-        });
-        hadNew = true;
-      }
-    }
-    var mcCount = {};
-    if (showExt && this._mapMode !== "baseline") {
-      for (var mc = 0; mc < connections.length; mc++) {
-        var mconn = connections[mc];
-        if (mconn.target_kind === "multicast") mcCount[mconn.target] = (mcCount[mconn.target] || 0) + (mconn.flows || 1);
-      }
-    }
-    if (showExt && this._mapMode !== "live") {
-      var bmcEdges = baselineGraph && baselineGraph.edges || [];
-      for (var bmc = 0; bmc < bmcEdges.length; bmc++) {
-        var bmce = bmcEdges[bmc];
-        if (bmce.target_kind === "multicast") mcCount[bmce.target] = (mcCount[bmce.target] || 0) + (bmce.avg_flows_per_snapshot || 1);
-      }
-    }
-    var topMc = Object.keys(mcCount).sort(function(a3, b3) {
-      return mcCount[b3] - mcCount[a3];
-    }).slice(0, 15);
-    for (var mi = 0; mi < topMc.length; mi++) {
-      var mip = topMc[mi];
-      var minfo = mcIPs.find(function(e4) {
-        return e4.ip === mip;
-      }) || {};
-      var mcNode = this._mapNodes.get(mip);
-      if (mcNode) {
-        mcNode.label = minfo.label || mip;
-        mcNode.internal_sources = minfo.internal_sources || [];
-      } else {
-        var mang = Math.random() * Math.PI * 2;
-        var rMc = Math.min(cx, cy) * 0.42;
-        this._mapNodes.set(mip, {
-          ip: mip,
-          type: "multicast",
-          x: cx + Math.cos(mang) * rMc,
-          y: cy + Math.sin(mang) * rMc,
-          vx: 0,
-          vy: 0,
-          r: 4,
-          label: minfo.label || mip,
-          internal_sources: minfo.internal_sources || []
-        });
-        hadNew = true;
-      }
-    }
-    this._mapEdges = this._composeMapEdges(connections, baselineGraph).filter(function(c5) {
-      return this._mapNodes.has(c5.source) && this._mapNodes.has(c5.target);
-    }.bind(this)).slice(0, 500);
-    this._spawnParticles();
-    if (hadNew) this._mapTick = Math.min(this._mapTick, 160);
-    var statsEl = this.shadowRoot.getElementById("map-stats");
-    if (statsEl) {
-      var s4 = this._data.summary || {};
-      statsEl.textContent = devices.length + " internal \xB7 " + extIPs.length + " external" + (mcIPs.length ? " \xB7 " + mcIPs.length + " multicast" : "") + " \xB7 " + this._fmtN(s4.total_flows || 0) + " flows";
-    }
-  }
-  _mapStep(W, H2) {
-    var nodes = Array.from(this._mapNodes.values());
-    var settled = this._mapTick > 200;
-    var R2 = settled ? 400 : 1400, A2 = settled ? 1e-3 : 4e-3;
-    var DAMP = settled ? 0.55 : 0.72, MAX_V = settled ? 1.2 : 5;
-    var CENTER_PULL = settled ? 4e-5 : 15e-5;
-    var jitter = settled ? 0.08 : 0;
-    for (var i5 = 0; i5 < nodes.length; i5++) {
-      for (var j = i5 + 1; j < nodes.length; j++) {
-        var dx = nodes[i5].x - nodes[j].x || 0.1, dy = nodes[i5].y - nodes[j].y || 0.1;
-        var d22 = Math.max(dx * dx + dy * dy, 1);
-        var f3 = R2 / d22, inv = 1 / Math.sqrt(d22);
-        nodes[i5].vx += dx * inv * f3;
-        nodes[i5].vy += dy * inv * f3;
-        nodes[j].vx -= dx * inv * f3;
-        nodes[j].vy -= dy * inv * f3;
-      }
-    }
-    for (var ei = 0; ei < this._mapEdges.length; ei++) {
-      var e4 = this._mapEdges[ei];
-      var s4 = this._mapNodes.get(e4.source), t3 = this._mapNodes.get(e4.target);
-      if (!s4 || !t3) continue;
-      var edx = t3.x - s4.x, edy = t3.y - s4.y;
-      var dd = Math.max(Math.sqrt(edx * edx + edy * edy), 1);
-      var ideal = s4.type === "external" || t3.type === "external" ? 100 : 55;
-      var ef = A2 * (dd - ideal);
-      s4.vx += edx / dd * ef;
-      s4.vy += edy / dd * ef;
-      t3.vx -= edx / dd * ef;
-      t3.vy -= edy / dd * ef;
-    }
-    var cx2 = W / 2, cy2 = H2 / 2;
-    for (var ni = 0; ni < nodes.length; ni++) {
-      var n4 = nodes[ni];
-      n4.vx += (cx2 - n4.x) * CENTER_PULL;
-      n4.vy += (cy2 - n4.y) * CENTER_PULL;
-      if (jitter > 0) {
-        n4.vx += (Math.random() - 0.5) * jitter;
-        n4.vy += (Math.random() - 0.5) * jitter;
-      }
-      n4.vx *= DAMP;
-      n4.vy *= DAMP;
-      var spd = Math.sqrt(n4.vx * n4.vx + n4.vy * n4.vy);
-      if (spd > MAX_V) {
-        n4.vx = n4.vx / spd * MAX_V;
-        n4.vy = n4.vy / spd * MAX_V;
-      }
-      n4.x = Math.max(n4.r + 2, Math.min(W - n4.r - 2, n4.x + n4.vx));
-      n4.y = Math.max(n4.r + 2, Math.min(H2 - n4.r - 2, n4.y + n4.vy));
-    }
-  }
-  _drawMap(canvas) {
-    var ctx = canvas.getContext("2d");
-    var W = canvas.width, H2 = canvas.height;
-    ctx.clearRect(0, 0, W, H2);
-    var bg = ctx.createRadialGradient(W / 2, H2 / 2, 0, W / 2, H2 / 2, Math.max(W, H2) * 0.7);
-    bg.addColorStop(0, "rgba(10,18,40,.96)");
-    bg.addColorStop(1, "rgba(4,8,18,.99)");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, W, H2);
-    ctx.save();
-    ctx.translate(this._mapPanX, this._mapPanY);
-    ctx.scale(this._mapZoom, this._mapZoom);
-    for (var ei = 0; ei < this._mapEdges.length; ei++) {
-      var e4 = this._mapEdges[ei];
-      var s4 = this._mapNodes.get(e4.source), t3 = this._mapNodes.get(e4.target);
-      if (!s4 || !t3) continue;
-      var a3 = Math.min(0.35, 0.03 + Math.log10(e4.weight + 1) * 0.05);
-      var mx = (s4.x + t3.x) / 2, my = (s4.y + t3.y) / 2;
-      var dx = t3.x - s4.x, dy = t3.y - s4.y;
-      var curveOff = Math.min(18, Math.sqrt(dx * dx + dy * dy) * 0.08);
-      var cpx = mx + dy * curveOff / Math.max(Math.sqrt(dx * dx + dy * dy), 1);
-      var cpy = my - dx * curveOff / Math.max(Math.sqrt(dx * dx + dy * dy), 1);
-      ctx.beginPath();
-      ctx.moveTo(s4.x, s4.y);
-      ctx.quadraticCurveTo(cpx, cpy, t3.x, t3.y);
-      ctx.setLineDash([]);
-      if (this._mapMode === "baseline") {
-        ctx.strokeStyle = "rgba(136,167,199," + Math.min(0.55, a3 + 0.22) + ")";
-        ctx.lineWidth = Math.min(1.8, 0.6 + Math.log10(e4.weight + 1) * 0.18);
-        ctx.setLineDash([6, 4]);
-      } else if (this._mapMode === "compare") {
-        if (e4.edge_mode === "missing") {
-          ctx.strokeStyle = "rgba(255,90,50," + Math.min(0.82, a3 + 0.55) + ")";
-          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e4.weight + 1) * 0.25);
-          ctx.setLineDash([8, 5]);
-        } else if (e4.edge_mode === "new") {
-          ctx.strokeStyle = "rgba(50,255,120," + Math.min(0.88, a3 + 0.58) + ")";
-          ctx.lineWidth = Math.min(2.4, 0.8 + Math.log10(e4.weight + 1) * 0.25);
-        } else {
-          ctx.strokeStyle = "rgba(98,232,255," + Math.min(0.45, a3 + 0.12) + ")";
-          ctx.lineWidth = Math.min(1.6, 0.4 + Math.log10(e4.weight + 1) * 0.16);
-        }
-      } else {
-        ctx.strokeStyle = "rgba(98,232,255," + a3 + ")";
-        ctx.lineWidth = Math.min(1.8, 0.3 + Math.log10(e4.weight + 1) * 0.18);
-      }
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-    for (var pi = 0; pi < this._mapParticles.length; pi++) {
-      var p3 = this._mapParticles[pi];
-      var ps = this._mapNodes.get(p3.source), pt = this._mapNodes.get(p3.target);
-      if (!ps || !pt) continue;
-      var pmx = (ps.x + pt.x) / 2, pmy = (ps.y + pt.y) / 2;
-      var pdx = pt.x - ps.x, pdy = pt.y - ps.y;
-      var plen = Math.max(Math.sqrt(pdx * pdx + pdy * pdy), 1);
-      var pcOff = Math.min(18, plen * 0.08);
-      var pcpx = pmx + pdy * pcOff / plen, pcpy = pmy - pdx * pcOff / plen;
-      var tt = p3.t, it = 1 - tt;
-      var px = it * it * ps.x + 2 * it * tt * pcpx + tt * tt * pt.x;
-      var py = it * it * ps.y + 2 * it * tt * pcpy + tt * tt * pt.y;
-      var pa = 0.5 + 0.5 * Math.sin(p3.t * Math.PI);
-      ctx.beginPath();
-      ctx.arc(px, py, p3.size, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(98,232,255," + pa * 0.7 + ")";
-      ctx.fill();
-    }
-    var sorted = Array.from(this._mapNodes.values()).sort(function(a4, b3) {
-      var order = {
-        external: 0,
-        multicast: 1,
-        internal: 2
-      };
-      return (order[a4.type] || 2) - (order[b3.type] || 2);
-    });
-    var now = Date.now();
-    var pulse = 0.7 + Math.sin(now * 4e-3) * 0.3;
-    for (var ni = 0; ni < sorted.length; ni++) {
-      var n4 = sorted[ni];
-      var col = this._nc(n4);
-      var nodeR = n4.r;
-      if (n4.type !== "external" && n4.type !== "multicast" && (n4.alive || (n4.total_octets || 0) > 0)) {
-        var phase = (now * 3e-3 + ni * 0.7) % (Math.PI * 2);
-        nodeR = n4.r * (0.92 + Math.sin(phase) * 0.08);
-      }
-      if (n4.at_risk) {
-        var glowR = nodeR + 4 + Math.sin(now * 5e-3) * 3;
-        ctx.beginPath();
-        ctx.arc(n4.x, n4.y, glowR, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255,77,109," + (0.08 + Math.sin(now * 5e-3) * 0.06) + ")";
-        ctx.fill();
-      }
-      ctx.beginPath();
-      ctx.arc(n4.x, n4.y, nodeR, 0, Math.PI * 2);
-      ctx.fillStyle = col;
-      ctx.globalAlpha = n4.alive || n4.type === "external" || (n4.total_octets || 0) > 0 ? 1 : 0.45;
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = n4.at_risk ? "#ff4d6d" : "rgba(255,255,255,0.12)";
-      ctx.lineWidth = n4.at_risk ? 1.5 : 0.5;
-      ctx.stroke();
-      if (n4.type === "external" && n4.country) {
-        var flag = this._countryFlag(n4.country);
-        if (flag) {
-          ctx.font = "10px sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(flag, n4.x, n4.y - nodeR - 3);
-        }
-      }
-      ctx.font = "8px IBM Plex Mono, monospace";
-      ctx.textAlign = "center";
-      if (n4.type === "internal") {
-        ctx.fillStyle = "rgba(180,210,240,.6)";
-        ctx.fillText((n4.ip || "").substring(0, 18), n4.x, n4.y + nodeR + 9);
-        var trackerName = (n4.display_name || n4.hostname || "").substring(0, 18);
-        if (trackerName && trackerName !== (n4.ip || "").substring(0, 18)) {
-          ctx.fillStyle = n4.at_risk ? "#ff9aae" : "rgba(140,200,255,.85)";
-          ctx.font = "bold 8px IBM Plex Mono, monospace";
-          ctx.fillText(trackerName, n4.x, n4.y + nodeR + 19);
-        }
-      } else if (n4.type === "external") {
-        ctx.fillStyle = n4.at_risk ? "#ff9aae" : "rgba(180,210,240,.55)";
-        ctx.fillText((n4.ip || "").substring(0, 16), n4.x, n4.y + nodeR + 9);
-        var extMeta = (n4.org || n4.hostname || "").substring(0, 16);
-        if (extMeta) {
-          ctx.fillStyle = n4.at_risk ? "rgba(255,154,174,.7)" : "rgba(140,170,210,.45)";
-          ctx.fillText(extMeta, n4.x, n4.y + nodeR + 18);
-        }
-      } else {
-        var label = (n4.label || n4.ip || "").substring(0, 16);
-        ctx.fillStyle = n4.at_risk ? "#ff9aae" : n4.type === "multicast" ? "#d4a843" : "rgba(180,210,240,.6)";
-        ctx.fillText(label, n4.x, n4.y + nodeR + 9);
-      }
-    }
-    ctx.restore();
-    var zPct = Math.round(this._mapZoom * 100);
-    if (zPct !== 100) {
-      ctx.fillStyle = "rgba(98,232,255,.5)";
-      ctx.font = "10px IBM Plex Mono, monospace";
-      ctx.textAlign = "right";
-      ctx.fillText(zPct + "%", W - 10, 16);
-    }
-  }
-  _mapHover(e4, canvas) {
-    if (this._mapDragging) return;
-    var rect = canvas.getBoundingClientRect();
-    var sx = e4.clientX - rect.left, sy = e4.clientY - rect.top;
-    var mx = (sx - this._mapPanX) / this._mapZoom;
-    var my = (sy - this._mapPanY) / this._mapZoom;
-    var tip = this.shadowRoot.getElementById("hsa-map-tip");
-    if (!tip) return;
-    for (var it = this._mapNodes.entries(), r22 = it.next(); !r22.done; r22 = it.next()) {
-      var ip = r22.value[0], n4 = r22.value[1];
-      if (Math.sqrt((mx - n4.x) * (mx - n4.x) + (my - n4.y) * (my - n4.y)) <= n4.r + 5) {
-        var lbl = n4.display_name || n4.hostname || ip;
-        var role = n4.probable_role ? b2`<br><span style="color:#8a9dbf">${n4.probable_role}</span>` : "";
-        var risk = n4.at_risk ? b2`<br><span style="color:#ff4d6d">⚠ ${this._t("map.at_risk", "At risk")}</span>` : "";
-        var baselineStats = this._data && this._data.baseline || {};
-        var baselineSnapshots = (baselineStats.training_stats || {}).snapshots_seen || 0;
-        var flagEmoji = n4.country ? this._countryFlag(n4.country) : "";
-        var ctryLabel = n4.country_name || n4.country || "";
-        var ctry = ctryLabel ? b2`<br><span style="color:#8a9dbf">${flagEmoji ? flagEmoji + " " : ""}${ctryLabel}${n4.city ? ", " + n4.city : ""}</span>` : "";
-        var extra = [];
-        if (n4.type === "multicast") {
-          if (n4.label && n4.label !== ip) extra.push(b2`<br><span style="color:#d4a843;font-size:10px">${n4.label}</span>`);
-          extra.push(b2`<br><span style="color:#8a9dbf;font-size:10px">${this._t("map.multicast_note", "Multicast \xB7 not internet-routed")}</span>`);
-          if (n4.internal_sources && n4.internal_sources.length) extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${this._t("map.sources", "Sources")}: ${n4.internal_sources.join(", ")}</span>`);
-        } else if (n4.type === "external") {
-          if (n4.org) extra.push(b2`<br><span style="color:#8a9dbf;font-size:10px">${n4.org.substring(0, 40)}</span>`);
-          if (n4.rating) extra.push(b2`<br>${this._rating(n4.rating)}`);
-          var vtLine = n4.vt_malicious != null ? "VT: " + n4.vt_malicious + " malicious" : "";
-          var abLine = n4.abuse_confidence != null ? "Abuse: " + n4.abuse_confidence + "%" : "";
-          var intelParts = [vtLine, abLine].filter(Boolean).join(" \xB7 ");
-          if (intelParts) extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${intelParts}</span>`);
-          extra.push(b2`<br><span style="color:var(--accent);font-size:9px;opacity:.6">${this._t("map.click_full_lookup", "Click for full lookup")}</span>`);
-        } else {
-          if (this._mapMode !== "live") {
-            var obs = n4.baseline_observation_count || 0;
-            var presence = baselineSnapshots > 0 ? Math.min(1, obs / baselineSnapshots) : 0;
-            var presencePct = Math.round(presence * 100);
-            var liveLoad = Math.min(1, Math.log10((n4.total_octets || 0) + 1) / 8);
-            var livePct = Math.round(liveLoad * 100);
-            extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${this._t("map.baseline_presence", "Baseline presence")}: ${presencePct}%</span>`);
-            extra.push(b2`<div style="margin-top:2px;height:4px;background:rgba(136,167,199,.18);border-radius:3px;overflow:hidden"><div style="height:4px;width:${presencePct}%;background:#88a7c7"></div></div>`);
-            extra.push(b2`<br><span style="color:#8a9dbf;font-size:9px">${this._t("map.live_load", "Live load index")}: ${livePct}%</span>`);
-            extra.push(b2`<div style="margin-top:2px;height:4px;background:rgba(0,224,255,.15);border-radius:3px;overflow:hidden"><div style="height:4px;width:${livePct}%;background:#00e0ff"></div></div>`);
-          }
-        }
-        D(b2`<strong style="color:#62e8ff">${lbl}</strong><br><span class="ip">${ip}</span>${role}${ctry}${extra}${risk}`, tip);
-        var tipX = n4.x * this._mapZoom + this._mapPanX + 14;
-        var tipY = n4.y * this._mapZoom + this._mapPanY - 14;
-        tip.style.cssText = "display:block;left:" + tipX + "px;top:" + tipY + "px";
-        canvas.style.cursor = n4.type === "external" ? "pointer" : "grab";
-        return;
-      }
-    }
-    tip.style.display = "none";
-    canvas.style.cursor = "grab";
-  }
-  _hostThead() {
-    var self = this;
-    var netflowEnabledRaw = this._data && this._data.netflow_listener_enabled;
-    var netflowEnabled = netflowEnabledRaw === true || netflowEnabledRaw === "true" || netflowEnabledRaw === 1 || netflowEnabledRaw === "1";
-    var cols = [{
-      key: "ip",
-      label: "IP"
-    }, {
-      key: "name",
-      label: this._t("hosts.col_name", "Name")
-    }, {
-      key: "os",
-      label: "OS"
-    }, {
-      key: "role",
-      label: this._t("hosts.col_role", "Role")
-    }, {
-      key: null,
-      label: this._t("hosts.col_open_ports", "Open ports")
-    }, {
-      key: "cve",
-      label: "CVEs"
-    }, {
-      key: "ping",
-      label: "Ping"
-    }];
-    if (netflowEnabled) cols.push({
-      key: "traffic",
-      label: this._t("hosts.col_traffic", "Traffic")
-    });
-    return b2`<tr>${cols.map(function(c4) {
-      if (!c4.key) return b2`<th>${c4.label}</th>`;
-      var arrow = self._hostSort === c4.key ? self._hostSortDir > 0 ? " \u25B2" : " \u25BC" : "";
-      return b2`<th class="sortable-th" data-hostsort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
-    })}</tr>`;
-  }
-  _viewHosts() {
-    var displayDevices = (this._data && this._data.devices || []).filter(function(d3) {
-      return d3.alive || d3.enriched;
-    });
-    var cnt = displayDevices.length;
-    return b2`<div><div class="view-header"><h1>${this._t("hosts.page_title", "Network Hosts")} <span class="dim">(${cnt} ${this._t("hosts.alive_suffix", "alive")})</span></h1><input id="hsa-host-filter" class="search-bar" type="search" placeholder="${this._t("hosts.filter_placeholder", "Filter by IP, name, role\u2026")}" value="${this._hostFilter}"></div><div class="card table-card"><table class="data-table"><thead id="hsa-host-thead">${this._hostThead()}</thead><tbody id="hsa-host-tbody">${this._hostRows()}</tbody></table></div></div>`;
-  }
-  _hostRows() {
-    var netflowEnabledRaw2 = this._data && this._data.netflow_listener_enabled;
-    var netflowEnabled = netflowEnabledRaw2 === true || netflowEnabledRaw2 === "true" || netflowEnabledRaw2 === 1 || netflowEnabledRaw2 === "1";
-    var colCount = netflowEnabled ? 8 : 7;
-    var q = this._hostFilter.toLowerCase();
-    var devices = (this._data && this._data.devices || []).filter(function(d3) {
-      if (!d3.alive && !d3.enriched) return false;
-      return !q || (d3.ip || "").indexOf(q) >= 0 || (d3.display_name || "").toLowerCase().indexOf(q) >= 0 || (d3.hostname || "").toLowerCase().indexOf(q) >= 0 || (d3.probable_role || "").indexOf(q) >= 0;
-    });
-    if (!devices.length) return b2`<tr><td colspan="${colCount}"><div class="empty-state"><div class="empty-icon">🔍</div><p>${this._t("hosts.no_match", "No hosts match the filter")}</p></div></td></tr>`;
-    var sortKey = this._hostSort;
-    var sortDir = this._hostSortDir;
-    devices.sort(function(a3, b3) {
-      var va, vb;
-      if (sortKey === "ip") {
-        va = (a3.ip || "").split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join(".");
-        vb = (b3.ip || "").split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join(".");
-      } else if (sortKey === "name") {
-        va = (a3.display_name || a3.hostname || "").toLowerCase();
-        vb = (b3.display_name || b3.hostname || "").toLowerCase();
-      } else if (sortKey === "os") {
-        va = (a3.os_guess || "").toLowerCase();
-        vb = (b3.os_guess || "").toLowerCase();
-      } else if (sortKey === "role") {
-        va = (a3.probable_role || "").toLowerCase();
-        vb = (b3.probable_role || "").toLowerCase();
-      } else if (sortKey === "cve") {
-        va = (a3.vulnerabilities || []).length;
-        vb = (b3.vulnerabilities || []).length;
-      } else if (sortKey === "ping") {
-        va = a3.ping_ms != null ? a3.ping_ms : Infinity;
-        vb = b3.ping_ms != null ? b3.ping_ms : Infinity;
-      } else if (sortKey === "traffic") {
-        va = a3.total_octets || 0;
-        vb = b3.total_octets || 0;
-      } else {
-        return 0;
-      }
-      if (va < vb) return -1 * sortDir;
-      if (va > vb) return 1 * sortDir;
-      return 0;
-    });
-    var self = this;
-    var builtInRoles = ["unknown", "camera", "printer", "media_device", "mobile_device", "nas_or_desktop", "dns_or_gateway", "linux_host", "web_service", "iot_device"];
-    var customRoleValues = Object.values(this._data && this._data.role_overrides || {}).filter(function(r4) {
-      return builtInRoles.indexOf(r4) === -1;
-    });
-    var knownCustomRoles = Array.from(new Set(customRoleValues));
-    var overrides = this._data && this._data.role_overrides || {};
-    var nameOverrides = this._data && this._data.name_overrides || {};
-    return devices.map(function(d3) {
-      var name = d3.display_name || d3.hostname || "";
-      var vulns = (d3.vulnerabilities || []).length;
-      var alive = d3.at_risk ? "#ff4d6d" : d3.alive ? "#6bffc8" : "#4a5a72";
-      var ports = (d3.scanned_services || []).map(function(s4) {
-        return s4.port;
-      }).join(", ") || (d3.exposed_ports || []).slice(0, 6).join(", ") || "\u2014";
-      var id = "hsa-dr-" + d3.ip.replace(/\./g, "-");
-      var curRole = d3.probable_role || "unknown";
-      var isOverride = d3.ip in overrides;
-      var isNameOverride = d3.ip in nameOverrides;
-      var isCustom = builtInRoles.indexOf(curRole) === -1;
-      var roleOpts = builtInRoles.map(function(r4) {
-        return b2`<option value="${r4}" ?selected=${r4 === curRole}>${r4.replace(/_/g, " ")}</option>`;
-      });
-      roleOpts = roleOpts.concat(knownCustomRoles.map(function(r4) {
-        return b2`<option value="${r4}" ?selected=${r4 === curRole}>${r4.replace(/_/g, " ")}</option>`;
-      }));
-      if (isCustom && knownCustomRoles.indexOf(curRole) === -1) roleOpts.push(b2`<option value="${curRole}" selected>${curRole.replace(/_/g, " ")}</option>`);
-      roleOpts.push(b2`<option value="__custom__">custom…</option>`);
-      var roleSelect = b2`<select class="role-select" data-roleip="${d3.ip}" title="Click to change role">${roleOpts}</select>${isOverride ? b2` <span class="dim" style="font-size:9px">${self._t("hosts.manual", "(manual)")}</span>` : ""}`;
-      var nameCell = b2`${name ? b2`<strong>${name}</strong>` : b2`<span class="dim">—</span>`} <button class="btn" data-editname="${d3.ip}">${self._t("hosts.rename", "Rename")}</button>${isNameOverride ? b2` <span class="dim" style="font-size:9px">${self._t("hosts.manual", "(manual)")}</span>` : ""}`;
-      return b2`<tr class="expandable" data-ip="${d3.ip}"><td><span style="color:${alive};font-size:8px">●</span> <span class="ip">${d3.ip}</span></td><td>${nameCell}</td><td><span style="font-size:11px">${d3.os_guess || "\u2014"}</span></td><td>${roleSelect}</td><td style="font-size:11px;font-family:monospace">${ports}</td><td>${vulns ? b2`<span class="badge badge-high">${vulns} CVE${vulns > 1 ? "s" : ""}</span>` : b2`<span class="dim">—</span>`}</td><td style="font-variant-numeric:tabular-nums">${d3.ping_ms != null ? d3.ping_ms.toFixed(1) + " ms" : d3.alive ? "alive" : "\u2014"}</td>${netflowEnabled ? b2`<td>${self._bytes(d3.total_octets)}</td>` : ""}</tr><tr class="detail-row" id="${id}" style="display:none"><td colspan="${colCount}">${self._hostDetail(d3)}</td></tr>`;
-    });
-  }
-  _hostDetail(d3) {
-    var svcs = d3.scanned_services || [];
-    var vulns = d3.vulnerabilities || [];
-    var self = this;
-    var dismissedMap = {};
-    (this._data && this._data.dismissed_findings || []).forEach(function(f3) {
-      if (f3.key) dismissedMap[f3.key] = f3.dismiss_note || "";
-    });
-    var svcRows = svcs.map(function(s4) {
-      var techs = (s4.technologies || []).join(", ");
-      return b2`<tr><td><span class="chip">${s4.port}/${s4.protocol}</span></td><td>${s4.service_name || "\u2014"}</td><td class="mono dim">${(s4.banner || "").substring(0, 60) || "\u2014"}</td><td>${s4.version || "\u2014"}</td><td>${techs ? techs : "\u2014"}</td></tr>`;
-    });
-    var vulnCards = vulns.map(function(v2) {
-      var key = "vuln:" + d3.ip + ":" + (v2.port || 0) + ":" + (v2.cve_id || "");
-      var isDismissed = Object.prototype.hasOwnProperty.call(dismissedMap, key);
-      var note = isDismissed ? dismissedMap[key] : "";
-      var dismissedBadge = isDismissed ? b2` <span class="chip" style="background:#444;color:#999;font-size:9px">${self._t("findings.dismissed", "dismissed")}</span>` : "";
-      var noteHtml = isDismissed && note ? b2`<div class="dim" style="font-size:10px;margin-top:4px;font-style:italic">${self._t("hosts.note", "Note")}: ${note}</div>` : "";
-      return b2`<div class="finding-card sev-${v2.severity}" style="margin-bottom:6px;padding:10px${isDismissed ? ";opacity:0.45" : ""}"><div class="finding-header">${self._sev(v2.severity)}<span class="finding-title">${v2.cve_id} · ${v2.service}</span><span class="dim" style="font-size:10px">CVSS ${v2.cvss || "?"}</span>${dismissedBadge}</div><div class="finding-body">${v2.summary || ""}</div>${v2.remediation ? b2`<div class="fix-hint">${self._t("hosts.fix", "Fix")}: ${v2.remediation}</div>` : ""}${noteHtml}</div>`;
-    });
-    return b2`<div class="host-detail-wrap"><div>${this._kv("IP", d3.ip)}${this._kv(this._t("hosts.kv_hostname", "Hostname"), d3.hostname || "\u2014")}${this._kv("MAC", d3.mac_address || "\u2014")}${this._kv(this._t("hosts.kv_manufacturer", "Manufacturer"), d3.manufacturer || "\u2014")}${this._kv("OS", d3.os_guess ? d3.os_guess + " (" + d3.os_confidence + ")" : "\u2014")}${this._kv("Ping", d3.ping_ms != null ? d3.ping_ms.toFixed(1) + " ms" : d3.alive ? "alive" : "no response")}${this._kv(this._t("hosts.kv_flows", "Flows"), (d3.total_flows || 0).toLocaleString())}${this._kv("Traffic", this._bytes(d3.total_octets))}${this._kv(this._t("hosts.kv_external_peers", "External peers"), (d3.external_peers || []).length)}${this._kv(this._t("hosts.kv_last_seen", "Last seen"), this._ago(d3.last_seen))}${svcs.length ? b2`<div style="margin-top:12px"><div class="section-label">${this._t("hosts.section_open_ports", "Open Ports")}</div><table class="data-table" style="font-size:11px"><thead><tr><th>${this._t("hosts.port", "Port")}</th><th>${this._t("hosts.service", "Service")}</th><th>${this._t("hosts.banner", "Banner")}</th><th>${this._t("hosts.version", "Version")}</th><th>${this._t("hosts.technologies", "Technologies")}</th></tr></thead><tbody>${svcRows}</tbody></table></div>` : ""}</div><div>${vulns.length ? b2`<div class="section-label" style="margin-bottom:8px">${this._t("hosts.section_vulnerabilities", "Vulnerabilities")}</div>${vulnCards}` : b2`<div class="empty-state" style="margin-top:20px"><div class="empty-icon">✓</div><p>${this._t("hosts.no_vulnerabilities", "No vulnerabilities detected")}</p></div>`}</div></div>`;
-  }
-  _toggleRow(ip) {
-    var row = this.shadowRoot.getElementById("hsa-dr-" + ip.replace(/\./g, "-"));
-    if (row) row.style.display = row.style.display === "none" ? "" : "none";
-  }
-  _viewFindings() {
-    var BASELINE_ONLY_CATS = {
-      anomaly_new_host: true,
-      anomaly_new_peer: true,
-      anomaly_new_port: true,
-      anomaly_new_dns_domain: true,
-      anomaly_new_dns_category: true
-    };
-    var findings = (this._data && this._data.findings || []).filter(function(f3) {
-      return !BASELINE_ONLY_CATS[f3.category];
-    });
-    var baselineAnomalies = this._data && this._data.baseline_anomalies || [];
-    var allDismissed = this._data && this._data.dismissed_findings || [];
-    var allDismissedList = allDismissed.map(function(f3) {
-      return Object.assign({}, f3, {
-        _isBaseline: !!BASELINE_ONLY_CATS[f3.category]
-      });
-    });
-    var findingsGroupMode = this._findingsGroupMode || "category";
-    var dismissedGroupMode = this._dismissedGroupMode || "category";
-    var baselineGroupMode = this._baselineGroupMode;
-    var self = this;
-    var SEV_ORDER = {
-      critical: 0,
-      high: 1,
-      medium: 2,
-      low: 3,
-      info: 4
-    };
-    var _sevRank = function(s4) {
-      var r4 = SEV_ORDER[s4];
-      return r4 != null ? r4 : 99;
-    };
-    var findingsQ = (self._findingsSearch || "").toLowerCase().trim();
-    var baselineQ = (self._baselineSearch || "").toLowerCase().trim();
-    var dismissedQ = (self._dismissedSearch || "").toLowerCase().trim();
-    var _match = function(f3, q) {
-      if (!q) return true;
-      return (f3.summary || "").toLowerCase().includes(q) || (f3.source_ip || "").toLowerCase().includes(q) || (f3.category || "").toLowerCase().includes(q) || (f3.details && f3.details.cve_id || "").toLowerCase().includes(q);
-    };
-    var filteredFindings = findingsQ ? findings.filter(function(f3) {
-      return _match(f3, findingsQ);
-    }) : findings;
-    var filteredBaseline = baselineQ ? baselineAnomalies.filter(function(f3) {
-      return _match(f3, baselineQ);
-    }) : baselineAnomalies;
-    var filteredDismissed = dismissedQ ? allDismissedList.filter(function(f3) {
-      return _match(f3, dismissedQ);
-    }) : allDismissedList;
-    var topBar = b2`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px"><div class="page-header" style="margin:0"><h1 class="page-title">${this._t("page.findings", "Findings")}</h1></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><button class="btn" data-regex-dismiss-open title="Dismiss multiple findings by regex pattern">${this._t("findings.pattern", "\u{1F5D1}\xA0Pattern\u2026")}</button></div></div>`;
-    var renderCard = function(f3, isDismissed, isBaseline) {
-      var det = f3.details || {};
-      var cve = det.cve_id ? b2`<span class="chip">${det.cve_id}</span>` : "";
-      var portChip = det.port ? b2`<span class="chip">port ${det.port}</span>` : "";
-      var detRows = joinTemplates(Object.keys(det).filter(function(k2) {
-        return k2 !== "cve_id" && k2 !== "port" && k2 !== "remediation";
-      }).map(function(k2) {
-        return b2`<dt>${k2}:</dt> <dd>${String(det[k2])}</dd>`;
-      }), " ");
-      var noteHtml = isDismissed && f3.dismiss_note ? b2`<div style="margin-top:5px;font-size:11px;color:var(--muted)"><strong>${self._t("findings.note", "Note")}:</strong> ${f3.dismiss_note}</div>` : "";
-      var baselineBadge = isBaseline ? b2`<span class="chip" style="background:#3ac5c9;color:#fff;font-size:10px;margin-left:6px">${self._t("findings.baseline_badge", "Baseline")}</span>` : "";
-      return b2`<div class="finding-card sev-${f3.severity}" style=${isDismissed ? "opacity:.55" : A}><div class="finding-header">${self._sev(f3.severity)}${cve}${portChip}<span class="finding-title">${f3.summary}${baselineBadge}</span>${isDismissed ? b2`<button class="btn" data-undismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Restore finding">${self._t("findings.restore", "Restore")}</button>` : b2`<button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Dismiss finding">${self._t("findings.dismiss", "Dismiss")}</button>`}</div><div class="finding-meta"><span>${self._t("findings.source", "Source")}: <span class="ip">${f3.source_ip}</span></span>${det.port ? b2`<span>${self._t("findings.port", "Port")}: <strong>${det.port}</strong></span>` : ""}<span>${self._t("findings.category", "Category")}: ${FINDING_CAT_LABELS[f3.category] || f3.category || ""}</span>${f3.count ? b2`<span>${f3.count}× ${self._t("findings.seen", "seen")}</span>` : ""}<span>${self._ago(f3.last_seen)}</span></div>${detRows ? b2`<div class="finding-detail"><dl>${detRows}</dl></div>` : ""}${det.remediation ? b2`<div class="fix-hint">${self._t("findings.remediation", "Remediation")}: ${det.remediation}</div>` : ""}${noteHtml}</div>`;
-    };
-    var renderGrouped = function(findingsList, isDismissed) {
-      if (!findingsList.length) return "";
-      var groupMap = {};
-      findingsList.forEach(function(f3) {
-        var gkey = f3.summary || f3.category || "Unknown";
-        if (!groupMap[gkey]) {
-          groupMap[gkey] = {
-            summary: gkey,
-            findings: [],
-            severity: f3.severity,
-            category: f3.category,
-            isBaseline: !!f3._isBaseline
-          };
-        } else if (_sevRank(f3.severity) < _sevRank(groupMap[gkey].severity)) {
-          groupMap[gkey].severity = f3.severity;
-        }
-        groupMap[gkey].findings.push(f3);
-      });
-      return Object.values(groupMap).sort(function(a3, b3) {
-        return _sevRank(a3.severity) - _sevRank(b3.severity);
-      }).map(function(g2) {
-        var isExpanded = self._expandedFindingGroup === g2.summary;
-        var totalCount = g2.findings.reduce(function(s4, f3) {
-          return s4 + (f3.count || 1);
-        }, 0);
-        var latestSeen = g2.findings.reduce(function(lat, f3) {
-          return !lat || f3.last_seen > lat ? f3.last_seen : lat;
-        }, "");
-        var det0 = g2.findings[0] && g2.findings[0].details || {};
-        var cve = det0.cve_id ? b2`<span class="chip">${det0.cve_id}</span>` : "";
-        var portChip = det0.port ? b2`<span class="chip">port ${det0.port}</span>` : "";
-        var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${g2.findings.length}${g2.findings.length === 1 ? " " + self._t("findings.host_one", "host") : " " + self._t("findings.host_many", "hosts")}</span>`;
-        var blBadge = g2.isBaseline ? b2`<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">${self._t("findings.baseline_badge", "Baseline")}</span>` : "";
-        var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
-        var groupActionBtn = isDismissed ? b2`<button class="btn" data-undismiss-group="${g2.summary}">${self._t("findings.restore", "Restore")}${g2.findings.length > 1 ? " " + self._t("findings.restore_all", "all") + "\xA0" + g2.findings.length : ""}</button>` : b2`<button class="btn btn-dismiss" data-dismiss-group="${g2.summary}">${self._t("findings.dismiss", "Dismiss")}${g2.findings.length > 1 ? " " + self._t("findings.dismiss_all", "all") + "\xA0" + g2.findings.length : ""}</button>`;
-        var header = b2`<div class="finding-card sev-${g2.severity} finding-group-card" data-expand-group="${g2.summary}"><div class="finding-header">${self._sev(g2.severity)}${cve}${portChip}${countBadge}${blBadge}<span class="finding-title">${g2.summary}</span>${groupActionBtn}${chevron}</div><div class="finding-meta"><span>${self._t("findings.category", "Category")}: ${g2.category || "\u2014"}</span><span>${totalCount}× ${self._t("findings.total", "total")}</span><span>${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
-        var rows = "";
-        if (isExpanded) {
-          rows = b2`<div class="finding-group-rows">${g2.findings.map(function(f3) {
-            var det = f3.details || {};
-            var detRows = joinTemplates(Object.keys(det).filter(function(k2) {
-              return k2 !== "cve_id" && k2 !== "port" && k2 !== "remediation";
-            }).map(function(k2) {
-              return b2`<dt>${k2}:</dt><dd>${String(det[k2])}</dd>`;
-            }), " ");
-            var rowActionBtn = isDismissed ? b2`<button class="btn" data-undismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Restore this finding">${self._t("findings.restore", "Restore")}</button>` : b2`<button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Dismiss this finding">${self._t("findings.dismiss", "Dismiss")}</button>`;
-            return b2`<div class="finding-row"><span class="ip">${f3.source_ip || ""}</span>${det.port ? b2`<span class="chip">:${det.port}</span>` : ""}<span class="dim" style="font-size:10px">${f3.count || 1}× · ${self._ago(f3.last_seen)}</span>${det.remediation ? b2`<span style="font-size:10px;color:var(--success);flex:1">${self._t("hosts.fix", "Fix")}: ${det.remediation}</span>` : b2`<span style="flex:1"></span>`}${detRows ? b2`<div class="finding-detail" style="margin:4px 0;width:100%"><dl>${detRows}</dl></div>` : ""}${rowActionBtn}</div>`;
-          })}</div>`;
-        }
-        return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
-      });
-    };
-    var _baselineExpandRows = function(list) {
-      return list.map(function(f3) {
-        var det = f3.details || {};
-        return b2`<div class="finding-row">${self._sev(f3.severity)}<span style="flex:1;font-size:12px">${f3.summary}</span>${det.port ? b2`<span class="chip" style="font-size:9px">:${det.port}</span>` : ""}<span class="dim" style="font-size:10px;flex-shrink:0">${self._ago(f3.last_seen)}</span><button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}" title="Dismiss">${self._t("findings.dismiss", "Dismiss")}</button></div>`;
-      });
-    };
-    var renderBaselineByCategory = function(list) {
-      if (!list.length) return "";
-      var BL_CAT_LABELS = {
-        anomaly_new_host: self._t("findings.cat_new_host", "New Host Detected"),
-        anomaly_new_peer: self._t("findings.cat_new_peer", "New External Peer"),
-        anomaly_new_port: self._t("findings.cat_new_port", "New Open Port"),
-        anomaly_new_dns_domain: self._t("findings.cat_new_dns_domain", "New DNS Domain"),
-        anomaly_new_dns_category: self._t("findings.cat_new_dns_category", "New DNS Category"),
-        anomaly_missing_host: self._t("findings.cat_missing_host", "Known Host Missing"),
-        anomaly_missing_peer: self._t("findings.cat_missing_peer", "Known Peer Missing")
-      };
-      var catMap = {};
-      list.forEach(function(f3) {
-        var cat = f3.category || "unknown";
-        if (!catMap[cat]) catMap[cat] = {
-          category: cat,
-          findings: [],
-          maxSev: "info"
-        };
-        if (_sevRank(f3.severity) < _sevRank(catMap[cat].maxSev)) catMap[cat].maxSev = f3.severity;
-        catMap[cat].findings.push(f3);
-      });
-      return Object.values(catMap).sort(function(a3, b3) {
-        var sd = _sevRank(a3.maxSev) - _sevRank(b3.maxSev);
-        return sd !== 0 ? sd : a3.category.localeCompare(b3.category);
-      }).map(function(c4) {
-        var gkey = "bcat:" + c4.category;
-        var isExpanded = self._expandedBaselineGroup === gkey;
-        var latestSeen = c4.findings.reduce(function(lat, f3) {
-          return !lat || f3.last_seen > lat ? f3.last_seen : lat;
-        }, "");
-        var uniqueHosts = {};
-        c4.findings.forEach(function(f3) {
-          uniqueHosts[f3.source_ip] = true;
-        });
-        var hostCount = Object.keys(uniqueHosts).length;
-        var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${c4.findings.length} ${c4.findings.length === 1 ? self._t("findings.finding_one", "finding") : self._t("findings.finding_many", "findings")} · ${hostCount} ${hostCount === 1 ? self._t("findings.host_one", "host") : self._t("findings.host_many", "hosts")}</span>`;
-        var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
-        var dismissAllBtn = b2`<button class="btn btn-dismiss" data-dismiss-group="${gkey}">${self._t("findings.dismiss_all", "Dismiss all")} ${c4.findings.length}</button>`;
-        var header = b2`<div class="finding-card sev-${c4.maxSev} finding-group-card" data-expand-baseline-group="${gkey}"><div class="finding-header">${self._sev(c4.maxSev)}${countBadge}<span class="finding-title">${BL_CAT_LABELS[c4.category] || c4.category}</span>${dismissAllBtn}${chevron}</div><div class="finding-meta"><span>${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
-        var sortedByCategory = c4.findings.slice().sort(function(a3, b3) {
-          return _sevRank(a3.severity) - _sevRank(b3.severity);
-        });
-        var rows = isExpanded ? b2`<div class="finding-group-rows">${_baselineExpandRows(sortedByCategory)}</div>` : "";
-        return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
-      });
-    };
-    var renderBaselineByHost = function(list) {
-      if (!list.length) return "";
-      var hostMap = {};
-      list.forEach(function(f3) {
-        var ip = f3.source_ip || "unknown";
-        if (!hostMap[ip]) hostMap[ip] = {
-          ip,
-          findings: [],
-          maxSev: "info"
-        };
-        if (_sevRank(f3.severity) < _sevRank(hostMap[ip].maxSev)) hostMap[ip].maxSev = f3.severity;
-        hostMap[ip].findings.push(f3);
-      });
-      return Object.values(hostMap).sort(function(a3, b3) {
-        var sd = _sevRank(a3.maxSev) - _sevRank(b3.maxSev);
-        if (sd !== 0) return sd;
-        return a3.ip.split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join(".").localeCompare(b3.ip.split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join("."));
-      }).map(function(h3) {
-        var gkey = "bhost:" + h3.ip;
-        var isExpanded = self._expandedBaselineGroup === gkey;
-        var latestSeen = h3.findings.reduce(function(lat, f3) {
-          return !lat || f3.last_seen > lat ? f3.last_seen : lat;
-        }, "");
-        var catCounts = {};
-        h3.findings.forEach(function(f3) {
-          catCounts[f3.category] = (catCounts[f3.category] || 0) + 1;
-        });
-        var catChips = joinTemplates(Object.keys(catCounts).slice(0, 5).map(function(c4) {
-          return b2`<span class="chip" style="font-size:9px">${c4} (${catCounts[c4]})</span>`;
-        }), " ");
-        var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${h3.findings.length} ${h3.findings.length === 1 ? self._t("findings.finding_one", "finding") : self._t("findings.finding_many", "findings")}</span>`;
-        var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
-        var dismissAllBtn = b2`<button class="btn btn-dismiss" data-dismiss-group="${gkey}">${self._t("findings.dismiss_all", "Dismiss all")} ${h3.findings.length}</button>`;
-        var header = b2`<div class="finding-card sev-${h3.maxSev} finding-group-card" data-expand-baseline-group="${gkey}"><div class="finding-header">${self._sev(h3.maxSev)}${countBadge}<span class="finding-title" style="font-family:monospace">${h3.ip}</span>${dismissAllBtn}${chevron}</div><div class="finding-meta">${catChips}<span style="flex-shrink:0">${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
-        var rows = isExpanded ? b2`<div class="finding-group-rows">${_baselineExpandRows(h3.findings)}</div>` : "";
-        return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
-      });
-    };
-    var _mkFindingGroup = function(gkey, label, sev, itemList, isDismissed) {
-      var expandKey = isDismissed ? "dismissed:" + gkey : gkey;
-      var isExpanded = self._expandedFindingGroup === expandKey;
-      var totalCount = itemList.reduce(function(s4, f3) {
-        return s4 + (f3.count || 1);
-      }, 0);
-      var latestSeen = itemList.reduce(function(lat, f3) {
-        return !lat || f3.last_seen > lat ? f3.last_seen : lat;
-      }, "");
-      var countBadge = b2`<span class="badge" style="background:rgba(98,232,255,.1);border:1px solid rgba(98,232,255,.2);padding:1px 8px;font-size:10px;border-radius:100px">${itemList.length} ${itemList.length === 1 ? self._t("findings.finding_one", "finding") : self._t("findings.finding_many", "findings")}</span>`;
-      var chevron = b2`<span class="finding-group-chevron" style="transform:rotate(${isExpanded ? "90" : "0"}deg)">▶</span>`;
-      var actionBtn = isDismissed ? b2`<button class="btn" data-undismiss-group="${gkey}">${self._t("findings.restore_all", "Restore all")} ${itemList.length}</button>` : b2`<button class="btn btn-dismiss" data-dismiss-group="${gkey}">${self._t("findings.dismiss_all", "Dismiss all")} ${itemList.length}</button>`;
-      var header = b2`<div class="finding-card sev-${sev} finding-group-card" data-expand-group="${expandKey}"><div class="finding-header">${self._sev(sev)}${countBadge}<span class="finding-title">${label}</span>${actionBtn}${chevron}</div><div class="finding-meta"><span>${totalCount}× ${self._t("findings.total", "total")}</span><span>${self._t("findings.latest", "Latest:")} ${self._ago(latestSeen)}</span></div></div>`;
-      var rows = "";
-      if (isExpanded) {
-        rows = b2`<div class="finding-group-rows">${itemList.slice().sort(function(a3, b3) {
-          return _sevRank(a3.severity) - _sevRank(b3.severity);
-        }).map(function(f3) {
-          var det = f3.details || {};
-          var detRows = joinTemplates(Object.keys(det).filter(function(k2) {
-            return k2 !== "cve_id" && k2 !== "port" && k2 !== "remediation";
-          }).map(function(k2) {
-            return b2`<dt>${k2}:</dt><dd>${String(det[k2])}</dd>`;
-          }), " ");
-          var blBadge = f3._isBaseline ? b2`<span class="chip" style="background:#3ac5c9;color:#fff;font-size:9px">${self._t("findings.baseline_badge", "Baseline")}</span>` : "";
-          var rowActionBtn = isDismissed ? b2`<button class="btn" data-undismiss="${f3.key || f3.source_ip + ":" + f3.category}">${self._t("findings.restore", "Restore")}</button>` : b2`<button class="btn btn-dismiss" data-dismiss="${f3.key || f3.source_ip + ":" + f3.category}">${self._t("findings.dismiss", "Dismiss")}</button>`;
-          return b2`<div class="finding-row">${self._sev(f3.severity)}<span class="ip">${f3.source_ip || ""}</span>${blBadge}${det.cve_id ? b2`<span class="chip">${det.cve_id}</span>` : ""}${det.port ? b2`<span class="chip">:${det.port}</span>` : ""}<span style="flex:1;font-size:11px">${f3.summary || f3.category || ""}</span><span class="dim" style="font-size:10px">${f3.count || 1}× · ${self._ago(f3.last_seen)}</span>${detRows ? b2`<div class="finding-detail" style="margin:4px 0;width:100%"><dl>${detRows}</dl></div>` : ""}${rowActionBtn}</div>`;
-        })}</div>`;
-      }
-      return b2`<div class="finding-group-wrap">${header}${rows}</div>`;
-    };
-    var FINDING_CAT_LABELS = {
-      vulnerability: self._t("findings.cat_vulnerability", "Vulnerability / CVE"),
-      port_scan: self._t("findings.cat_port_scan", "Port Scan"),
-      suspicious_port: self._t("findings.cat_suspicious_port", "Suspicious Open Port"),
-      high_egress: self._t("findings.cat_high_egress", "High Egress Traffic")
-    };
-    var renderFindingsByCategory = function(list, isDismissed) {
-      if (!list.length) return "";
-      var catMap = {};
-      list.forEach(function(f3) {
-        var k2 = f3.category || "unknown";
-        if (!catMap[k2]) catMap[k2] = {
-          sev: f3.severity,
-          items: []
-        };
-        else if (_sevRank(f3.severity) < _sevRank(catMap[k2].sev)) catMap[k2].sev = f3.severity;
-        catMap[k2].items.push(f3);
-      });
-      return Object.values(catMap).sort(function(a3, b3) {
-        return _sevRank(a3.sev) - _sevRank(b3.sev);
-      }).map(function(g2) {
-        var cat = g2.items[0].category || "unknown";
-        var label = FINDING_CAT_LABELS[cat] || cat;
-        return _mkFindingGroup("fcat:" + cat, label, g2.sev, g2.items, isDismissed);
-      });
-    };
-    var renderFindingsByHost = function(list, isDismissed) {
-      if (!list.length) return "";
-      var hostMap = {};
-      list.forEach(function(f3) {
-        var ip = f3.source_ip || "unknown";
-        if (!hostMap[ip]) hostMap[ip] = {
-          sev: f3.severity,
-          items: []
-        };
-        else if (_sevRank(f3.severity) < _sevRank(hostMap[ip].sev)) hostMap[ip].sev = f3.severity;
-        hostMap[ip].items.push(f3);
-      });
-      return Object.values(hostMap).sort(function(a3, b3) {
-        var sd = _sevRank(a3.sev) - _sevRank(b3.sev);
-        if (sd !== 0) return sd;
-        return a3.items[0].source_ip.split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join(".").localeCompare(b3.items[0].source_ip.split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join("."));
-      }).map(function(g2) {
-        var ip = g2.items[0].source_ip || "unknown";
-        var label = b2`<span style="font-family:monospace">${ip}</span>`;
-        return _mkFindingGroup("fhost:" + ip, label, g2.sev, g2.items, isDismissed);
-      });
-    };
-    var SEV_LABELS = {
-      critical: self._t("findings.sev_critical", "Critical"),
-      high: self._t("findings.sev_high", "High"),
-      medium: self._t("findings.sev_medium", "Medium"),
-      low: self._t("findings.sev_low", "Low"),
-      info: self._t("findings.sev_info", "Info")
-    };
-    var renderFindingsBySeverity = function(list, isDismissed) {
-      if (!list.length) return "";
-      var sevMap = {};
-      list.forEach(function(f3) {
-        var s4 = f3.severity || "info";
-        if (!sevMap[s4]) sevMap[s4] = [];
-        sevMap[s4].push(f3);
-      });
-      return ["critical", "high", "medium", "low", "info"].filter(function(s4) {
-        return sevMap[s4];
-      }).map(function(s4) {
-        return _mkFindingGroup("fsev:" + s4, SEV_LABELS[s4] || s4, s4, sevMap[s4], isDismissed);
-      });
-    };
-    var _renderFindingCards = function(list, isDismissed, mode) {
-      if (!list.length) return "";
-      if (mode === "host") return renderFindingsByHost(list, isDismissed);
-      if (mode === "severity") return renderFindingsBySeverity(list, isDismissed);
-      if (mode === "flat") return list.map(function(f3) {
-        return renderCard(f3, isDismissed, !!f3._isBaseline);
-      });
-      return renderFindingsByCategory(list, isDismissed);
-    };
-    var baselineSection = "";
-    if (baselineAnomalies.length) {
-      var blModeBtn = function(mode, label) {
-        var active = baselineGroupMode === mode;
-        return b2`<button class="btn${active ? " active" : ""}" data-baseline-group-mode="${mode}">${label}</button>`;
-      };
-      var blSearchInput = b2`<input type="search" data-baseline-search placeholder="Search + Enter" value="${self._baselineSearch || ""}" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none">`;
-      var blToolbar = b2`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${blModeBtn("category", self._t("findings.by_category", "By Category"))}${blModeBtn("host", self._t("findings.by_host", "By Host"))}${blModeBtn("flat", self._t("findings.flat", "Flat"))}<span style="flex:1"></span>${blSearchInput}</div>`;
-      var blCards;
-      if (baselineGroupMode === "host") blCards = renderBaselineByHost(filteredBaseline);
-      else if (baselineGroupMode === "flat") blCards = filteredBaseline.map(function(f3) {
-        return renderCard(f3, false, true);
-      });
-      else blCards = renderBaselineByCategory(filteredBaseline);
-      var blContent = baselineQ && !filteredBaseline.length ? b2`<div class="empty-state card" style="height:100px"><p>${self._t("findings.no_results", "No results for")} &ldquo;${baselineQ}&rdquo;.</p></div>` : blCards;
-      baselineSection = b2`<div style="margin-bottom:28px"><div class="view-header"><h1>${this._t("findings.baseline", "Baseline Anomalies")} <span class="dim">(${baselineAnomalies.length}${baselineQ && filteredBaseline.length !== baselineAnomalies.length ? ", " + filteredBaseline.length + " " + this._t("findings.shown", "shown") : ""})</span></h1></div>${blToolbar}${blContent}</div>`;
-    }
-    var cards = _renderFindingCards(filteredFindings, false, findingsGroupMode);
-    var findingsHeader = findings.length ? b2`${this._t("findings.security", "Security Findings")} <span class="dim">(${findings.length} ${this._t("findings.actionable", "actionable")}${findingsQ && filteredFindings.length !== findings.length ? ", " + filteredFindings.length + " " + this._t("findings.shown", "shown") : ""}${allDismissedList.length ? ", " + allDismissedList.length + " " + this._t("findings.dismissed", "dismissed") : ""})</span>` : b2`${this._t("findings.security", "Security Findings")}${allDismissedList.length ? b2` <span class="dim">(${allDismissedList.length} ${this._t("findings.dismissed", "dismissed")})</span>` : ""}`;
-    var _fModeBtn = function(mode, label) {
-      return b2`<button class="btn${findingsGroupMode === mode ? " active" : ""}" data-findings-group-mode="${mode}" style="font-size:10px;padding:3px 8px">${label}</button>`;
-    };
-    var findingsToggle = b2`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${_fModeBtn("category", this._t("findings.by_category", "By Category"))}${_fModeBtn("host", this._t("findings.by_host", "By Host"))}${_fModeBtn("severity", this._t("findings.by_severity", "By Severity"))}${_fModeBtn("flat", this._t("findings.flat", "Flat"))}<span style="flex:1"></span><input type="search" data-findings-search placeholder="${self._t("common.search_enter", "Search + Enter")}" value="${self._findingsSearch || ""}" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none"></div>`;
-    var activeSection = b2`<div><div class="view-header"><h1>${findingsHeader}</h1></div>${findingsToggle}${findings.some(function(f3) {
-      return f3.category === "vulnerability";
-    }) ? this._bannerDisclaimer("margin:0 2px 10px") : ""}${findings.length ? filteredFindings.length ? cards : b2`<div class="empty-state card" style="height:100px"><p>${self._t("findings.no_results", "No results for")} &ldquo;${findingsQ}&rdquo;.</p></div>` : b2`<div class="empty-state card" style="height:180px"><div class="empty-icon">✓</div><p>${this._t("findings.no_active", "No active high or critical findings.")}</p></div>`}</div>`;
-    var dismissedCards = _renderFindingCards(filteredDismissed, true, dismissedGroupMode);
-    var _dModeBtn = function(mode, label) {
-      return b2`<button class="btn${dismissedGroupMode === mode ? " active" : ""}" data-dismissed-group-mode="${mode}" style="font-size:10px;padding:3px 8px">${label}</button>`;
-    };
-    var dismissedToggle = b2`<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px">${_dModeBtn("category", this._t("findings.by_category", "By Category"))}${_dModeBtn("host", this._t("findings.by_host", "By Host"))}${_dModeBtn("severity", this._t("findings.by_severity", "By Severity"))}${_dModeBtn("flat", this._t("findings.flat", "Flat"))}<span style="flex:1"></span><input type="search" data-dismissed-search placeholder="${self._t("common.search_enter", "Search + Enter")}" value="${self._dismissedSearch || ""}" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#fff;padding:3px 8px;font-size:11px;width:160px;outline:none"></div>`;
-    var dismissedSection = allDismissedList.length ? b2`<div style="margin-top:28px;opacity:.7"><div class="view-header"><h1>${this._t("findings.dismissed_title", "Dismissed")} <span class="dim">(${allDismissedList.length}${dismissedQ && filteredDismissed.length !== allDismissedList.length ? ", " + filteredDismissed.length + " " + this._t("findings.shown", "shown") : ""})</span></h1></div>${dismissedToggle}${filteredDismissed.length ? dismissedCards : b2`<div class="empty-state card" style="height:100px"><p>${self._t("findings.no_results", "No results for")} &ldquo;${dismissedQ}&rdquo;.</p></div>`}</div>` : "";
-    return b2`${topBar}${baselineSection}${activeSection}${dismissedSection}`;
-  }
-  _extThead() {
-    var self = this;
-    var cols = [{
-      key: "ip",
-      label: "IP"
-    }, {
-      key: "hostname",
-      label: this._t("external.col_hostname", "Hostname")
-    }, {
-      key: "traffic_kb",
-      label: this._t("external.col_traffic_kb", "Traffic (KB)")
-    }, {
-      key: "country",
-      label: this._t("external.col_country", "Country")
-    }, {
-      key: "org",
-      label: this._t("external.col_asn_org", "ASN / Org")
-    }, {
-      key: "rating",
-      label: this._t("external.col_rating", "Rating")
-    }, {
-      key: "vt",
-      label: this._t("external.col_vt_hits", "VT hits")
-    }, {
-      key: "abuse",
-      label: this._t("external.col_abuse", "Abuse%")
-    }, {
-      key: null,
-      label: this._t("external.col_ports", "Ports")
-    }, {
-      key: "direction",
-      label: this._t("external.col_direction", "Direction")
-    }, {
-      key: "internal_host",
-      label: this._t("external.col_internal_host", "Internal host")
-    }, {
-      key: "last_seen",
-      label: this._t("external.col_last_seen", "Last seen")
-    }];
-    return b2`<tr>${cols.map(function(c4) {
-      if (!c4.key) return b2`<th>${c4.label}</th>`;
-      var arrow = self._extSort === c4.key ? self._extSortDir > 0 ? " \u25B2" : " \u25BC" : "";
-      return b2`<th class="sortable-th" data-extsort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
-    })}</tr>`;
-  }
-  _extPreparedList() {
-    var q = this._extFilter.toLowerCase();
-    var sortKey = this._extSort;
-    var sortDir = this._extSortDir;
-    var extIPs = (this._data && this._data.external_ips || []).slice();
-    var nameMap = {};
-    (this._data && this._data.devices || []).forEach(function(d3) {
-      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
-    });
-    if (q) {
-      extIPs = extIPs.filter(function(e4) {
-        return (e4.ip || "").indexOf(q) >= 0 || (e4.hostname || "").toLowerCase().indexOf(q) >= 0 || (e4.country_name || e4.country || "").toLowerCase().indexOf(q) >= 0 || (e4.org || e4.asn || "").toLowerCase().indexOf(q) >= 0 || (e4.rating || "").toLowerCase().indexOf(q) >= 0 || (e4.direction || "").toLowerCase().indexOf(q) >= 0 || (e4.internal_sources || []).some(function(s4) {
-          return s4.indexOf(q) >= 0 || nameMap[s4] && nameMap[s4].toLowerCase().indexOf(q) >= 0;
-        }) || (e4.dst_ports || []).some(function(p3) {
-          return String(p3).indexOf(q) >= 0;
-        });
-      });
-    }
-    extIPs.sort(function(a3, b3) {
-      var va, vb;
-      if (sortKey === "ip") {
-        va = (a3.ip || "").split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join(".");
-        vb = (b3.ip || "").split(".").map(function(n4) {
-          return ("000" + n4).slice(-3);
-        }).join(".");
-      } else if (sortKey === "hostname") {
-        va = (a3.hostname || "").toLowerCase();
-        vb = (b3.hostname || "").toLowerCase();
-      } else if (sortKey === "traffic_kb") {
-        va = a3.total_octets || 0;
-        vb = b3.total_octets || 0;
-        return (va - vb) * sortDir;
-      } else if (sortKey === "country") {
-        va = (a3.country_name || a3.country || "").toLowerCase();
-        vb = (b3.country_name || b3.country || "").toLowerCase();
-      } else if (sortKey === "org") {
-        va = (a3.org || a3.asn || "").toLowerCase();
-        vb = (b3.org || b3.asn || "").toLowerCase();
-      } else if (sortKey === "rating") {
-        var rOrder = {
-          malicious: 0,
-          suspicious: 1,
-          clean: 2,
-          "": 3
-        };
-        va = rOrder[a3.rating || (a3.blacklisted ? "malicious" : "")] !== void 0 ? rOrder[a3.rating || (a3.blacklisted ? "malicious" : "")] : 3;
-        vb = rOrder[b3.rating || (b3.blacklisted ? "malicious" : "")] !== void 0 ? rOrder[b3.rating || (b3.blacklisted ? "malicious" : "")] : 3;
-        return (va - vb) * sortDir;
-      } else if (sortKey === "vt") {
-        va = (a3.vt_malicious || 0) + (a3.vt_suspicious || 0) * 0.1;
-        vb = (b3.vt_malicious || 0) + (b3.vt_suspicious || 0) * 0.1;
-        return (va - vb) * sortDir;
-      } else if (sortKey === "abuse") {
-        va = a3.abuse_confidence != null ? a3.abuse_confidence : -1;
-        vb = b3.abuse_confidence != null ? b3.abuse_confidence : -1;
-        return (va - vb) * sortDir;
-      } else if (sortKey === "direction") {
-        var dOrder = {
-          outbound: 0,
-          inbound: 1,
-          both: 2
-        };
-        va = dOrder[a3.direction || "outbound"] !== void 0 ? dOrder[a3.direction || "outbound"] : 0;
-        vb = dOrder[b3.direction || "outbound"] !== void 0 ? dOrder[b3.direction || "outbound"] : 0;
-        return (va - vb) * sortDir;
-      } else if (sortKey === "internal_host") {
-        va = (a3.internal_sources || a3.sources || []).map(function(s4) {
-          return nameMap[s4] || s4;
-        }).sort().join(",").toLowerCase();
-        vb = (b3.internal_sources || b3.sources || []).map(function(s4) {
-          return nameMap[s4] || s4;
-        }).sort().join(",").toLowerCase();
-      } else if (sortKey === "last_seen") {
-        va = a3.last_seen || "";
-        vb = b3.last_seen || "";
-      } else {
-        return 0;
-      }
-      if (va < vb) return -1 * sortDir;
-      if (va > vb) return 1 * sortDir;
-      return 0;
-    });
-    return extIPs;
-  }
-  _extPageBar() {
-    var total = this._extPreparedList().length;
-    var totalPages = Math.max(1, Math.ceil(total / this._extPageSize));
-    var page = Math.min(this._extPage, totalPages);
-    var start = total === 0 ? 0 : (page - 1) * this._extPageSize + 1;
-    var end = Math.min(total, page * this._extPageSize);
-    return b2`<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap"><div class="row-gap" style="font-size:11px;color:var(--muted)">${this._t("external.showing", "Showing")} ${start}-${end} of ${total}</div><div class="row-gap" style="gap:6px"><label class="dim" style="font-size:11px">${this._t("common.rows", "Rows")}</label><select id="hsa-ext-pagesize" class="role-select">${[10, 25, 50, 100].map((n4) => b2`<option value="${n4}" ?selected=${n4 === this._extPageSize}>${n4}</option>`)}</select><button class="btn" data-extpage="prev" ?disabled=${page <= 1}>${this._t("common.previous", "Previous")}</button><span class="dim" style="font-size:11px;min-width:70px;text-align:center">${page} / ${totalPages}</span><button class="btn" data-extpage="next" ?disabled=${page >= totalPages}>${this._t("common.next", "Next")}</button></div></div>`;
-  }
-  _extRows() {
-    var extIPs = this._extPreparedList();
-    var totalPages = Math.max(1, Math.ceil(extIPs.length / this._extPageSize));
-    this._extPage = Math.min(Math.max(1, this._extPage), totalPages);
-    var start = (this._extPage - 1) * this._extPageSize;
-    extIPs = extIPs.slice(start, start + this._extPageSize);
-    if (!extIPs.length) return b2`<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🔍</div><p>${this._t("external.no_match", "No external IPs match the filter")}</p></div></td></tr>`;
-    var self = this;
-    var nameMap = {};
-    (this._data && this._data.devices || []).forEach(function(d3) {
-      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
-    });
-    return extIPs.map(function(e4) {
-      var rating = e4.rating || (e4.blacklisted ? "malicious" : "");
-      var vt = e4.vt_malicious != null ? e4.vt_malicious + "/" + ((e4.vt_malicious || 0) + (e4.vt_suspicious || 0) + (e4.vt_harmless || 0)) : "\u2014";
-      var abuse = e4.abuse_confidence != null ? e4.abuse_confidence + "%" : "\u2014";
-      var trafficKb = ((e4.total_octets || 0) / 1024).toFixed(1);
-      var host = e4.hostname || "";
-      var dstPorts = (e4.dst_ports || []).slice(0, 8);
-      var portsHtml = dstPorts.length ? b2`${joinTemplates(dstPorts.map(function(p3) {
-        return b2`<span class="chip">${p3}</span>`;
-      }), " ")}${e4.dst_ports.length > 8 ? b2` <span class="dim">+${e4.dst_ports.length - 8}</span>` : ""}` : b2`<span class="dim">—</span>`;
-      var dir = e4.direction || "outbound";
-      var directionHtml = dir === "both" ? b2`<span style="color:#a78bfa;font-size:11px">${self._t("external.direction_both", "\u2195 Both")}${e4.direction_alert ? b2` <span title="Different internal hosts involved in each direction — an external IP contacted a server that did not initiate the outbound relationship. Review recommended." style="cursor:help;color:#f59e0b">⚠</span>` : ""}</span>` : dir === "inbound" ? b2`<span style="color:#fb923c;font-size:11px">${self._t("external.direction_inbound", "\u2193 Inbound")}</span>` : b2`<span style="color:#34d399;font-size:11px">${self._t("external.direction_outbound", "\u2191 Outbound")}</span>`;
-      var sources = e4.internal_sources || e4.sources || [];
-      var sourcesHtml = sources.length ? joinTemplates(sources.map(function(s4) {
-        var name = nameMap[s4] || s4;
-        return b2`<span class="ip-chip" title="${s4}">${name}</span>`;
-      }), " ") : b2`<span class="dim">—</span>`;
-      var ratingHtml = rating ? self._ratingWithSource(rating, e4.rating_source) : b2`<span class="dim">—</span>`;
-      var countryFlag = self._countryFlag(e4.country);
-      var countryTitle = e4.country_name || e4.country || "";
-      return b2`<tr style="cursor:pointer" data-ext-ip-row="${e4.ip}"><td>${e4.blacklisted ? b2`<span style="color:#ff4d6d;margin-right:3px">⚠</span>` : ""}<span class="ip">${e4.ip}</span></td><td style="font-size:11px">${host ? host : b2`<span class="dim">—</span>`}</td><td style="font-family:monospace;font-size:11px;text-align:right">${trafficKb}</td><td style="font-size:11px">${countryFlag ? b2`<span title="${countryTitle}" style="font-size:15px;line-height:1">${countryFlag}</span>` : b2`<span class="dim">—</span>`}</td><td style="font-size:11px">${(e4.org || "").substring(0, 30) || e4.asn || "\u2014"}</td><td>${ratingHtml}</td><td style="font-family:monospace;font-size:11px">${vt}</td><td style="font-family:monospace;font-size:11px">${abuse}</td><td style="font-size:11px">${portsHtml}</td><td style="font-size:11px">${directionHtml}</td><td style="font-size:11px">${sourcesHtml}</td><td style="font-size:10px;color:var(--muted)">${self._ago(e4.last_seen)}</td></tr>`;
-    });
-  }
-  _viewExternal() {
-    var totalCount = (this._data && this._data.external_ips || []).length;
-    return b2`<div><div class="view-header"><h1>${this._t("external.page_title", "External IPs")} <span class="dim">(${totalCount})</span></h1><input id="hsa-ext-filter" class="search-bar" type="search" placeholder="${this._t("external.filter_placeholder", "Filter by IP, hostname, country, org\u2026")}" value="${this._extFilter}"></div><div id="hsa-ext-pagebar">${this._extPageBar()}</div><div class="card table-card"><table class="data-table"><thead id="hsa-ext-thead">${this._extThead()}</thead><tbody id="hsa-ext-tbody">${this._extRows()}</tbody></table></div></div>`;
-  }
-  _ipDetail(d3, internalSources, direction) {
-    var ip = d3.ip || "";
-    var self = this;
-    var reportLinks = ip ? [["ipwho.is", "https://ipwho.is/" + encodeURIComponent(ip)], ["AbuseIPDB", "https://www.abuseipdb.com/check/" + encodeURIComponent(ip)], ["VirusTotal", "https://www.virustotal.com/gui/ip-address/" + encodeURIComponent(ip)]] : [];
-    var pairs = [[this._t("external.modal_hostname", "Hostname"), d3.hostname], [this._t("external.modal_country", "Country"), d3.country_name || d3.country], [this._t("external.modal_asn", "ASN"), d3.asn], [this._t("external.modal_org_isp", "ISP / Org"), d3.org || d3.isp], [this._t("external.modal_city", "City"), d3.city], [this._t("external.modal_timezone", "Timezone"), d3.timezone], [this._t("external.modal_vt", "VirusTotal"), d3.vt_malicious != null ? d3.vt_malicious + " " + self._t("external.modal_malicious", "malicious") + ", " + d3.vt_suspicious + " " + self._t("external.modal_suspicious", "suspicious") + ", " + d3.vt_harmless + " " + self._t("external.modal_harmless", "harmless") : null], [this._t("external.modal_vt_rep", "VT Reputation"), d3.vt_reputation != null ? String(d3.vt_reputation) : null], [this._t("external.modal_abuse", "Abuse score"), d3.abuse_confidence != null ? d3.abuse_confidence + "% (" + d3.abuse_total_reports + " " + self._t("external.modal_reports", "reports") + ")" : null], [this._t("external.modal_rating_source", "Rating source"), d3.rating_source || null], [this._t("external.blacklisted", "Blacklisted"), d3.blacklisted ? self._t("external.modal_yes", "Yes") + " \u2013 " + (d3.blacklist_info && d3.blacklist_info.source || "threat_intel") : self._t("external.modal_no", "No")], [this._t("external.modal_direction", "Direction"), (function(dir) {
-      return dir.charAt(0).toUpperCase() + dir.slice(1);
-    })(direction || d3.direction || "outbound")], [this._t("external.modal_data_sources", "Data sources"), d3.sources && d3.sources.join(", ") || "\u2014"], [this._t("external.modal_enriched_at", "Enriched at"), d3.enriched_at ? this._ago(d3.enriched_at) : null]].filter(function(p3) {
-      return p3[1] != null && p3[1] !== "";
-    });
-    var pairsHtml = pairs.map(function(p3) {
-      return b2`<div class="detail-pair"><span class="detail-key">${p3[0]}</span><span class="detail-val">${String(p3[1])}</span></div>`;
-    });
-    var linksHtml = reportLinks.length ? b2`<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">${this._t("external.modal_reports", "Reports")}</span><span class="detail-val">${joinTemplates(reportLinks.map(function(item) {
-      return b2`<a class="ext-report-link" href="${item[1]}" target="_blank" rel="noopener noreferrer">${item[0]}</a>`;
-    }), " ")}</span></div>` : "";
-    var sources = internalSources || d3.internal_sources || [];
-    var sourcesHtml = sources.length ? b2`<div class="detail-pair" style="grid-column:1/-1"><span class="detail-key">${this._t("external.modal_internal_host", "Internal host")}</span><span class="detail-val">${joinTemplates(sources.map(function(s4) {
-      return b2`<span class="ip-chip">${s4}</span>`;
-    }), " ")}</span></div>` : "";
-    return b2`<div class="ip-detail-panel"><h3>🔍 ${d3.ip} ${d3.rating ? this._rating(d3.rating) : ""}</h3><div class="detail-grid">${pairsHtml}${linksHtml}${sourcesHtml}</div>${d3.error ? b2`<div style="color:var(--danger);margin-top:8px;font-size:11px">⚠ ${this._t("external.modal_error", "Enrichment error:")} ${d3.error}</div>` : ""}</div>`;
-  }
   async _doLookup(ip) {
     if (this._lookingUp) return;
     this._lookupIP = ip;
@@ -7156,643 +7975,6 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
       this._lookingUp = false;
       this._render();
     }
-  }
-  _viewVulns() {
-    var self = this;
-    if (!this._vulnData && !this._vulnLoading) {
-      this._vulnLoading = true;
-      this._hass.callApi("GET", "homesec/vulnerabilities").then(function(d4) {
-        self._vulnData = d4;
-        self._vulnLoading = false;
-        self._render();
-      }).catch(function() {
-        self._vulnLoading = false;
-        self._vulnData = {
-          vulnerabilities: [],
-          total: 0,
-          detected_cves: 0,
-          kev_matches: 0,
-          kev_total: 0
-        };
-        self._render();
-      });
-      return b2`<div><div class="view-header"><h1>${this._t("vuln.page_title", "Vulnerability Browser")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("vuln.loading", "Loading vulnerabilities\u2026")}</p></div></div>`;
-    }
-    if (this._vulnLoading) {
-      return b2`<div><div class="view-header"><h1>${this._t("vuln.page_title", "Vulnerability Browser")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("vuln.loading", "Loading vulnerabilities\u2026")}</p></div></div>`;
-    }
-    var d3 = this._vulnData || {
-      vulnerabilities: [],
-      total: 0,
-      detected_cves: 0,
-      kev_matches: 0,
-      kev_total: 0
-    };
-    var allVulns = d3.vulnerabilities || [];
-    var q = this._vulnFilter.toLowerCase().trim();
-    var filtered = allVulns;
-    if (q) {
-      filtered = allVulns.filter(function(v2) {
-        return (v2.cve_id || "").toLowerCase().indexOf(q) !== -1 || (v2.summary || "").toLowerCase().indexOf(q) !== -1 || (v2.severity || "").toLowerCase().indexOf(q) !== -1 || (v2.services || []).some(function(s4) {
-          return s4.toLowerCase().indexOf(q) !== -1;
-        }) || (v2.ports || []).some(function(p3) {
-          return String(p3).indexOf(q) !== -1;
-        }) || (v2.cpe_criteria || []).some(function(c4) {
-          return c4.toLowerCase().indexOf(q) !== -1;
-        }) || (v2.affected_hosts || []).some(function(h3) {
-          return h3.indexOf(q) !== -1;
-        }) || (v2.kev_vendor || "").toLowerCase().indexOf(q) !== -1 || (v2.kev_product || "").toLowerCase().indexOf(q) !== -1;
-      });
-    }
-    var sevOrder = {
-      critical: 0,
-      high: 1,
-      medium: 2,
-      low: 3,
-      info: 4
-    };
-    var sortKey = this._vulnSort;
-    var sortDir = this._vulnSortDir;
-    filtered = filtered.slice().sort(function(a3, b3) {
-      var av, bv;
-      if (sortKey === "cvss") {
-        av = a3.cvss || 0;
-        bv = b3.cvss || 0;
-      } else if (sortKey === "severity") {
-        av = sevOrder[a3.severity] !== void 0 ? sevOrder[a3.severity] : 99;
-        bv = sevOrder[b3.severity] !== void 0 ? sevOrder[b3.severity] : 99;
-      } else if (sortKey === "published") {
-        av = a3.published || "";
-        bv = b3.published || "";
-      } else if (sortKey === "cve_id") {
-        av = a3.cve_id || "";
-        bv = b3.cve_id || "";
-      } else if (sortKey === "hosts") {
-        av = (a3.affected_hosts || []).length;
-        bv = (b3.affected_hosts || []).length;
-      } else if (sortKey === "kev") {
-        av = a3.in_kev ? 1 : 0;
-        bv = b3.in_kev ? 1 : 0;
-      } else if (sortKey === "services") {
-        av = (a3.services || []).join(",");
-        bv = (b3.services || []).join(",");
-      } else if (sortKey === "ports") {
-        av = (a3.ports || []).length;
-        bv = (b3.ports || []).length;
-      } else {
-        av = a3.cve_id || "";
-        bv = b3.cve_id || "";
-      }
-      if (av < bv) return -sortDir;
-      if (av > bv) return sortDir;
-      return 0;
-    });
-    var total = filtered.length;
-    var pages = Math.max(1, Math.ceil(total / this._vulnPageSize));
-    if (this._vulnPage > pages) this._vulnPage = pages;
-    var start = (this._vulnPage - 1) * this._vulnPageSize;
-    var page = filtered.slice(start, start + this._vulnPageSize);
-    function sevClass(cvss) {
-      if (cvss >= 9) return "critical";
-      if (cvss >= 7) return "high";
-      if (cvss >= 4) return "medium";
-      return "low";
-    }
-    var header = b2`<div class="view-header"><h1>${this._t("vuln.page_title", "Vulnerability Browser")}</h1><div class="row-gap"><input class="search-bar" type="text" placeholder="${this._t("vuln.search_placeholder", "Search CVE, port, service, CPE, keyword\u2026")}" value="${this._vulnFilter}" data-vuln-search /><button class="btn" data-vuln-refresh>${this._t("vuln.refresh", "\u21BB Refresh")}</button></div></div><div class="tldr-bar"><span><strong>${d3.total}</strong> ${this._t("vuln.stat_cves_db", "CVEs in database")}</span><span><strong>${d3.detected_cves || 0}</strong> ${this._t("vuln.stat_detected_network", "detected on network")}</span><span><strong>${d3.kev_matches}</strong> ${this._t("vuln.stat_in_kev", "in CISA KEV")}</span><span><strong>${total}</strong> ${this._t("vuln.stat_matching", "matching results")}</span></div>${this._bannerDisclaimer("margin:-4px 2px 12px")}`;
-    var thead = b2`<thead><tr>${(function() {
-      var cols = [{
-        key: "cve_id",
-        label: self._t("vuln.col_cve_id", "CVE ID")
-      }, {
-        key: "published",
-        label: self._t("vuln.col_published", "Published")
-      }, {
-        key: "cvss",
-        label: self._t("vuln.col_cvss", "CVSS")
-      }, {
-        key: "severity",
-        label: self._t("vuln.col_severity", "Severity")
-      }, {
-        key: "services",
-        label: self._t("vuln.col_services", "Services")
-      }, {
-        key: "ports",
-        label: self._t("vuln.col_ports", "Ports")
-      }, {
-        key: "hosts",
-        label: self._t("vuln.col_hosts", "Hosts")
-      }, {
-        key: "kev",
-        label: "KEV"
-      }];
-      return b2`${cols.map(function(c4) {
-        var arrow = self._vulnSort === c4.key ? self._vulnSortDir > 0 ? " \u25B2" : " \u25BC" : "";
-        return b2`<th class="sortable-th" data-vulnsort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
-      })}<th style="min-width:320px">${self._t("vuln.col_summary", "Summary")}</th>`;
-    })()}</tr></thead>`;
-    var rows = [];
-    page.forEach(function(v2) {
-      var cid = v2.cve_id || "";
-      var cvss = v2.cvss || 0;
-      var sc = sevClass(cvss);
-      var kevBadge = v2.in_kev ? b2`<span class="badge badge-critical" title="CISA Known Exploited Vulnerability">KEV</span>` : "";
-      var services = (v2.services || []).map(function(s4) {
-        return b2`<span class="chip">${s4}</span>`;
-      });
-      if (!services.length) services = "\u2014";
-      var ports = (v2.ports || []).map(function(p3) {
-        return b2`<span class="chip">${p3}</span>`;
-      });
-      if (!ports.length) ports = "\u2014";
-      var hosts = (v2.affected_hosts || []).length;
-      var hostsStr = hosts > 0 ? b2`<span class="ip-chip">${hosts} host${hosts > 1 ? "s" : ""}</span>` : b2`<span class="dim" style="font-size:10px">${self._t("vuln.not_detected", "not detected")}</span>`;
-      var summary = (v2.summary || "").substring(0, 200);
-      if ((v2.summary || "").length > 200) summary += "\u2026";
-      var cveBtn = cid ? b2`<a class="ext-report-link" style="cursor:pointer" data-vuln-detail="${cid}" title="View details">${cid}</a>` : cid;
-      var published = v2.published || "\u2014";
-      rows.push(b2`<tr><td>${cveBtn}</td><td style="font-size:10px;color:var(--muted);white-space:nowrap">${published}</td><td><span class="badge badge-${sc}">${cvss.toFixed(1)}</span></td><td>${self._sev(v2.severity || sc)}</td><td>${services}</td><td>${ports}</td><td>${hostsStr}</td><td>${kevBadge}</td><td style="font-size:11px;color:var(--muted)">${summary}</td></tr>`);
-    });
-    var pagination = pages > 1 ? b2`<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px"><button class="btn" data-vuln-page="${Math.max(1, this._vulnPage - 1)}" ?disabled=${this._vulnPage <= 1}>${this._t("vuln.prev", "\u25C0 Prev")}</button><span class="dim" style="font-size:12px">${this._t("vuln.page", "Page")} ${this._vulnPage} ${this._t("vuln.of", "of")} ${pages}</span><button class="btn" data-vuln-page="${Math.min(pages, this._vulnPage + 1)}" ?disabled=${this._vulnPage >= pages}>${this._t("vuln.next", "Next \u25B6")}</button></div>` : "";
-    return b2`<div>${header}<div class="card table-card"><table class="data-table">${thead}<tbody>${rows}</tbody></table></div>${pagination}</div>`;
-  }
-  _openVulnDetail(cveId) {
-    if (!this._vulnData || !cveId) return;
-    var v2 = (this._vulnData.vulnerabilities || []).find(function(x2) {
-      return x2.cve_id === cveId;
-    });
-    if (!v2) return;
-    this._vulnDetail = v2;
-    this._render();
-  }
-  _bannerDisclaimer(style) {
-    return b2`<div class="dim" style="font-size:11px;line-height:1.5;${style || ""}">⚠️ ${this._t("vuln.banner_disclaimer", "CVE matches are based on the product and version reported in service banners. Distributions such as Ubuntu, Debian or RHEL often backport security fixes without changing the upstream version, so a match may be a false positive. Check your vendor\u2019s security tracker and dismiss findings that do not apply.")}</div>`;
-  }
-  _vulnDetailModal() {
-    var v2 = this._vulnDetail;
-    if (!v2) return "";
-    var self = this;
-    var cid = v2.cve_id || "";
-    var cvss = v2.cvss || 0;
-    function sevClass(c4) {
-      return c4 >= 9 ? "critical" : c4 >= 7 ? "high" : c4 >= 4 ? "medium" : "low";
-    }
-    var sc = sevClass(cvss);
-    var services = joinTemplates((v2.services || []).map(function(s4) {
-      return b2`<span class="chip">${s4}</span>`;
-    }), " ") || "\u2014";
-    var ports = joinTemplates((v2.ports || []).map(function(p3) {
-      return b2`<span class="chip">${p3}</span>`;
-    }), " ") || "\u2014";
-    var hosts = joinTemplates((v2.affected_hosts || []).map(function(h3) {
-      return b2`<span class="ip-chip">${h3}</span>`;
-    }), " ") || b2`<span class="dim">${this._t("vuln.not_detected_network", "Not detected on this network")}</span>`;
-    var cpes = (v2.cpe_criteria || []).slice(0, 10).map(function(c4) {
-      return b2`<div class="mono" style="font-size:10px;color:var(--muted);word-break:break-all">${c4}</div>`;
-    });
-    if ((v2.cpe_criteria || []).length > 10) cpes.push(b2`<div class="dim" style="font-size:10px">+${v2.cpe_criteria.length - 10} more</div>`);
-    if (!cpes.length) cpes = b2`<span class="dim">—</span>`;
-    var kevSection = "";
-    if (v2.in_kev) {
-      kevSection = b2`<div style="margin-top:12px;padding:10px;border-radius:8px;background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.25)"><div style="font-size:11px;font-weight:700;color:#ff4d6d;margin-bottom:6px">⚠ ${this._t("vuln.kev_title", "CISA Known Exploited Vulnerability")}</div>${v2.kev_name ? b2`<div style="font-size:11px;margin-bottom:4px"><strong>${this._t("vuln.name", "Name")}:</strong> ${v2.kev_name}</div>` : ""}${v2.kev_vendor || v2.kev_product ? b2`<div style="font-size:11px;margin-bottom:4px"><strong>${this._t("vuln.product", "Product")}:</strong> ${(v2.kev_vendor || "") + (v2.kev_vendor && v2.kev_product ? " / " : "") + (v2.kev_product || "")}</div>` : ""}${v2.kev_date_added ? b2`<div style="font-size:11px;margin-bottom:4px"><strong>${this._t("vuln.added_to_kev", "Added to KEV")}:</strong> ${v2.kev_date_added}</div>` : ""}${v2.kev_action ? b2`<div style="font-size:11px"><strong>${this._t("vuln.required_action", "Required action")}:</strong> ${v2.kev_action}</div>` : ""}</div>`;
-    }
-    return b2`<div id="hsa-vuln-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.68);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" data-vuln-close="1"><div class="card" style="width:min(680px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(98,232,255,.26)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h1 style="font-size:16px;color:var(--accent)">${cid}</h1><button class="btn" data-vuln-close="1">✕ ${this._t("common.close", "Close")}</button></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px"><span class="badge badge-${sc}" style="font-size:12px;padding:3px 10px">CVSS ${cvss.toFixed(1)}</span>${this._sev(v2.severity || sc)}${v2.published ? b2`<span class="dim" style="font-size:11px">${this._t("vuln.col_published", "Published")}: ${v2.published}</span>` : ""}${v2.in_kev ? b2`<span class="badge badge-critical">KEV</span>` : ""}</div><div class="card-title">${this._t("vuln.summary_title", "Summary")}</div><div style="font-size:12px;line-height:1.6;color:var(--text);margin-bottom:14px">${v2.summary || this._t("vuln.no_description", "No description available.")}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px"><div><div class="card-title">${this._t("vuln.col_services", "Services")}</div><div>${services}</div></div><div><div class="card-title">${this._t("vuln.col_ports", "Ports")}</div><div>${ports}</div></div></div><div class="card-title">${this._t("vuln.affected_hosts", "Affected Hosts")}</div><div style="margin-bottom:14px;font-size:12px">${hosts}</div>${this._bannerDisclaimer("margin-bottom:14px")}<div class="card-title">${this._t("vuln.cpe_criteria", "CPE Criteria")}</div><div style="margin-bottom:14px">${cpes}</div>${kevSection}<div style="margin-top:14px;display:flex;gap:8px"><a href="https://nvd.nist.gov/vuln/detail/${cid}" target="_blank" rel="noopener noreferrer" class="ext-report-link">${this._t("vuln.view_on_nvd", "View on NVD")}</a><a href="https://www.cvedetails.com/cve/${cid}/" target="_blank" rel="noopener noreferrer" class="ext-report-link">${this._t("vuln.cve_details", "CVE Details")}</a></div></div></div>`;
-  }
-  _suricataAlertDetailModal() {
-    var a3 = this._suricataAlertDetail;
-    if (!a3) return "";
-    var self = this;
-    var SEV_COLORS = {
-      1: "rgba(255,77,109,1)",
-      2: "rgba(255,179,71,1)",
-      3: "rgba(107,255,200,1)"
-    };
-    var SEV_LABELS = {
-      1: this._t("suricata.sev_critical", "Critical"),
-      2: this._t("suricata.sev_major", "Major"),
-      3: this._t("suricata.sev_minor", "Minor")
-    };
-    var sev = parseInt(a3.severity) || 3;
-    var sevColor = SEV_COLORS[sev] || "rgba(90,106,128,1)";
-    var sevLabel = SEV_LABELS[sev] || this._t("suricata.sev_unknown", "Unknown");
-    var sevBadge = b2`<span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;background:${sevColor.replace(",1)", ",0.18)")};color:${sevColor};border:1px solid ${sevColor.replace(",1)", ",0.4)")}">${sevLabel}</span>`;
-    var action = (a3.action || "allowed").toLowerCase();
-    var actionBadge = action === "blocked" ? b2`<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">${this._t("suricata.badge_blocked", "\u{1F6AB} Blocked")}</span>` : b2`<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">${this._t("suricata.badge_allowed", "\u2713 Allowed")}</span>`;
-    var allHosts = this._data && this._data.devices || [];
-    var srcHost = allHosts.find(function(h3) {
-      return h3.ip === a3.src_ip;
-    });
-    var destHost = allHosts.find(function(h3) {
-      return h3.ip === a3.dest_ip;
-    });
-    function hostInfo(h3) {
-      if (!h3) return b2`<span class="dim">—</span>`;
-      var parts = [];
-      if (h3.hostname) parts.push(b2`<b>${h3.hostname}</b>`);
-      if (h3.vendor) parts.push(h3.vendor);
-      if (h3.os) parts.push(h3.os);
-      return parts.length ? joinTemplates(parts, " \xB7 ") : b2`<span class="dim">—</span>`;
-    }
-    var sigId = /^[0-9]{1,10}$/.test(String(a3.signature_id == null ? "" : a3.signature_id)) ? String(a3.signature_id) : "";
-    var sigLinks = "";
-    if (sigId) {
-      var etLink = b2`<a href="https://doc.emergingthreats.net/bin/view/Main/SidFAQ?topic=${encodeURIComponent(sigId)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Emerging Threats</a>`;
-      var snortLink = b2`<a href="https://www.snort.org/rule_docs/${encodeURIComponent(sigId)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Snort Rule Docs</a>`;
-      var searchLink = b2`<a href="https://www.google.com/search?q=suricata+rule+sid+${encodeURIComponent(sigId)}+${encodeURIComponent(a3.signature || "")}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search</a>`;
-      sigLinks = b2`<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${etLink}${snortLink}${searchLink}</div>`;
-    } else if (a3.signature) {
-      var searchLink2 = b2`<a href="https://www.google.com/search?q=suricata+alert+${encodeURIComponent(a3.signature)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Search rule</a>`;
-      sigLinks = b2`<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">${searchLink2}</div>`;
-    }
-    function row(label, value) {
-      return b2`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:11px;color:var(--muted);min-width:110px;flex-shrink:0">${label}</span><span style="font-size:12px;color:var(--fg);word-break:break-all">${value}</span></div>`;
-    }
-    var ts = a3.timestamp ? new Date(a3.timestamp).toLocaleString() : "\u2014";
-    var srcPort = a3.src_port ? ":" + a3.src_port : "";
-    var destPort = a3.dest_port ? ":" + a3.dest_port : "";
-    var flow = b2`<span class="mono" style="font-size:12px">${(a3.src_ip || "\u2014") + srcPort}</span> <span style="color:var(--muted)">→</span> <span class="mono" style="font-size:12px">${(a3.dest_ip || "\u2014") + destPort}</span>`;
-    var proto = joinTemplates([a3.proto, a3.app_proto].filter(Boolean).map(function(p3) {
-      return b2`<span class="chip">${p3}</span>`;
-    }), " ");
-    return b2`<div id="hsa-suricata-detail-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px" data-suricata-close="1"><div class="card" style="width:min(660px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(255,77,109,.26)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h1 style="font-size:15px;color:var(--accent);margin:0">${this._t("suricata.detail_title", "Alert Detail")}</h1><button class="btn" data-suricata-close="1">✕ ${this._t("common.close", "Close")}</button></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">${sevBadge} ${actionBadge}${sigId ? b2`<span class="dim" style="font-size:11px">SID ${sigId}</span>` : ""}</div><div class="card-title" style="margin-bottom:6px">${this._t("suricata.alert_info", "Alert Info")}</div>${row(this._t("suricata.timestamp", "Timestamp"), ts)}${row(this._t("suricata.flow", "Flow"), flow)}${row(this._t("suricata.protocol", "Protocol"), proto || "\u2014")}${row(this._t("suricata.interface", "Interface"), a3.in_iface || "\u2014")}${row("Signature", b2`<span style="font-weight:600">${a3.signature || "\u2014"}</span>`)}${sigId ? row(this._t("suricata.signature_id", "Signature ID"), String(sigId)) : ""}${row(this._t("suricata.col_category", "Category"), a3.category || "\u2014")}${row(this._t("suricata.col_severity", "Severity"), sevBadge)}${row(this._t("suricata.col_action", "Action"), actionBadge)}${a3.flow_id ? row("Flow ID", String(a3.flow_id)) : ""}<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("suricata.source_host", "Source Host")}</div>${row("IP", b2`<span class="mono">${a3.src_ip || "\u2014"}</span>`)}${row(this._t("suricata.host_info", "Host info"), hostInfo(srcHost))}<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("suricata.destination_host", "Destination Host")}</div>${row("IP", b2`<span class="mono">${a3.dest_ip || "\u2014"}</span>`)}${row(this._t("suricata.host_info", "Host info"), hostInfo(destHost))}${sigLinks}</div></div>`;
-  }
-  _extIPDetailModal() {
-    var e4 = this._extIPDetail;
-    if (!e4) return "";
-    var self = this;
-    var nameMap = {};
-    (this._data && this._data.devices || []).forEach(function(d3) {
-      nameMap[d3.ip] = d3.display_name || d3.hostname || d3.ip;
-    });
-    var ip = e4.ip || "";
-    var isLooking = self._lookupIP === ip && self._lookingUp;
-    var enriched = self._lookupResult && self._lookupIP === ip ? self._lookupResult : null;
-    function row(label, value) {
-      return b2`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-size:11px;color:var(--muted);min-width:120px;flex-shrink:0">${label}</span><span style="font-size:12px;word-break:break-all">${value}</span></div>`;
-    }
-    var rating = e4.rating || (e4.blacklisted ? "malicious" : "");
-    var ratingBadge = rating ? self._ratingWithSource(rating, e4.rating_source) : b2`<span class="dim">—</span>`;
-    var countryFlag = self._countryFlag(e4.country);
-    var countryDisplay = b2`${countryFlag ? b2`<span style="font-size:15px">${countryFlag}</span> ` : ""}${e4.country_name || e4.country || "\u2014"}`;
-    var vtHtml = e4.vt_malicious != null ? e4.vt_malicious + "/" + ((e4.vt_malicious || 0) + (e4.vt_suspicious || 0) + (e4.vt_harmless || 0)) + " " + self._t("external.modal_malicious", "malicious") : "\u2014";
-    var abuseHtml = e4.abuse_confidence != null ? e4.abuse_confidence + "%" + (e4.abuse_total_reports ? " (" + e4.abuse_total_reports + " " + self._t("external.modal_reports", "reports") + ")" : "") : "\u2014";
-    var blacklistHtml = e4.blacklisted ? b2`<span style="color:#ff4d6d">⚠ ${self._t("external.modal_yes", "Yes")}${e4.blacklist_info && e4.blacklist_info.source ? " \u2013 " + e4.blacklist_info.source : ""}</span>` : b2`<span style="color:#6bffc8">${self._t("external.modal_no", "No")}</span>`;
-    var dir = e4.direction || "outbound";
-    var directionHtml = dir === "both" ? b2`<span style="color:#a78bfa">↕ ${self._t("external.direction_both", "Both")}</span>` : dir === "inbound" ? b2`<span style="color:#fb923c">↓ ${self._t("external.direction_inbound", "Inbound")}</span>` : b2`<span style="color:#34d399">↑ ${self._t("external.direction_outbound", "Outbound")}</span>`;
-    var dstPorts = (e4.dst_ports || []).slice(0, 16);
-    var portsHtml = dstPorts.length ? b2`${joinTemplates(dstPorts.map(function(p3) {
-      return b2`<span class="chip">${p3}</span>`;
-    }), " ")}${e4.dst_ports.length > 16 ? b2` <span class="dim">+${e4.dst_ports.length - 16}</span>` : ""}` : "\u2014";
-    var sources = e4.internal_sources || e4.sources || [];
-    var sourcesHtml = sources.length ? joinTemplates(sources.map(function(s4) {
-      var name = nameMap[s4] || s4;
-      return b2`<span class="ip-chip" title="${s4}">${name}</span>`;
-    }), " ") : "\u2014";
-    var trafficKb = ((e4.total_octets || 0) / 1024).toFixed(1) + " KB";
-    var enrichSection = "";
-    if (isLooking) {
-      enrichSection = b2`<div style="display:flex;align-items:center;gap:8px;padding:12px 0;color:var(--muted);font-size:12px"><span class="spin"></span> ${this._t("external.running_lookup", "Running enrichment lookup\u2026")}</div>`;
-    } else if (enriched) {
-      var enrichPairs = [[self._t("external.modal_city", "City"), enriched.city], [self._t("external.modal_timezone", "Timezone"), enriched.timezone], [self._t("external.modal_isp", "ISP"), enriched.isp], [self._t("external.modal_vt_rep", "VT Reputation"), enriched.vt_reputation != null ? String(enriched.vt_reputation) : null], [self._t("external.modal_enriched_at", "Enriched at"), enriched.enriched_at ? self._ago(enriched.enriched_at) : null]].filter(function(p3) {
-        return p3[1] != null && p3[1] !== "";
-      });
-      if (enrichPairs.length || enriched.error) {
-        enrichSection = b2`<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("external.enrichment_details", "Enrichment Details")}</div>${enrichPairs.map(function(p3) {
-          return row(p3[0], String(p3[1]));
-        })}${enriched.error ? b2`<div style="color:var(--danger);font-size:11px;margin-top:6px">⚠ ${enriched.error}</div>` : ""}`;
-      }
-    } else {
-      enrichSection = b2`<div style="margin-top:10px"><button class="btn" data-ext-lookup="${ip}">${this._t("external.run_full_lookup", "\u{1F50D} Run Full Lookup")}</button></div>`;
-    }
-    var linksHtml = ip ? b2`<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">${[b2`<a href="https://ipwho.is/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">ipwho.is</a>`, b2`<a href="https://www.abuseipdb.com/check/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">AbuseIPDB</a>`, b2`<a href="https://www.virustotal.com/gui/ip-address/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">VirusTotal</a>`, b2`<a href="https://www.shodan.io/host/${encodeURIComponent(ip)}" target="_blank" rel="noopener noreferrer" class="ext-report-link">Shodan</a>`]}</div>` : "";
-    return b2`<div id="hsa-ext-ip-modal" style="position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(2px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px"><div class="card" style="width:min(620px,96vw);max-height:88vh;overflow-y:auto;margin:0;border:1px solid rgba(98,232,255,.26)"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h1 style="font-size:15px;color:var(--accent);margin:0;font-family:monospace">${ip}</h1><button class="btn" data-ext-close="1">✕ ${this._t("common.close", "Close")}</button></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px">${ratingBadge}${e4.blacklisted ? b2` <span class="badge badge-critical">⚠ ${this._t("external.blacklisted", "Blacklisted")}</span>` : ""}</div><div class="card-title" style="margin-bottom:6px">${this._t("external.ip_info", "IP Info")}</div>${row(this._t("external.modal_hostname", "Hostname"), e4.hostname || "\u2014")}${row(this._t("external.modal_country", "Country"), countryDisplay)}${row(this._t("external.modal_asn", "ASN"), e4.asn || "\u2014")}${row(this._t("external.modal_org_isp", "Org / ISP"), e4.org || e4.isp || "\u2014")}${row(this._t("external.modal_vt", "VirusTotal"), vtHtml)}${row(this._t("external.modal_abuse", "Abuse score"), abuseHtml)}${row(this._t("external.blacklisted", "Blacklisted"), blacklistHtml)}<div class="card-title" style="margin-top:14px;margin-bottom:6px">${this._t("external.traffic", "Traffic")}</div>${row(this._t("external.modal_direction", "Direction"), directionHtml)}${row(this._t("external.ports_contacted", "Ports contacted"), portsHtml)}${row(this._t("external.internal_hosts", "Internal hosts"), sourcesHtml)}${row(this._t("external.total_traffic", "Total traffic"), trafficKb)}${row(this._t("external.modal_last_seen", "Last seen"), self._ago(e4.last_seen))}${enrichSection}${linksHtml}</div></div>`;
-  }
-  _viewDns() {
-    var self = this;
-    var stats = this._data && this._data.dns_proxy_stats || {};
-    var log = this._data && this._data.dns_log || [];
-    var filteredLog = this._dnsFilteredLog(log);
-    var sortedLog = this._dnsSortedLog(filteredLog);
-    var CATEGORIES = ["malware", "adult", "gambling", "ads", "tracking", "social", "gaming", "streaming", "news", "cdn", "cloud", "iot", "tech", "intel", "override", "other"];
-    var CAT_COLORS = {
-      malware: "rgba(255,77,109,1)",
-      adult: "rgba(191,111,255,1)",
-      gambling: "rgba(255,179,71,1)",
-      ads: "rgba(255,209,102,1)",
-      tracking: "rgba(107,140,186,1)",
-      social: "rgba(91,170,236,1)",
-      gaming: "rgba(107,255,200,1)",
-      streaming: "rgba(58,197,201,1)",
-      news: "rgba(245,158,11,1)",
-      cdn: "rgba(72,199,142,1)",
-      cloud: "rgba(59,178,255,1)",
-      iot: "rgba(255,159,67,1)",
-      tech: "rgba(155,135,245,1)",
-      intel: "rgba(248,84,84,1)",
-      override: "rgba(98,232,255,1)",
-      other: "rgba(90,106,128,1)"
-    };
-    var CAT_LABELS = {
-      malware: "Malware",
-      adult: "Adult",
-      gambling: "Gambling",
-      ads: "Ads",
-      tracking: "Tracking",
-      social: "Social",
-      gaming: "Gaming",
-      streaming: "Streaming",
-      news: "News",
-      cdn: "CDN",
-      cloud: "Cloud",
-      iot: "IoT",
-      tech: "Tech",
-      intel: "Threat Intel",
-      override: self._t("dns.cat.override", "Override"),
-      other: "Other"
-    };
-    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="dns-search" placeholder="${self._t("dns.filter_placeholder", "Filter by IP or domain\u2026")}" style="width:220px" value="${this._dnsSearch}" onkeydown="if(event.key==='Enter')this.getRootNode().host._dnsFilter()" /><select id="dns-cat-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._dnsFilter()"><option value="">${self._t("dns.all_categories", "All categories")}</option>${CATEGORIES.map(function(c4) {
-      return b2`<option value="${c4}" ?selected=${self._dnsCategoryFilter === c4}>${CAT_LABELS[c4]}</option>`;
-    })}</select><select id="dns-status-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._dnsFilter()"><option value="">${self._t("dns.all_status", "All status")}</option><option value="allowed" ?selected=${self._dnsStatusFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._dnsStatusFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()" ?checked=${self._dnsMaliciousOnly}> ${self._t("dns.malicious_only", "Malicious only")}</label><span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.dns_log_total || 0)} ${self._t("dns.entries", "entries")}</span></div>`;
-    var DNS_PAGE_SIZE = this._dnsPageSize || 25;
-    var dnsPage = this._dnsPage || 0;
-    var totalDnsPages = Math.max(1, Math.ceil(sortedLog.length / DNS_PAGE_SIZE));
-    if (dnsPage >= totalDnsPages) dnsPage = totalDnsPages - 1;
-    var pageLog = sortedLog.slice(dnsPage * DNS_PAGE_SIZE, (dnsPage + 1) * DNS_PAGE_SIZE);
-    var dnsPageStart = sortedLog.length === 0 ? 0 : dnsPage * DNS_PAGE_SIZE + 1;
-    var dnsPageEnd = Math.min(sortedLog.length, (dnsPage + 1) * DNS_PAGE_SIZE);
-    var topPaginationHtml = b2`<div class="row-gap" style="justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap"><div class="row-gap" style="font-size:11px;color:var(--muted)">${self._t("dns.showing", "Showing")} ${dnsPageStart}–${dnsPageEnd} of ${sortedLog.length}</div><div class="row-gap" style="gap:6px"><label class="dim" style="font-size:11px">${self._t("common.rows", "Rows")}</label><select id="hsa-dns-pagesize" class="role-select">${[10, 25, 50, 100].map(function(n4) {
-      return b2`<option value="${n4}" ?selected=${n4 === DNS_PAGE_SIZE}>${n4}</option>`;
-    })}</select><button class="btn" data-dns-page="${dnsPage - 1}" ?disabled=${dnsPage <= 0}>${self._t("common.previous", "Previous")}</button><span class="dim" style="font-size:11px;min-width:70px;text-align:center">${dnsPage + 1} / ${totalDnsPages}</span><button class="btn" data-dns-page="${dnsPage + 1}" ?disabled=${dnsPage >= totalDnsPages - 1}>${self._t("common.next", "Next")}</button></div></div>`;
-    var maliciousCount = log.filter(function(e4) {
-      return e4.malicious;
-    }).length;
-    var summaryBadge = maliciousCount > 0 ? b2`<span class="badge badge-malicious" style="margin-left:8px">${maliciousCount} ${self._t("dns.malicious_badge", "malicious")}</span>` : "";
-    var dnsSortCols = [{
-      key: "time",
-      label: self._t("dns.col_time", "Time")
-    }, {
-      key: "client_ip",
-      label: self._t("dns.col_client_ip", "Client IP")
-    }, {
-      key: "domain",
-      label: self._t("dns.col_domain", "Domain")
-    }, {
-      key: "type",
-      label: self._t("dns.col_type", "Type")
-    }, {
-      key: "category",
-      label: self._t("dns.col_category", "Category")
-    }];
-    var tableHead = b2`<thead><tr>${dnsSortCols.map(function(c4) {
-      var arrow = self._dnsSort === c4.key ? self._dnsSortDir > 0 ? " \u25B2" : " \u25BC" : "";
-      return b2`<th class="sortable-th" data-dnssort="${c4.key}">${c4.label}<span class="sort-arrow">${arrow}</span></th>`;
-    })}<th>${self._t("dns.col_response", "Response")}</th><th>${self._t("dns.col_answer", "Answer")}</th>${(function() {
-      var arrow = self._dnsSort === "status" ? self._dnsSortDir > 0 ? " \u25B2" : " \u25BC" : "";
-      return b2`<th class="sortable-th" data-dnssort="status">${self._t("dns.col_status", "Status")}<span class="sort-arrow">${arrow}</span></th>`;
-    })()}</tr></thead>`;
-    var tableRows = pageLog.map(function(e4) {
-      var ts = e4.timestamp ? new Date(e4.timestamp).toLocaleTimeString() : "\u2014";
-      var ip = e4.src_ip || "\u2014";
-      var dom = e4.domain || "\u2014";
-      var qtype = e4.qtype || "A";
-      var rcode = e4.rcode || "\u2026";
-      var ans = e4.answer ? e4.answer : b2`<span style="color:var(--muted)">—</span>`;
-      var mal = e4.malicious;
-      var cat = (e4.category || "other").toLowerCase();
-      var status = (e4.status || "allowed").toLowerCase();
-      var catColor = CAT_COLORS[cat] || CAT_COLORS["other"];
-      var catLabel = CAT_LABELS[cat] || cat;
-      var catBadge = b2`<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:600;background:${catColor.replace(",1)", ",.18)").replace("rgba(", "rgba(")};color:${catColor};border:1px solid ${catColor.replace(",1)", ",.4)")}">${catLabel}</span>`;
-      var rcodeColor = rcode === "NOERROR" ? "var(--success)" : rcode === "NXDOMAIN" ? "var(--warn)" : rcode === "\u2026" ? "var(--muted)" : "var(--danger)";
-      var statusBadge;
-      if (status === "blocked") {
-        statusBadge = b2`<span class="badge" style="background:rgba(255,77,109,.15);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)">🚫 ${self._t("common.blocked", "Blocked")}</span>`;
-      } else {
-        statusBadge = b2`<span class="badge" style="background:rgba(107,255,200,.12);color:#6bffc8;border:1px solid rgba(107,255,200,.3)">✓ ${self._t("common.allowed", "Allowed")}</span>`;
-      }
-      var rowBg = status === "blocked" ? "rgba(255,77,109,.06)" : mal ? "rgba(255,77,109,.03)" : "";
-      return b2`<tr style=${rowBg ? "background:" + rowBg : A} data-malicious="${mal ? "1" : "0"}" data-cat="${cat}" data-status="${status}" data-ip="${ip.toLowerCase()}" data-domain="${dom.toLowerCase()}"><td class="mono" style="white-space:nowrap;font-size:11px">${ts}</td><td class="mono ip">${ip}</td><td class="mono" style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${dom}">${dom}</td><td><span class="chip">${qtype}</span></td><td>${catBadge}</td><td class="mono" style="font-size:11px;color:${rcodeColor}">${rcode}</td><td class="mono" style="font-size:11px">${ans}</td><td>${statusBadge}</td></tr>`;
-    });
-    var paginationHtml = "";
-    return b2`<div><div class="view-header"><h1>${this._t("page.dns_queries", "DNS Queries")} ${summaryBadge}</h1></div><div class="card table-card"><div style="padding:14px 14px 8px">${filterBar}</div>${topPaginationHtml}<div style="overflow-x:auto"><table class="data-table" id="dns-table" style="min-width:900px">${tableHead}<tbody>${tableRows}</tbody></table></div></div></div>`;
-  }
-  _dnsFilter() {
-    var root = this.shadowRoot;
-    var prevSearch = this._dnsSearch;
-    var prevMalOnly = this._dnsMaliciousOnly;
-    var prevCat = this._dnsCategoryFilter;
-    var prevStatus = this._dnsStatusFilter;
-    this._dnsSearch = ((root.getElementById("dns-search") || {
-      value: ""
-    }).value || "").toLowerCase().trim();
-    this._dnsMaliciousOnly = !!(root.getElementById("dns-malicious-only") || {
-      checked: false
-    }).checked;
-    this._dnsCategoryFilter = (root.getElementById("dns-cat-filter") || {
-      value: ""
-    }).value || "";
-    this._dnsStatusFilter = (root.getElementById("dns-status-filter") || {
-      value: ""
-    }).value || "";
-    var searchChanged = this._dnsSearch !== prevSearch;
-    var otherFiltersChanged = this._dnsMaliciousOnly !== prevMalOnly || this._dnsCategoryFilter !== prevCat || this._dnsStatusFilter !== prevStatus;
-    if (otherFiltersChanged || !searchChanged) {
-      this._dnsPage = 0;
-    }
-    this._render();
-  }
-  _dnsFilteredLog(log) {
-    var search = (this._dnsSearch || "").toLowerCase().trim();
-    var malOnly = !!this._dnsMaliciousOnly;
-    var catFilter = this._dnsCategoryFilter || "";
-    var statusFilter = this._dnsStatusFilter || "";
-    return (log || []).filter(function(e4) {
-      var ip = String(e4.src_ip || "").toLowerCase();
-      var domain = String(e4.domain || "").toLowerCase();
-      var mal = !!e4.malicious;
-      var cat = String(e4.category || "other").toLowerCase();
-      var status = String(e4.status || "allowed").toLowerCase();
-      return (!malOnly || mal) && (!search || ip.indexOf(search) >= 0 || domain.indexOf(search) >= 0) && (!catFilter || cat === catFilter) && (!statusFilter || status === statusFilter);
-    });
-  }
-  _dnsSortedLog(log) {
-    var self = this;
-    var sortKey = this._dnsSort || "time";
-    var sortDir = this._dnsSortDir || -1;
-    var out = (log || []).slice();
-    out.sort(function(a3, b3) {
-      var va;
-      var vb;
-      if (sortKey === "time") {
-        va = Date.parse(a3.timestamp || "") || 0;
-        vb = Date.parse(b3.timestamp || "") || 0;
-      } else if (sortKey === "client_ip") {
-        va = self._dnsIpSortKey(a3.src_ip);
-        vb = self._dnsIpSortKey(b3.src_ip);
-      } else if (sortKey === "domain") {
-        va = String(a3.domain || "").toLowerCase();
-        vb = String(b3.domain || "").toLowerCase();
-      } else if (sortKey === "type") {
-        va = String(a3.qtype || "").toLowerCase();
-        vb = String(b3.qtype || "").toLowerCase();
-      } else if (sortKey === "category") {
-        va = String(a3.category || "other").toLowerCase();
-        vb = String(b3.category || "other").toLowerCase();
-      } else if (sortKey === "status") {
-        va = String(a3.status || "allowed").toLowerCase();
-        vb = String(b3.status || "allowed").toLowerCase();
-      } else {
-        va = "";
-        vb = "";
-      }
-      if (va < vb) return -1 * sortDir;
-      if (va > vb) return 1 * sortDir;
-      var ta = Date.parse(a3.timestamp || "") || 0;
-      var tb = Date.parse(b3.timestamp || "") || 0;
-      if (ta > tb) return -1;
-      if (ta < tb) return 1;
-      return 0;
-    });
-    return out;
-  }
-  _clearBlockedDns(btn) {
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = "Clearing\u2026";
-    }
-    var self = this;
-    this._hass.callApi("POST", "homesec/dns/log/clear_blocked").then(function() {
-      if (self._data && self._data.dns_log) {
-        self._data.dns_log = self._data.dns_log.filter(function(e4) {
-          return !e4.malicious && e4.status !== "blocked";
-        });
-        self._dnsPage = 0;
-        self._render();
-      }
-    }).catch(function() {
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = "\u{1F6AB} Clear blocked";
-      }
-    });
-  }
-  _viewRecs() {
-    var recs = this._data && this._data.recommendations || [];
-    if (!recs.length) return b2`<div><div class="view-header"><h1>${this._t("recs.page_title", "Security Recommendations")}</h1></div><div class="empty-state card" style="height:180px"><div class="empty-icon">✓</div><p>${this._t("recs.no_recommendations", "No recommendations at this time.")}</p></div></div>`;
-    var icons = {
-      critical: "\u{1F6A8}",
-      high: "\u26A0\uFE0F",
-      medium: "\u{1F4A1}",
-      low: "\u2139\uFE0F"
-    };
-    var self = this;
-    function _formatTemplate(template, values) {
-      return template.replace(/\{([a-zA-Z0-9_]+)\}/g, function(_2, key) {
-        return values[key] != null ? String(values[key]) : "";
-      });
-    }
-    function _localizedRec(r4) {
-      var countHosts = r4.hosts && r4.hosts.length || 0;
-      var countFindings = r4.findings_refs && r4.findings_refs.length || 0;
-      switch (r4.category) {
-        case "patch_vulnerable":
-          return {
-            title: self._t("recs.title_patch_vulnerable", "Patch vulnerable devices"),
-            detail: _formatTemplate(self._t("recs.detail_patch_vulnerable", "{n} device(s) have known high or critical CVE vulnerabilities. Update firmware/software or restrict network access immediately."), {
-              n: countHosts || 1
-            })
-          };
-        case "vulnerability":
-          return {
-            title: self._t("recs.title_review_vulnerability_findings", "Review vulnerability findings"),
-            detail: self._t("recs.detail_review_vulnerability_findings", "Active scanning found services with known security issues. Check the findings tab for CVE details and remediation steps.")
-          };
-        case "no_exporter":
-          return {
-            title: self._t("recs.title_connect_exporter", "Connect a flow exporter"),
-            detail: self._t("recs.detail_connect_exporter", "No NetFlow or IPFIX exporters have been observed yet. Configure your gateway, firewall, or switch to export flows to HomeSec.")
-          };
-        case "exporter_unreachable":
-          return {
-            title: self._t("recs.title_verify_exporter", "Verify exporter reachability"),
-            detail: self._t("recs.detail_verify_exporter", "Exporters are configured but HomeSec has not received any datagrams yet. Check exporter target IP/port, firewall rules, and container networking.")
-          };
-        case "bad_flow_format":
-          return {
-            title: self._t("recs.title_check_flow_format", "Check flow export format"),
-            detail: self._t("recs.detail_check_flow_format", "Datagrams are arriving but none produced records. Confirm exporter uses NetFlow v5/v9/IPFIX with IPv4 fields and valid templates.")
-          };
-        case "suspicious_port":
-          return {
-            title: self._t("recs.title_restrict_risky_ports", "Restrict risky outbound ports"),
-            detail: self._t("recs.detail_restrict_risky_ports", "At least one device reached a commonly abused external port such as Telnet or RDP. Block or alert on these ports at the gateway and patch the source device.")
-          };
-        case "port_scan":
-          return {
-            title: self._t("recs.title_isolate_scanning_hosts", "Isolate scanning hosts"),
-            detail: self._t("recs.detail_isolate_scanning_hosts", "A device is touching many ports in a short time window. Move it to an isolated VLAN or guest network until you confirm the behavior is expected.")
-          };
-        case "high_egress":
-          return {
-            title: self._t("recs.title_review_high_egress_devices", "Review high egress devices"),
-            detail: self._t("recs.detail_review_high_egress_devices", "One or more devices exceeded the outbound data threshold. Confirm whether the traffic matches backups, cameras, or media uploads instead of malware or exfiltration.")
-          };
-        case "unknown_roles":
-          return {
-            title: self._t("recs.title_improve_device_identity_coverage", "Improve device identity coverage"),
-            detail: _formatTemplate(self._t("recs.detail_improve_device_identity_coverage", "{n} devices still have unknown roles. Add router, DHCP, or tracker integrations so HomeSec can correlate names, MAC addresses, and hostnames."), {
-              n: countHosts || 1
-            })
-          };
-        case "no_tracker":
-          return {
-            title: self._t("recs.title_enable_device_tracker_enrichment", "Enable device tracker enrichment"),
-            detail: self._t("recs.detail_enable_device_tracker_enrichment", "HomeSec is seeing devices but none were enriched from Home Assistant trackers. Adding router or presence integrations will make the dashboard much more readable.")
-          };
-        case "dropped_datagrams":
-          return {
-            title: self._t("recs.title_stabilize_exporter_templates", "Stabilize exporter templates"),
-            detail: self._t("recs.detail_stabilize_exporter_templates", "Some flow datagrams were dropped or arrived before their templates. Reduce exporter restarts or shorten template refresh intervals on the exporter.")
-          };
-        default:
-          return {
-            title: r4.title,
-            detail: r4.detail
-          };
-      }
-    }
-    function _recDetail(r4) {
-      var hosts = r4.hosts || [];
-      var frefs = r4.findings_refs || [];
-      if (!hosts.length && !frefs.length) return "";
-      var hostRows = hosts.map(function(h3) {
-        var nameHtml = h3.name && h3.name !== h3.ip ? b2`<span style="color:rgba(140,200,255,.85);font-weight:600;margin-left:6px">${h3.name}</span>` : "";
-        var roleHtml = h3.role && h3.role !== "unknown" ? b2`<span class="badge badge-dim" style="margin-left:6px">${h3.role.replace(/_/g, " ")}</span>` : "";
-        var cvesHtml = "";
-        if (h3.cves && h3.cves.length) {
-          cvesHtml = b2`<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">${h3.cves.map(function(c4) {
-            return b2`<a class="ext-report-link" style="cursor:pointer" data-vuln-detail="${c4}">${c4}</a>`;
-          })}</div>`;
-        } else if (h3.vuln_count > 0) {
-          cvesHtml = b2`<span style="font-size:10px;color:var(--muted);margin-left:6px">${h3.vuln_count} CVE${h3.vuln_count !== 1 ? "s" : ""}</span>`;
-        }
-        return b2`<div class="rec-expand-row"><span class="ip">${h3.ip}</span>${nameHtml}${roleHtml}${cvesHtml}</div>`;
-      });
-      var findingRows = frefs.map(function(f3) {
-        var det = f3.detail || {};
-        var port = det.port ? b2`<span class="chip" style="margin-left:6px">port ${det.port}</span>` : "";
-        var cve = det.cve_id ? b2`<a class="ext-report-link" style="cursor:pointer;margin-left:6px" data-vuln-detail="${det.cve_id}">${det.cve_id}</a>` : "";
-        var cnt = f3.count > 1 ? b2`<span style="font-size:10px;color:var(--muted);margin-left:6px">${f3.count}×</span>` : "";
-        return b2`<div class="rec-expand-row">${self._sev(f3.severity)}<span class="ip" style="margin-left:6px">${f3.source_ip}</span>${port}${cve}${cnt}<span style="font-size:11px;color:var(--muted);margin-left:8px">${f3.summary}</span></div>`;
-      });
-      return b2`<div class="rec-expand-panel">${hosts.length ? b2`<div class="rec-expand-section"><div class="rec-expand-label">${self._t("recs.affected_hosts", "Affected hosts")} (${hosts.length})</div><div class="rec-expand-rows">${hostRows}</div></div>` : ""}${frefs.length ? b2`<div class="rec-expand-section"><div class="rec-expand-label">${self._t("recs.related_findings", "Related findings")} (${frefs.length})</div><div class="rec-expand-rows">${findingRows}</div></div>` : ""}</div>`;
-    }
-    return b2`<div><div class="view-header"><h1>${this._t("recs.page_title", "Security Recommendations")}</h1></div>${recs.map(function(r4, idx) {
-      var expanded = self._expandedRec === idx;
-      var hasDetail = r4.hosts && r4.hosts.length || r4.findings_refs && r4.findings_refs.length;
-      var text = _localizedRec(r4);
-      var chevron = hasDetail ? b2`<span style="margin-left:auto;font-size:11px;color:var(--muted);transition:transform .15s;display:inline-block;transform:rotate(${expanded ? "90" : "0"}deg)">▶</span>` : "";
-      return b2`<div class="rec-card${hasDetail ? " rec-card-clickable" : ""}" data-rec-idx=${hasDetail ? idx : A}><div class="rec-icon">${icons[r4.priority] || "\u{1F4A1}"}</div><div style="flex:1;min-width:0"><div class="rec-title">${text.title} ${self._sev(r4.priority)}${chevron}</div><div class="rec-detail">${text.detail}</div>${expanded ? _recDetail(r4) : ""}</div></div>`;
-    })}</div>`;
   }
   // ── Helpers ────────────────────────────────────────────────────────────────
   _stat(v2, label, type) {
@@ -7897,137 +8079,23 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
   _viewLabel(view) {
     return this._t("view." + view, VIEW_LABELS[view] || view);
   }
-  _docsUrlForLanguage() {
-    var lang = this._langCode();
-    if (lang.indexOf("fr") === 0) return "https://domotic.monster/homesec_fr.html";
-    if (lang.indexOf("de") === 0) return "https://domotic.monster/homesec_de.html";
-    return "https://domotic.monster/homesec.html";
-  }
-  // ── Settings view ────────────────────────────────────────────────────
-  _viewSettings() {
-    var self = this;
-    var docsUrl = this._docsUrlForLanguage();
-    var schemaLocale = SETTINGS_SCHEMA_I18N[this._activeLocale()] || null;
-    if (!this._settingsData && !this._settingsLoading) {
-      this._settingsLoading = true;
-      this._settingsRetries = this._settingsRetries || 0;
-      this._hass.callApi("GET", "homesec/settings").then(function(d3) {
-        self._settingsData = d3;
-        self._settingsLoading = false;
-        self._settingsRetries = 0;
-        self._render();
-      }).catch(function(e4) {
-        self._settingsLoading = false;
-        var status = e4 && typeof e4 === "object" ? e4.status_code || e4.status || 0 : 0;
-        if ((status === 404 || status === 0) && self._settingsRetries < 8) {
-          self._settingsRetries++;
-          setTimeout(function() {
-            if (self._view === "settings") {
-              self._settingsLoading = false;
-              self._settingsData = null;
-              self._render();
-            }
-          }, 2e3);
-          return;
-        }
-        self._settingsRetries = 0;
-        var msg;
-        if (typeof e4 === "string") {
-          msg = e4;
-        } else if (e4 instanceof Error) {
-          msg = e4.message;
-        } else if (e4 && typeof e4 === "object") {
-          msg = e4.message || e4.error || e4.body || e4.detail || (typeof e4.status_code === "number" ? "HTTP " + e4.status_code : null) || JSON.stringify(e4);
-        } else {
-          msg = String(e4);
-        }
-        self._settingsMsg = self._t("settings.failed_load", "Failed to load settings: ") + msg;
-        self._settingsMsgType = "error";
-        self._render();
-      });
-      return b2`<div><div class="view-header"><h1>${this._t("settings.title", "Settings")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("settings.loading", "Loading settings\u2026")}</p></div></div>`;
-    }
-    if (this._settingsLoading) {
-      return b2`<div><div class="view-header"><h1>${this._t("settings.title", "Settings")}</h1></div><div class="state-box"><div class="loader"></div><p>${this._t("settings.loading_short", "Loading\u2026")}</p></div></div>`;
-    }
-    var schema = this._settingsData && this._settingsData.schema || [];
-    var config = this._settingsData && this._settingsData.config || {};
-    this._settingsDraft = this._settingsDraft || {};
-    var msgHtml = "";
-    if (this._settingsMsg) {
-      var msgColor = this._settingsMsgType === "error" ? "var(--danger)" : "var(--success)";
-      msgHtml = b2`<div style="background:rgba(0,0,0,.25);border:1px solid ${msgColor};border-radius:8px;padding:10px 14px;margin-bottom:14px;color:${msgColor};font-size:12px">${this._settingsMsg}</div>`;
-    }
-    var dirtyHtml = this._settingsDirty ? b2`<div style="background:rgba(255,179,71,.09);border:1px solid rgba(255,179,71,.4);border-radius:8px;padding:10px 14px;margin-bottom:14px;color:var(--warn);font-size:12px">${this._t("settings.unsaved", "You have unsaved changes.")}</div>` : "";
-    var fieldsHtml = schema.map(function(section) {
-      var rows = (section.fields || []).map(function(f3) {
-        var cfgVal = config[f3.key] !== void 0 ? config[f3.key] : f3.default !== void 0 ? f3.default : "";
-        var hasDraft = Object.prototype.hasOwnProperty.call(self._settingsDraft, f3.key);
-        var val = hasDraft ? self._settingsDraft[f3.key] : cfgVal;
-        var inputHtml = "";
-        if (f3.type === "boolean" || f3.type === "bool") {
-          var checked = val === true || val === "true" || val === 1 || val === "1";
-          inputHtml = b2`<input type="checkbox" id="hsa-setting-${f3.key}"  ?checked=${checked} style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">`;
-        } else if (f3.type === "number") {
-          inputHtml = b2`<input type="number" id="hsa-setting-${f3.key}" value="${String(val)}" min=${o5(f3.min)} max=${o5(f3.max)} style="width:160px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">`;
-        } else if (f3.type === "password") {
-          inputHtml = b2`<input type="password" id="hsa-setting-${f3.key}" value="${String(val)}" style="width:340px;max-width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">`;
-        } else {
-          inputHtml = b2`<input type="text" id="hsa-setting-${f3.key}" value="${String(val)}" style="width:340px;max-width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:4px 8px;font-family:inherit">`;
-        }
-        return b2`<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid rgba(98,232,255,.04)"><div style="flex:0 0 240px;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${schemaLocale && schemaLocale.labels && schemaLocale.labels[f3.key] || f3.label}</div>${f3.help ? b2`<div style="font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4">${schemaLocale && schemaLocale.helps && schemaLocale.helps[f3.key] || f3.help}</div>` : ""}</div><div style="flex:1;min-width:0">${inputHtml}</div></div>`;
-      });
-      return b2`<div class="card" style="margin-bottom:12px"><div class="card-title">${schemaLocale && schemaLocale.sections && schemaLocale.sections[section.section] || section.section}</div>${rows}</div>`;
-    });
-    var linksCard = b2`<div class="card" style="margin-top:14px"><div class="card-title">${this._t("settings.links", "Links")}</div><div style="font-size:12px;color:var(--text);line-height:1.7">${this._t("settings.project", "Project")}: <a class="ext-report-link" href="https://github.com/domo-monster/HomeSecurityAssistant" target="_blank" rel="noopener noreferrer">${this._t("settings.github_repo", "GitHub Repository")}</a><br>${this._t("settings.documentation", "Documentation")}: <a class="ext-report-link" href="${docsUrl}" target="_blank" rel="noopener noreferrer">${this._t("settings.open_documentation", "Open Documentation")}</a></div></div>`;
-    return b2`<div><div class="view-header"><h1>${this._t("settings.title", "Settings")}</h1><div style="font-size:11px;color:var(--muted)">${this._t("settings.subtitle", "Changes take effect after reloading the integration.")}</div></div>${msgHtml}${dirtyHtml}${fieldsHtml}<div style="margin-top:6px"><button class="btn" data-settings-save style="padding:6px 18px;font-size:12px">${this._t("settings.save", "Save settings")}</button> <button class="btn" data-settings-reset style="font-size:11px;opacity:.6">${this._t("settings.reload_server", "Reload from server")}</button></div>${linksCard}</div>`;
-  }
-  _onSettingsSave() {
-    var self = this;
-    var schema = this._settingsData && this._settingsData.schema || [];
-    var payload = {};
-    var root = this.shadowRoot;
-    schema.forEach(function(section) {
-      (section.fields || []).forEach(function(f3) {
-        var el = root && root.getElementById("hsa-setting-" + f3.key);
-        if (!el) return;
-        if (f3.type === "boolean" || f3.type === "bool") {
-          payload[f3.key] = el.checked;
-        } else if (f3.type === "number") {
-          payload[f3.key] = Number(el.value);
-        } else {
-          payload[f3.key] = el.value;
-        }
-      });
-    });
-    this._hass.callApi("POST", "homesec/settings/save", payload).then(function() {
-      self._settingsMsg = self._t("settings.saved_reload", "Settings saved. Changes are applied in a moment (some require a short integration reload).");
-      self._settingsMsgType = "ok";
-      self._settingsDraft = {};
-      self._settingsDirty = false;
-      self._pendingView = null;
-      self._unregisterBeforeUnload();
-      if (self._settingsData && self._settingsData.config) {
-        Object.assign(self._settingsData.config, payload);
-      }
-      self._render();
-    }).catch(function(e4) {
-      var msg;
-      if (typeof e4 === "string") {
-        msg = e4;
-      } else if (e4 instanceof Error) {
-        msg = e4.message;
-      } else if (e4 && typeof e4 === "object") {
-        msg = e4.body && typeof e4.body === "object" && e4.body.error || e4.message || e4.error || (typeof e4.body === "string" ? e4.body : null) || e4.detail || (typeof e4.status_code === "number" ? "HTTP " + e4.status_code : null) || JSON.stringify(e4);
-      } else {
-        msg = String(e4);
-      }
-      self._settingsMsg = self._t("settings.failed_save", "Failed to save settings: ") + msg;
-      self._settingsMsgType = "error";
-      self._render();
-    });
-  }
 };
+Object.assign(
+  HomeSecurityAssistantPanel.prototype,
+  overviewMethods,
+  chartsMethods,
+  statisticsMethods,
+  mapMethods,
+  hostsMethods,
+  findingsMethods,
+  externalMethods,
+  vulnerabilitiesMethods,
+  suricataMethods,
+  dnsMethods,
+  recommendationsMethods,
+  settingsMethods,
+  editorMethods
+);
 if (!customElements.get("homesec-panel")) {
   customElements.define("homesec-panel", HomeSecurityAssistantPanel);
 }

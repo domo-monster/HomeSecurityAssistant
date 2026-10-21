@@ -54,7 +54,46 @@ async function checkClean(page, errors) {
   expect(visible, "template objects rendered as text").not.toContain("[object Object]");
 }
 
+// Normalised DOM: tags, sorted attributes and whitespace-collapsed text,
+// ignoring Lit's comment markers. Independent of fonts and platform.
+async function domSnapshot(page) {
+  return page.locator("homesec-panel").evaluate((el) => {
+    const out = [];
+    const walk = (node, depth) => {
+      let text = "";
+      const flush = () => {
+        const t = text.replace(/\s+/g, " ");
+        if (t.trim()) out.push("  ".repeat(depth) + "#" + t);
+        text = "";
+      };
+      for (const c of node.childNodes) {
+        if (c.nodeType === 8) continue;
+        if (c.nodeType === 3) { text += c.textContent; continue; }
+        if (c.nodeType !== 1 || c.tagName === "STYLE") continue;
+        flush();
+        // Inline styles use the browser's canonical form: Playwright's caret
+        // hiding rewrites (or empties) the style of a focused input.
+        const attrs = [...c.attributes]
+          .map((a) => [a.name, a.name === "style" ? c.style.cssText : a.value])
+          .filter(([name, value]) => !(name === "style" && !value.trim()))
+          .map(([name, value]) => `${name}=${value.replace(/\s+/g, " ").trim()}`)
+          .sort()
+          .join(" ");
+        out.push("  ".repeat(depth) + "<" + c.tagName.toLowerCase() + (attrs ? " " + attrs : "") + ">");
+        walk(c, depth + 1);
+      }
+      flush();
+    };
+    walk(el.shadowRoot.querySelector(".app"), 0);
+    return out.join("\n") + "\n";
+  });
+}
+
 async function snap(page, name) {
+  expect(await domSnapshot(page)).toMatchSnapshot(`${name}.dom.txt`);
+  // Pixel comparison depends on installed fonts: run it where the baselines
+  // were made (developer machines), skip it on CI runners.
+  if (process.env.SKIP_SCREENSHOTS) return;
   await page.evaluate(() => document.fonts && document.fonts.ready);
   await expect(page.locator("homesec-panel")).toHaveScreenshot(`${name}.png`, { fullPage: false });
 }

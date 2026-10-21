@@ -17,13 +17,13 @@ import json
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
-from homeassistant.core import HomeAssistant
-from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.homesec.const import DOMAIN
 from custom_components.homesec.netflow import FlowRecord
 from custom_components.homesec.scanner import ScannedHost
+from homeassistant.core import HomeAssistant
+from homeassistant.setup import async_setup_component
 
 OUT = Path(__file__).parent
 XSS = '<img src=x onerror="window.__xss=1">'
