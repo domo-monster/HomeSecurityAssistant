@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .baseline import BASELINE_MODE_ACTIVE, BASELINE_MODE_DISABLED, BaselineManager
@@ -115,6 +116,7 @@ from .const import (
     DEFAULT_VT_ABUSEIPDB_THRESHOLD,
     DNS_LOG_MAX_ENTRIES,
     DOMAIN,
+    SIGNAL_DASHBOARD_UPDATED,
     SURICATA_LOG_MAX_ENTRIES,
     get_entry_float,
     get_entry_int,
@@ -1594,6 +1596,11 @@ class HomeSecCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         self.collector = collector
         collector._post_scan_refresh = self.async_request_refresh
+
+    def async_update_listeners(self) -> None:
+        """Notify entities, then open dashboard subscriptions."""
+        super().async_update_listeners()
+        async_dispatcher_send(self.hass, SIGNAL_DASHBOARD_UPDATED)
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:

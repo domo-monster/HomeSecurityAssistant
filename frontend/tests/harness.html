@@ -23,8 +23,24 @@
     "GET homesec/vulnerabilities": fixtures.vulnerabilities,
     "GET homesec/settings": fixtures.settings,
   };
+  // Websocket push (homesec/subscribe_dashboard); ?transport=poll removes it
+  const subscribers = new Set();
+  window.__push = (changed) => subscribers.forEach((cb) => cb({ changed: structuredClone(changed) }));
+  const connection = {
+    subscribeMessage: async (cb, msg) => {
+      window.__calls.push({ method: "WS", path: msg.type });
+      subscribers.add(cb);
+      setTimeout(() => cb({ full: structuredClone(dashboard) }), 0);
+      return async () => subscribers.delete(cb);
+    },
+  };
   const hass = {
     language: params.get("lang") || "en",
+    connection: params.get("transport") === "poll" ? undefined : connection,
+    callWS: async (msg) => {
+      window.__calls.push({ method: "WS", path: msg.type });
+      return null;
+    },
     callApi: async (method, path, body) => {
       window.__calls.push({ method, path, body });
       if (path.startsWith("homesec/lookup")) return fixtures.lookup;

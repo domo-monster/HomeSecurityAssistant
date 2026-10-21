@@ -8,11 +8,13 @@ import re as _re
 from typing import Any
 
 from aiohttp import web
+import voluptuous as vol
 
-from homeassistant.components import panel_custom
+from homeassistant.components import panel_custom, websocket_api
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.http.view import HomeAssistantView
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 
 from .const import (
     CONF_BASELINE_ENABLED,
@@ -27,6 +29,7 @@ from .const import (
     DEFAULT_STATS_TOP_N,
     DEFAULT_WEBUI_REQUIRE_ADMIN,
     DOMAIN,
+    SIGNAL_DASHBOARD_UPDATED,
     get_entry_value,
 )
 from .settings_schema import (
@@ -96,24 +99,25 @@ def _first_runtime(hass: HomeAssistant) -> dict[str, Any] | None:
     return next(iter(_runtimes(hass).values()), None)
 
 
-def _access_denied(request: web.Request, *, write: bool) -> web.Response | None:
-    """Return a 403 response unless the user may perform this request.
-
-    Changing state always needs an admin.  Reading needs an admin unless the
-    "Sidebar panel requires admin" setting was turned off.
-    """
-    user = request.get("hass_user")
+def _user_allowed(hass: HomeAssistant, user: Any, *, write: bool) -> bool:
+    """Changing state needs an admin; reading too, unless the panel is open to all users."""
     if user is not None and getattr(user, "is_admin", False):
+        return True
+    if user is None or write:
+        return False
+    runtime = _first_runtime(hass)
+    require_admin = DEFAULT_WEBUI_REQUIRE_ADMIN
+    if runtime is not None:
+        require_admin = bool(
+            get_entry_value(runtime["entry"], CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
+        )
+    return not require_admin
+
+
+def _access_denied(request: web.Request, *, write: bool) -> web.Response | None:
+    """Return a 403 response unless the user may perform this request."""
+    if _user_allowed(request.app["hass"], request.get("hass_user"), write=write):
         return None
-    if user is not None and not write:
-        runtime = _first_runtime(request.app["hass"])
-        require_admin = DEFAULT_WEBUI_REQUIRE_ADMIN
-        if runtime is not None:
-            require_admin = bool(
-                get_entry_value(runtime["entry"], CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
-            )
-        if not require_admin:
-            return None
     return web.json_response({"error": "Admin privileges required"}, status=403)
 
 
@@ -162,6 +166,8 @@ async def async_setup_dashboard(hass: HomeAssistant, require_admin: bool = True)
             HomeSecSettingsSaveView(),
         ):
             hass.http.register_view(view)
+        websocket_api.async_register_command(hass, ws_subscribe_dashboard)
+        websocket_api.async_register_command(hass, ws_refresh_dashboard)
         domain_data["views_registered"] = True
 
     if domain_data.get("panel_registered"):
@@ -593,7 +599,81 @@ def build_dashboard_payload(
         "blacklist_stats": _build_blacklist_stats(entries),
         "suricata_stats": _build_suricata_stats(entries),
         "suricata_log": full_suricata_log[:suricata_limit],
+        **build_log_stats(full_dns_log, full_suricata_log, TOP_N),
         "suricata_log_total": len(full_suricata_log),
+    }
+
+
+def build_log_stats(
+    dns_log: list[dict[str, Any]], suricata_log: list[dict[str, Any]], top_n: int
+) -> dict[str, Any]:
+    """Aggregate the full DNS and Suricata logs for the panel's charts.
+
+    Both logs are newest-first.  Ties keep first-seen order (as the panel's
+    own counting did), and a domain's category is taken from its newest entry.
+    """
+    dns_total = dns_malicious = dns_blocked = 0
+    by_category: dict[str, int] = {}
+    by_client: dict[str, int] = {}
+    by_domain: dict[str, int] = {}
+    domain_category: dict[str, str] = {}
+    for e in dns_log:
+        dns_total += 1
+        malicious = bool(e.get("malicious"))
+        blocked = e.get("status") == "blocked"
+        if malicious:
+            dns_malicious += 1
+        if blocked:
+            dns_blocked += 1
+        if not (malicious or blocked):
+            continue
+        category = str(e.get("category") or "other").lower()
+        by_category[category] = by_category.get(category, 0) + 1
+        client = str(e.get("src_ip") or "").strip()
+        if client:
+            by_client[client] = by_client.get(client, 0) + 1
+        domain = e.get("domain")
+        if domain:
+            by_domain[domain] = by_domain.get(domain, 0) + 1
+    for e in dns_log:
+        domain = e.get("domain")
+        if domain in by_domain and domain not in domain_category:
+            domain_category[domain] = str(e.get("category") or "other")
+
+    sev_counts: dict[int, int] = {}
+    sur_category: dict[str, int] = {}
+    sur_source: dict[str, int] = {}
+    for e in suricata_log:
+        severity = e.get("severity")
+        if isinstance(severity, int):
+            sev_counts[severity] = sev_counts.get(severity, 0) + 1
+        category = str(e.get("category") or "Other")
+        sur_category[category] = sur_category.get(category, 0) + 1
+        source = str(e.get("src_ip") or "unknown")
+        sur_source[source] = sur_source.get(source, 0) + 1
+
+    def ranked(counts: dict[str, int], limit: int | None = None) -> list[tuple[str, int]]:
+        items = sorted(counts.items(), key=lambda kv: -kv[1])  # stable: ties keep first-seen order
+        return items[:limit] if limit else items
+
+    return {
+        "dns_log_stats": {
+            "total": dns_total,
+            "malicious": dns_malicious,
+            "blocked": dns_blocked,
+            "blocked_by_category": [{"cat": k, "count": v} for k, v in ranked(by_category)],
+            "blocked_by_client": [{"ip": k, "count": v} for k, v in ranked(by_client, top_n)],
+            "top_blocked_domains": [
+                {"domain": k, "count": v, "category": domain_category.get(k, "other")}
+                for k, v in ranked(by_domain, top_n)
+            ],
+        },
+        "suricata_log_stats": {
+            "total": len(suricata_log),
+            "by_severity": {str(k): v for k, v in sorted(sev_counts.items())},
+            "by_category": [{"category": k, "count": v} for k, v in ranked(sur_category)],
+            "top_sources": [{"ip": k, "count": v} for k, v in ranked(sur_source, top_n)],
+        },
     }
 
 
@@ -825,6 +905,41 @@ def _build_recommendations(
     return recommendations[:8]
 
 
+async def async_dashboard_payload(
+    hass: HomeAssistant,
+    dns_offset: int = 0,
+    dns_limit: int = DASHBOARD_LOG_LIMIT,
+    suricata_limit: int = DASHBOARD_LOG_LIMIT,
+) -> dict[str, Any]:
+    """Dashboard payload shared by the HTTP endpoint and the websocket push."""
+    first = _first_runtime(hass)
+    runtime = first["runtime"] if first else None
+    if runtime is not None and runtime.chart_state is None:
+        runtime.chart_state = await runtime.collector.storage.async_load("chart_state", {})
+    payload = build_dashboard_payload(
+        hass,
+        runtime.chart_state if runtime is not None else {},
+        dns_offset=dns_offset,
+        dns_limit=dns_limit,
+        suricata_limit=suricata_limit,
+    )
+    payload["panel_require_admin"] = bool(
+        get_entry_value(first["entry"], CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
+    ) if first is not None else DEFAULT_WEBUI_REQUIRE_ADMIN
+    if runtime is not None:
+        chart_state = {
+            "top_public_ips": payload.get("top_public_ips", []),
+            "top_countries": payload.get("top_countries", []),
+            "top_internal_talkers": payload.get("top_internal_talkers", []),
+            "top_threat_ips": payload.get("top_threat_ips", []),
+        }
+        # Only write when the top lists actually changed (not on every update)
+        if chart_state != runtime.chart_state:
+            runtime.chart_state = chart_state
+            runtime.collector.storage.async_delay_save("chart_state", lambda: chart_state, 60)
+    return payload
+
+
 class HomeSecDashboardView(HomeAssistantView):
     url = "/api/homesec/dashboard"
     name = "api:homesec:dashboard"
@@ -833,36 +948,92 @@ class HomeSecDashboardView(HomeAssistantView):
     async def get(self, request):
         if (denied := _access_denied(request, write=False)) is not None:
             return denied
-        hass = request.app["hass"]
-        first = _first_runtime(hass)
-        runtime = first["runtime"] if first else None
-
-        if runtime is not None and runtime.chart_state is None:
-            runtime.chart_state = await runtime.collector.storage.async_load("chart_state", {})
-        payload = build_dashboard_payload(
-            hass,
-            runtime.chart_state if runtime is not None else {},
+        payload = await async_dashboard_payload(
+            request.app["hass"],
             dns_offset=_parse_offset(request.query.get("dns_offset")),
             dns_limit=_parse_limit(request.query.get("dns_limit"), DASHBOARD_LOG_LIMIT),
             suricata_limit=_parse_limit(request.query.get("suricata_limit"), DASHBOARD_LOG_LIMIT),
         )
-        payload["panel_require_admin"] = bool(
-            get_entry_value(first["entry"], CONF_WEBUI_REQUIRE_ADMIN, DEFAULT_WEBUI_REQUIRE_ADMIN)
-        ) if first is not None else DEFAULT_WEBUI_REQUIRE_ADMIN
-        if runtime is not None:
-            chart_state = {
-                "top_public_ips": payload.get("top_public_ips", []),
-                "top_countries": payload.get("top_countries", []),
-                "top_internal_talkers": payload.get("top_internal_talkers", []),
-                "top_threat_ips": payload.get("top_threat_ips", []),
-            }
-            # Only write when the top lists actually changed (not on every poll)
-            if chart_state != runtime.chart_state:
-                runtime.chart_state = chart_state
-                runtime.collector.storage.async_delay_save(
-                    "chart_state", lambda: chart_state, 60
-                )
         return self.json(payload)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "homesec/subscribe_dashboard",
+        vol.Optional("dns_limit"): vol.All(vol.Coerce(int), vol.Range(min=0)),
+        vol.Optional("suricata_limit"): vol.All(vol.Coerce(int), vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_subscribe_dashboard(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Push the dashboard: everything once, then only sections that changed.
+
+    Events are ``{"full": payload}`` first, then ``{"changed": {key: value}}``
+    after each coordinator refresh where at least one top-level key changed.
+    """
+    if not _user_allowed(hass, connection.user, write=False):
+        connection.send_error(msg["id"], websocket_api.ERR_UNAUTHORIZED, "Admin privileges required")
+        return
+    dns_limit = _parse_limit(str(msg.get("dns_limit", "")), DASHBOARD_LOG_LIMIT)
+    suricata_limit = _parse_limit(str(msg.get("suricata_limit", "")), DASHBOARD_LOG_LIMIT)
+    sent: dict[str, str] = {}
+    state = {"busy": False, "again": False}
+
+    def _encode(value: Any) -> str:
+        return json.dumps(value, sort_keys=True, default=str)
+
+    async def _push(full: bool) -> None:
+        payload = await async_dashboard_payload(hass, dns_limit=dns_limit, suricata_limit=suricata_limit)
+        if full:
+            sent.update({key: _encode(value) for key, value in payload.items()})
+            connection.send_message(websocket_api.event_message(msg["id"], {"full": payload}))
+            return
+        changed = {}
+        for key, value in payload.items():
+            encoded = _encode(value)
+            if sent.get(key) != encoded:
+                sent[key] = encoded
+                changed[key] = value
+        if changed:
+            connection.send_message(websocket_api.event_message(msg["id"], {"changed": changed}))
+
+    async def _push_changes() -> None:
+        # Coalesce refreshes that arrive while a push is being built
+        if state["busy"]:
+            state["again"] = True
+            return
+        state["busy"] = True
+        try:
+            while True:
+                state["again"] = False
+                await _push(full=False)
+                if not state["again"]:
+                    break
+        finally:
+            state["busy"] = False
+
+    @callback
+    def _on_update() -> None:
+        hass.async_create_task(_push_changes(), "homesec dashboard push")
+
+    connection.subscriptions[msg["id"]] = async_dispatcher_connect(hass, SIGNAL_DASHBOARD_UPDATED, _on_update)
+    connection.send_result(msg["id"])
+    await _push(full=True)
+
+
+@websocket_api.websocket_command({vol.Required("type"): "homesec/refresh_dashboard"})
+@callback
+def ws_refresh_dashboard(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Ask open subscriptions to push changes now (after a user action)."""
+    if not _user_allowed(hass, connection.user, write=False):
+        connection.send_error(msg["id"], websocket_api.ERR_UNAUTHORIZED, "Admin privileges required")
+        return
+    async_dispatcher_send(hass, SIGNAL_DASHBOARD_UPDATED)
+    connection.send_result(msg["id"])
 
 
 class HomeSecPanelFallbackView(HomeAssistantView):

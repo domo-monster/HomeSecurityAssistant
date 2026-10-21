@@ -159,6 +159,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - Checks every queried **domain** against the loaded threat-intel blacklists and blocks known-malicious lookups
 - **Per-category blocking** — optionally restrict entire categories (e.g. `malware`, `phishing`, `ads`) from configured blocklist feeds
 - **Source filtering** (`check_sources`) — optionally limit blocking to queries forwarded from specific upstream resolvers
+- **Answer cache** — allowed answers from the upstream resolver are cached (up to 2,048 entries, at most 5 minutes and never beyond the record TTL, with TTLs counted down), so repeated lookups are answered locally. Every query is still checked and logged; the DNS proxy status reports `cache_entries` and `cache_hits`
 - **DNS overrides** — define custom `domain=ip` rules to resolve specific hostnames to fixed IPs, useful for local split-DNS or ad-hoc redirects
 - Maintains a rolling **DNS query log** (configurable retention; up to 10 000 entries in memory) showing timestamp, client IP, queried domain, query type, verdict (allowed / blocked), and matched source feed
 - Fires a `homesec_malicious_dns` HA event whenever a blocked domain is queried, with src IP, domain, query type, and source feed
@@ -205,7 +206,7 @@ A dedicated multi-view single-page application registered in the HA sidebar:
 - **DNS Queries** — paginated DNS query log (default 25 rows per page, adjustable to 10/25/50/100) with global filters for domain/client IP, verdict, category, and malicious-only. Includes a **Blocked / Malicious by Category** pie chart and a **🚫 Clear blocked** button to remove all blocked entries from the log in one click. Hidden when the DNS proxy is disabled.
 - **Recommendations** — prioritized hardening suggestions based on current network state; expandable cards show affected hosts and related findings
 
-The dashboard auto-refreshes every 30 seconds. The network map updates live without resetting the physics simulation.
+The dashboard is pushed over Home Assistant's websocket: after each coordinator update (and right after an action such as dismissing a finding) the backend sends only the parts that changed. Updates pause while the browser tab is hidden. Without a websocket connection the panel falls back to refreshing every 30 seconds. Statistics rankings are computed by the backend over the full DNS and Suricata logs, so the panel no longer downloads and counts them. The network map updates live without resetting the physics simulation.
 
 ### Brand Icons
 Custom integration icons (including dark mode variants) are shipped in the `brand/` subdirectory of the component. Home Assistant 2026.3+ automatically serves them through the local brands API — no external CDN or brands repository submission required.

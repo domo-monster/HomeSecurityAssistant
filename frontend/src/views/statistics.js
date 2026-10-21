@@ -16,7 +16,9 @@ export const statisticsMethods = {
     var COLORS = ['#8f86ff', '#3ac5c9', '#6bffc8', '#ffc107', '#ff8c42', '#ff4d6d', '#7fb3f5', '#d4a843', '#a8e063', '#f472b6', '#60a5fa', '#34d399', '#fb923c', '#a78bfa', '#22d3ee'];
   
     // ── Suricata pie data ─────────────────────────────────────────────
-    var suricataLogStats = this._data && this._data.suricata_log || [];
+    // Counts are computed by the server over the full logs (not just the
+    // entries the dashboard sends).
+    var sucStats = this._data && this._data.suricata_log_stats || {};
     var SUC_SEV_COLORS = ['rgba(255,77,109,1)', 'rgba(255,179,71,1)', 'rgba(107,255,200,1)'];
     var SUC_CAT_PALETTE = ['rgba(255,77,109,1)', 'rgba(255,179,71,1)', 'rgba(107,255,200,1)', 'rgba(98,232,255,1)', 'rgba(191,111,255,1)', 'rgba(59,178,255,1)', 'rgba(72,199,142,1)', 'rgba(255,159,67,1)'];
     var SUC_SRC_PALETTE = ['rgba(98,232,255,1)', 'rgba(59,178,255,1)', 'rgba(72,199,142,1)', 'rgba(191,111,255,1)', 'rgba(255,179,71,1)', 'rgba(255,77,109,1)', 'rgba(107,255,200,1)', 'rgba(155,135,245,1)'];
@@ -25,50 +27,33 @@ export const statisticsMethods = {
       2: this._t('suricata.sev_major', 'Major'),
       3: this._t('suricata.sev_minor', 'Minor')
     };
+    var sucBySeverity = sucStats.by_severity || {};
     var sucSevData = [1, 2, 3].filter(function (s) {
-      return suricataLogStats.some(function (e) {
-        return e.severity === s;
-      });
+      return sucBySeverity[s] > 0;
     }).map(function (s) {
       return {
         label: sucSevLabels[s],
-        value: suricataLogStats.filter(function (e) {
-          return e.severity === s;
-        }).length
+        value: sucBySeverity[s]
       };
     });
-    var sucCatCounts = {};
     var sucCatColors = [];
     var nameMap = {};
     (this._data && this._data.devices || []).forEach(function (d) {
       nameMap[d.ip] = d.display_name || d.hostname || d.ip;
     });
-    suricataLogStats.forEach(function (e) {
-      var c = e.category || 'Other';
-      sucCatCounts[c] = (sucCatCounts[c] || 0) + 1;
-    });
-    var sucCatData = Object.keys(sucCatCounts).sort(function (a, b) {
-      return sucCatCounts[b] - sucCatCounts[a];
-    }).map(function (k, i) {
+    var sucCatData = (sucStats.by_category || []).map(function (x, i) {
       sucCatColors.push(SUC_CAT_PALETTE[i % SUC_CAT_PALETTE.length]);
       return {
-        label: k,
-        value: sucCatCounts[k]
+        label: x.category,
+        value: x.count
       };
     });
-    var sucSrcCounts = {};
-    suricataLogStats.forEach(function (e) {
-      var ip = e.src_ip || 'unknown';
-      sucSrcCounts[ip] = (sucSrcCounts[ip] || 0) + 1;
-    });
-    var sucSrcData = Object.keys(sucSrcCounts).sort(function (a, b) {
-      return sucSrcCounts[b] - sucSrcCounts[a];
-    }).slice(0, topN).map(function (k) {
-      var name = nameMap[k] || k;
-      var label = name === k ? k : name + ' (' + k + ')';
+    var sucSrcData = (sucStats.top_sources || []).slice(0, topN).map(function (x) {
+      var name = nameMap[x.ip] || x.ip;
+      var label = name === x.ip ? x.ip : name + ' (' + x.ip + ')';
       return {
         label: label,
-        value: sucSrcCounts[k]
+        value: x.count
       };
     });
   
@@ -309,6 +294,7 @@ export const statisticsMethods = {
     // ── DNS activity ──────────────────────────────────────────────────
     var dnsLog = this._data && this._data.dns_log || [];
     var dnsStats = this._data && this._data.dns_proxy_stats || {};
+    var dnsLogStats = this._data && this._data.dns_log_stats || {};
   
     // Hourly stacked bar chart — built from timeseries points so data persists
     // beyond the raw-log retention window.
@@ -390,34 +376,7 @@ export const statisticsMethods = {
     }();
   
     // Top N malicious/blocked domains (uses configured statistics topN)
-    var topMalDomains = [];
-    (function () {
-      var counts = {};
-      for (var i = 0; i < dnsLog.length; i++) {
-        var e = dnsLog[i];
-        if ((e.malicious || e.status === 'blocked') && e.domain) {
-          counts[e.domain] = (counts[e.domain] || 0) + 1;
-        }
-      }
-      topMalDomains = Object.keys(counts).map(function (d) {
-        var cat = 'other';
-        for (var i = 0; i < dnsLog.length; i++) {
-          if (dnsLog[i].domain === d) {
-            cat = dnsLog[i].category || 'other';
-            break;
-          }
-        }
-        return {
-          domain: d,
-          count: counts[d],
-          category: cat
-        };
-      });
-      topMalDomains.sort(function (a, b) {
-        return b.count - a.count;
-      });
-      topMalDomains = topMalDomains.slice(0, topN);
-    })();
+    var topMalDomains = (dnsLogStats.top_blocked_domains || []).slice(0, topN);
     var dnsTopMalHtml;
     if (!topMalDomains.length) {
       dnsTopMalHtml = html`<div class="empty-state"><div class="empty-icon" style="font-size:22px">✅</div><p style="margin:8px 0">${this._t('stats.no_dns_detected', 'No malicious or blocked DNS queries detected')}</p></div>`;
@@ -484,22 +443,7 @@ export const statisticsMethods = {
       override: 'Override',
       other: 'Other'
     };
-    var _dnsCatCounts = {};
-    for (var _dci = 0; _dci < dnsLog.length; _dci++) {
-      var _dce = dnsLog[_dci];
-      if (_dce.malicious || _dce.status === 'blocked') {
-        var _dcc = (_dce.category || 'other').toLowerCase();
-        _dnsCatCounts[_dcc] = (_dnsCatCounts[_dcc] || 0) + 1;
-      }
-    }
-    var _dnsCatItems = Object.keys(_dnsCatCounts).map(function (c) {
-      return {
-        cat: c,
-        count: _dnsCatCounts[c]
-      };
-    }).sort(function (a, b) {
-      return b.count - a.count;
-    });
+    var _dnsCatItems = dnsLogStats.blocked_by_category || [];
     var _dnsCatTotal = _dnsCatItems.reduce(function (s, x) {
       return s + x.count;
     }, 0);
@@ -531,23 +475,7 @@ export const statisticsMethods = {
     }
   
     // ── Top blocked/malicious DNS queries by client (pie) ───────────
-    var _dnsClientCounts = {};
-    for (var _dsi = 0; _dsi < dnsLog.length; _dsi++) {
-      var _dse = dnsLog[_dsi];
-      if (_dse.malicious || _dse.status === 'blocked') {
-        var _src = String(_dse.src_ip || '').trim();
-        if (!_src) continue;
-        _dnsClientCounts[_src] = (_dnsClientCounts[_src] || 0) + 1;
-      }
-    }
-    var _dnsClientItems = Object.keys(_dnsClientCounts).map(function (ip) {
-      return {
-        ip: ip,
-        count: _dnsClientCounts[ip]
-      };
-    }).sort(function (a, b) {
-      return b.count - a.count;
-    }).slice(0, topN);
+    var _dnsClientItems = (dnsLogStats.blocked_by_client || []).slice(0, topN);
     var _dnsClientTotal = _dnsClientItems.reduce(function (s, x) {
       return s + x.count;
     }, 0);

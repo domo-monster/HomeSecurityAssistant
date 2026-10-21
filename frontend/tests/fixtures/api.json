@@ -3051,6 +3051,43 @@
   ],
   "dns_log_limit": 2000,
   "dns_log_offset": 0,
+  "dns_log_stats": {
+   "blocked": 20,
+   "blocked_by_category": [
+    {
+     "cat": "malware",
+     "count": 10
+    },
+    {
+     "cat": "ads",
+     "count": 10
+    }
+   ],
+   "blocked_by_client": [
+    {
+     "count": 10,
+     "ip": "192.168.1.12"
+    },
+    {
+     "count": 10,
+     "ip": "192.168.1.11"
+    }
+   ],
+   "malicious": 10,
+   "top_blocked_domains": [
+    {
+     "category": "malware",
+     "count": 10,
+     "domain": "c2.evil.example"
+    },
+    {
+     "category": "ads",
+     "count": 10,
+     "domain": "ads.doubleclick.net"
+    }
+   ],
+   "total": 60
+  },
   "dns_log_total": 60,
   "dns_proxy_enabled": false,
   "dns_proxy_stats": {
@@ -4270,6 +4307,30 @@
     "timestamp": "2026-10-21T05:12:03.103688+00:00"
    }
   ],
+  "suricata_log_stats": {
+   "by_category": [
+    {
+     "category": "Attempted Information Leak",
+     "count": 30
+    }
+   ],
+   "by_severity": {
+    "1": 10,
+    "2": 10,
+    "3": 10
+   },
+   "top_sources": [
+    {
+     "count": 15,
+     "ip": "185.220.101.5"
+    },
+    {
+     "count": 15,
+     "ip": "192.168.1.15"
+    }
+   ],
+   "total": 30
+  },
   "suricata_log_total": 30,
   "suricata_stats": {
    "running": false

@@ -45,11 +45,9 @@ export const overviewMethods = {
     // Suricata stats for overview cards
     var suricataEnabledOv = this._data && this._data.suricata_stats && this._data.suricata_stats.running || false;
     var suricataStatsOv = this._data && this._data.suricata_stats || {};
-    var suricataLogOv = this._data && this._data.suricata_log || [];
-    var suricataTotalOv = suricataLogOv.length;
-    var suricataCritOv = suricataLogOv.filter(function (e) {
-      return e.severity === 1;
-    }).length;
+    var suricataLogStatsOv = this._data && this._data.suricata_log_stats || {};
+    var suricataTotalOv = suricataLogStatsOv.total || 0;
+    var suricataCritOv = (suricataLogStatsOv.by_severity || {})[1] || 0;
   
     // Baseline card
     var baseline = this._data && this._data.baseline || {};
@@ -136,14 +134,12 @@ export const overviewMethods = {
       return html`<div class="card"><div class="card-title">${self._t('overview.kev_title', 'CISA Known Exploited Vulnerabilities (KEV)')}</div>${self._hrow(self._t('overview.last_catalog_fetch', 'Last catalog fetch'), kevAge, kevStatus)}${self._hrow(self._t('overview.cache_ttl', 'Cache TTL'), kevTtl, '')}${self._hrow(self._t('overview.catalog_size', 'Catalog size'), kevTotal.toLocaleString(), kevTotal > 0 ? '' : 'warn')}</div>`;
     }()}${function () {
       var dnsStats = self._data && self._data.dns_proxy_stats || {};
-      var dnsLog = self._data && self._data.dns_log || [];
+      var dnsLogStats = self._data && self._data.dns_log_stats || {};
       var bs = self._data && self._data.blacklist_stats || {};
       var dnsRunning = dnsStats.running || false;
       if (!dnsRunning) return '';
-      var dnsMal = dnsLog.filter(function (e) {
-        return e.malicious;
-      }).length;
-      var dnsTotal = dnsStats.total_queries != null ? dnsStats.total_queries : dnsLog.length;
+      var dnsMal = dnsLogStats.malicious || 0;
+      var dnsTotal = dnsStats.total_queries != null ? dnsStats.total_queries : dnsLogStats.total || 0;
       var blDomains = bs.bad_domains || 0;
       var blIPs = bs.bad_ips || 0;
       var blTotal = blDomains + blIPs;
@@ -153,24 +149,19 @@ export const overviewMethods = {
       if (blIPs > 0) blParts.push(blIPs.toLocaleString() + ' IPs');
       var blLabel = blLoaded ? blParts.join(' + ') + ' ' + self._t('overview.dns_blocked_suffix', 'blocked') : bs.last_refresh ? self._t('overview.dns_bl_empty', '0 entries \u2014 check URLs') : self._t('overview.dns_bl_downloading', 'Downloading\u2026');
       var blStatus = blLoaded ? 'good' : bs.last_refresh ? 'bad' : '';
-      return html`<div class="card" style="margin-top:12px"><div class="card-title">${self._t('overview.dns_proxy_title', 'DNS Proxy')}</div>${self._hrow(self._t('overview.status_label', 'Status'), self._t('overview.dns_running', 'Running'), 'good')}${self._hrow(self._t('overview.port_label', 'Port'), String(dnsStats.port || '\u2014'), '')}${self._hrow(self._t('overview.upstream_label', 'Upstream'), String(dnsStats.upstream || '\u2014'), '')}${self._hrow(self._t('overview.blocklist_label', 'Blocklist'), blLabel, blStatus)}${bs.last_refresh ? self._hrow(self._t('overview.last_refreshed', 'Last refreshed'), self._ago(bs.last_refresh), '') : ''}${self._hrow(self._t('overview.queries_in_log', 'Queries in log'), dnsLog.length.toLocaleString(), '')}${self._hrow(self._t('overview.malicious_queries', 'Malicious queries'), dnsMal.toLocaleString(), dnsMal > 0 ? 'bad' : 'good')}${function () {
-        var dnsBlocked = dnsLog.filter(function (e) {
-          return e.status === 'blocked';
-        }).length;
+      return html`<div class="card" style="margin-top:12px"><div class="card-title">${self._t('overview.dns_proxy_title', 'DNS Proxy')}</div>${self._hrow(self._t('overview.status_label', 'Status'), self._t('overview.dns_running', 'Running'), 'good')}${self._hrow(self._t('overview.port_label', 'Port'), String(dnsStats.port || '\u2014'), '')}${self._hrow(self._t('overview.upstream_label', 'Upstream'), String(dnsStats.upstream || '\u2014'), '')}${self._hrow(self._t('overview.blocklist_label', 'Blocklist'), blLabel, blStatus)}${bs.last_refresh ? self._hrow(self._t('overview.last_refreshed', 'Last refreshed'), self._ago(bs.last_refresh), '') : ''}${self._hrow(self._t('overview.queries_in_log', 'Queries in log'), (dnsLogStats.total || 0).toLocaleString(), '')}${self._hrow(self._t('overview.malicious_queries', 'Malicious queries'), dnsMal.toLocaleString(), dnsMal > 0 ? 'bad' : 'good')}${function () {
+        var dnsBlocked = dnsLogStats.blocked || 0;
         return dnsBlocked > 0 ? self._hrow(self._t('overview.blocked_queries', 'Blocked queries'), dnsBlocked.toLocaleString(), 'bad') : '';
       }()}<div style="margin-top:10px"><button class="btn" data-view="dns">${self._t('overview.view_dns_btn', 'View DNS Queries \u2192')}</button></div></div>`;
     }()}${function () {
       if (!suricataEnabledOv) return '';
       var sStats = suricataStatsOv;
-      var sLog = suricataLogOv;
       var sRunning = sStats.running || false;
       var sPort = sStats.port || '\u2014';
       var sUptime = sStats.started_at ? self._uptime(sStats.started_at) : '\u2014';
       var sExporters = sStats.exporter_ips && sStats.exporter_ips.length ? sStats.exporter_ips.join(', ') : '\u2014';
-      var sTotal = sLog.length;
-      var sCrit = sLog.filter(function (e) {
-        return e.severity === 1;
-      }).length;
+      var sTotal = suricataTotalOv;
+      var sCrit = suricataCritOv;
       var sConns = sStats.active_connections != null ? sStats.active_connections : 0;
       return html`<div class="card" style="margin-top:12px"><div class="card-title">${self._t('overview.suricata_listener_title', 'Suricata Alert Listener')}</div>${self._hrow(self._t('overview.status_label', 'Status'), sRunning ? self._t('overview.suricata_active', 'Active') : self._t('overview.suricata_inactive', 'Inactive'), sRunning ? 'good' : 'warn')}${self._hrow(self._t('overview.port_label', 'Port'), String(sPort), '')}${self._hrow(self._t('overview.uptime_label', 'Uptime'), sUptime, '')}${self._hrow(self._t('overview.exporter_ips_label', 'Exporter IP(s)'), sExporters, sConns > 0 ? 'good' : '')}${self._hrow(self._t('overview.active_connections', 'Active connections'), String(sConns), sConns > 0 ? 'good' : '')}${self._hrow(self._t('overview.alerts_in_log', 'Alerts in log'), sTotal.toLocaleString(), sTotal > 0 ? 'warn' : 'good')}${self._hrow(self._t('overview.critical_alerts_label', 'Critical alerts'), sCrit.toLocaleString(), sCrit > 0 ? 'bad' : 'good')}<div style="margin-top:10px"><button class="btn" data-view="suricata">${self._t('overview.view_suricata_btn', 'View Suricata Alerts \u2192')}</button></div></div>`;
     }()}${baselineEnabled ? [baselineCard, self._baselineDevianceCard()] : ''}</div>`;

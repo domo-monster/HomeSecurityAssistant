@@ -21,6 +21,8 @@ categorize_domain(domain: str) -> str
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 # ---------------------------------------------------------------------------
 # Category metadata
 # ---------------------------------------------------------------------------
@@ -1605,6 +1607,7 @@ _KEYWORD_CATS: list[tuple[str, str]] = [
 ]
 
 
+@lru_cache(maxsize=8192)  # pure function; DNS traffic repeats the same names
 def categorize_domain(domain: str) -> str:
     """Return the content category for *domain*.
 

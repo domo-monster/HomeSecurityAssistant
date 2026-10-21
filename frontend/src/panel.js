@@ -135,7 +135,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
         if (this._data) this._render();
       });
     }
-    if (!this._data && !this._loading) this._fetch();
+    this._ensureLive();
   }
   connectedCallback() {
     this._startRefresh();
@@ -162,31 +162,106 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       this._beforeUnloadHandler = null;
     }
   }
+  // ── Live data ────────────────────────────────────────────────────────
+  // The dashboard is pushed over Home Assistant's websocket: the full payload
+  // once, then only the sections that changed after each refresh. If the
+  // subscription is unavailable the panel falls back to polling every 30 s.
   _startRefresh() {
-    if (this._refreshTimer) return;
-    this._fetch();
-    this._refreshTimer = setInterval(() => {
-      // Skip polls while the browser tab is hidden or on the settings form
-      if (this._view === 'settings' || document.hidden) return;
-      this._fetch();
-    }, 30000);
+    if (this._refreshStarted) return;
+    this._refreshStarted = true;
     if (!this._onVisibility) {
       this._onVisibility = () => {
-        if (!document.hidden && this._refreshTimer && this._view !== 'settings') this._fetch();
+        if (document.hidden) {
+          // No need for updates nobody sees; resubscribing sends everything again
+          this._stopLive();
+        } else {
+          this._ensureLive();
+        }
       };
       document.addEventListener('visibilitychange', this._onVisibility);
     }
+    this._ensureLive();
   }
   _stopRefresh() {
-    clearInterval(this._refreshTimer);
-    this._refreshTimer = null;
+    this._refreshStarted = false;
+    this._stopLive();
     if (this._onVisibility) {
       document.removeEventListener('visibilitychange', this._onVisibility);
       this._onVisibility = null;
     }
   }
+  _ensureLive() {
+    if (!this._refreshStarted || !this._hass || document.hidden) return;
+    if (this._unsubscribe || this._subscribing || this._refreshTimer) return;
+    if (!this._data) this._render();
+    var conn = this._hass.connection;
+    if (this._pollOnly || !conn || typeof conn.subscribeMessage !== 'function') {
+      this._startPolling();
+      return;
+    }
+    this._subscribing = true;
+    conn.subscribeMessage((msg) => this._onPush(msg), { type: 'homesec/subscribe_dashboard' }).then((unsubscribe) => {
+      this._subscribing = false;
+      if (!this._refreshStarted || document.hidden) {
+        unsubscribe();
+        return;
+      }
+      this._unsubscribe = unsubscribe;
+    }).catch((err) => {
+      this._subscribing = false;
+      console.warn('[HomeSec] live updates unavailable, polling instead:', err);
+      this._pollOnly = true;
+      this._startPolling();
+    });
+  }
+  _stopLive() {
+    if (this._unsubscribe) {
+      var unsubscribe = this._unsubscribe;
+      this._unsubscribe = null;
+      Promise.resolve(unsubscribe()).catch(() => {});
+    }
+    clearInterval(this._refreshTimer);
+    this._refreshTimer = null;
+  }
+  _startPolling() {
+    if (this._refreshTimer) return;
+    this._fetch();
+    this._refreshTimer = setInterval(() => {
+      // Skip polls on the settings form
+      if (this._view === 'settings') return;
+      this._fetch();
+    }, 30000);
+  }
+  async _onPush(msg) {
+    await this._localeReady;
+    if (msg.full) {
+      this._data = msg.full;
+    } else if (msg.changed && this._data) {
+      this._data = Object.assign({}, this._data, msg.changed);
+    } else {
+      return;
+    }
+    this._baselineWorking = null;
+    this._error = null;
+    this._afterDataUpdate(true);
+  }
+  _afterDataUpdate(fromPush) {
+    // Never redraw the settings form underneath the user from a background update
+    if (fromPush && this._view === 'settings' && this._settingsData) return;
+    if (this._view === 'map' && this._mapAnim) {
+      this._liveUpdateMap();
+    } else {
+      this._render();
+    }
+  }
   async _fetch() {
-    if (this._loading || !this._hass) return;
+    if (!this._hass) return;
+    if (this._unsubscribe) {
+      // Live: ask the server to push what changed (e.g. after a user action)
+      this._hass.callWS({ type: 'homesec/refresh_dashboard' }).catch(() => {});
+      return;
+    }
+    if (this._loading) return;
     this._loading = true;
     // Show loading spinner immediately on initial load before awaiting
     if (!this._data) this._render();
@@ -200,11 +275,7 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       this._error = e.message;
     } finally {
       this._loading = false;
-      if (this._view === 'map' && this._mapAnim) {
-        this._liveUpdateMap();
-      } else {
-        this._render();
-      }
+      this._afterDataUpdate(false);
     }
   }
   _setView(v) {
