@@ -42,6 +42,7 @@ from .const import (
     CONF_HIGH_EGRESS_THRESHOLD,
     CONF_INTERNAL_NETWORKS,
     CONF_NETFLOW_ALLOWED_EXPORTERS,
+    CONF_NVD_API_KEY,
     CONF_NVD_API_URL,
     CONF_NVD_KEYWORDS,
     CONF_NVD_MIN_YEAR,
@@ -69,7 +70,7 @@ from .scanner import parse_scan_ports
 
 REDACTED_SECRET_VALUE = "********"
 SECRET_SETTINGS_KEYS = frozenset(
-    {CONF_VIRUSTOTAL_API_KEY, CONF_ABUSEIPDB_API_KEY, CONF_SURICATA_AUTH_TOKEN}
+    {CONF_VIRUSTOTAL_API_KEY, CONF_ABUSEIPDB_API_KEY, CONF_SURICATA_AUTH_TOKEN, CONF_NVD_API_KEY}
 )
 
 # Settings that HomeSecCollector.async_apply_entry_update can change without a
@@ -165,6 +166,7 @@ SETTINGS_SCHEMA: list[dict[str, Any]] = [
     {
         "section": "NVD Vulnerability Intelligence",
         "fields": [
+            {"key": CONF_NVD_API_KEY, "label": "NVD API Key", "type": "password", "help": "Optional free key from nvd.nist.gov/developers/request-an-api-key. Speeds CVE downloads up about 10x (0.6 s instead of 6.5 s between requests)."},
             {"key": CONF_NVD_API_URL, "label": "NVD API URL", "type": "text", "help": "NVD CVE API endpoint URL (HTTPS)"},
             {"key": CONF_NVD_TTL_HOURS, "label": "NVD Cache TTL (h)", "type": "number", "min": 1, "max": 8760, "help": "Hours before refreshing the NVD CVE cache"},
             {"key": CONF_NVD_MIN_YEAR, "label": "CVE Min Year", "type": "number", "min": 1999, "max": 2100, "help": "Only show CVEs published on or after this year"},

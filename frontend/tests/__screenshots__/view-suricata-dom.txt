@@ -79,7 +79,7 @@
     <span>
       #Collector active
     <span style=margin-left: auto; opacity: 0.45; font-size: 9px;>
-      #v0.11.0
+      #v0.12.0
   <div class=sidebar-copy>
     <a href=https://domotic.monster rel=noopener noreferrer target=_blank>
       #© 2026 domotic.monster
@@ -165,7 +165,7 @@
           <tbody>
             <tr data-suricata-alert-idx=0 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:26:06 PM
+                #5:41:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -185,7 +185,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=1 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:25:06 PM
+                #5:40:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -205,7 +205,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=2 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:24:06 PM
+                #5:39:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -225,7 +225,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=3 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:23:06 PM
+                #5:38:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -245,7 +245,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=4 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:22:06 PM
+                #5:37:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -265,7 +265,7 @@
                   #🚫 Blocked
             <tr data-suricata-alert-idx=5 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:21:06 PM
+                #5:36:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -285,7 +285,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=6 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:20:06 PM
+                #5:35:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -305,7 +305,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=7 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:19:06 PM
+                #5:34:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -325,7 +325,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=8 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:18:06 PM
+                #5:33:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -345,7 +345,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=9 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:17:06 PM
+                #5:32:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -365,7 +365,7 @@
                   #🚫 Blocked
             <tr data-suricata-alert-idx=10 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:16:06 PM
+                #5:31:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -385,7 +385,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=11 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:15:06 PM
+                #5:30:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -405,7 +405,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=12 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:14:06 PM
+                #5:29:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -425,7 +425,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=13 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:13:06 PM
+                #5:28:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -445,7 +445,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=14 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:12:06 PM
+                #5:27:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -465,7 +465,7 @@
                   #🚫 Blocked
             <tr data-suricata-alert-idx=15 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:11:06 PM
+                #5:26:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -485,7 +485,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=16 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:10:06 PM
+                #5:25:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -505,7 +505,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=17 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:09:06 PM
+                #5:24:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -525,7 +525,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=18 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:08:06 PM
+                #5:23:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -545,7 +545,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=19 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:07:06 PM
+                #5:22:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -565,7 +565,7 @@
                   #🚫 Blocked
             <tr data-suricata-alert-idx=20 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:06:06 PM
+                #5:21:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -585,7 +585,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=21 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:05:06 PM
+                #5:20:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -605,7 +605,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=22 style=cursor: pointer; background: rgba(255, 179, 71, 0.04); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:04:06 PM
+                #5:19:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>
@@ -625,7 +625,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=23 style=cursor: pointer; background: rgba(255, 77, 109, 0.06); title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:03:06 PM
+                #5:18:03 AM
               <td class=mono ip>
                 #192.168.1.15
               <td class=mono ip>
@@ -645,7 +645,7 @@
                   #✓ Allowed
             <tr data-suricata-alert-idx=24 style=cursor: pointer; title=Click for details>
               <td class=mono style=white-space: nowrap; font-size: 11px;>
-                #3:02:06 PM
+                #5:17:03 AM
               <td class=mono ip>
                 #185.220.101.5
               <td class=mono ip>

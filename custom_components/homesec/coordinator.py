@@ -44,6 +44,7 @@ from .const import (
     CONF_HIGH_EGRESS_THRESHOLD,
     CONF_INTERNAL_NETWORKS,
     CONF_NETFLOW_ALLOWED_EXPORTERS,
+    CONF_NVD_API_KEY,
     CONF_NVD_API_URL,
     CONF_NVD_KEYWORDS,
     CONF_NVD_MIN_YEAR,
@@ -91,6 +92,7 @@ from .const import (
     DEFAULT_HIGH_EGRESS_THRESHOLD,
     DEFAULT_INTERNAL_NETWORKS,
     DEFAULT_NETFLOW_ALLOWED_EXPORTERS,
+    DEFAULT_NVD_API_KEY,
     DEFAULT_NVD_API_URL,
     DEFAULT_NVD_KEYWORDS,
     DEFAULT_NVD_MIN_YEAR,
@@ -231,7 +233,7 @@ class HomeSecCollector:
         self._nvd_client = NVDClient(
             session=session,
             api_url=nvd_api_url,
-            api_key=None,
+            api_key=str(get_entry_value(entry, CONF_NVD_API_KEY, DEFAULT_NVD_API_KEY) or "").strip() or None,
             ttl_hours=nvd_ttl_hours,
             min_year=nvd_min_year,
             custom_keywords=nvd_custom_keywords,
@@ -514,6 +516,15 @@ class HomeSecCollector:
 
         # Restore enrichment usage counters (daily provider budgets)
         step_started = time.monotonic()
+        # Downloaded data from the previous run: blocking and CVE matching work
+        # immediately, and nothing is fetched again before its TTL expires.
+        self._resolver.import_state(await self._storage.async_load("blocklists", {}))
+        self._nvd_client.import_state(await self._storage.async_load("nvd_cache", {}))
+        self._kev_client.import_state(await self._storage.async_load("kev_catalog", {}))
+        self._enricher.import_cache(await self._storage.async_load("enrichment_cache", {}))
+        _log_step("load downloaded data", step_started)
+        step_started = time.monotonic()
+
         enr_state = await self._storage.async_load("enrichment_state", {})
         if enr_state:
             self._enricher.import_usage_state(enr_state)
@@ -1504,6 +1515,17 @@ class HomeSecCollector:
         if self._ext_state_dirty:
             self._ext_state_dirty = False
             self._storage.async_delay_save("ext_ips", self._external_state_snapshot, _SAVE_DELAY_SECONDS)
+        for name, client, export in (
+            ("blocklists", self._resolver, self._resolver.export_state),
+            ("nvd_cache", self._nvd_client, self._nvd_client.export_state),
+            ("kev_catalog", self._kev_client, self._kev_client.export_state),
+        ):
+            if client.is_state_dirty:
+                client.mark_state_clean()
+                self._storage.async_delay_save(name, export, _LOG_SAVE_DELAY_SECONDS)
+        if self._enricher.is_cache_dirty:
+            self._enricher.mark_cache_clean()
+            self._storage.async_delay_save("enrichment_cache", self._enricher.export_cache, _LOG_SAVE_DELAY_SECONDS)
         if self._enricher.is_usage_state_dirty():
             self._enricher.mark_usage_state_clean()
             self._storage.async_delay_save(
@@ -1542,6 +1564,10 @@ class HomeSecCollector:
             "dismissed": dict(self._dismissed_findings),
             "hosts": self._scanner.get_hosts_as_dicts(),
             "event_state": self._event_state_data(),
+            "blocklists": self._resolver.export_state(),
+            "nvd_cache": self._nvd_client.export_state(),
+            "kev_catalog": self._kev_client.export_state(),
+            "enrichment_cache": self._enricher.export_cache(),
         }
         if self._baseline_manager._mode != BASELINE_MODE_DISABLED or self._baseline_manager.is_dirty:
             saves["baseline"] = self._baseline_manager.export_state()

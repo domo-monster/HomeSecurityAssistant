@@ -91,6 +91,7 @@ class ExternalIPEnricher:
         self._queued: set[str] = set()  # IPs currently sitting in the queue
         self._task: asyncio.Task | None = None
         self._tier_task: asyncio.Task | None = None
+        self._cache_dirty = False
         # Build effective per-provider limits (interval stays fixed, budget is configurable)
         self._limits: dict[str, tuple[float, int]] = {}
         for prov, (interval, default_budget) in _PROVIDER_LIMITS.items():
@@ -140,6 +141,7 @@ class ExternalIPEnricher:
         self._cache.pop(ip, None)
         self._cache[ip] = data
         self._enriched_at[ip] = enriched_at
+        self._cache_dirty = True
         while len(self._cache) > MAX_CACHE_ENTRIES:
             oldest = next(iter(self._cache))
             self._cache.pop(oldest, None)
@@ -433,6 +435,42 @@ class ExternalIPEnricher:
         self._prov_day = day
         self._prov_daily_count = restored
         self._usage_state_dirty = False
+
+    def export_cache(self) -> dict[str, Any]:
+        """Fresh enrichment results, for Store (restarts do not spend API quota again)."""
+        entries = []
+        for ip, data in self._cache.items():
+            enriched_at = self._enriched_at.get(ip)
+            if enriched_at is None or self._is_stale(ip):
+                continue
+            entries.append({"ip": ip, "enriched_at": enriched_at.isoformat(), "data": data})
+        return {"entries": entries}
+
+    def import_cache(self, data: Any) -> None:
+        """Restore results saved by export_cache; expired ones are skipped."""
+        entries = data.get("entries") if isinstance(data, dict) else None
+        if not isinstance(entries, list):
+            return
+        for entry in entries[-MAX_CACHE_ENTRIES:]:
+            if not isinstance(entry, dict) or not isinstance(entry.get("data"), dict) or not entry.get("ip"):
+                continue
+            try:
+                enriched_at = datetime.fromisoformat(str(entry.get("enriched_at")))
+            except ValueError:
+                continue
+            if enriched_at.tzinfo is None:
+                enriched_at = enriched_at.replace(tzinfo=UTC)
+            if datetime.now(UTC) - enriched_at > self._ttl:
+                continue
+            self._store(str(entry["ip"]), entry["data"], enriched_at)
+        self._cache_dirty = False
+
+    @property
+    def is_cache_dirty(self) -> bool:
+        return self._cache_dirty
+
+    def mark_cache_clean(self) -> None:
+        self._cache_dirty = False
 
     def is_usage_state_dirty(self) -> bool:
         return self._usage_state_dirty

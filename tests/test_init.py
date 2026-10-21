@@ -462,3 +462,39 @@ async def test_scanner_skips_own_addresses(hass: HomeAssistant) -> None:
     targets = scanner.get_scan_targets()
     assert "192.168.1.2" not in targets
     assert "192.168.1.3" in targets
+
+
+# ── 0.13: caching and persistence ────────────────────────────────────────────
+
+
+async def test_panel_url_is_content_hashed(hass: HomeAssistant) -> None:
+    await _setup(hass)
+    panel = hass.data["frontend_panels"]["homesec"]
+    module_url = panel.config["_panel_custom"]["module_url"]
+    assert module_url.startswith("/api/homesec/frontend/homesec-panel.js?v=")
+    assert len(module_url.split("?v=")[1]) == 12
+
+
+async def test_downloaded_data_persists_across_reload(hass: HomeAssistant, hass_storage) -> None:
+    from datetime import UTC, datetime
+
+    entry = await _setup(hass, {"nvd_api_key": "nvd-key"})
+    collector = entry.runtime_data.collector
+    assert collector._nvd_client._api_key == "nvd-key"
+    url = collector._resolver._urls[0]
+    collector._resolver._source_state[url] = {
+        "etag": '"x"', "last_modified": None, "fetched_at": datetime.now(UTC).isoformat(),
+        "checked_at": datetime.now(UTC).isoformat(), "domains": ["evil.example"], "ips": [],
+    }
+    collector._kev_client._catalog = {"CVE-1": {"cve_id": "CVE-1"}}
+    collector._kev_client._fetched_at = datetime.now(UTC)
+
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass_storage["homesec.blocklists"]["data"]["sources"][url]["domains"] == ["evil.example"]
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    collector = entry.runtime_data.collector
+    assert collector._resolver.check("www.evil.example") is not None
+    assert collector._kev_client.is_in_kev("CVE-1")

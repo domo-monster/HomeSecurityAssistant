@@ -1,5 +1,16 @@
 Security Assistant - Changelog
 
+0.13.0
+
+Faster restarts
+- Threat-intel blocklists, NVD CVE results, the CISA KEV catalog and IP enrichment results are kept in Home Assistant storage. After a restart DNS blocking and CVE matching work immediately, and nothing is downloaded again before its TTL expires (enrichment no longer spends VirusTotal/AbuseIPDB quota twice).
+- Blocklists are re-checked with conditional requests (ETag / Last-Modified): an unchanged list costs a 304 instead of a full download.
+- New optional NVD API key setting: CVE downloads run about 10x faster.
+
+Lighter panel
+- The panel bundle is minified (490 KB to 250 KB) and each language is a separate file downloaded only when that language is active (English is built in).
+- Browsers cache the panel files; the bundle URL carries a content hash, so updates are picked up immediately.
+
 0.12.0
 
 Sidebar panel

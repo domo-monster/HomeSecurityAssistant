@@ -300,6 +300,7 @@ Device tracker enrichment is automatic — if you have router or presence integr
 | AbuseIPDB confidence required before querying VirusTotal | `30` | When an AbuseIPDB key is set, VirusTotal is queried only when AbuseIPDB confidence meets/exceeds this threshold (0–100). Without an AbuseIPDB key, VirusTotal is queried directly (within its daily budget) |
 | VirusTotal daily budget | `500` | Max daily VirusTotal queries |
 | AbuseIPDB daily budget | `1000` | Max daily AbuseIPDB queries |
+| NVD API key | _(empty)_ | Optional free key from [nvd.nist.gov](https://nvd.nist.gov/developers/request-an-api-key); CVE downloads run about 10× faster (0.6 s instead of 6.5 s between requests) |
 | NVD cache TTL | `12` h | Hours before re-fetching CVE data from NVD |
 | NVD minimum CVE year | `2020` | Oldest CVE year to include (0 = all years) |
 | NVD search keywords | _(16 defaults)_ | Comma-separated product names to query NVD for (e.g. OpenSSH, nginx, WordPress) |
@@ -386,6 +387,11 @@ Since 0.10.0, all state is kept in Home Assistant's own storage, in `.storage/` 
 | `homesec.baseline` | Baseline learning state |
 | `homesec.chart_state` | Last top-N statistics lists (restart fallback) |
 | `homesec.event_state` | Which malicious IPs / vulnerabilities were already announced on the event bus |
+| `homesec.blocklists` | Last downloaded threat-intel lists per URL, with their ETag / Last-Modified validators |
+| `homesec.nvd_cache` / `homesec.kev_catalog` | Downloaded NVD CVE results and the CISA KEV catalog |
+| `homesec.enrichment_cache` | IP reputation / geolocation results still within the enrichment TTL |
+
+Downloaded data is restored at startup, so DNS blocking and CVE matching work immediately after a restart, nothing is downloaded again before its TTL expires, and blocklists are re-checked with conditional requests (an unchanged list costs a `304 Not Modified`).
 
 Settings, including API keys and the Suricata token, live only in the config entry.
 
@@ -459,14 +465,14 @@ The panel is written with [Lit](https://lit.dev) in `frontend/src/` and bundled 
 |---|---|
 | `frontend/src/panel.js` | Element lifecycle, state, rendering loop and event dispatch |
 | `frontend/src/views/*.js` | One module per view (overview, map, hosts, findings, …) mixed into the element |
-| `frontend/src/i18n/*.json` | UI and Settings-form translations (English text is the inline fallback of each `_t()` call) |
+| `frontend/src/i18n/*.json` | UI and Settings-form translations (English text is the inline fallback of each `_t()` call); the build writes them as content-hashed files that the panel downloads only for the active language |
 | `frontend/src/styles.js`, `icons.js`, `templates.js` | Stylesheet, sidebar icons, template helpers |
 | `frontend/tests/` | Playwright browser tests, fixtures and snapshots |
 
 ```sh
 cd frontend
 npm ci
-npm run build               # rebuild the bundle after editing src/
+npm run build               # rebuild the bundle after editing src/ (minified; `node build.mjs --dev` for a readable one)
 npx playwright install chromium
 npm test                    # browser regression tests
 npm run test:update         # accept intended UI changes (review the snapshot diff!)

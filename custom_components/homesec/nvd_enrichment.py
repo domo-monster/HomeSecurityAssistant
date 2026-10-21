@@ -624,6 +624,7 @@ class NVDClient:
         # keyword -> (fetched_at, simplified_cve_list)
         self._cache: dict[str, tuple[datetime, list[dict[str, Any]]]] = {}
         self._lock = asyncio.Lock()
+        self._state_dirty = False
         # keyword -> time of the last failed fetch (retry after _FAILURE_RETRY)
         self._failed_at: dict[str, datetime] = {}
         # NVD rate limits: 5 req/30 s without key, 50 req/30 s with key
@@ -742,12 +743,45 @@ class NVDClient:
                 return entry[1] if entry else []
             self._failed_at.pop(keyword, None)
             self._cache[keyword] = (datetime.now(_UTC), cves)
+            self._state_dirty = True
             return cves
+
+    def export_state(self) -> dict[str, Any]:
+        """Cached keyword results, for Store (restarts skip re-downloading)."""
+        return {
+            "cache": {
+                kw: {"fetched_at": ts.isoformat(), "cves": cves} for kw, (ts, cves) in self._cache.items()
+            }
+        }
+
+    def import_state(self, data: Any) -> None:
+        """Restore results saved by export_state; entries keep their age (TTL)."""
+        cache = data.get("cache") if isinstance(data, dict) else None
+        if not isinstance(cache, dict):
+            return
+        for kw, entry in cache.items():
+            if not isinstance(entry, dict) or not isinstance(entry.get("cves"), list):
+                continue
+            try:
+                fetched_at = datetime.fromisoformat(str(entry.get("fetched_at")))
+            except ValueError:
+                continue
+            if fetched_at.tzinfo is None:
+                fetched_at = fetched_at.replace(tzinfo=_UTC)
+            self._cache[str(kw)] = (fetched_at, [c for c in entry["cves"] if isinstance(c, dict)])
+
+    @property
+    def is_state_dirty(self) -> bool:
+        return self._state_dirty
+
+    def mark_state_clean(self) -> None:
+        self._state_dirty = False
 
     def invalidate_cache(self) -> None:
         """Clear all cached CVE data so the next lookup re-fetches from NVD."""
         self._cache.clear()
         self._failed_at.clear()
+        self._state_dirty = True
         _LOGGER.debug("NVD cache invalidated")
 
     @property
@@ -824,6 +858,7 @@ class NVDClient:
                 if not pm_kws[kw] & active_services:
                     # Evict stale product-map keyword from cache
                     self._cache.pop(kw, None)
+                    self._state_dirty = True
                     continue
             keywords_done.add(kw)
             await self._get_cached(kw)
@@ -1054,6 +1089,7 @@ class CISAKEVClient:
         self._catalog: dict[str, dict[str, Any]] = {}  # cve_id -> entry
         self._fetched_at: datetime | None = None
         self._lock = asyncio.Lock()
+        self._state_dirty = False
 
     @property
     def total(self) -> int:
@@ -1077,6 +1113,35 @@ class CISAKEVClient:
     def all_entries(self) -> list[dict[str, Any]]:
         """Return all KEV catalog entries."""
         return list(self._catalog.values())
+
+    def export_state(self) -> dict[str, Any]:
+        """Catalog and fetch time, for Store."""
+        return {
+            "fetched_at": self._fetched_at.isoformat() if self._fetched_at else None,
+            "catalog": list(self._catalog.values()),
+        }
+
+    def import_state(self, data: Any) -> None:
+        """Restore a catalog saved by export_state (its age still counts toward the TTL)."""
+        if not isinstance(data, dict) or not isinstance(data.get("catalog"), list):
+            return
+        try:
+            fetched_at = datetime.fromisoformat(str(data.get("fetched_at")))
+        except ValueError:
+            return
+        if fetched_at.tzinfo is None:
+            fetched_at = fetched_at.replace(tzinfo=_UTC)
+        self._catalog = {
+            str(e["cve_id"]): e for e in data["catalog"] if isinstance(e, dict) and e.get("cve_id")
+        }
+        self._fetched_at = fetched_at
+
+    @property
+    def is_state_dirty(self) -> bool:
+        return self._state_dirty
+
+    def mark_state_clean(self) -> None:
+        self._state_dirty = False
 
     async def fetch(self) -> None:
         """Download the catalog if the cache has expired."""
@@ -1108,6 +1173,7 @@ class CISAKEVClient:
                         }
                 self._catalog = catalog
                 self._fetched_at = datetime.now(_UTC)
+                self._state_dirty = True
                 _LOGGER.info("CISA KEV catalog loaded: %d known exploited vulnerabilities", len(catalog))
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.warning("CISA KEV fetch error: %s", exc)

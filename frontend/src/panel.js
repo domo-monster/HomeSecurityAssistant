@@ -15,7 +15,7 @@ import { recommendationsMethods } from "./views/recommendations.js";
 import { settingsMethods } from "./views/settings.js";
 import { editorMethods } from "./views/editor.js";
 import { VIEWS as _VIEWS, VIEW_LABELS as _VIEW_LABELS } from "./constants.js";
-import { UI_I18N as _UI_I18N } from "./i18n/index.js";
+import { UI_I18N as _UI_I18N, loadLocale } from "./i18n/index.js";
 import { VIEW_ICONS as _VIEW_ICONS } from "./icons.js";
 
 class HomeSecurityAssistantPanel extends HTMLElement {
@@ -126,6 +126,15 @@ class HomeSecurityAssistantPanel extends HTMLElement {
   }
   set hass(v) {
     this._hass = v;
+    var locale = this._activeLocale();
+    if (locale !== this._loadedLocale) {
+      this._loadedLocale = locale;
+      // Translations are fetched on demand; re-render once they arrive
+      // (the very first data render waits for them, see _fetch).
+      this._localeReady = loadLocale(locale).then(() => {
+        if (this._data) this._render();
+      });
+    }
     if (!this._data && !this._loading) this._fetch();
   }
   connectedCallback() {
@@ -182,7 +191,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     // Show loading spinner immediately on initial load before awaiting
     if (!this._data) this._render();
     try {
-      this._data = await this._hass.callApi('GET', 'homesec/dashboard');
+      var data = await this._hass.callApi('GET', 'homesec/dashboard');
+      await this._localeReady;
+      this._data = data;
       this._baselineWorking = null;
       this._error = null;
     } catch (e) {

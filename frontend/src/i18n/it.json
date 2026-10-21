@@ -561,7 +561,8 @@
       "suricata_listener_enabled": "Abilita listener Suricata",
       "suricata_listener_host": "Host bind listener",
       "suricata_listener_port": "Porta TCP listener",
-      "suricata_log_retention_hours": "Retention log allerte (h)"
+      "suricata_log_retention_hours": "Retention log allerte (h)",
+      "nvd_api_key": "Chiave API NVD"
     },
     "helps": {
       "bind_host": "Indirizzo IP su cui fare bind del listener NetFlow UDP (usa 0.0.0.0 per tutte le interfacce).",
@@ -611,7 +612,8 @@
       "suricata_listener_enabled": "Accetta alert Suricata EVE JSON via TCP da suricata_pusher.py.",
       "suricata_listener_host": "Indirizzo IP su cui fare bind del listener TCP (0.0.0.0 per tutte le interfacce).",
       "suricata_listener_port": "Porta TCP a cui si connette il pusher Suricata (default 6343).",
-      "suricata_log_retention_hours": "Ore di conservazione delle voci di log allerte Suricata (0 = illimitato)."
+      "suricata_log_retention_hours": "Ore di conservazione delle voci di log allerte Suricata (0 = illimitato).",
+      "nvd_api_key": "Chiave gratuita opzionale (nvd.nist.gov/developers/request-an-api-key). Velocizza il download delle CVE di circa 10× (0,6 s invece di 6,5 s tra le richieste)."
     }
   }
 }
