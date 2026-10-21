@@ -9,7 +9,8 @@
     "frontend",
     "http",
     "network",
-    "panel_custom"
+    "panel_custom",
+    "websocket_api"
   ],
   "documentation": "https://domotic.monster/homesec.html",
   "integration_type": "service",
@@ -17,5 +18,5 @@
   "issue_tracker": "https://github.com/domo-monster/HomeSecurityAssistant/issues",
   "requirements": [],
   "single_config_entry": true,
-  "version": "0.13.0"
+  "version": "0.14.0"
 }

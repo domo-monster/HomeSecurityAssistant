@@ -31,7 +31,7 @@ Notes
 from __future__ import annotations
 
 import asyncio
-from collections import deque
+from collections import OrderedDict, deque
 from collections.abc import Callable
 from datetime import UTC, datetime
 import ipaddress
@@ -39,6 +39,7 @@ import logging
 import secrets
 import socket
 import struct
+import time
 
 from .dns_categories import categorize_domain
 
@@ -325,6 +326,116 @@ def _parse_first_answer(data: bytes) -> str | None:
     except Exception:  # noqa: BLE001
         return None
 
+# ── Answer cache ────────────────────────────────────────────────────────────
+_CACHE_MAX_ENTRIES = 2048
+_CACHE_MAX_TTL = 300  # never serve an answer from cache for longer than 5 min
+_TYPE_OPT = 41
+
+
+def _skip_name(data: bytes, pos: int) -> int:
+    """Return the offset after the (possibly compressed) domain name at *pos*."""
+    while pos < len(data):
+        length = data[pos]
+        if length == 0:
+            return pos + 1
+        if (length & 0xC0) == 0xC0:
+            return pos + 2
+        pos += 1 + length
+    raise ValueError("name runs past the end of the message")
+
+
+def _ttl_offsets(response: bytes) -> list[int] | None:
+    """Offsets of every TTL field in a response (OPT records excluded).
+
+    Returns None when the message cannot be walked safely.
+    """
+    try:
+        qdcount, ancount, nscount, arcount = struct.unpack_from("!HHHH", response, 4)
+        pos = 12
+        for _ in range(qdcount):
+            pos = _skip_name(response, pos) + 4
+        offsets: list[int] = []
+        for _ in range(ancount + nscount + arcount):
+            pos = _skip_name(response, pos)
+            rtype, _, _, rdlength = struct.unpack_from("!HHIH", response, pos)
+            if rtype != _TYPE_OPT:
+                offsets.append(pos + 4)
+            pos += 10 + rdlength
+            if pos > len(response):
+                return None
+        return offsets
+    except (struct.error, ValueError, IndexError):
+        return None
+
+
+class _AnswerCache:
+    """Small LRU cache of upstream answers that honours (and counts down) TTLs."""
+
+    def __init__(self, max_entries: int = _CACHE_MAX_ENTRIES) -> None:
+        self._entries: OrderedDict[bytes, tuple[bytes, float, list[int], float]] = OrderedDict()
+        self._max_entries = max_entries
+        self.hits = 0
+
+    @staticmethod
+    def _key(query: bytes) -> bytes | None:
+        if len(query) < 12:
+            return None
+        q_end = _question_end(query)
+        has_edns = struct.unpack_from("!H", query, 10)[0] > 0
+        flags = bytes([query[2] & 0x01, query[3] & 0x10, int(has_edns)])  # RD, CD, EDNS
+        return query[12:q_end].lower() + flags
+
+    def get(self, query: bytes) -> bytes | None:
+        key = self._key(query)
+        if key is None:
+            return None
+        item = self._entries.get(key)
+        if item is None:
+            return None
+        response, stored_at, offsets, expires_at = item
+        now = time.monotonic()
+        if now >= expires_at:
+            del self._entries[key]
+            return None
+        self._entries.move_to_end(key)
+        elapsed = int(now - stored_at)
+        out = bytearray(response)
+        out[0:2] = query[0:2]  # client's transaction id
+        q_end = _question_end(query)
+        out[12:q_end] = query[12:q_end]  # client's letter case (0x20 randomisation)
+        for offset in offsets:
+            (ttl,) = struct.unpack_from("!I", out, offset)
+            struct.pack_into("!I", out, offset, max(0, ttl - elapsed))
+        self.hits += 1
+        return bytes(out)
+
+    def put(self, query: bytes, response: bytes) -> None:
+        key = self._key(query)
+        if key is None or len(response) < 12 or response[0:2] != query[0:2]:
+            return
+        if response[2] & 0x02:  # truncated: client will retry over TCP
+            return
+        if response[3] & 0x0F not in (0, 3):  # only NOERROR / NXDOMAIN
+            return
+        q_end = _question_end(query)
+        if response[12:q_end].lower() != query[12:q_end].lower():
+            return
+        offsets = _ttl_offsets(response)
+        if not offsets:
+            return
+        ttl = min(min(struct.unpack_from("!I", response, o)[0] for o in offsets), _CACHE_MAX_TTL)
+        if ttl <= 0:
+            return
+        now = time.monotonic()
+        self._entries[key] = (response, now, offsets, now + ttl)
+        self._entries.move_to_end(key)
+        while len(self._entries) > self._max_entries:
+            self._entries.popitem(last=False)
+
+    def __len__(self) -> int:
+        return len(self._entries)
+
+
 # Queries waiting for an answer per upstream; beyond this the proxy answers
 # SERVFAIL immediately instead of queueing without bound.
 _MAX_INFLIGHT_PER_UPSTREAM = 1024
@@ -515,9 +626,11 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
         warn_blocked_logs: bool = False,
         overrides: dict[str, str] | None = None,
         upstream_pool: _UpstreamPool | None = None,
+        answer_cache: _AnswerCache | None = None,
     ) -> None:
         self._upstreams = upstreams  # list of (host, port)
         self._upstream_pool = upstream_pool or _UpstreamPool()
+        self._answer_cache = answer_cache if answer_cache is not None else _AnswerCache()
         self._upstream_idx: int = 0  # round-robin cursor
         self._checker = checker
         self._dns_log = dns_log
@@ -670,6 +783,23 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
 
         return None, entry
 
+    @staticmethod
+    def _record_answer(entry: dict, response: bytes) -> None:
+        entry["rcode"] = _parse_rcode(response)
+        answer = _parse_first_answer(response)
+        if answer:
+            entry["answer"] = answer
+
+    def resolve_cached(self, data: bytes, entry: dict) -> bytes | None:
+        """Answer from the cache if possible (used by the TCP path)."""
+        cached = self._answer_cache.get(data)
+        if cached is not None:
+            self._record_answer(entry, cached)
+        return cached
+
+    def remember(self, data: bytes, response: bytes) -> None:
+        self._answer_cache.put(data, response)
+
     def next_upstream(self) -> tuple[str, int]:
         """Return the next upstream resolver (round-robin)."""
         upstream = self._upstreams[self._upstream_idx % len(self._upstreams)]
@@ -686,16 +816,19 @@ class DNSProxyProtocol(asyncio.DatagramProtocol):
                 self._transport.sendto(response, addr)
             return
         transport = self._transport
+        cached = self._answer_cache.get(data)
+        if cached is not None:
+            self._record_answer(entry, cached)
+            transport.sendto(cached, addr)
+            return
 
         def _relay(response: bytes | None) -> None:
             if response is None:
                 entry["rcode"] = "SERVFAIL"
                 response = _build_servfail_response(data)
             else:
-                entry["rcode"] = _parse_rcode(response)
-                answer = _parse_first_answer(response)
-                if answer:
-                    entry["answer"] = answer
+                self._answer_cache.put(data, response)
+                self._record_answer(entry, response)
             if response and not transport.is_closing():
                 transport.sendto(response, addr)
 
@@ -743,6 +876,7 @@ class DNSProxyServer:
         self._tcp_clients = 0
         self._protocols: list[DNSProxyProtocol] = []
         self._upstream_pool = _UpstreamPool()
+        self._answer_cache = _AnswerCache()
         self._protocol: DNSProxyProtocol | None = None
         self._running = False
 
@@ -826,6 +960,7 @@ class DNSProxyServer:
             self._warn_blocked_logs,
             self._overrides,
             self._upstream_pool,
+            self._answer_cache,
         )
 
     async def async_start(self) -> None:
@@ -900,7 +1035,11 @@ class DNSProxyServer:
                     break
                 response, entry = self._protocol.evaluate(query, str(peer[0]))
                 if entry is not None:
-                    response = await _forward_tcp(query, self._protocol.next_upstream(), entry)
+                    response = self._protocol.resolve_cached(query, entry)
+                    if response is None:
+                        response = await _forward_tcp(query, self._protocol.next_upstream(), entry)
+                        if entry.get("rcode") != "SERVFAIL":
+                            self._protocol.remember(query, response)
                 if not response:
                     break
                 writer.write(_frame_tcp_message(response))
@@ -946,5 +1085,7 @@ class DNSProxyServer:
             "total_queries": total,
             "denied_queries": denied,
             "upstream_inflight": self._upstream_pool.inflight,
+            "cache_entries": len(self._answer_cache),
+            "cache_hits": self._answer_cache.hits,
             "tcp": bool(self._tcp_servers),
         }

@@ -148,6 +148,8 @@ DEFAULT_DNS_BLOCKED_CATEGORIES = ""  # empty = block nothing
 DEFAULT_DNS_OVERRIDES = ""  # empty = no local overrides
 
 COORDINATOR_INTERVAL_SECONDS = 30
+# Dispatcher signal sent after every coordinator refresh (dashboard push)
+SIGNAL_DASHBOARD_UPDATED = "homesec_dashboard_updated"
 
 # In-memory log caps (entries).  Retention hours still apply below the cap.
 DNS_LOG_MAX_ENTRIES = 10_000

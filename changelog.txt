@@ -1,5 +1,18 @@
 Security Assistant - Changelog
 
+0.14.0
+
+Live panel
+- The dashboard is pushed over Home Assistant's websocket instead of polled every 30 seconds: the backend sends only the parts that changed after each update, and actions (dismissing a finding, renaming a host...) show their result immediately. Updates pause while the tab is hidden; the panel falls back to polling if the websocket subscription is unavailable.
+- Statistics rankings (blocked DNS by category and client, top blocked domains, Suricata severities, categories and sources) are computed by the backend over the full logs.
+
+Faster DNS proxy
+- Allowed upstream answers are cached (2,048 entries, at most 5 minutes and never beyond the record TTL; TTLs are counted down, transaction ID and letter case follow the client). Truncated, SERVFAIL and zero-TTL answers are never cached. Every query is still checked against the blocklists and logged. The DNS proxy status reports cache entries and hits.
+- Domain category lookups are cached.
+
+Faster NetFlow
+- NetFlow v9 / IPFIX records are decoded with a struct compiled once per template, about 1.6x faster than before.
+
 0.13.0
 
 Faster restarts

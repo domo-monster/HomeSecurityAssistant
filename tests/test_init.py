@@ -498,3 +498,58 @@ async def test_downloaded_data_persists_across_reload(hass: HomeAssistant, hass_
     collector = entry.runtime_data.collector
     assert collector._resolver.check("www.evil.example") is not None
     assert collector._kev_client.is_in_kev("CVE-1")
+
+
+# ── 0.14: websocket push ─────────────────────────────────────────────────────
+
+
+async def test_dashboard_subscription_pushes_changes(hass: HomeAssistant, hass_ws_client) -> None:
+    entry = await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json({"id": 1, "type": "homesec/subscribe_dashboard"})
+    result = await client.receive_json()
+    assert result["success"] is True
+    first = await client.receive_json()
+    assert "full" in first["event"]
+    assert "dns_log_stats" in first["event"]["full"]
+
+    # A user action changes the findings; a refresh request pushes only that
+    entry.runtime_data.collector.dismiss_finding("scan:10.0.0.9", "test")
+    entry.runtime_data.role_overrides["192.168.1.50"] = "camera"
+    await client.send_json({"id": 2, "type": "homesec/refresh_dashboard"})
+    messages = [await client.receive_json(), await client.receive_json()]
+    event = next(m for m in messages if m.get("type") == "event")
+    assert set(event["event"]["changed"]) == {"role_overrides"}
+    assert next(m for m in messages if m.get("type") == "result")["success"] is True
+
+
+async def test_dashboard_subscription_requires_admin(
+    hass: HomeAssistant, hass_ws_client, hass_read_only_access_token
+) -> None:
+    await _setup(hass)
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    await client.send_json({"id": 1, "type": "homesec/subscribe_dashboard"})
+    result = await client.receive_json()
+    assert result["success"] is False
+    assert result["error"]["code"] == "unauthorized"
+
+
+def test_log_stats_aggregation() -> None:
+    from custom_components.homesec.dashboard import build_log_stats
+
+    dns = [
+        {"src_ip": "10.0.0.2", "domain": "ads.example", "category": "Ads", "status": "blocked", "malicious": False},
+        {"src_ip": "10.0.0.3", "domain": "c2.example", "category": "malware", "status": "blocked", "malicious": True},
+        {"src_ip": "10.0.0.2", "domain": "ads.example", "category": "ads", "status": "blocked", "malicious": False},
+        {"src_ip": "10.0.0.2", "domain": "ok.example", "category": "other", "status": "allowed", "malicious": False},
+    ]
+    sur = [{"severity": 1, "category": "Scan", "src_ip": "1.2.3.4"}, {"severity": 3, "category": "", "src_ip": ""}]
+    stats = build_log_stats(dns, sur, top_n=1)
+    d = stats["dns_log_stats"]
+    assert (d["total"], d["blocked"], d["malicious"]) == (4, 3, 1)
+    assert d["blocked_by_category"] == [{"cat": "ads", "count": 2}, {"cat": "malware", "count": 1}]
+    assert d["blocked_by_client"] == [{"ip": "10.0.0.2", "count": 2}]  # top_n=1
+    assert d["top_blocked_domains"] == [{"domain": "ads.example", "count": 2, "category": "Ads"}]
+    s = stats["suricata_log_stats"]
+    assert s["by_severity"] == {"1": 1, "3": 1}
+    assert s["by_category"] == [{"category": "Scan", "count": 1}, {"category": "Other", "count": 1}]

@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 import ipaddress
 import logging
 import struct
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,6 +68,95 @@ class FlowRecord:
     octets: int
     timestamp: datetime
     tcp_flags: int
+
+
+_INT_CODES = {1: "B", 2: "H", 4: "I", 8: "Q"}
+# FlowRecord integer fields and their IPFIX / NetFlow v9 information element ids
+_INT_FIELDS = (("src_port", 7), ("dst_port", 11), ("protocol", 4), ("packets", 2), ("octets", 1), ("tcp_flags", 6))
+
+
+class _TemplateDecoder:
+    """Decode records of one template with a single precompiled struct.
+
+    Built once when the template is registered.  Semantics match a field
+    dictionary: the last occurrence of an element wins, IPv4 addresses
+    (8/12, 4 bytes) take precedence over IPv6 (27/28, 16 bytes), a record
+    without either pair is skipped and missing integer fields are 0.
+    """
+
+    __slots__ = ("record_length", "_struct", "_names", "_from_bytes", "_v6", "skip")
+
+    _struct: struct.Struct | None
+    _names: tuple[str, ...]
+    _from_bytes: tuple[bool, ...]
+
+    def __init__(self, template: tuple[TemplateField, ...]) -> None:
+        last: dict[int, tuple[int, int]] = {}
+        offset = 0
+        for template_field in template:
+            last[template_field.field_type] = (offset, template_field.field_length)
+            offset += template_field.field_length
+        self.record_length = offset
+        self._v6 = False
+        if last.get(8, (0, 0))[1] == 4 and last.get(12, (0, 0))[1] == 4:
+            wanted = [("src_ip", 8), ("dst_ip", 12)]
+        elif last.get(27, (0, 0))[1] == 16 and last.get(28, (0, 0))[1] == 16:
+            wanted = [("src_ip", 27), ("dst_ip", 28)]
+            self._v6 = True
+        else:
+            # No usable address pair: every record of this template is skipped
+            self.skip = True
+            self._struct = None
+            self._names = ()
+            self._from_bytes = ()
+            return
+        self.skip = False
+        wanted += [(name, element) for name, element in _INT_FIELDS if element in last and last[element][1] > 0]
+        wanted.sort(key=lambda item: last[item[1]][0])
+        fmt = "!"
+        cursor = 0
+        names: list[str] = []
+        from_bytes: list[bool] = []
+        for name, element in wanted:
+            field_offset, length = last[element]
+            if field_offset > cursor:
+                fmt += f"{field_offset - cursor}x"
+            if name in ("src_ip", "dst_ip"):
+                fmt += f"{length}s"
+                from_bytes.append(False)
+            elif length in _INT_CODES:
+                fmt += _INT_CODES[length]
+                from_bytes.append(False)
+            else:
+                fmt += f"{length}s"  # unusual width (3, 5, 6, 7 bytes...)
+                from_bytes.append(True)
+            names.append(name)
+            cursor = field_offset + length
+        self._struct = struct.Struct(fmt)
+        self._names = tuple(names)
+        self._from_bytes = tuple(from_bytes)
+
+    def decode(self, payload: bytes, export_time: datetime) -> list[FlowRecord]:
+        if self._struct is None or self.record_length <= 0:
+            return []
+        unpack_from = self._struct.unpack_from
+        names = self._names
+        from_bytes = self._from_bytes
+        address = ipaddress.IPv6Address if self._v6 else ipaddress.IPv4Address
+        records: list[FlowRecord] = []
+        step = self.record_length
+        end = len(payload) - step
+        offset = 0
+        while offset <= end:
+            values = unpack_from(payload, offset)
+            offset += step
+            fields: dict[str, Any] = {"src_port": 0, "dst_port": 0, "protocol": 0, "packets": 0, "octets": 0, "tcp_flags": 0}
+            for name, value, convert in zip(names, values, from_bytes, strict=True):
+                fields[name] = int.from_bytes(value, "big") if convert else value
+            fields["src_ip"] = address(fields["src_ip"])
+            fields["dst_ip"] = address(fields["dst_ip"])
+            records.append(FlowRecord(timestamp=export_time, **fields))
+        return records
 
 
 class NetFlowV5Parser:
@@ -141,6 +231,7 @@ class NetFlowParser:
     def __init__(self) -> None:
         self._v5_parser = NetFlowV5Parser()
         self._templates: dict[tuple[str, int, int, int], tuple[TemplateField, ...]] = {}
+        self._decoders: dict[tuple[str, int, int, int], _TemplateDecoder] = {}
         self._template_counts: dict[str, int] = {}
         self._stats = ParserStats()
 
@@ -279,6 +370,7 @@ class NetFlowParser:
                     continue
                 self._template_counts[exporter_host] = count + 1
             self._templates[key] = tuple(fields)
+            self._decoders[key] = _TemplateDecoder(self._templates[key])
             self._stats.templates_registered += 1
 
     def _parse_data_set(
@@ -290,75 +382,17 @@ class NetFlowParser:
         template_id: int,
         export_time: datetime,
     ) -> list[FlowRecord]:
-        template = self._templates.get((exporter_host, version, source_id, template_id))
-        if template is None:
+        decoder = self._decoders.get((exporter_host, version, source_id, template_id))
+        if decoder is None:
             self._stats.data_sets_without_template += 1
             return []
-
-        record_length = sum(template_field.field_length for template_field in template)
-        if record_length <= 0:
-            return []
-
-        records: list[FlowRecord] = []
-        offset = 0
-        while offset + record_length <= len(payload):
-            record_payload = payload[offset : offset + record_length]
-            offset += record_length
-            record = self._flow_record_from_template(template, record_payload, export_time)
-            if record is not None:
-                records.append(record)
-
-        return records
-
-    def _flow_record_from_template(
-        self,
-        template: tuple[TemplateField, ...],
-        payload: bytes,
-        export_time: datetime,
-    ) -> FlowRecord | None:
-        values: dict[int, bytes] = {}
-        offset = 0
-        for template_field in template:
-            values[template_field.field_type] = payload[offset : offset + template_field.field_length]
-            offset += template_field.field_length
-
-        # IPFIX/NetFlow v9 address fields: 8/12 = sourceIPv4Address/destinationIPv4Address,
-        # 27/28 = sourceIPv6Address/destinationIPv6Address. A template uses one pair or the other.
-        src_ip_raw = values.get(8)
-        dst_ip_raw = values.get(12)
-        src_v6_raw = values.get(27)
-        dst_v6_raw = values.get(28)
-
-        if src_ip_raw is not None and dst_ip_raw is not None and len(src_ip_raw) == 4 and len(dst_ip_raw) == 4:
-            src_ip: ipaddress.IPv4Address | ipaddress.IPv6Address = ipaddress.IPv4Address(src_ip_raw)
-            dst_ip: ipaddress.IPv4Address | ipaddress.IPv6Address = ipaddress.IPv4Address(dst_ip_raw)
-        elif src_v6_raw is not None and dst_v6_raw is not None and len(src_v6_raw) == 16 and len(dst_v6_raw) == 16:
-            src_ip = ipaddress.IPv6Address(src_v6_raw)
-            dst_ip = ipaddress.IPv6Address(dst_v6_raw)
-        else:
-            return None
-
-        return FlowRecord(
-            src_ip=src_ip,
-            dst_ip=dst_ip,
-            src_port=self._int_from_field(values.get(7)),
-            dst_port=self._int_from_field(values.get(11)),
-            protocol=self._int_from_field(values.get(4)),
-            packets=self._int_from_field(values.get(2)),
-            octets=self._int_from_field(values.get(1)),
-            timestamp=export_time,
-            tcp_flags=self._int_from_field(values.get(6)),
-        )
+        return decoder.decode(payload, export_time)
 
     def _drop(self, message: str) -> list[FlowRecord]:
         self._stats.dropped_datagrams += 1
         self._stats.last_error = message
         return []
 
-    def _int_from_field(self, value: bytes | None) -> int:
-        if value is None:
-            return 0
-        return int.from_bytes(value, byteorder="big", signed=False)
 
 
 def parse_exporter_allowlist(raw: str | None) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:

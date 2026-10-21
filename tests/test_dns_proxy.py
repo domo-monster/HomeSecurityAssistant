@@ -14,6 +14,7 @@ from custom_components.homesec import dns_proxy
 from custom_components.homesec.dns_proxy import (
     DNSProxyProtocol,
     DNSProxyServer,
+    _AnswerCache,
     _build_block_response,
     _build_override_response,
     _parse_dns_question,
@@ -317,4 +318,97 @@ async def test_upstream_client_timeout_and_cap(socket_enabled, monkeypatch) -> N
         assert await slow is None  # timed out
     finally:
         client.close()
+        transport.close()
+
+
+# ── Answer cache (0.14) ──────────────────────────────────────────────────────
+
+
+def _ttl_of_first_answer(response: bytes) -> int:
+    pos = 12
+    while response[pos] != 0:
+        pos += 1 + response[pos]
+    pos += 5  # root label + qtype/qclass
+    return struct.unpack_from("!I", response, pos + 2 + 4)[0]
+
+
+def test_cache_rewrites_id_case_and_ttl(monkeypatch) -> None:
+    clock = [1000.0]
+    monkeypatch.setattr(dns_proxy.time, "monotonic", lambda: clock[0])
+    cache = _AnswerCache()
+    query = _query("www.example.org", txid=0x1111)
+    response = _build_override_response(query, "198.51.100.7", "A")  # TTL 300
+    cache.put(query, response)
+    clock[0] += 120
+    hit = cache.get(_query("WwW.ExAmPlE.oRg", txid=0x2222))
+    assert hit is not None
+    assert hit[:2] == b"\x22\x22"
+    assert _parse_dns_question(hit)[0] == "www.example.org"
+    assert b"WwW" in hit  # client's case echoed
+    assert _ttl_of_first_answer(hit) == 300 - 120
+    clock[0] += 200  # past the TTL
+    assert cache.get(query) is None
+
+
+def test_cache_skips_unsafe_answers() -> None:
+    cache = _AnswerCache()
+    query = _query("x.example")
+    good = bytearray(_build_override_response(query, "198.51.100.7", "A"))
+    truncated = bytearray(good)
+    truncated[2] |= 0x02
+    servfail = bytearray(good)
+    servfail[3] = (servfail[3] & 0xF0) | 2
+    zero_ttl = bytearray(good)
+    struct.pack_into("!I", zero_ttl, len(zero_ttl) - 10, 0)
+    other_question = _build_override_response(_query("y.example"), "198.51.100.7", "A")
+    for bad in (truncated, servfail, zero_ttl, other_question):
+        cache.put(query, bytes(bad))
+    assert len(cache) == 0
+    # different EDNS presence is a different cache entry
+    cache.put(query, bytes(good))
+    assert cache.get(_query("x.example", edns=True)) is None
+    assert cache.get(query) is not None
+
+
+def test_cache_is_bounded() -> None:
+    cache = _AnswerCache(max_entries=3)
+    for i in range(5):
+        q = _query(f"h{i}.example")
+        cache.put(q, _build_override_response(q, "198.51.100.7", "A"))
+    assert len(cache) == 3
+    assert cache.get(_query("h0.example")) is None
+    assert cache.get(_query("h4.example")) is not None
+
+
+async def test_repeated_query_is_served_from_cache(socket_enabled) -> None:
+    transport, upstream, port = await _start_upstream()
+    proxy_port = _free_port()
+    log: deque = deque()
+    proxy = DNSProxyServer(
+        host="127.0.0.1", port=proxy_port, upstream=f"127.0.0.1:{port}",
+        checker=FakeChecker(), dns_log=log, on_malicious=lambda *a: None,
+        allowed_subnets=["127.0.0.0/8"],
+    )
+    await proxy.async_start()
+    try:
+        loop = asyncio.get_running_loop()
+        for txid in (0x0101, 0x0202):
+            received: asyncio.Future = loop.create_future()
+
+            class Client(asyncio.DatagramProtocol):
+                def datagram_received(self, data, addr, received=received) -> None:
+                    if not received.done():
+                        received.set_result(data)
+
+            client, _ = await loop.create_datagram_endpoint(Client, remote_addr=("127.0.0.1", proxy_port))
+            client.sendto(_query("cached.example", txid=txid))
+            response = await asyncio.wait_for(received, 3)
+            client.close()
+            assert response[:2] == struct.pack("!H", txid)
+            assert _parse_first_answer(response) == "198.51.100.7"
+        assert len(upstream.received) == 1  # second answer came from the cache
+        assert proxy.stats()["cache_hits"] == 1
+        assert [e["answer"] for e in log] == ["198.51.100.7", "198.51.100.7"]
+    finally:
+        await proxy.async_stop()
         transport.close()

@@ -285,3 +285,30 @@ test("suricata: search and severity filter", async ({ page }) => {
   expect(rows).toBeLessThan(25);
   await checkClean(page, errors);
 });
+
+test("live updates: pushed changes re-render, actions request a push", async ({ page }) => {
+  const { panel, errors } = await openPanel(page);
+  expect(await page.evaluate(() => window.__calls.filter((c) => c.path === "homesec/dashboard").length)).toBe(0);
+  await page.evaluate(() => window.__push({ summary: { ...window.__panel._data.summary, devices: 99 } }));
+  await expect(panel.locator(".stat-card").first()).toContainText("99");
+  await goTo(page, "findings");
+  await panel.locator('[data-findings-group-mode="flat"]').click();
+  await panel.locator("[data-dismiss]").first().click();
+  const editor = panel.locator("#hsa-editor-modal");
+  if (await editor.count()) await panel.locator("[data-editor-save]").click();
+  await expect.poll(() => page.evaluate(() => window.__calls.some((c) => c.path === "homesec/refresh_dashboard"))).toBe(true);
+  // No full HTTP fetch while live
+  expect(await page.evaluate(() => window.__calls.filter((c) => c.path === "homesec/dashboard").length)).toBe(0);
+  await checkClean(page, errors);
+});
+
+test("live updates fall back to polling without a websocket", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (err) => errors.push(err.message));
+  await page.goto(`/tests/harness.html?transport=poll&panel=${encodeURIComponent(PANEL)}`);
+  const panel = page.locator("homesec-panel");
+  await expect(panel.locator(".nav-item").first()).toBeVisible();
+  await expect(panel.locator(".stat-card").first()).toBeVisible();
+  expect(await page.evaluate(() => window.__calls.some((c) => c.path === "homesec/dashboard"))).toBe(true);
+  expect(errors).toEqual([]);
+});
