@@ -1,5 +1,21 @@
 Security Assistant - Changelog
 
+0.15.0
+
+Lighter refresh on busy networks
+- Flows are analysed about 3.5x faster: the port-scan check keeps running counts instead of re-reading every recent flow, and each address and timestamp is converted to text once.
+- External IP tracking is updated as flows arrive, and the 30-second refresh reuses the entries of idle IPs whose enrichment and blocklist status did not change. On a test network with 250 hosts and 4,000 external IPs a refresh takes 49 ms instead of 161 ms.
+- External IP traffic totals (flows and bytes) now count every flow since the IP was first seen and are kept across restarts; before, they only covered the connections currently shown on the map.
+- An external IP no longer loses a stored suspicious/malicious rating just because its enrichment is not available yet (for example right after a restart).
+- Reverse-DNS lookups are no longer queued twice for the same IP.
+
+Precise CVE lookups
+- Products with a known CPE (every mapped service and fingerprinted web technology) are looked up in NVD by CPE instead of a full-text keyword search. Only CVEs that list the product as affected are downloaded, and only its CPE entries are kept: for BIND about 50 CVEs instead of 1,300, for OpenSSH 32 instead of 74, with no detectable CVE lost. Results cached by the previous keyword search are fetched again once.
+- Custom keywords and products identified only from a banner still use keyword search.
+
+Panel
+- The panel is now a LitElement: several state changes in one interaction are rendered once.
+
 0.14.0
 
 Live panel

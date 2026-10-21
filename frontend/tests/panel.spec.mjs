@@ -312,3 +312,27 @@ test("live updates fall back to polling without a websocket", async ({ page }) =
   expect(await page.evaluate(() => window.__calls.some((c) => c.path === "homesec/dashboard"))).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test("state changes in one task are rendered once", async ({ page }) => {
+  const { panel, errors } = await openPanel(page);
+  const renders = await page.evaluate(async () => {
+    const p = window.__panel;
+    let count = 0;
+    const render = p.render;
+    p.render = function () {
+      count++;
+      return render.call(this);
+    };
+    p._hostFilter = "192.168";
+    p._render();
+    p._setView("hosts");
+    p._data = { ...p._data };
+    p._render();
+    await p.updateComplete;
+    p.render = render;
+    return count;
+  });
+  expect(renders).toBe(1);
+  await expect(panel.locator("#hsa-mobile-title")).toHaveText("Hosts");
+  await checkClean(page, errors);
+});

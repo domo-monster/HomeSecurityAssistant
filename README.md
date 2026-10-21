@@ -42,6 +42,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - Enriches external IPs with **ipwho.is** (free, no auth), **VirusTotal**, and **AbuseIPDB** (all optional, API keys configurable)
 - **Background-only enrichment** — all provider calls run in a background worker queue; on-demand lookups (IP detail panel) return cached results instantly, never blocking the UI
 - **Reverse DNS resolution** for external IPs
+- **Traffic totals** — each external IP shows the flows and bytes exchanged with your network since it was first seen (kept across restarts), the internal hosts involved and the destination ports used
 - Checks external IPs and hostnames against **threat intel blacklists** (abuse.ch feeds by default, customizable)
 - **Severity-based retention** — separate configurable windows for clean, suspicious, and malicious IPs (clean: default 24 h, suspicious: 48 h, malicious: 168 h / 7 days)
 - **Inbound traffic detection** — external IPs that initiate connections *to* your internal servers (e.g. hosted services, exposed ports) are tracked and enriched exactly like outbound peers — same blacklist checks, same threat ratings, same retention rules
@@ -465,7 +466,7 @@ The panel is written with [Lit](https://lit.dev) in `frontend/src/` and bundled 
 
 | Path | Contents |
 |---|---|
-| `frontend/src/panel.js` | Element lifecycle, state, rendering loop and event dispatch |
+| `frontend/src/panel.js` | The `LitElement`: lifecycle, state, rendering and event dispatch. Views call `_render()` after changing state, which only schedules an update; Lit renders once per task however many changes were made |
 | `frontend/src/views/*.js` | One module per view (overview, map, hosts, findings, …) mixed into the element |
 | `frontend/src/i18n/*.json` | UI and Settings-form translations (English text is the inline fallback of each `_t()` call); the build writes them as content-hashed files that the panel downloads only for the active language |
 | `frontend/src/styles.js`, `icons.js`, `templates.js` | Stylesheet, sidebar icons, template helpers |
