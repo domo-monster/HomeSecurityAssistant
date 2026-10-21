@@ -332,7 +332,7 @@ def build_dashboard_payload(
         nvd_total_cves += collector._nvd_client.total_cached_cves
         # Merge keyword info from the live NVD client (deduplicated by keyword)
         seen_kws = {k["keyword"] for k in nvd_keywords}
-        for kw_info in collector._nvd_client.cached_keywords:
+        for kw_info in collector._nvd_client.keyword_status:
             if kw_info["keyword"] not in seen_kws:
                 seen_kws.add(kw_info["keyword"])
                 nvd_keywords.append(kw_info)
@@ -362,7 +362,12 @@ def build_dashboard_payload(
             scan_last_status = scanner.last_scan_status
         if scanner.last_scan_targets is not None:
             scan_last_targets = scanner.last_scan_targets
-        nvd_ts = collector._nvd_last_fetch_at
+        # The newest download in the NVD cache counts too: results restored
+        # from storage (or fetched before the first full cycle ends) are real
+        nvd_ts = max(
+            (ts for ts in (collector._nvd_last_fetch_at, collector._nvd_client.last_updated) if ts),
+            default=None,
+        )
         if nvd_ts:
             nvd_ts_str = nvd_ts.isoformat()
             if nvd_last_updated is None or nvd_ts_str > nvd_last_updated:

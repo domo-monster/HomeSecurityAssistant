@@ -1,5 +1,19 @@
 Security Assistant - Changelog
 
+0.16.1
+
+Vulnerability intelligence (NVD)
+- The overview lists every configured NVD keyword from the start, marked as waiting, downloading or failed until its CVEs are in. Before, a keyword only appeared once downloaded, so after 0.15.0 (which downloads results again once) most of them were missing for a while.
+- "Last database fetch" shows the newest download, including results restored after a restart, instead of "never fetched" until the first full cycle has finished.
+- NVD requests may take up to 5 minutes: large products (MySQL) take NVD around 3 minutes to answer, so they used to time out after 60 s and be retried every 30 minutes without ever loading.
+- Corrected product names that NVD changed over the years, so their CVEs are found and matched again: nginx (now listed under F5; a banner such as nginx/1.20.0 matched no CVE before), MySQL (Oracle), Dropbear SSH, GStreamer and Varnish. A product can have several names; all of them are queried.
+- Android Debug Bridge is looked up by keyword again instead of downloading all ~10,000 Android CVEs.
+- UPnP devices are matched on the libupnp version ("Portable SDK for UPnP devices/1.6.x") rather than the UPnP protocol version.
+- When NVD knows no CVE under any of a product's names, it is looked up by keyword instead (logged as a warning), so a future rename cannot silently empty it. Results saved under outdated names are downloaded again.
+
+Network map
+- Zooming out scales the layout with the zoom, so hosts fill the screen at any zoom level instead of staying a small oval in the middle; zooming back in returns to the normal layout. Zooming in still magnifies.
+
 0.16.0
 
 Network map

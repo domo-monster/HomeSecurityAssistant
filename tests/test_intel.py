@@ -365,11 +365,19 @@ async def test_nvd_known_products_are_fetched_by_cpe(monkeypatch) -> None:
     session = FakeSession({"https://nvd.example/": FakeResponse(200, page)})
     client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
     cves = await client._get_cached("nginx")
-    assert session.params_sent[-1]["virtualMatchString"] == "cpe:2.3:*:nginx:nginx:*:*:*:*:*:*:*:*"
-    assert "keywordSearch" not in session.params_sent[-1]
-    # Only the vulnerable nginx:nginx match is kept
+    # One query per name NVD has used for nginx, no keyword search
+    assert [p.get("virtualMatchString") for p in session.params_sent] == [
+        "cpe:2.3:*:f5:nginx:*:*:*:*:*:*:*:*",
+        "cpe:2.3:*:f5:nginx_open_source:*:*:*:*:*:*:*:*",
+        "cpe:2.3:*:nginx:nginx:*:*:*:*:*:*:*:*",
+    ]
+    # Merged into one CVE that keeps only the nginx matches, without duplicates
+    assert len(cves) == 1
     [config] = cves[0]["configurations"]
-    assert [m["criteria"] for m in config["nodes"][0]["cpeMatch"]] == ["cpe:2.3:a:nginx:nginx:*:*:*:*:*:*:*:*"]
+    assert sorted(m["criteria"] for m in config["nodes"][0]["cpeMatch"]) == [
+        NGINX_CPE,
+        "cpe:2.3:a:nginx:nginx:*:*:*:*:*:*:*:*",
+    ]
     assert client.get_cached_cve("CVE-2024-0003") is cves[0]
 
     # Unknown products still use a keyword search; CVEs are kept as returned
@@ -381,9 +389,59 @@ async def test_nvd_known_products_are_fetched_by_cpe(monkeypatch) -> None:
 
 async def test_nvd_cpe_lookup_drops_cves_without_the_product(monkeypatch) -> None:
     monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
-    session = FakeSession({"https://nvd.example/": FakeResponse(200, _nvd_page("CVE-2024-0004", NGINX_CPE))})
+    page = _nvd_page("CVE-2024-0004", "cpe:2.3:o:debian:debian_linux:12.0:*:*:*:*:*:*:*")
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, page)})
     client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
-    assert await client._get_cached("nginx") == []
+    assert await client._get_cached("OpenSSH") == []
+    assert all("keywordSearch" not in p for p in session.params_sent)
+
+
+async def test_nvd_falls_back_to_keyword_search_when_no_cpe_matches(monkeypatch) -> None:
+    monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, {"totalResults": 0, "vulnerabilities": []})})
+    client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
+    await client._get_cached("OpenSSH")
+    assert session.params_sent[-1] == {**session.params_sent[-1], "keywordSearch": "OpenSSH"}
+
+
+async def test_nvd_android_debug_bridge_uses_keyword_search(monkeypatch) -> None:
+    monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, {"totalResults": 0, "vulnerabilities": []})})
+    client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
+    await client._get_cached("Android Debug Bridge")
+    assert len(session.params_sent) == 1
+    assert session.params_sent[0]["keywordSearch"] == "Android Debug Bridge"
+
+
+async def test_nvd_upnp_matches_the_library_version(monkeypatch) -> None:
+    monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
+    page = _nvd_page("CVE-2024-0005", "cpe:2.3:a:libupnp_project:libupnp:*:*:*:*:*:*:*:*")
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, page)})
+    client = NVDClient(session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020)
+    protocol_only = {"port": 1900, "service_name": "upnp", "banner": "SERVER: Linux/4.9 UPnP/1.0 MiniUPnPd/2.1"}
+    assert await client.find_vulnerabilities("192.168.1.9", [protocol_only]) == []
+    sdk = {"port": 49152, "service_name": "upnp", "banner": "SERVER: Linux/2.6 UPnP/1.0 Portable SDK for UPnP devices/1.6.18"}
+    [vuln] = await client.find_vulnerabilities("192.168.1.9", [sdk])
+    assert (vuln["cve_id"], vuln["matched_version"]) == ("CVE-2024-0005", "1.6.18")
+
+
+def test_nvd_cache_saved_under_other_names_is_refetched() -> None:
+    saved = {
+        "cache": {
+            # 0.15.0 saved nginx under a name NVD no longer uses
+            "nginx": {"fetched_at": "2026-10-21T00:00:00+00:00", "query": "cpe", "cves": [{"cve_id": "CVE-1"}]},
+            "OpenSSH": {
+                "fetched_at": "2026-10-21T00:00:00+00:00",
+                "query": "cpe:openbsd:openssh",
+                "cves": [{"cve_id": "CVE-3"}],
+            },
+            # Was a CPE lookup in 0.15.0, a keyword search now
+            "Android Debug Bridge": {"fetched_at": "2026-10-21T00:00:00+00:00", "query": "cpe", "cves": []},
+        }
+    }
+    client = NVDClient(FakeSession({}), ttl_hours=12)
+    client.import_state(saved)
+    assert set(client._cache) == {"OpenSSH"}
 
 
 def test_nvd_keyword_era_cache_is_refetched_for_cpe_products() -> None:
@@ -398,3 +456,24 @@ def test_nvd_keyword_era_cache_is_refetched_for_cpe_products() -> None:
     assert set(client._cache) == {"SomeDaemon"}
     assert client.export_state()["cache"]["SomeDaemon"]["query"] == "keyword"
 
+
+
+async def test_nvd_keyword_status_lists_configured_keywords(monkeypatch) -> None:
+    monkeypatch.setattr("custom_components.homesec.nvd_enrichment.asyncio.sleep", _instant_sleep)
+    page = _nvd_page("CVE-2024-0006", "cpe:2.3:a:openbsd:openssh:*:*:*:*:*:*:*:*")
+    session = FakeSession({"https://nvd.example/": FakeResponse(200, page)})
+    client = NVDClient(
+        session, api_url="https://nvd.example/api", ttl_hours=12, min_year=2020, custom_keywords=["OpenSSH", "Samba", "nginx"]
+    )
+
+    def status() -> dict:
+        return {k["keyword"]: k["status"] for k in client.keyword_status}
+
+    # Nothing downloaded yet: every configured keyword is listed as waiting
+    assert status() == {"OpenSSH": "pending", "Samba": "pending", "nginx": "pending"}
+    await client._get_cached("OpenSSH")
+    session.routes["https://nvd.example/"] = FakeResponse(429)
+    await client._get_cached("Samba")
+    client._fetching = "nginx"
+    assert status() == {"OpenSSH": "ok", "Samba": "failed", "nginx": "fetching"}
+    assert [k["cve_count"] for k in client.keyword_status] == [1, None, None]
