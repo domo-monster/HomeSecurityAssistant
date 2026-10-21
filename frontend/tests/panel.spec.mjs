@@ -270,3 +270,18 @@ test("hostile values injected client-side render inert", async ({ page }) => {
   await expect(modal.locator('a[href*="emergingthreats"]')).toHaveCount(0);
   await checkClean(page, errors);
 });
+
+test("suricata: search and severity filter", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "suricata" });
+  const search = panel.locator("#suricata-search");
+  await search.fill("SSH Scan 29");
+  await search.press("Enter");
+  await expect(panel.locator("[data-suricata-alert-idx]")).toHaveCount(1);
+  await search.fill("");
+  await search.press("Enter");
+  await panel.locator("#suricata-sev-filter").selectOption("1");
+  const rows = await panel.locator("[data-suricata-alert-idx]").count();
+  expect(rows).toBeGreaterThan(0);
+  expect(rows).toBeLessThan(25);
+  await checkClean(page, errors);
+});

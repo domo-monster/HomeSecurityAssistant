@@ -3770,9 +3770,15 @@ var suricataMethods = {
     var critCount = log.filter(function(e4) {
       return e4.severity === 1;
     }).length;
-    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="suricata-search" placeholder="${self._t("suricata.filter_placeholder", "Filter by IP, signature\u2026")}" style="width:230px" value="${this._suricataSearch}" onkeydown="if(event.key==='Enter')this.getRootNode().host._suricataFilter()" /><select id="suricata-sev-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._suricataFilter()"><option value="">${self._t("suricata.all_severities", "All severities")}</option>${[1, 2, 3].map(function(s4) {
+    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="suricata-search" placeholder="${self._t("suricata.filter_placeholder", "Filter by IP, signature\u2026")}" style="width:230px" value="${this._suricataSearch}" @keydown=${function(e4) {
+      if (e4.key === "Enter") this._suricataFilter();
+    }} /><select id="suricata-sev-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" @change=${function() {
+      this._suricataFilter();
+    }}><option value="">${self._t("suricata.all_severities", "All severities")}</option>${[1, 2, 3].map(function(s4) {
       return b2`<option value="${s4}" ?selected=${self._suricataSeverityFilter === String(s4)}>${sevLabel(s4)}</option>`;
-    })}</select><select id="suricata-action-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._suricataFilter()"><option value="">${self._t("suricata.all_actions", "All actions")}</option><option value="allowed" ?selected=${self._suricataActionFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._suricataActionFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><span style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.suricata_log_total || 0)} ${self._t("suricata.entries", "entries")}</span></div>`;
+    })}</select><select id="suricata-action-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" @change=${function() {
+      this._suricataFilter();
+    }}><option value="">${self._t("suricata.all_actions", "All actions")}</option><option value="allowed" ?selected=${self._suricataActionFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._suricataActionFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><span style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.suricata_log_total || 0)} ${self._t("suricata.entries", "entries")}</span></div>`;
     var PAGE_SIZE = this._suricataPageSize || 25;
     var page = this._suricataPage || 0;
     var totalPages = Math.max(1, Math.ceil(sortedLog.length / PAGE_SIZE));
@@ -3994,9 +4000,17 @@ var dnsMethods = {
       override: self._t("dns.cat.override", "Override"),
       other: "Other"
     };
-    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="dns-search" placeholder="${self._t("dns.filter_placeholder", "Filter by IP or domain\u2026")}" style="width:220px" value="${this._dnsSearch}" onkeydown="if(event.key==='Enter')this.getRootNode().host._dnsFilter()" /><select id="dns-cat-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._dnsFilter()"><option value="">${self._t("dns.all_categories", "All categories")}</option>${CATEGORIES.map(function(c4) {
+    var filterBar = b2`<div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><input class="search-bar" id="dns-search" placeholder="${self._t("dns.filter_placeholder", "Filter by IP or domain\u2026")}" style="width:220px" value="${this._dnsSearch}" @keydown=${function(e4) {
+      if (e4.key === "Enter") this._dnsFilter();
+    }} /><select id="dns-cat-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" @change=${function() {
+      this._dnsFilter();
+    }}><option value="">${self._t("dns.all_categories", "All categories")}</option>${CATEGORIES.map(function(c4) {
       return b2`<option value="${c4}" ?selected=${self._dnsCategoryFilter === c4}>${CAT_LABELS[c4]}</option>`;
-    })}</select><select id="dns-status-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" onchange="this.getRootNode().host._dnsFilter()"><option value="">${self._t("dns.all_status", "All status")}</option><option value="allowed" ?selected=${self._dnsStatusFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._dnsStatusFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="dns-malicious-only" onchange="this.getRootNode().host._dnsFilter()" ?checked=${self._dnsMaliciousOnly}> ${self._t("dns.malicious_only", "Malicious only")}</label><span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.dns_log_total || 0)} ${self._t("dns.entries", "entries")}</span></div>`;
+    })}</select><select id="dns-status-filter" style="font-size:12px;padding:4px 6px;background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:4px;cursor:pointer" @change=${function() {
+      this._dnsFilter();
+    }}><option value="">${self._t("dns.all_status", "All status")}</option><option value="allowed" ?selected=${self._dnsStatusFilter === "allowed"}>${self._t("common.allowed", "Allowed")}</option><option value="blocked" ?selected=${self._dnsStatusFilter === "blocked"}>${self._t("common.blocked", "Blocked")}</option></select><label style="font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="dns-malicious-only" @change=${function() {
+      this._dnsFilter();
+    }} ?checked=${self._dnsMaliciousOnly}> ${self._t("dns.malicious_only", "Malicious only")}</label><span id="dns-count" style="font-size:11px;color:var(--muted);margin-left:auto">${sortedLog.length} / ${Math.max(log.length, self._data && self._data.dns_log_total || 0)} ${self._t("dns.entries", "entries")}</span></div>`;
     var DNS_PAGE_SIZE = this._dnsPageSize || 25;
     var dnsPage = this._dnsPage || 0;
     var totalDnsPages = Math.max(1, Math.ceil(sortedLog.length / DNS_PAGE_SIZE));
@@ -7276,6 +7290,12 @@ var HomeSecurityAssistantPanel = class extends HTMLElement {
     return A;
   }
   _onClick(e4) {
+    if (e4.target.closest("[data-reload]")) {
+      this._error = null;
+      this._data = null;
+      this._fetch();
+      return;
+    }
     var mToggle = e4.target.closest("[data-mobile-menu-toggle]");
     if (mToggle) {
       this._mobileMenuOpen = !this._mobileMenuOpen;

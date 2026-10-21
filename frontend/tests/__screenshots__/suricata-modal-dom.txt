@@ -93,8 +93,8 @@
     <div class=card table-card>
       <div style=padding: 14px 14px 8px;>
         <div style=display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap;>
-          <input class=search-bar id=suricata-search onkeydown=if(event.key==='Enter')this.getRootNode().host._suricataFilter() placeholder=Filter by IP, signature… style=width: 230px; value=>
-          <select id=suricata-sev-filter onchange=this.getRootNode().host._suricataFilter() style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
+          <input class=search-bar id=suricata-search placeholder=Filter by IP, signature… style=width: 230px; value=>
+          <select id=suricata-sev-filter style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
             <option value=>
               #All severities
             <option value=1>
@@ -103,7 +103,7 @@
               #Major
             <option value=3>
               #Minor
-          <select id=suricata-action-filter onchange=this.getRootNode().host._suricataFilter() style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
+          <select id=suricata-action-filter style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
             <option value=>
               #All actions
             <option value=allowed>

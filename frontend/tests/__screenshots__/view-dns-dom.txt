@@ -93,8 +93,8 @@
     <div class=card table-card>
       <div style=padding: 14px 14px 8px;>
         <div style=display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap;>
-          <input class=search-bar id=dns-search onkeydown=if(event.key==='Enter')this.getRootNode().host._dnsFilter() placeholder=Filter by IP or domain… style=width: 220px; value=>
-          <select id=dns-cat-filter onchange=this.getRootNode().host._dnsFilter() style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
+          <input class=search-bar id=dns-search placeholder=Filter by IP or domain… style=width: 220px; value=>
+          <select id=dns-cat-filter style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
             <option value=>
               #All categories
             <option value=malware>
@@ -129,7 +129,7 @@
               #Override
             <option value=other>
               #Other
-          <select id=dns-status-filter onchange=this.getRootNode().host._dnsFilter() style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
+          <select id=dns-status-filter style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
             <option value=>
               #All status
             <option value=allowed>
@@ -137,7 +137,7 @@
             <option value=blocked>
               #Blocked
           <label style=font-size: 12px; display: flex; align-items: center; gap: 5px; cursor: pointer;>
-            <input id=dns-malicious-only onchange=this.getRootNode().host._dnsFilter() type=checkbox>
+            <input id=dns-malicious-only type=checkbox>
             # Malicious only
           <span id=dns-count style=font-size: 11px; color: var(--muted); margin-left: auto;>
             #60 / 60 entries

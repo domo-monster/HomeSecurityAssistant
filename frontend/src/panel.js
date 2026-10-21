@@ -287,6 +287,12 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     return nothing;
   }
   _onClick(e) {
+    if (e.target.closest('[data-reload]')) {
+      this._error = null;
+      this._data = null;
+      this._fetch();
+      return;
+    }
     var mToggle = e.target.closest('[data-mobile-menu-toggle]');
     if (mToggle) {
       this._mobileMenuOpen = !this._mobileMenuOpen;
