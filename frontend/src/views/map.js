@@ -456,6 +456,7 @@ export const mapMethods = {
         self._mapDragMoved = false;
         self._mapDragLastX = e.clientX;
         self._mapDragLastY = e.clientY;
+        self._mapGrabNode(canvas, e.clientX, e.clientY, 5);
       }
     });
     canvas.addEventListener('mousemove', function (e) {
@@ -463,17 +464,14 @@ export const mapMethods = {
         var dx = e.clientX - self._mapDragLastX,
           dy = e.clientY - self._mapDragLastY;
         if (Math.abs(dx) > 2 || Math.abs(dy) > 2) self._mapDragMoved = true;
-        self._mapPanX += dx;
-        self._mapPanY += dy;
-        self._mapDragLastX = e.clientX;
-        self._mapDragLastY = e.clientY;
+        self._mapPointerMove(canvas, e.clientX, e.clientY, dx, dy);
       }
     });
     canvas.addEventListener('mouseup', function () {
-      self._mapDragging = false;
+      self._mapRelease(canvas);
     });
     canvas.addEventListener('mouseleave', function () {
-      self._mapDragging = false;
+      self._mapRelease(canvas);
     });
   
     // ── Touch support (pan + pinch-zoom) ──────────────────────────────────
@@ -485,8 +483,9 @@ export const mapMethods = {
         self._mapDragLastX = e.touches[0].clientX;
         self._mapDragLastY = e.touches[0].clientY;
         self._mapPinchDist = null;
+        self._mapGrabNode(canvas, e.touches[0].clientX, e.touches[0].clientY, 10);
       } else if (e.touches.length === 2) {
-        self._mapDragging = false;
+        self._mapRelease(canvas);
         var dx = e.touches[0].clientX - e.touches[1].clientX;
         var dy = e.touches[0].clientY - e.touches[1].clientY;
         self._mapPinchDist = Math.sqrt(dx * dx + dy * dy);
@@ -502,10 +501,7 @@ export const mapMethods = {
         var dx = e.touches[0].clientX - self._mapDragLastX;
         var dy = e.touches[0].clientY - self._mapDragLastY;
         if (Math.abs(dx) > 2 || Math.abs(dy) > 2) self._mapDragMoved = true;
-        self._mapPanX += dx;
-        self._mapPanY += dy;
-        self._mapDragLastX = e.touches[0].clientX;
-        self._mapDragLastY = e.touches[0].clientY;
+        self._mapPointerMove(canvas, e.touches[0].clientX, e.touches[0].clientY, dx, dy);
       } else if (e.touches.length === 2 && self._mapPinchDist != null) {
         var dx2 = e.touches[0].clientX - e.touches[1].clientX;
         var dy2 = e.touches[0].clientY - e.touches[1].clientY;
@@ -540,7 +536,7 @@ export const mapMethods = {
             }
           }
         }
-        self._mapDragging = false;
+        self._mapRelease(canvas);
         self._mapPinchDist = null;
       } else if (e.touches.length === 1) {
         // went from pinch back to single finger — resume pan
@@ -567,6 +563,89 @@ export const mapMethods = {
         }
       }
     });
+  },
+
+  // ── Node dragging ────────────────────────────────────────────────────
+  _mapWorldPoint(canvas, clientX, clientY) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left - this._mapPanX) / this._mapZoom,
+      y: (clientY - rect.top - this._mapPanY) / this._mapZoom
+    };
+  },
+
+  _mapNodeAt(canvas, clientX, clientY, pad) {
+    var p = this._mapWorldPoint(canvas, clientX, clientY);
+    var best = null,
+      bestD = Infinity;
+    for (var it = this._mapNodes.values(), r = it.next(); !r.done; r = it.next()) {
+      var n = r.value;
+      var d = Math.sqrt((p.x - n.x) * (p.x - n.x) + (p.y - n.y) * (p.y - n.y));
+      if (d <= n.r + pad && d < bestD) {
+        best = n;
+        bestD = d;
+      }
+    }
+    return best;
+  },
+
+  // Start dragging the node under the pointer (the baseline map is static, so
+  // there it pans). Linked nodes up to three hops away form the elastic chain.
+  _mapGrabNode(canvas, clientX, clientY, pad) {
+    this._mapDrag = null;
+    if (this._mapMode === 'baseline') return;
+    var node = this._mapNodeAt(canvas, clientX, clientY, pad);
+    if (!node) return;
+    var p = this._mapWorldPoint(canvas, clientX, clientY);
+    this._mapDrag = { ip: node.ip, x: node.x, y: node.y, offX: node.x - p.x, offY: node.y - p.y };
+    var adj = new Map();
+    for (var i = 0; i < this._mapEdges.length; i++) {
+      var e = this._mapEdges[i];
+      if (!adj.has(e.source)) adj.set(e.source, []);
+      if (!adj.has(e.target)) adj.set(e.target, []);
+      adj.get(e.source).push(e.target);
+      adj.get(e.target).push(e.source);
+    }
+    var chain = new Map([[node.ip, 0]]);
+    var frontier = [node.ip];
+    for (var hop = 1; hop <= 3 && frontier.length; hop++) {
+      var next = [];
+      for (var f = 0; f < frontier.length; f++) {
+        var linked = adj.get(frontier[f]) || [];
+        for (var l = 0; l < linked.length; l++) {
+          if (!chain.has(linked[l])) {
+            chain.set(linked[l], hop);
+            next.push(linked[l]);
+          }
+        }
+      }
+      frontier = next;
+    }
+    this._mapDragChain = chain;
+    canvas.style.cursor = 'grabbing';
+    var tip = this.shadowRoot.getElementById('hsa-map-tip');
+    if (tip) tip.style.display = 'none';
+  },
+
+  _mapPointerMove(canvas, clientX, clientY, dx, dy) {
+    if (this._mapDrag) {
+      var p = this._mapWorldPoint(canvas, clientX, clientY);
+      this._mapDrag.x = p.x + this._mapDrag.offX;
+      this._mapDrag.y = p.y + this._mapDrag.offY;
+    } else {
+      this._mapPanX += dx;
+      this._mapPanY += dy;
+    }
+    this._mapDragLastX = clientX;
+    this._mapDragLastY = clientY;
+  },
+
+  _mapRelease(canvas) {
+    this._mapDragging = false;
+    if (this._mapDrag) {
+      this._mapDrag = null;
+      canvas.style.cursor = 'grab';
+    }
   },
 
   _startMap(canvas) {
@@ -805,6 +884,14 @@ export const mapMethods = {
     var CENTER_PULL = settled ? 0.00004 : 0.00015;
     // Jitter to keep things subtly alive
     var jitter = settled ? 0.08 : 0;
+    // While a node is dragged (and shortly after release) the hosts linked to
+    // it get stiffer springs and less damping, so they follow like an elastic
+    // chain; the effect fades with each hop away from the dragged node.
+    var drag = this._mapDrag;
+    if (drag) this._mapDragHeat = 90;
+    else if (this._mapDragHeat > 0) this._mapDragHeat--;
+    var chain = this._mapDragHeat > 0 ? this._mapDragChain : null;
+    var heat = chain ? this._mapDragHeat / 90 : 0;
     for (var i = 0; i < nodes.length; i++) {
       for (var j = i + 1; j < nodes.length; j++) {
         var dx = nodes[i].x - nodes[j].x || 0.1,
@@ -828,7 +915,12 @@ export const mapMethods = {
       var dd = Math.max(Math.sqrt(edx * edx + edy * edy), 1);
       // Target edge length based on node types
       var ideal = s.type === 'external' || t.type === 'external' ? 100 : 55;
-      var ef = A * (dd - ideal);
+      var ea = A;
+      if (chain) {
+        var hop = Math.min(chain.has(e.source) ? chain.get(e.source) : 9, chain.has(e.target) ? chain.get(e.target) : 9);
+        if (hop < 9) ea = Math.max(A, 0.012 * Math.pow(0.6, hop) * heat);
+      }
+      var ef = ea * (dd - ideal);
       s.vx += edx / dd * ef;
       s.vy += edy / dd * ef;
       t.vx -= edx / dd * ef;
@@ -836,23 +928,57 @@ export const mapMethods = {
     }
     var cx2 = W / 2,
       cy2 = H / 2;
+    // Soft elliptical boundary (instead of clamping to the canvas rectangle,
+    // which piled nodes up along straight walls that showed when zoomed out)
+    var rx = Math.max(60, W / 2 - 40),
+      ry = Math.max(60, H / 2 - 40);
+    var dragged = drag ? this._mapNodes.get(drag.ip) : null;
     for (var ni = 0; ni < nodes.length; ni++) {
       var n = nodes[ni];
+      if (n === dragged) {
+        n.x = drag.x;
+        n.y = drag.y;
+        n.vx = 0;
+        n.vy = 0;
+        continue;
+      }
+      var inChain = chain && chain.has(n.ip);
+      var nDamp = inChain ? DAMP + (0.8 - DAMP) * heat : DAMP;
+      var nMaxV = inChain ? MAX_V + (10 - MAX_V) * heat : MAX_V;
       n.vx += (cx2 - n.x) * CENTER_PULL;
       n.vy += (cy2 - n.y) * CENTER_PULL;
       if (jitter > 0) {
         n.vx += (Math.random() - 0.5) * jitter;
         n.vy += (Math.random() - 0.5) * jitter;
       }
-      n.vx *= DAMP;
-      n.vy *= DAMP;
-      var spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
-      if (spd > MAX_V) {
-        n.vx = n.vx / spd * MAX_V;
-        n.vy = n.vy / spd * MAX_V;
+      var ex = (n.x - cx2) / rx,
+        ey = (n.y - cy2) / ry;
+      var q = Math.sqrt(ex * ex + ey * ey);
+      if (q > 0.7) {
+        // Ramps in smoothly so the cloud thins out towards the edge
+        // instead of crowding onto a visible rim
+        var over = q - 0.7;
+        var pull = 0.06 * over * over / q;
+        n.vx -= (n.x - cx2) * pull;
+        n.vy -= (n.y - cy2) * pull;
       }
-      n.x = Math.max(n.r + 2, Math.min(W - n.r - 2, n.x + n.vx));
-      n.y = Math.max(n.r + 2, Math.min(H - n.r - 2, n.y + n.vy));
+      n.vx *= nDamp;
+      n.vy *= nDamp;
+      var spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
+      if (spd > nMaxV) {
+        n.vx = n.vx / spd * nMaxV;
+        n.vy = n.vy / spd * nMaxV;
+      }
+      n.x += n.vx;
+      n.y += n.vy;
+      // Safety net far outside the boundary
+      ex = (n.x - cx2) / rx;
+      ey = (n.y - cy2) / ry;
+      q = Math.sqrt(ex * ex + ey * ey);
+      if (q > 2.5) {
+        n.x = cx2 + (n.x - cx2) * 2.5 / q;
+        n.y = cy2 + (n.y - cy2) * 2.5 / q;
+      }
     }
   },
 
@@ -1077,7 +1203,7 @@ export const mapMethods = {
         var tipX = n.x * this._mapZoom + this._mapPanX + 14;
         var tipY = n.y * this._mapZoom + this._mapPanY - 14;
         tip.style.cssText = 'display:block;left:' + tipX + 'px;top:' + tipY + 'px';
-        canvas.style.cursor = n.type === 'external' ? 'pointer' : 'grab';
+        canvas.style.cursor = n.type === 'external' ? 'pointer' : 'move';
         return;
       }
     }

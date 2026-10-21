@@ -1,5 +1,11 @@
 Security Assistant - Changelog
 
+0.16.0
+
+Network map
+- Hosts can be dragged. Hosts linked to the dragged one follow it like an elastic chain (up to three links away, more loosely with each link), then the layout relaxes again. Dragging the background still pans; clicking an external IP still opens its details. The static baseline map is not draggable.
+- Hosts no longer pile up against the edges of the canvas. They spread into an oval that thins out towards its edge, so zooming out no longer shows a square border of hosts.
+
 0.15.0
 
 Lighter refresh on busy networks

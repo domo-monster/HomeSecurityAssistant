@@ -123,6 +123,54 @@ test("view map renders a canvas", async ({ page }) => {
   await checkClean(page, errors);
 });
 
+test("map: dragging a host pulls its linked hosts along", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "map" });
+  await expect(panel.locator("canvas")).toBeVisible();
+  await page.waitForTimeout(1500); // let the layout run
+  const start = await page.evaluate(() => {
+    const p = window.__panel;
+    const links = new Map();
+    for (const e of p._mapEdges) {
+      links.set(e.source, [...(links.get(e.source) || []), e.target]);
+      links.set(e.target, [...(links.get(e.target) || []), e.source]);
+    }
+    const node = [...p._mapNodes.values()]
+      .filter((n) => n.type === "internal" && links.has(n.ip))
+      .sort((a, b) => links.get(b.ip).length - links.get(a.ip).length)[0];
+    const neighbour = p._mapNodes.get(links.get(node.ip)[0]);
+    const rect = p.shadowRoot.getElementById("hsa-map-canvas").getBoundingClientRect();
+    return {
+      ip: node.ip,
+      neighbour: neighbour.ip,
+      neighbourAt: [neighbour.x, neighbour.y],
+      x: rect.left + p._mapPanX + node.x * p._mapZoom,
+      y: rect.top + p._mapPanY + node.y * p._mapZoom,
+      pan: [p._mapPanX, p._mapPanY],
+    };
+  });
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  for (let i = 1; i <= 20; i++) {
+    await page.mouse.move(start.x - i * 10, start.y - i * 4);
+    await page.waitForTimeout(16);
+  }
+  await page.waitForTimeout(500);
+  const held = await page.evaluate(({ ip, neighbour }) => {
+    const p = window.__panel;
+    const n = p._mapNodes.get(ip), m = p._mapNodes.get(neighbour);
+    return { dragging: !!p._mapDrag, at: [n.x, n.y], neighbourAt: [m.x, m.y], pan: [p._mapPanX, p._mapPanY], zoom: p._mapZoom };
+  }, start);
+  expect(held.dragging).toBe(true);
+  expect(held.pan).toEqual(start.pan); // dragging a node does not pan the map
+  const zoom = held.zoom;
+  const moved = Math.hypot(held.neighbourAt[0] - start.neighbourAt[0], held.neighbourAt[1] - start.neighbourAt[1]);
+  expect(moved).toBeGreaterThan(20 / zoom); // the linked host followed
+  await page.mouse.up();
+  expect(await page.evaluate(() => window.__panel._mapDrag)).toBeNull();
+  await expect(panel.locator("#hsa-mobile-title")).toHaveText("Network Map"); // no lookup opened
+  await checkClean(page, errors);
+});
+
 test("hosts: expand a row and open the rename editor", async ({ page }) => {
   const { panel, errors } = await openPanel(page, { view: "hosts" });
   await panel.locator('tr.expandable[data-ip="192.168.1.10"]').click();
