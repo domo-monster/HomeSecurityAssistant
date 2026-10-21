@@ -51,6 +51,7 @@ async function checkClean(page, errors) {
   const visible = text.split(XSS_TEXT).join("").split('<img src=x onerror="window.__xss=1"').join("");
   expect(visible, "raw markup visible as text").not.toMatch(/<\/?(div|span|td|tr|th|table|svg|path|button|a|img|b|strong|li|ul|input|select|option|h\d|p|br)\b[^>]*>/i);
   expect(visible, "double-escaped entities visible").not.toMatch(/&(lt|gt|amp|quot|#39);/);
+  expect(visible, "template objects rendered as text").not.toContain("[object Object]");
 }
 
 async function snap(page, name) {
@@ -209,5 +210,24 @@ test("french locale", async ({ page }) => {
   const { panel, errors } = await openPanel(page, { lang: "fr", view: "findings" });
   await expect(panel.locator(".nav-item.active")).toContainText("Constats");
   await snap(page, "fr-findings");
+  await checkClean(page, errors);
+});
+
+test("hostile values injected client-side render inert", async ({ page }) => {
+  const { panel, errors } = await openPanel(page, { view: "suricata" });
+  // Bypass the server-side sanitizer: feed a raw hostile record to the modal
+  await page.evaluate((xss) => {
+    const p = window.__panel;
+    p._suricataAlertDetail = {
+      timestamp: "2026-10-20T12:00:00Z", src_ip: xss, dest_ip: xss, proto: xss, app_proto: xss,
+      signature: xss, signature_id: '"><svg onload=window.__xss=1>', category: xss, severity: 1,
+      action: "allowed", in_iface: xss,
+    };
+    p._render();
+  }, XSS_TEXT);
+  const modal = panel.locator("#hsa-suricata-detail-modal");
+  await expect(modal).toBeVisible();
+  await expect(modal.locator("img, svg[onload]")).toHaveCount(0);
+  await expect(modal.locator('a[href*="emergingthreats"]')).toHaveCount(0);
   await checkClean(page, errors);
 });
