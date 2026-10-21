@@ -22,6 +22,8 @@ class BaselineManager:
         self._baseline_version = 0
         self._confidence = "none"
         self._hosts: dict[str, dict[str, Any]] = {}
+        # (host ip, field) -> (list object, its values as a set); see _learn_values
+        self._known_values: dict[tuple[str, str], tuple[list[Any], set[Any]]] = {}
         self._edges: dict[str, dict[str, Any]] = {}
         self._training_stats: dict[str, int] = {
             "snapshots_seen": 0,
@@ -137,6 +139,27 @@ class BaselineManager:
         self._last_anomalies = anomalies
         return anomalies
 
+    def _learn_values(self, host: dict[str, Any], field_name: str, values: list[Any]) -> None:
+        """Merge *values* into the sorted list host[field_name], re-sorting only on news.
+
+        The set of known values is kept next to the list object it mirrors and
+        rebuilt whenever that list was replaced (state import, clear).
+        """
+        if not values:
+            return
+        current = host.get(field_name) or []
+        key = (str(host.get("ip", "")), field_name)
+        mirror = self._known_values.get(key)
+        if mirror is None or mirror[0] is not current:
+            mirror = (current, set(current))
+        known = mirror[1]
+        added = [value for value in values if value not in known]
+        if added:
+            known.update(added)
+            current = sorted(known)
+            host[field_name] = current
+        self._known_values[key] = (current, known)
+
     def observe_snapshot(
         self,
         devices: list[dict[str, Any]],
@@ -187,16 +210,9 @@ class BaselineManager:
             host["probable_role"] = device.get("probable_role") or host.get("probable_role")
             host["last_seen"] = self._iso(now)
             host["observation_count"] = int(host.get("observation_count", 0) or 0) + 1
-            # Learn external peers
-            peers = set(host.get("external_peers", []))
-            for peer in device.get("external_peers", []):
-                peers.add(peer)
-            host["external_peers"] = sorted(peers)
-            # Learn exposed ports
-            ports = set(host.get("exposed_ports", []))
-            for port in device.get("exposed_ports", []):
-                ports.add(port)
-            host["exposed_ports"] = sorted(ports)
+            # Learn external peers and exposed ports
+            self._learn_values(host, "external_peers", device.get("external_peers", []))
+            self._learn_values(host, "exposed_ports", device.get("exposed_ports", []))
         # Learn baseline edge statistics from current snapshot connections.
         # Metrics are averaged after training for static/compare map rendering.
         snapshot_edges: dict[str, dict[str, Any]] = {}
@@ -290,6 +306,7 @@ class BaselineManager:
         hosts = data.get("hosts")
         if isinstance(hosts, dict):
             self._hosts = {str(key): value for key, value in hosts.items() if isinstance(value, dict)}
+            self._known_values = {}
         edges = data.get("edges")
         if isinstance(edges, dict):
             self._edges = {str(key): value for key, value in edges.items() if isinstance(value, dict)}
@@ -333,6 +350,7 @@ class BaselineManager:
         self._baseline_completed_at = None
         self._confidence = "low"
         self._hosts = {}
+        self._known_values = {}
         self._edges = {}
         self._training_stats = {
             "snapshots_seen": 0,
@@ -362,6 +380,7 @@ class BaselineManager:
         self._baseline_version = 0
         self._confidence = "none"
         self._hosts = {}
+        self._known_values = {}
         self._edges = {}
         self._training_stats = {
             "snapshots_seen": 0,

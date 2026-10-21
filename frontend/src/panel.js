@@ -1,5 +1,5 @@
 // Security Assistant sidebar panel.
-import { adoptStyles, html, nothing, render, unsafeCSS } from "lit";
+import { LitElement, html, nothing, unsafeCSS } from "lit";
 import { CSS as _CSS } from "./styles.js";
 import { overviewMethods } from "./views/overview.js";
 import { chartsMethods } from "./views/charts.js";
@@ -18,12 +18,20 @@ import { VIEWS as _VIEWS, VIEW_LABELS as _VIEW_LABELS } from "./constants.js";
 import { UI_I18N as _UI_I18N, loadLocale } from "./i18n/index.js";
 import { VIEW_ICONS as _VIEW_ICONS } from "./icons.js";
 
-class HomeSecurityAssistantPanel extends HTMLElement {
+class HomeSecurityAssistantPanel extends LitElement {
+  static styles = unsafeCSS(_CSS);
+  // Assigning these re-renders on its own; other state changes call
+  // _render(), which only schedules an update. Lit batches every request
+  // made in one task into a single render. `hass` is deliberately not
+  // reactive: Home Assistant replaces it on every state change.
+  static properties = {
+    _view: { state: true },
+    _data: { state: true },
+    _error: { state: true },
+    _loading: { state: true },
+  };
   constructor() {
     super();
-    this.attachShadow({
-      mode: 'open'
-    });
     this._view = 'overview';
     this._data = null;
     this._hass = null;
@@ -138,9 +146,11 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._ensureLive();
   }
   connectedCallback() {
+    super.connectedCallback();
     this._startRefresh();
   }
   disconnectedCallback() {
+    super.disconnectedCallback();
     this._stopRefresh();
     this._stopMap();
     this._unregisterBeforeUnload();
@@ -312,11 +322,9 @@ class HomeSecurityAssistantPanel extends HTMLElement {
     this._render();
   }
   _render() {
-    const root = this.shadowRoot;
-    if (!this._stylesAdopted) {
-      adoptStyles(root, [unsafeCSS(_CSS)]);
-      this._stylesAdopted = true;
-    }
+    this.requestUpdate();
+  }
+  render() {
     this._afterRender = null;
     var content;
     if (this._error && !this._data) {
@@ -332,9 +340,10 @@ class HomeSecurityAssistantPanel extends HTMLElement {
       }
     }
     var title = this._viewLabel(this._view) || this._t('app.title', 'Security Assistant');
-    render(html`<div class="app${this._mobileMenuOpen ? ' mobile-menu-open' : ''}" @click=${this._onClick} @input=${this._onInput} @change=${this._onChange} @keydown=${this._onKeyDown}><header class="mobile-topbar"><button class="mobile-menu-btn" data-mobile-menu-toggle aria-label="Open menu">☰</button><div class="mobile-topbar-title" id="hsa-mobile-title">${title}</div></header><div class="mobile-backdrop" data-mobile-menu-close></div><nav class="sidebar" id="hsa-sidebar">${this._sidebar()}</nav><main class="content" id="hsa-content">${content}</main>${this._editorOpen ? this._editorModal() : nothing}${this._vulnDetail ? this._vulnDetailModal() : nothing}${this._suricataAlertDetail !== null ? this._suricataAlertDetailModal() : nothing}${this._extIPDetail !== null ? this._extIPDetailModal() : nothing}${this._regexDismissOpen ? this._regexDismissModal() : nothing}${this._pendingView ? this._unsavedConfirmModal() : nothing}</div>`, root, {
-      host: this
-    });
+    return html`<div class="app${this._mobileMenuOpen ? ' mobile-menu-open' : ''}" @click=${this._onClick} @input=${this._onInput} @change=${this._onChange} @keydown=${this._onKeyDown}><header class="mobile-topbar"><button class="mobile-menu-btn" data-mobile-menu-toggle aria-label="Open menu">☰</button><div class="mobile-topbar-title" id="hsa-mobile-title">${title}</div></header><div class="mobile-backdrop" data-mobile-menu-close></div><nav class="sidebar" id="hsa-sidebar">${this._sidebar()}</nav><main class="content" id="hsa-content">${content}</main>${this._editorOpen ? this._editorModal() : nothing}${this._vulnDetail ? this._vulnDetailModal() : nothing}${this._suricataAlertDetail !== null ? this._suricataAlertDetailModal() : nothing}${this._extIPDetail !== null ? this._extIPDetailModal() : nothing}${this._regexDismissOpen ? this._regexDismissModal() : nothing}${this._pendingView ? this._unsavedConfirmModal() : nothing}</div>`;
+  }
+  updated() {
+    // Hooks a view registered while rendering (e.g. the map canvas setup)
     if (this._afterRender) {
       var after = this._afterRender;
       this._afterRender = null;

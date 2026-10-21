@@ -42,6 +42,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 - Enriches external IPs with **ipwho.is** (free, no auth), **VirusTotal**, and **AbuseIPDB** (all optional, API keys configurable)
 - **Background-only enrichment** — all provider calls run in a background worker queue; on-demand lookups (IP detail panel) return cached results instantly, never blocking the UI
 - **Reverse DNS resolution** for external IPs
+- **Traffic totals** — each external IP shows the flows and bytes exchanged with your network since it was first seen (kept across restarts), the internal hosts involved and the destination ports used
 - Checks external IPs and hostnames against **threat intel blacklists** (abuse.ch feeds by default, customizable)
 - **Severity-based retention** — separate configurable windows for clean, suspicious, and malicious IPs (clean: default 24 h, suspicious: 48 h, malicious: 168 h / 7 days)
 - **Inbound traffic detection** — external IPs that initiate connections *to* your internal servers (e.g. hosted services, exposed ports) are tracked and enriched exactly like outbound peers — same blacklist checks, same threat ratings, same retention rules
@@ -55,6 +56,7 @@ Security Assistant is a custom Home Assistant integration that provides real-tim
 
 ### Vulnerability Detection
 - **NVD enrichment** — queries the NIST National Vulnerability Database REST API 2.0 for CVEs matching detected service banners. Precise CPE vendor/product filtering for 20+ service mappings: SSH (OpenSSH, Dropbear), HTTP (Apache, nginx, lighttpd), MySQL/MariaDB, FTP (vsftpd, ProFTPD), SMTP (Postfix, Exim, Sendmail), Redis, MongoDB, PostgreSQL, SMB/NetBIOS/Microsoft-DS (Samba), IMAP (Dovecot), MQTT/MQTT-TLS (Mosquitto), ADB (Android Debug Bridge), DNS (BIND, dnsmasq), NTP (ntpd, Chrony), RTSP (Live555, GStreamer), and UPnP (MiniUPnP). Generic banner-based matching covers any other service with an identifiable version string
+- **CPE lookups** — products with a known CPE (every mapped service and fingerprinted web technology) are fetched from NVD by CPE vendor/product instead of a full-text keyword search, so only CVEs whose affected-product list names that product are downloaded, and only the matching CPE entries are kept (for BIND: ~50 CVEs instead of ~1,300). Custom keywords and unmapped banners still use keyword search
 - **Service-aware prefetching** — NVD keyword prefetch is scoped to services actually detected on the network, avoiding unnecessary API calls for products not present
 - **HTTP technology validation** — CVEs for web applications (WordPress, WooCommerce, Drupal, etc.) are only reported if the technology was actually **confirmed via HTTP fingerprinting**, eliminating false positives
 - **CISA KEV integration** — cross-references findings against the CISA Known Exploited Vulnerabilities catalog, flagging CVEs under active exploitation
@@ -464,7 +466,7 @@ The panel is written with [Lit](https://lit.dev) in `frontend/src/` and bundled 
 
 | Path | Contents |
 |---|---|
-| `frontend/src/panel.js` | Element lifecycle, state, rendering loop and event dispatch |
+| `frontend/src/panel.js` | The `LitElement`: lifecycle, state, rendering and event dispatch. Views call `_render()` after changing state, which only schedules an update; Lit renders once per task however many changes were made |
 | `frontend/src/views/*.js` | One module per view (overview, map, hosts, findings, …) mixed into the element |
 | `frontend/src/i18n/*.json` | UI and Settings-form translations (English text is the inline fallback of each `_t()` call); the build writes them as content-hashed files that the panel downloads only for the active language |
 | `frontend/src/styles.js`, `icons.js`, `templates.js` | Stylesheet, sidebar icons, template helpers |

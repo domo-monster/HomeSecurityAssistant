@@ -1,7 +1,9 @@
 """NVD (National Vulnerability Database) CVE enrichment for discovered services.
 
 Queries the NVD REST API 2.0 for CVEs affecting detected service banners.
-Results are cached per product keyword with a configurable TTL (default 24 h).
+Known products are looked up by CPE (vendor/product), anything else by
+keyword search.  Results are cached per product keyword with a configurable
+TTL (default 24 h).
 """
 
 from __future__ import annotations
@@ -378,6 +380,45 @@ _TECHNOLOGY_PRODUCT_MAP: dict[str, dict[str, str]] = {
     },
 }
 
+# keyword -> (cpe_vendor, cpe_product) for every product with a known CPE.
+# These are fetched with a CPE match (virtualMatchString) instead of a
+# full-text keyword search, which also returns CVEs that merely mention the
+# word (e.g. "BIND": ~1,700 results instead of ~180).
+_KEYWORD_CPE: dict[str, tuple[str, str]] = {
+    **{
+        profile["keyword"]: (profile["cpe_vendor"], profile["cpe_product"])
+        for profiles in _SERVICE_PRODUCT_MAP.values()
+        for profile in profiles
+    },
+    **{
+        profile["keyword"]: (profile["cpe_vendor"], profile["cpe_product"])
+        for profile in _TECHNOLOGY_PRODUCT_MAP.values()
+    },
+}
+
+
+def _cpe_match_string(vendor: str, product: str) -> str:
+    return f"cpe:2.3:*:{vendor}:{product}:*:*:*:*:*:*:*:*"
+
+
+def _prune_configurations(configurations: list[dict[str, Any]], vendor: str, product: str) -> list[dict[str, Any]]:
+    """Keep only the vulnerable CPE matches for vendor/product.
+
+    Those are the only entries the version matching looks at; CVEs often
+    list hundreds of unrelated platform CPEs, which would otherwise be kept
+    in memory and in storage.
+    """
+    kept: list[dict[str, Any]] = []
+    for config in configurations:
+        for node in config.get("nodes", []):
+            for cpe_match in node.get("cpeMatch", []):
+                if not cpe_match.get("vulnerable", False):
+                    continue
+                parts = str(cpe_match.get("criteria", "")).lower().split(":")
+                if len(parts) > 5 and parts[3] == vendor and parts[4] == product:
+                    kept.append(cpe_match)
+    return [{"nodes": [{"cpeMatch": kept}]}] if kept else []
+
 # ---------------------------------------------------------------------------
 # Generic product/version extraction from arbitrary banners
 # ---------------------------------------------------------------------------
@@ -623,6 +664,9 @@ class NVDClient:
         self._custom_keywords = custom_keywords
         # keyword -> (fetched_at, simplified_cve_list)
         self._cache: dict[str, tuple[datetime, list[dict[str, Any]]]] = {}
+        # cve_id -> cve, built lazily from _cache (see get_cached_cve)
+        self._cve_index: dict[str, dict[str, Any]] | None = None
+        self._cve_index_source: dict[str, tuple[datetime, list[dict[str, Any]]]] | None = None
         self._lock = asyncio.Lock()
         self._state_dirty = False
         # keyword -> time of the last failed fetch (retry after _FAILURE_RETRY)
@@ -648,10 +692,14 @@ class NVDClient:
         min_year_prefix = f"{self._min_year}-" if self._min_year else ""
         all_results: list[dict[str, Any]] = []
         start_index = 0
+        cpe = _KEYWORD_CPE.get(keyword)
+        query: dict[str, str] = (
+            {"virtualMatchString": _cpe_match_string(*cpe)} if cpe else {"keywordSearch": keyword}
+        )
 
         while True:
             params: dict[str, Any] = {
-                "keywordSearch": keyword,
+                **query,
                 "noRejected": "",
                 "resultsPerPage": page_size,
                 "startIndex": start_index,
@@ -703,13 +751,18 @@ class NVDClient:
                 score, severity = _extract_cvss(cve)
                 if score < 4.0:
                     continue
+                configurations = cve.get("configurations", [])
+                if cpe:
+                    configurations = _prune_configurations(configurations, *cpe)
+                    if not configurations:
+                        continue
                 all_results.append({
                     "cve_id": cve_id,
                     "cvss": score,
                     "severity": severity,
                     "summary": _extract_description(cve),
                     "published": published[:10],  # YYYY-MM-DD
-                    "configurations": cve.get("configurations", []),
+                    "configurations": configurations,
                 })
 
             total_results = int(data.get("totalResults", 0))
@@ -718,7 +771,13 @@ class NVDClient:
                 break
             await asyncio.sleep(self._rate_delay)
 
-        _LOGGER.info("NVD: %d CVEs fetched for keyword %r (>= %s)", len(all_results), keyword, self._min_year or 'all years')
+        _LOGGER.info(
+            "NVD: %d CVEs fetched for %s %r (>= %s)",
+            len(all_results),
+            "CPE" if cpe else "keyword",
+            keyword,
+            self._min_year or "all years",
+        )
         return all_results
 
     async def _get_cached(self, keyword: str) -> list[dict[str, Any]]:
@@ -743,14 +802,23 @@ class NVDClient:
                 return entry[1] if entry else []
             self._failed_at.pop(keyword, None)
             self._cache[keyword] = (datetime.now(_UTC), cves)
-            self._state_dirty = True
+            self._cache_changed()
             return cves
+
+    def _cache_changed(self) -> None:
+        self._state_dirty = True
+        self._cve_index = None
 
     def export_state(self) -> dict[str, Any]:
         """Cached keyword results, for Store (restarts skip re-downloading)."""
         return {
             "cache": {
-                kw: {"fetched_at": ts.isoformat(), "cves": cves} for kw, (ts, cves) in self._cache.items()
+                kw: {
+                    "fetched_at": ts.isoformat(),
+                    "query": "cpe" if kw in _KEYWORD_CPE else "keyword",
+                    "cves": cves,
+                }
+                for kw, (ts, cves) in self._cache.items()
             }
         }
 
@@ -762,6 +830,8 @@ class NVDClient:
         for kw, entry in cache.items():
             if not isinstance(entry, dict) or not isinstance(entry.get("cves"), list):
                 continue
+            if str(kw) in _KEYWORD_CPE and entry.get("query") != "cpe":
+                continue  # saved by a keyword search before CPE lookups: fetch again
             try:
                 fetched_at = datetime.fromisoformat(str(entry.get("fetched_at")))
             except ValueError:
@@ -769,6 +839,7 @@ class NVDClient:
             if fetched_at.tzinfo is None:
                 fetched_at = fetched_at.replace(tzinfo=_UTC)
             self._cache[str(kw)] = (fetched_at, [c for c in entry["cves"] if isinstance(c, dict)])
+        self._cve_index = None
 
     @property
     def is_state_dirty(self) -> bool:
@@ -781,7 +852,7 @@ class NVDClient:
         """Clear all cached CVE data so the next lookup re-fetches from NVD."""
         self._cache.clear()
         self._failed_at.clear()
-        self._state_dirty = True
+        self._cache_changed()
         _LOGGER.debug("NVD cache invalidated")
 
     @property
@@ -795,11 +866,14 @@ class NVDClient:
 
     def get_cached_cve(self, cve_id: str) -> dict[str, Any] | None:
         """Return a single cached CVE by ID, or None if not cached."""
-        for _, cves in self._cache.values():
-            for cve in cves:
-                if cve.get("cve_id") == cve_id:
-                    return cve
-        return None
+        if self._cve_index is None or self._cve_index_source is not self._cache:
+            index: dict[str, dict[str, Any]] = {}
+            for _, cves in self._cache.values():
+                for cve in cves:
+                    index.setdefault(str(cve.get("cve_id", "")), cve)
+            self._cve_index = index
+            self._cve_index_source = self._cache
+        return self._cve_index.get(cve_id)
 
     @property
     def all_cached_cves(self) -> list[dict[str, Any]]:
@@ -858,7 +932,7 @@ class NVDClient:
                 if not pm_kws[kw] & active_services:
                     # Evict stale product-map keyword from cache
                     self._cache.pop(kw, None)
-                    self._state_dirty = True
+                    self._cache_changed()
                     continue
             keywords_done.add(kw)
             await self._get_cached(kw)

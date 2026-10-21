@@ -190,6 +190,10 @@ class ExternalIPEnricher:
         """Return cached enrichment, or empty dict if not yet enriched."""
         return dict(self._cache.get(ip, {}))
 
+    def cached_entry(self, ip: str) -> dict[str, Any] | None:
+        """Return the stored enrichment object itself (replaced, never mutated, on update)."""
+        return self._cache.get(ip)
+
     async def enrich_now(self, ip: str) -> dict[str, Any]:
         """Return cached enrichment for on-demand lookups (non-blocking).
 

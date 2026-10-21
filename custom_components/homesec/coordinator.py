@@ -146,6 +146,9 @@ _LOG_SAVE_DELAY_SECONDS = 300
 _DISMISS_SAVE_DELAY_SECONDS = 1
 # Upper bound on external IPs tracked at once (retention 0 means "no expiry")
 MAX_TRACKED_EXTERNAL_IPS = 10_000
+# Per external IP: internal hosts and destination ports remembered
+MAX_EXT_IP_SOURCES = 256
+MAX_EXT_IP_PORTS = 64
 
 
 def _as_bool(value: Any) -> bool:
@@ -255,6 +258,11 @@ class HomeSecCollector:
         self._ext_ip_inbound_sources: dict[str, set[str]] = {}
         self._ext_ip_ports: dict[str, set[int]] = {}
         self._ext_ip_total_octets: dict[str, int] = {}
+        self._ext_ip_total_flows: dict[str, int] = {}
+        # External IPs seen in flows since the last snapshot (re-queued for enrichment)
+        self._ext_ip_active: set[str] = set()
+        # ip -> (enrichment, hostname, bad_ips, bad_domains, entry); see _external_ip_entries
+        self._ext_entry_cache: dict[str, tuple[Any, str | None, Any, Any, dict[str, Any]]] = {}
         self._ext_ip_ratings: dict[str, str] = {}  # ip -> "clean" | "suspicious" | "malicious"
         self._ext_ip_has_outbound: set[str] = set()
         self._ext_ip_has_inbound: set[str] = set()
@@ -513,6 +521,12 @@ class HomeSecCollector:
                     total_octets = 0
                 if total_octets > 0:
                     self._ext_ip_total_octets[ip] = total_octets
+                try:
+                    total_flows = int(rec.get("total_flows", 0) or 0)
+                except (TypeError, ValueError):
+                    total_flows = 0
+                if total_flows > 0:
+                    self._ext_ip_total_flows[ip] = total_flows
             _LOGGER.info("Restored %d external IP tracking entries", len(ext_ip_data))
         _log_step("load external ip state", step_started)
 
@@ -728,7 +742,7 @@ class HomeSecCollector:
         try:
             parsed_nets = [ipaddress.ip_network(n) for n in internal_nets]
             self._scanner._internal_networks = parsed_nets
-            self._analyzer._internal_networks = parsed_nets
+            self._analyzer.set_internal_networks(parsed_nets)
         except ValueError as exc:
             _LOGGER.warning("HomeSec: invalid internal networks update ignored: %s", exc)
 
@@ -926,117 +940,42 @@ class HomeSecCollector:
                 dismissed_list.append(f)
         payload["dismissed_findings"] = dismissed_list
 
-        # Collect unique external IPs from device peers + connections
+        # External IP state is updated per flow in _handle_records; here we
+        # only build the table.  IPs active since the last refresh are
+        # re-queued so their enrichment is renewed once it goes stale.
         now = datetime.now(UTC)
         ext_state_changed = False
-        external_ips: dict[str, dict[str, Any]] = {}
+        active = self._ext_ip_active
+        self._ext_ip_active = set()
+        for ext_ip in active:
+            self._enricher.queue_ip(ext_ip)
+            self._resolver.queue_resolve(ext_ip)
+
         multicast_ips: dict[str, dict[str, Any]] = {}
-        external_ip_traffic: dict[str, dict[str, int]] = {}
-
-        def _bump_ext_traffic(ip: str, flows: int = 0, octets: int = 0) -> None:
-            if not ip:
-                return
-            totals = external_ip_traffic.setdefault(ip, {"total_flows": 0, "total_octets": 0})
-            totals["total_flows"] += max(0, int(flows or 0))
-            totals["total_octets"] += max(0, int(octets or 0))
-
-        for device in payload.get("devices", []):
-            device_ip = str(device.get("ip", ""))
-            for ext_ip in device.get("external_peers", []):
-                if ext_ip not in external_ips:
-                    self._enricher.queue_ip(ext_ip)
-                    self._resolver.queue_resolve(ext_ip)
-                    external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
-                    # Only initialise last_seen / first_seen if not already recorded by _handle_records
-                    if ext_ip not in self._ext_ip_last_seen:
-                        self._ext_ip_last_seen[ext_ip] = now
-                        ext_state_changed = True
-                    if ext_ip not in self._ext_ip_first_seen:
-                        self._ext_ip_first_seen[ext_ip] = now
-                        ext_state_changed = True
-                if device_ip:
-                    srcs = self._ext_ip_sources.setdefault(ext_ip, set())
-                    before = len(srcs)
-                    srcs.add(device_ip)
-                    if len(srcs) != before:
-                        ext_state_changed = True
-                    self._ext_ip_outbound_sources.setdefault(ext_ip, set()).add(device_ip)
-                if ext_ip not in self._ext_ip_has_outbound:
-                    self._ext_ip_has_outbound.add(ext_ip)
-                    ext_state_changed = True
         for conn in payload.get("connections", []):
-            target_kind = conn.get("target_kind", "")
-            if target_kind == "multicast":
-                mc_ip = str(conn["target"])
-                source_ip = str(conn.get("source", ""))
-                if mc_ip not in multicast_ips:
-                    multicast_ips[mc_ip] = self._build_multicast_entry(mc_ip)
-                if source_ip:
-                    multicast_ips[mc_ip].setdefault("internal_sources", [])
-                    if source_ip not in multicast_ips[mc_ip]["internal_sources"]:
-                        multicast_ips[mc_ip]["internal_sources"].append(source_ip)
-            elif target_kind == "external":
-                ext_ip = str(conn["target"])
-                source_ip = str(conn.get("source", ""))
-                dst_port = conn.get("dst_port")
-                _bump_ext_traffic(ext_ip, conn.get("flows", 1), conn.get("octets", 0))
-                if ext_ip not in external_ips:
-                    self._enricher.queue_ip(ext_ip)
-                    self._resolver.queue_resolve(ext_ip)
-                    external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
-                    if ext_ip not in self._ext_ip_last_seen:
-                        self._ext_ip_last_seen[ext_ip] = now
-                        ext_state_changed = True
-                    if ext_ip not in self._ext_ip_first_seen:
-                        self._ext_ip_first_seen[ext_ip] = now
-                        ext_state_changed = True
-                if source_ip:
-                    srcs = self._ext_ip_sources.setdefault(ext_ip, set())
-                    before = len(srcs)
-                    srcs.add(source_ip)
-                    if len(srcs) != before:
-                        ext_state_changed = True
-                    self._ext_ip_outbound_sources.setdefault(ext_ip, set()).add(source_ip)
-                if dst_port:
-                    ports = self._ext_ip_ports.setdefault(ext_ip, set())
-                    before = len(ports)
-                    ports.add(int(dst_port))
-                    if len(ports) != before:
-                        ext_state_changed = True
-                if ext_ip not in self._ext_ip_has_outbound:
-                    self._ext_ip_has_outbound.add(ext_ip)
-                    ext_state_changed = True
-            elif target_kind == "internal" and conn.get("source_kind") == "external":
-                ext_ip = str(conn.get("source", ""))
-                target_ip = str(conn.get("target", ""))
-                if ext_ip:
-                    _bump_ext_traffic(ext_ip, conn.get("flows", 1), conn.get("octets", 0))
-                    if ext_ip not in external_ips:
-                        self._enricher.queue_ip(ext_ip)
-                        self._resolver.queue_resolve(ext_ip)
-                        external_ips[ext_ip] = self._build_ext_ip_entry(ext_ip)
-                        if ext_ip not in self._ext_ip_last_seen:
-                            self._ext_ip_last_seen[ext_ip] = now
-                            ext_state_changed = True
-                        if ext_ip not in self._ext_ip_first_seen:
-                            self._ext_ip_first_seen[ext_ip] = now
-                            ext_state_changed = True
-                    if target_ip:
-                        srcs = self._ext_ip_sources.setdefault(ext_ip, set())
-                        before = len(srcs)
-                        srcs.add(target_ip)
-                        if len(srcs) != before:
-                            ext_state_changed = True
-                        self._ext_ip_inbound_sources.setdefault(ext_ip, set()).add(target_ip)
-                    if ext_ip not in self._ext_ip_has_inbound:
-                        self._ext_ip_has_inbound.add(ext_ip)
-                        ext_state_changed = True
+            if conn.get("target_kind", "") != "multicast":
+                continue
+            mc_ip = str(conn["target"])
+            source_ip = str(conn.get("source", ""))
+            if mc_ip not in multicast_ips:
+                multicast_ips[mc_ip] = self._build_multicast_entry(mc_ip)
+            if source_ip and source_ip not in multicast_ips[mc_ip]["internal_sources"]:
+                multicast_ips[mc_ip]["internal_sources"].append(source_ip)
 
-        # Include previously-seen external IPs that are still within the retention window.
-        # Update severity tracking from freshly built entries so pruning uses current ratings.
-        for ip, entry in external_ips.items():
+        external_ips, rebuilt = self._external_ip_entries(active)
+
+        # Update severity tracking from rebuilt entries so pruning uses current
+        # ratings.  An entry without enrichment or a blocklist hit carries no
+        # verdict, so the stored rating (e.g. restored from storage) is kept.
+        for ip in rebuilt:
+            entry = external_ips[ip]
             blacklisted = bool(entry.get("blacklisted", False))
             rating = str(entry.get("rating") or "")
+            if not blacklisted and not rating:
+                if ip not in self._ext_ip_ratings:
+                    self._ext_ip_ratings[ip] = "clean"
+                    ext_state_changed = True
+                continue
             if blacklisted or rating == "malicious":
                 if self._ext_ip_ratings.get(ip) != "malicious":
                     ext_state_changed = True
@@ -1086,38 +1025,10 @@ class HomeSecCollector:
             self._ext_ip_has_outbound.discard(ip)
             self._ext_ip_has_inbound.discard(ip)
             self._ext_ip_total_octets.pop(ip, None)
+            self._ext_ip_total_flows.pop(ip, None)
+            self._ext_entry_cache.pop(ip, None)
             external_ips.pop(ip, None)
             ext_state_changed = True
-        # Add retained IPs not in current snapshot
-        for ip in self._ext_ip_last_seen:
-            if ip not in external_ips:
-                external_ips[ip] = self._build_ext_ip_entry(ip)
-
-        # Attach last_seen, first_seen, and internal_sources to each entry
-        for ip, entry_data in external_ips.items():
-            last_ts = self._ext_ip_last_seen.get(ip)
-            first_ts = self._ext_ip_first_seen.get(ip)
-            entry_data["last_seen"] = last_ts.isoformat() if last_ts else None
-            entry_data["first_seen"] = first_ts.isoformat() if first_ts else None
-            traffic = external_ip_traffic.get(ip, {})
-            entry_data["total_flows"] = int(traffic.get("total_flows", 0) or 0)
-            curr_octets = int(traffic.get("total_octets", 0) or 0)
-            prev_octets = int(self._ext_ip_total_octets.get(ip, 0) or 0)
-            if curr_octets > 0 and curr_octets != prev_octets:
-                self._ext_ip_total_octets[ip] = curr_octets
-                ext_state_changed = True
-            entry_data["total_octets"] = int(self._ext_ip_total_octets.get(ip, 0) or 0)
-            entry_data["internal_sources"] = sorted(self._ext_ip_sources.get(ip, set()))
-            entry_data["dst_ports"] = sorted(self._ext_ip_ports.get(ip, set()))
-            _is_out = ip in self._ext_ip_has_outbound
-            _is_in = ip in self._ext_ip_has_inbound
-            entry_data["direction"] = "both" if (_is_out and _is_in) else ("inbound" if _is_in else "outbound")
-            if _is_out and _is_in:
-                _out_srcs = self._ext_ip_outbound_sources.get(ip, set())
-                _in_srcs = self._ext_ip_inbound_sources.get(ip, set())
-                entry_data["direction_alert"] = _out_srcs.isdisjoint(_in_srcs)
-            else:
-                entry_data["direction_alert"] = False
 
         payload["external_ips"] = sorted(
             external_ips.values(), key=lambda x: x.get("ip", "")
@@ -1340,6 +1251,57 @@ class HomeSecCollector:
     def storage(self) -> HomeSecStorage:
         return self._storage
 
+    def _external_ip_entries(self, active: set[str]) -> tuple[dict[str, dict[str, Any]], list[str]]:
+        """Return the external IP table and the IPs whose entry was rebuilt.
+
+        An entry is reused from the previous refresh when the IP carried no
+        traffic since then and its inputs are the very same objects: the
+        stored enrichment dict, the hostname and the active blocklist sets
+        (all replaced, never mutated, when they change).
+        """
+        bad_ips = self._resolver._bad_ips
+        bad_domains = self._resolver._bad_domains
+        cache = self._ext_entry_cache
+        entries: dict[str, dict[str, Any]] = {}
+        rebuilt: list[str] = []
+        for ip in self._ext_ip_last_seen:
+            enrichment = self._enricher.cached_entry(ip)
+            hostname = self._resolver.get_hostname(ip)
+            cached = cache.get(ip)
+            if (
+                cached is not None
+                and ip not in active
+                and cached[0] is enrichment
+                and cached[1] == hostname
+                and cached[2] is bad_ips
+                and cached[3] is bad_domains
+            ):
+                entries[ip] = cached[4]
+                continue
+            entry = self._build_ext_ip_entry(ip)
+            last_ts = self._ext_ip_last_seen.get(ip)
+            first_ts = self._ext_ip_first_seen.get(ip)
+            entry["last_seen"] = last_ts.isoformat() if last_ts else None
+            entry["first_seen"] = first_ts.isoformat() if first_ts else None
+            entry["total_flows"] = self._ext_ip_total_flows.get(ip, 0)
+            entry["total_octets"] = self._ext_ip_total_octets.get(ip, 0)
+            entry["internal_sources"] = sorted(self._ext_ip_sources.get(ip, set()))
+            entry["dst_ports"] = sorted(self._ext_ip_ports.get(ip, set()))
+            is_out = ip in self._ext_ip_has_outbound
+            is_in = ip in self._ext_ip_has_inbound
+            entry["direction"] = "both" if (is_out and is_in) else ("inbound" if is_in else "outbound")
+            entry["direction_alert"] = bool(
+                is_out
+                and is_in
+                and self._ext_ip_outbound_sources.get(ip, set()).isdisjoint(
+                    self._ext_ip_inbound_sources.get(ip, set())
+                )
+            )
+            cache[ip] = (enrichment, hostname, bad_ips, bad_domains, entry)
+            entries[ip] = entry
+            rebuilt.append(ip)
+        return entries, rebuilt
+
     def _build_ext_ip_entry(self, ip: str) -> dict[str, Any]:
         enrichment = self._enricher.get(ip)
         hostname = self._resolver.get_hostname(ip)
@@ -1458,31 +1420,43 @@ class HomeSecCollector:
 
     def _handle_records(self, records: list[FlowRecord]) -> None:
         self._analyzer.ingest(records)
-        # Update last_seen for external IPs appearing in live flow records
         now = datetime.now(UTC)
-        is_internal = self._analyzer._is_internal
-        is_multicast = self._analyzer._is_multicast
+        classify = self._analyzer.classify
         for rec in records:
-            src_internal = is_internal(rec.src_ip)
-            dst_internal = is_internal(rec.dst_ip)
-            if not src_internal and dst_internal and not is_multicast(rec.src_ip):
-                ip = str(rec.src_ip)
-                if ip not in self._ext_ip_first_seen:
-                    self._ext_ip_first_seen[ip] = now
-                    self._ext_state_dirty = True
-                prev = self._ext_ip_last_seen.get(ip)
-                self._ext_ip_last_seen[ip] = now
-                if prev != now:
-                    self._ext_state_dirty = True
-            elif src_internal and not dst_internal and not is_multicast(rec.dst_ip):
-                ip = str(rec.dst_ip)
-                if ip not in self._ext_ip_first_seen:
-                    self._ext_ip_first_seen[ip] = now
-                    self._ext_state_dirty = True
-                prev = self._ext_ip_last_seen.get(ip)
-                self._ext_ip_last_seen[ip] = now
-                if prev != now:
-                    self._ext_state_dirty = True
+            try:
+                src, src_internal, src_multicast = classify(rec.src_ip)
+                dst, dst_internal, dst_multicast = classify(rec.dst_ip)
+            except Exception:  # noqa: BLE001 - malformed record, skipped by the analyzer too
+                continue
+            if not src_internal and dst_internal and not src_multicast:
+                self._track_external(src, dst, rec, now, outbound=False)
+            elif src_internal and not dst_internal and not dst_multicast:
+                self._track_external(dst, src, rec, now, outbound=True)
+
+    def _track_external(self, ip: str, internal_ip: str, rec: FlowRecord, now: datetime, *, outbound: bool) -> None:
+        """Account one flow between an internal host and external address ``ip``."""
+        if ip not in self._ext_ip_first_seen:
+            self._ext_ip_first_seen[ip] = now
+        self._ext_ip_last_seen[ip] = now
+        self._ext_ip_active.add(ip)
+        sources = self._ext_ip_sources.setdefault(ip, set())
+        if len(sources) < MAX_EXT_IP_SOURCES:
+            sources.add(internal_ip)
+        if outbound:
+            directional = self._ext_ip_outbound_sources.setdefault(ip, set())
+            self._ext_ip_has_outbound.add(ip)
+            if rec.dst_port:
+                ports = self._ext_ip_ports.setdefault(ip, set())
+                if len(ports) < MAX_EXT_IP_PORTS:
+                    ports.add(rec.dst_port)
+        else:
+            directional = self._ext_ip_inbound_sources.setdefault(ip, set())
+            self._ext_ip_has_inbound.add(ip)
+        if len(directional) < MAX_EXT_IP_SOURCES:
+            directional.add(internal_ip)
+        self._ext_ip_total_flows[ip] = self._ext_ip_total_flows.get(ip, 0) + 1
+        self._ext_ip_total_octets[ip] = self._ext_ip_total_octets.get(ip, 0) + max(0, rec.octets)
+        self._ext_state_dirty = True
 
     def _external_state_snapshot(self) -> list[dict[str, Any]]:
         return [
@@ -1501,6 +1475,7 @@ class HomeSecCollector:
                 "ports": sorted(int(p) for p in self._ext_ip_ports.get(ip, set())),
                 "rating": self._ext_ip_ratings.get(ip, "clean"),
                 "total_octets": int(self._ext_ip_total_octets.get(ip, 0) or 0),
+                "total_flows": int(self._ext_ip_total_flows.get(ip, 0) or 0),
                 "direction": (
                     "both" if (ip in self._ext_ip_has_outbound and ip in self._ext_ip_has_inbound)
                     else "inbound" if ip in self._ext_ip_has_inbound

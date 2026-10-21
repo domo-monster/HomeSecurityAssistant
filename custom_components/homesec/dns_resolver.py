@@ -117,6 +117,7 @@ class DNSBlacklistChecker:
         self._source_map: dict[str, str] = {}
         self._hostname_cache: dict[str, str | None] = {}
         self._resolve_queue: asyncio.Queue[str] = asyncio.Queue(maxsize=500)
+        self._resolve_pending: set[str] = set()
         self._last_refresh: datetime | None = None
         self._refresh_task: asyncio.Task | None = None
         self._resolve_task: asyncio.Task | None = None
@@ -195,11 +196,13 @@ class DNSBlacklistChecker:
 
     def queue_resolve(self, ip: str) -> None:
         """Queue an IP for background reverse-DNS lookup."""
-        if ip not in self._hostname_cache and self._enable_resolution:
-            try:
-                self._resolve_queue.put_nowait(ip)
-            except asyncio.QueueFull:
-                pass
+        if ip in self._hostname_cache or ip in self._resolve_pending or not self._enable_resolution:
+            return
+        try:
+            self._resolve_queue.put_nowait(ip)
+            self._resolve_pending.add(ip)
+        except asyncio.QueueFull:
+            pass
 
     def get_hostname(self, ip: str) -> str | None:
         """Return cached hostname, or None if not yet resolved."""
@@ -288,8 +291,11 @@ class DNSBlacklistChecker:
     async def _resolve_worker(self) -> None:
         while True:
             ip = await self._resolve_queue.get()
-            if ip not in self._hostname_cache:
-                self._cache_hostname(ip, await self._rdns(ip))
+            try:
+                if ip not in self._hostname_cache:
+                    self._cache_hostname(ip, await self._rdns(ip))
+            finally:
+                self._resolve_pending.discard(ip)
 
     async def _refresh_loop(self) -> None:
         while True:
