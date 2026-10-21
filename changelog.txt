@@ -1,5 +1,17 @@
 Security Assistant - Changelog
 
+0.12.0
+
+Sidebar panel
+- The panel is rebuilt on Lit. Every value shown in the panel goes through Lit templates, which escape it, instead of hand-escaped HTML strings set with innerHTML.
+- Rendering diffs the page instead of rebuilding it: search boxes keep focus and cursor position while tables update, and filtering or sorting large tables is faster.
+- The source now lives in frontend/src (one module per view, translations as JSON files) and is bundled with esbuild; the committed homesec-panel.js is generated from it.
+- The "Reload" button shown after a display error now works.
+- No visual or functional change intended: every view, modal and interaction was compared against 0.11.0 in a real browser and renders the same DOM.
+
+Testing
+- Browser regression tests (Playwright) render every view, modal and main interaction against fixtures generated from the real backend, checking for page errors, injected script, leaked markup, DOM snapshots and screenshots. CI runs them on every push and checks that the committed bundle matches the sources.
+
 0.11.0
 
 Privacy

@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>html, body { margin: 0; background: #070b12; }</style>
+</head>
+<body>
+<script type="module">
+  // Fake Home Assistant object backed by fixtures generated from the real backend.
+  const params = new URLSearchParams(location.search);
+  const fixtures = await (await fetch("/tests/fixtures/api.json")).json();
+  const dashboard = structuredClone(fixtures.dashboard);
+  // Turn on every optional feature so all views are reachable.
+  dashboard.netflow_listener_enabled = true;
+  dashboard.dns_proxy_enabled = true;
+  dashboard.dns_proxy_stats = { ...dashboard.dns_proxy_stats, running: true, host: "0.0.0.0", port: 53, upstream: "1.1.1.1:53", total_queries: 1234, denied_queries: 5 };
+  dashboard.suricata_stats = { ...dashboard.suricata_stats, running: true, host: "0.0.0.0", port: 6343, total_received: 30, active_connections: 1, exporter_ips: ["192.168.1.2"] };
+  dashboard.summary.exporters = ["192.168.1.1"];
+  window.__calls = [];
+  window.__xss = undefined;
+  const responses = {
+    "GET homesec/dashboard": dashboard,
+    "GET homesec/vulnerabilities": fixtures.vulnerabilities,
+    "GET homesec/settings": fixtures.settings,
+  };
+  const hass = {
+    language: params.get("lang") || "en",
+    callApi: async (method, path, body) => {
+      window.__calls.push({ method, path, body });
+      if (path.startsWith("homesec/lookup")) return fixtures.lookup;
+      return structuredClone(responses[`${method} ${path}`] ?? { result: "ok" });
+    },
+    callService: async (domain, service, data) => {
+      window.__calls.push({ method: "SERVICE", path: `${domain}.${service}`, body: data });
+    },
+  };
+  await import(params.get("panel") || "/panel/homesec-panel.js");
+  const panel = document.createElement("homesec-panel");
+  panel.hass = hass;
+  document.body.appendChild(panel);
+  window.__panel = panel;
+</script>
+</body>
+</html>

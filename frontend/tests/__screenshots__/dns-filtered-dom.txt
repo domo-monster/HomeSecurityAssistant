@@ -1,0 +1,708 @@
+<header class=mobile-topbar>
+  <button aria-label=Open menu class=mobile-menu-btn data-mobile-menu-toggle=>
+    #☰
+  <div class=mobile-topbar-title id=hsa-mobile-title>
+    #DNS Queries
+<div class=mobile-backdrop data-mobile-menu-close=>
+<nav class=sidebar id=hsa-sidebar>
+  <div class=brand>
+    <img alt=logo src=/api/homesec/frontend/hsa-logo.svg style=height: 32px; width: 32px; margin-right: 10px; border-radius: 8px; box-shadow: rgba(98, 232, 255, 0.333) 0px 0px 8px; vertical-align: middle;>
+    <div class=brand-text>
+      <span class=brand-name>
+        #Security
+      <span class=brand-sub>
+        #Assistant
+      <span class=brand-tagline>
+        #Network security telemetry with live flow context
+  <ul class=nav-list>
+    <li class=nav-item data-view=overview>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z>
+      <span class=nav-label>
+        #Overview
+    <li class=nav-item data-view=map>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z>
+      <span class=nav-label>
+        #Network Map
+    <li class=nav-item data-view=hosts>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z>
+      <span class=nav-label>
+        #Hosts
+    <li class=nav-item data-view=findings>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v6h-2V7zm0 8h2v2h-2v-2z>
+      <span class=nav-label>
+        #Findings
+      <span class=nav-badge>
+        #11
+    <li class=nav-item data-view=external>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z>
+      <span class=nav-label>
+        #External IPs
+      <span class=nav-badge danger>
+        #1
+    <li class=nav-item data-view=vulnerabilities>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z>
+      <span class=nav-label>
+        #Vulnerabilities
+    <li class=nav-item data-view=statistics>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z>
+      <span class=nav-label>
+        #Statistics
+    <li class=nav-item active data-view=dns>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z>
+      <span class=nav-label>
+        #DNS Queries
+    <li class=nav-item data-view=suricata>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm1 14h-2v-2h2v2zm0-4h-2V7h2v4z>
+      <span class=nav-label>
+        #Suricata Alerts
+    <li class=nav-item data-view=recommendations>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z>
+      <span class=nav-label>
+        #Recommendations
+    <li class=nav-item data-view=settings>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z>
+      <span class=nav-label>
+        #Settings
+  <div class=sidebar-status online>
+    <div class=status-dot>
+    <span>
+      #Collector active
+    <span style=margin-left: auto; opacity: 0.45; font-size: 9px;>
+      #v0.11.0
+  <div class=sidebar-copy>
+    <a href=https://domotic.monster rel=noopener noreferrer target=_blank>
+      #© 2026 domotic.monster
+<main class=content id=hsa-content>
+  <div>
+    <div class=view-header>
+      <h1>
+        #DNS Queries 
+        <span class=badge badge-malicious style=margin-left: 8px;>
+          #10 malicious
+    <div class=card table-card>
+      <div style=padding: 14px 14px 8px;>
+        <div style=display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap;>
+          <input class=search-bar id=dns-search placeholder=Filter by IP or domain… style=width: 220px; value=example>
+          <select id=dns-cat-filter style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
+            <option value=>
+              #All categories
+            <option value=malware>
+              #Malware
+            <option value=adult>
+              #Adult
+            <option value=gambling>
+              #Gambling
+            <option value=ads>
+              #Ads
+            <option value=tracking>
+              #Tracking
+            <option value=social>
+              #Social
+            <option value=gaming>
+              #Gaming
+            <option value=streaming>
+              #Streaming
+            <option value=news>
+              #News
+            <option value=cdn>
+              #CDN
+            <option value=cloud>
+              #Cloud
+            <option value=iot>
+              #IoT
+            <option value=tech>
+              #Tech
+            <option value=intel>
+              #Threat Intel
+            <option value=override>
+              #Override
+            <option value=other>
+              #Other
+          <select id=dns-status-filter style=font-size: 12px; padding: 4px 6px; background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; cursor: pointer;>
+            <option value=>
+              #All status
+            <option value=allowed>
+              #Allowed
+            <option value=blocked>
+              #Blocked
+          <label style=font-size: 12px; display: flex; align-items: center; gap: 5px; cursor: pointer;>
+            <input id=dns-malicious-only type=checkbox>
+            # Malicious only
+          <span id=dns-count style=font-size: 11px; color: var(--muted); margin-left: auto;>
+            #30 / 60 entries
+      <div class=row-gap style=justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap;>
+        <div class=row-gap style=font-size: 11px; color: var(--muted);>
+          #Showing 1–25 of 30
+        <div class=row-gap style=gap: 6px;>
+          <label class=dim style=font-size: 11px;>
+            #Rows
+          <select class=role-select id=hsa-dns-pagesize>
+            <option value=10>
+              #10
+            <option selected= value=25>
+              #25
+            <option value=50>
+              #50
+            <option value=100>
+              #100
+          <button class=btn data-dns-page=-1 disabled=>
+            #Previous
+          <span class=dim style=font-size: 11px; min-width: 70px; text-align: center;>
+            #1 / 2
+          <button class=btn data-dns-page=1>
+            #Next
+      <div style=overflow-x: auto;>
+        <table class=data-table id=dns-table style=min-width: 900px;>
+          <thead>
+            <tr>
+              <th class=sortable-th data-dnssort=time>
+                #Time
+                <span class=sort-arrow>
+                  # ▲
+              <th class=sortable-th data-dnssort=client_ip>
+                #Client IP
+                <span class=sort-arrow>
+              <th class=sortable-th data-dnssort=domain>
+                #Domain
+                <span class=sort-arrow>
+              <th class=sortable-th data-dnssort=type>
+                #Type
+                <span class=sort-arrow>
+              <th class=sortable-th data-dnssort=category>
+                #Category
+                <span class=sort-arrow>
+              <th>
+                #Response
+              <th>
+                #Answer
+              <th class=sortable-th data-dnssort=status>
+                #Status
+                <span class=sort-arrow>
+          <tbody>
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:27:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:29:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:32:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:33:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:35:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:38:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:39:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:41:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:44:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:45:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:47:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:50:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:51:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:53:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:56:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:57:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #2:59:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:02:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:03:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:05:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:08:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:09:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=malware data-domain=c2.evil.example data-ip=192.168.1.12 data-malicious=1 data-status=blocked style=background: rgba(255, 77, 109, 0.06);>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:11:06 PM
+              <td class=mono ip>
+                #192.168.1.12
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=c2.evil.example>
+                #c2.evil.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(255, 77, 109, 0.18); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.4);>
+                  #Malware
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(255, 77, 109, 0.15); color: rgb(255, 77, 109); border: 1px solid rgba(255, 77, 109, 0.35);>
+                  #🚫 Blocked
+            <tr data-cat=other data-domain=<img src=x onerror="window.__xss=1">.example data-ip=192.168.1.15 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:14:06 PM
+              <td class=mono ip>
+                #192.168.1.15
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=<img src=x onerror="window.__xss=1">.example>
+                #<img src=x onerror="window.__xss=1">.example
+              <td>
+                <span class=chip>
+                  #A
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--warn);>
+                #NXDOMAIN
+              <td class=mono style=font-size: 11px;>
+                <span style=color: var(--muted);>
+                  #—
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed
+            <tr data-cat=other data-domain=www.example.org data-ip=192.168.1.10 data-malicious=0 data-status=allowed>
+              <td class=mono style=white-space: nowrap; font-size: 11px;>
+                #3:15:06 PM
+              <td class=mono ip>
+                #192.168.1.10
+              <td class=mono style=max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; title=www.example.org>
+                #www.example.org
+              <td>
+                <span class=chip>
+                  #AAAA
+              <td>
+                <span style=display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; background: rgba(90, 106, 128, 0.18); color: rgb(90, 106, 128); border: 1px solid rgba(90, 106, 128, 0.4);>
+                  #Other
+              <td class=mono style=font-size: 11px; color: var(--success);>
+                #NOERROR
+              <td class=mono style=font-size: 11px;>
+                #93.184.216.34
+              <td>
+                <span class=badge style=background: rgba(107, 255, 200, 0.12); color: rgb(107, 255, 200); border: 1px solid rgba(107, 255, 200, 0.3);>
+                  #✓ Allowed

@@ -1,0 +1,7918 @@
+{
+ "dashboard": {
+  "alive_hosts": [
+   "192.168.1.10",
+   "192.168.1.11",
+   "192.168.1.12",
+   "192.168.1.13",
+   "192.168.1.14"
+  ],
+  "baseline": {
+   "baseline_completed_at": "2026-10-20T15:27:06.304392+00:00",
+   "baseline_version": 1,
+   "confidence": "low",
+   "egress_multiplier": 2.5,
+   "learned_edge_count": 17,
+   "learned_host_count": 13,
+   "min_observations": 3,
+   "mode": "active",
+   "training_ends_at": "2026-10-27T15:27:06.302787+00:00",
+   "training_hours": 168,
+   "training_progress_percent": 0,
+   "training_remaining_seconds": 0,
+   "training_started_at": "2026-10-20T15:27:06.302787+00:00",
+   "training_stats": {
+    "devices_seen": 25,
+    "dns_queries_seen": 10,
+    "scan_cycles_seen": 1,
+    "snapshots_seen": 2
+   }
+  },
+  "baseline_anomalies": [
+   {
+    "category": "anomaly_new_host",
+    "details": {
+     "ip": "192.168.1.30"
+    },
+    "key": "baseline:new_host:192.168.1.30",
+    "last_seen": "2026-10-20T15:27:06.305214+00:00",
+    "severity": "high",
+    "source_ip": "192.168.1.30",
+    "summary": "New internal host 192.168.1.30 not seen during baseline training"
+   },
+   {
+    "category": "anomaly_new_peer",
+    "details": {
+     "peer": "198.51.100.99"
+    },
+    "key": "baseline:new_peer:192.168.1.10:198.51.100.99",
+    "last_seen": "2026-10-20T15:27:06.305214+00:00",
+    "severity": "medium",
+    "source_ip": "192.168.1.10",
+    "summary": "Host 192.168.1.10 communicated with new external peer 198.51.100.99"
+   }
+  ],
+  "baseline_enabled": true,
+  "baseline_graph": {
+   "baseline_version": 1,
+   "confidence": "low",
+   "edges": [
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 4096.0,
+     "avg_octets_when_active": 4096.0,
+     "flows_total": 2,
+     "octets_total": 8192,
+     "snapshots_seen": 2,
+     "source": "185.220.101.5",
+     "source_kind": "external",
+     "target": "192.168.1.11",
+     "target_kind": "internal"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 80000000.0,
+     "avg_octets_when_active": 80000000.0,
+     "flows_total": 2,
+     "octets_total": 160000000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.18",
+     "source_kind": "internal",
+     "target": "45.33.32.156",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 240000.0,
+     "avg_octets_when_active": 240000.0,
+     "flows_total": 2,
+     "octets_total": 480000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.21",
+     "source_kind": "internal",
+     "target": "203.0.113.50",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 220000.0,
+     "avg_octets_when_active": 220000.0,
+     "flows_total": 2,
+     "octets_total": 440000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.20",
+     "source_kind": "internal",
+     "target": "45.33.32.156",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 200000.0,
+     "avg_octets_when_active": 200000.0,
+     "flows_total": 2,
+     "octets_total": 400000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.19",
+     "source_kind": "internal",
+     "target": "185.220.101.5",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 180000.0,
+     "avg_octets_when_active": 180000.0,
+     "flows_total": 2,
+     "octets_total": 360000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.18",
+     "source_kind": "internal",
+     "target": "93.184.216.34",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 160000.0,
+     "avg_octets_when_active": 160000.0,
+     "flows_total": 2,
+     "octets_total": 320000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.17",
+     "source_kind": "internal",
+     "target": "1.1.1.1",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 140000.0,
+     "avg_octets_when_active": 140000.0,
+     "flows_total": 2,
+     "octets_total": 280000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.16",
+     "source_kind": "internal",
+     "target": "8.8.8.8",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 120000.0,
+     "avg_octets_when_active": 120000.0,
+     "flows_total": 2,
+     "octets_total": 240000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.15",
+     "source_kind": "internal",
+     "target": "203.0.113.50",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 100000.0,
+     "avg_octets_when_active": 100000.0,
+     "flows_total": 2,
+     "octets_total": 200000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.14",
+     "source_kind": "internal",
+     "target": "45.33.32.156",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 80000.0,
+     "avg_octets_when_active": 80000.0,
+     "flows_total": 2,
+     "octets_total": 160000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.13",
+     "source_kind": "internal",
+     "target": "185.220.101.5",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 60000.0,
+     "avg_octets_when_active": 60000.0,
+     "flows_total": 2,
+     "octets_total": 120000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.12",
+     "source_kind": "internal",
+     "target": "93.184.216.34",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 40000.0,
+     "avg_octets_when_active": 40000.0,
+     "flows_total": 2,
+     "octets_total": 80000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.11",
+     "source_kind": "internal",
+     "target": "1.1.1.1",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 20000.0,
+     "avg_octets_when_active": 20000.0,
+     "flows_total": 2,
+     "octets_total": 40000,
+     "snapshots_seen": 2,
+     "source": "192.168.1.10",
+     "source_kind": "internal",
+     "target": "8.8.8.8",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 4096.0,
+     "avg_octets_when_active": 4096.0,
+     "flows_total": 2,
+     "octets_total": 8192,
+     "snapshots_seen": 2,
+     "source": "192.168.1.15",
+     "source_kind": "internal",
+     "target": "185.220.101.5",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 1.0,
+     "avg_flows_when_active": 1.0,
+     "avg_octets_per_snapshot": 4096.0,
+     "avg_octets_when_active": 4096.0,
+     "flows_total": 2,
+     "octets_total": 8192,
+     "snapshots_seen": 2,
+     "source": "192.168.1.16",
+     "source_kind": "internal",
+     "target": "203.0.113.50",
+     "target_kind": "external"
+    },
+    {
+     "active_probability": 1.0,
+     "avg_flows_per_snapshot": 65.0,
+     "avg_flows_when_active": 65.0,
+     "avg_octets_per_snapshot": 266240.0,
+     "avg_octets_when_active": 266240.0,
+     "flows_total": 130,
+     "octets_total": 532480,
+     "snapshots_seen": 2,
+     "source": "192.168.1.17",
+     "source_kind": "internal",
+     "target": "192.168.1.20",
+     "target_kind": "internal"
+    }
+   ],
+   "hosts": [
+    {
+     "display_name": null,
+     "dns_categories": [],
+     "dns_domains": [],
+     "exposed_ports": [
+      53
+     ],
+     "external_peers": [],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.1",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "dns_or_gateway"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [
+      "other"
+     ],
+     "dns_domains": [
+      "www.example.org"
+     ],
+     "exposed_ports": [
+      22,
+      80
+     ],
+     "external_peers": [
+      "8.8.8.8"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.10",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "linux_host"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [
+      "ads"
+     ],
+     "dns_domains": [
+      "ads.doubleclick.net"
+     ],
+     "exposed_ports": [
+      22,
+      445,
+      3389
+     ],
+     "external_peers": [
+      "1.1.1.1"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.11",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "nas_or_desktop"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [
+      "malware"
+     ],
+     "dns_domains": [
+      "c2.evil.example"
+     ],
+     "exposed_ports": [
+      80,
+      554
+     ],
+     "external_peers": [
+      "93.184.216.34"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.12",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "camera"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [
+      "override"
+     ],
+     "dns_domains": [
+      "nas.lan"
+     ],
+     "exposed_ports": [
+      631,
+      9100
+     ],
+     "external_peers": [
+      "185.220.101.5"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.13",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "printer"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [
+      "streaming"
+     ],
+     "dns_domains": [
+      "www.netflix.com"
+     ],
+     "exposed_ports": [
+      23,
+      5555
+     ],
+     "external_peers": [
+      "45.33.32.156"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.14",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "unknown"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [
+      "other"
+     ],
+     "dns_domains": [
+      "<img src=x onerror=\"window.__xss=1\">.example"
+     ],
+     "exposed_ports": [],
+     "external_peers": [
+      "185.220.101.5",
+      "203.0.113.50"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.15",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "unknown"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [],
+     "dns_domains": [],
+     "exposed_ports": [],
+     "external_peers": [
+      "203.0.113.50",
+      "8.8.8.8"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.16",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "unknown"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [],
+     "dns_domains": [],
+     "exposed_ports": [],
+     "external_peers": [
+      "1.1.1.1"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.17",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "unknown"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [],
+     "dns_domains": [],
+     "exposed_ports": [],
+     "external_peers": [
+      "45.33.32.156",
+      "93.184.216.34"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.18",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "unknown"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [],
+     "dns_domains": [],
+     "exposed_ports": [],
+     "external_peers": [
+      "185.220.101.5"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.19",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "unknown"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [],
+     "dns_domains": [],
+     "exposed_ports": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149
+     ],
+     "external_peers": [
+      "45.33.32.156"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.20",
+     "last_seen": "2026-10-20T15:27:06.304111+00:00",
+     "manufacturer": null,
+     "observation_count": 2,
+     "probable_role": "nas_or_desktop"
+    },
+    {
+     "display_name": null,
+     "dns_categories": [],
+     "dns_domains": [],
+     "exposed_ports": [],
+     "external_peers": [
+      "203.0.113.50"
+     ],
+     "first_seen": "2026-10-20T15:27:06.303488+00:00",
+     "hostname": null,
+     "ip": "192.168.1.21",
+     "last_seen": "2026-10-20T15:27:06.303488+00:00",
+     "manufacturer": null,
+     "observation_count": 1,
+     "probable_role": "unknown"
+    }
+   ],
+   "mode": "active",
+   "snapshot_count": 2
+  },
+  "blacklist_stats": {
+   "bad_domains": 2,
+   "bad_ips": 1,
+   "last_refresh": "2026-10-20T15:27:06.299796+00:00",
+   "sources": 3
+  },
+  "connections": [
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.18->45.33.32.156:6:443",
+    "last_seen": "2026-10-20T15:27:06.294947+00:00",
+    "octets": 80000000,
+    "protocol": 6,
+    "source": "192.168.1.18",
+    "source_kind": "internal",
+    "target": "45.33.32.156",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.21->203.0.113.50:6:443",
+    "last_seen": "2026-10-20T15:27:06.293969+00:00",
+    "octets": 240000,
+    "protocol": 6,
+    "source": "192.168.1.21",
+    "source_kind": "internal",
+    "target": "203.0.113.50",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.20->45.33.32.156:6:443",
+    "last_seen": "2026-10-20T15:27:06.293959+00:00",
+    "octets": 220000,
+    "protocol": 6,
+    "source": "192.168.1.20",
+    "source_kind": "internal",
+    "target": "45.33.32.156",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.19->185.220.101.5:6:443",
+    "last_seen": "2026-10-20T15:27:06.293942+00:00",
+    "octets": 200000,
+    "protocol": 6,
+    "source": "192.168.1.19",
+    "source_kind": "internal",
+    "target": "185.220.101.5",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.18->93.184.216.34:6:443",
+    "last_seen": "2026-10-20T15:27:06.293932+00:00",
+    "octets": 180000,
+    "protocol": 6,
+    "source": "192.168.1.18",
+    "source_kind": "internal",
+    "target": "93.184.216.34",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.17->1.1.1.1:6:443",
+    "last_seen": "2026-10-20T15:27:06.293922+00:00",
+    "octets": 160000,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "1.1.1.1",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.16->8.8.8.8:6:443",
+    "last_seen": "2026-10-20T15:27:06.293910+00:00",
+    "octets": 140000,
+    "protocol": 6,
+    "source": "192.168.1.16",
+    "source_kind": "internal",
+    "target": "8.8.8.8",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.15->203.0.113.50:6:443",
+    "last_seen": "2026-10-20T15:27:06.293899+00:00",
+    "octets": 120000,
+    "protocol": 6,
+    "source": "192.168.1.15",
+    "source_kind": "internal",
+    "target": "203.0.113.50",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.14->45.33.32.156:6:443",
+    "last_seen": "2026-10-20T15:27:06.293888+00:00",
+    "octets": 100000,
+    "protocol": 6,
+    "source": "192.168.1.14",
+    "source_kind": "internal",
+    "target": "45.33.32.156",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.13->185.220.101.5:6:443",
+    "last_seen": "2026-10-20T15:27:06.293876+00:00",
+    "octets": 80000,
+    "protocol": 6,
+    "source": "192.168.1.13",
+    "source_kind": "internal",
+    "target": "185.220.101.5",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.12->93.184.216.34:6:443",
+    "last_seen": "2026-10-20T15:27:06.293863+00:00",
+    "octets": 60000,
+    "protocol": 6,
+    "source": "192.168.1.12",
+    "source_kind": "internal",
+    "target": "93.184.216.34",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.11->1.1.1.1:6:443",
+    "last_seen": "2026-10-20T15:27:06.293850+00:00",
+    "octets": 40000,
+    "protocol": 6,
+    "source": "192.168.1.11",
+    "source_kind": "internal",
+    "target": "1.1.1.1",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 443,
+    "flows": 1,
+    "key": "192.168.1.10->8.8.8.8:6:443",
+    "last_seen": "2026-10-20T15:27:06.293824+00:00",
+    "octets": 20000,
+    "protocol": 6,
+    "source": "192.168.1.10",
+    "source_kind": "internal",
+    "target": "8.8.8.8",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 22,
+    "flows": 1,
+    "key": "185.220.101.5->192.168.1.11:6:22",
+    "last_seen": "2026-10-20T15:27:06.294953+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "185.220.101.5",
+    "source_kind": "external",
+    "target": "192.168.1.11",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 23,
+    "flows": 1,
+    "key": "192.168.1.15->185.220.101.5:6:23",
+    "last_seen": "2026-10-20T15:27:06.293979+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.15",
+    "source_kind": "internal",
+    "target": "185.220.101.5",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 3389,
+    "flows": 1,
+    "key": "192.168.1.16->203.0.113.50:6:3389",
+    "last_seen": "2026-10-20T15:27:06.293985+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.16",
+    "source_kind": "internal",
+    "target": "203.0.113.50",
+    "target_kind": "external"
+   },
+   {
+    "dst_port": 1,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:1",
+    "last_seen": "2026-10-20T15:27:06.293992+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 2,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:2",
+    "last_seen": "2026-10-20T15:27:06.293997+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 3,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:3",
+    "last_seen": "2026-10-20T15:27:06.294002+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 4,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:4",
+    "last_seen": "2026-10-20T15:27:06.294007+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 5,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:5",
+    "last_seen": "2026-10-20T15:27:06.294011+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 6,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:6",
+    "last_seen": "2026-10-20T15:27:06.294016+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 7,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:7",
+    "last_seen": "2026-10-20T15:27:06.294021+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 8,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:8",
+    "last_seen": "2026-10-20T15:27:06.294025+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 9,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:9",
+    "last_seen": "2026-10-20T15:27:06.294030+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 10,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:10",
+    "last_seen": "2026-10-20T15:27:06.294034+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 11,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:11",
+    "last_seen": "2026-10-20T15:27:06.294039+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 12,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:12",
+    "last_seen": "2026-10-20T15:27:06.294044+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 13,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:13",
+    "last_seen": "2026-10-20T15:27:06.294048+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 14,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:14",
+    "last_seen": "2026-10-20T15:27:06.294054+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 15,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:15",
+    "last_seen": "2026-10-20T15:27:06.294059+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 16,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:16",
+    "last_seen": "2026-10-20T15:27:06.294064+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 17,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:17",
+    "last_seen": "2026-10-20T15:27:06.294068+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 18,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:18",
+    "last_seen": "2026-10-20T15:27:06.294073+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 19,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:19",
+    "last_seen": "2026-10-20T15:27:06.294078+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 20,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:20",
+    "last_seen": "2026-10-20T15:27:06.294083+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 21,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:21",
+    "last_seen": "2026-10-20T15:27:06.294087+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 22,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:22",
+    "last_seen": "2026-10-20T15:27:06.294092+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 23,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:23",
+    "last_seen": "2026-10-20T15:27:06.294096+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 24,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:24",
+    "last_seen": "2026-10-20T15:27:06.294101+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 25,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:25",
+    "last_seen": "2026-10-20T15:27:06.294105+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 26,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:26",
+    "last_seen": "2026-10-20T15:27:06.294113+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 27,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:27",
+    "last_seen": "2026-10-20T15:27:06.294118+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 28,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:28",
+    "last_seen": "2026-10-20T15:27:06.294320+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 29,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:29",
+    "last_seen": "2026-10-20T15:27:06.294328+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 30,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:30",
+    "last_seen": "2026-10-20T15:27:06.294333+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 31,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:31",
+    "last_seen": "2026-10-20T15:27:06.294337+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 32,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:32",
+    "last_seen": "2026-10-20T15:27:06.294343+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 33,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:33",
+    "last_seen": "2026-10-20T15:27:06.294371+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 34,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:34",
+    "last_seen": "2026-10-20T15:27:06.294379+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 35,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:35",
+    "last_seen": "2026-10-20T15:27:06.294384+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 36,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:36",
+    "last_seen": "2026-10-20T15:27:06.294388+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 37,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:37",
+    "last_seen": "2026-10-20T15:27:06.294393+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 38,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:38",
+    "last_seen": "2026-10-20T15:27:06.294397+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 39,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:39",
+    "last_seen": "2026-10-20T15:27:06.294402+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 40,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:40",
+    "last_seen": "2026-10-20T15:27:06.294407+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 41,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:41",
+    "last_seen": "2026-10-20T15:27:06.294411+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 42,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:42",
+    "last_seen": "2026-10-20T15:27:06.294416+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 43,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:43",
+    "last_seen": "2026-10-20T15:27:06.294420+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 44,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:44",
+    "last_seen": "2026-10-20T15:27:06.294426+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 45,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:45",
+    "last_seen": "2026-10-20T15:27:06.294430+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 46,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:46",
+    "last_seen": "2026-10-20T15:27:06.294435+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 47,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:47",
+    "last_seen": "2026-10-20T15:27:06.294440+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 48,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:48",
+    "last_seen": "2026-10-20T15:27:06.294444+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 49,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:49",
+    "last_seen": "2026-10-20T15:27:06.294449+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 50,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:50",
+    "last_seen": "2026-10-20T15:27:06.294453+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 51,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:51",
+    "last_seen": "2026-10-20T15:27:06.294458+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 52,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:52",
+    "last_seen": "2026-10-20T15:27:06.294463+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 53,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:53",
+    "last_seen": "2026-10-20T15:27:06.294467+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 54,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:54",
+    "last_seen": "2026-10-20T15:27:06.294472+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 55,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:55",
+    "last_seen": "2026-10-20T15:27:06.294476+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 56,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:56",
+    "last_seen": "2026-10-20T15:27:06.294482+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 57,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:57",
+    "last_seen": "2026-10-20T15:27:06.294486+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 58,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:58",
+    "last_seen": "2026-10-20T15:27:06.294496+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 59,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:59",
+    "last_seen": "2026-10-20T15:27:06.294501+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 60,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:60",
+    "last_seen": "2026-10-20T15:27:06.294505+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 61,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:61",
+    "last_seen": "2026-10-20T15:27:06.294510+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 62,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:62",
+    "last_seen": "2026-10-20T15:27:06.294515+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 63,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:63",
+    "last_seen": "2026-10-20T15:27:06.294519+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 64,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:64",
+    "last_seen": "2026-10-20T15:27:06.294524+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   },
+   {
+    "dst_port": 65,
+    "flows": 1,
+    "key": "192.168.1.17->192.168.1.20:6:65",
+    "last_seen": "2026-10-20T15:27:06.294529+00:00",
+    "octets": 4096,
+    "protocol": 6,
+    "source": "192.168.1.17",
+    "source_kind": "internal",
+    "target": "192.168.1.20",
+    "target_kind": "internal"
+   }
+  ],
+  "devices": [
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [],
+    "external_peers": [
+     "45.33.32.156",
+     "93.184.216.34"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.18",
+    "last_seen": "2026-10-20T15:27:06.294947+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "unknown",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 3,
+    "total_octets": 80180512,
+    "vulnerabilities": []
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [],
+    "external_peers": [
+     "1.1.1.1"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.17",
+    "last_seen": "2026-10-20T15:27:06.294940+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "unknown",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 151,
+    "total_octets": 770816,
+    "vulnerabilities": []
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [],
+    "external_peers": [
+     "203.0.113.50"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.21",
+    "last_seen": "2026-10-20T15:27:06.293973+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "unknown",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 2,
+    "total_octets": 240512,
+    "vulnerabilities": []
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "medium",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     40,
+     41,
+     42,
+     43,
+     44,
+     45,
+     46,
+     47,
+     48,
+     49,
+     50,
+     51,
+     52,
+     53,
+     54,
+     55,
+     56,
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63,
+     64,
+     65,
+     66,
+     67,
+     68,
+     69,
+     70,
+     71,
+     72,
+     73,
+     74,
+     75,
+     76,
+     77,
+     78,
+     79,
+     80,
+     81,
+     82,
+     83,
+     84,
+     85,
+     86,
+     87,
+     88,
+     89,
+     90,
+     91,
+     92,
+     93,
+     94,
+     95,
+     96,
+     97,
+     98,
+     99,
+     100,
+     101,
+     102,
+     103,
+     104,
+     105,
+     106,
+     107,
+     108,
+     109,
+     110,
+     111,
+     112,
+     113,
+     114,
+     115,
+     116,
+     117,
+     118,
+     119,
+     120,
+     121,
+     122,
+     123,
+     124,
+     125,
+     126,
+     127,
+     128,
+     129,
+     130,
+     131,
+     132,
+     133,
+     134,
+     135,
+     136,
+     137,
+     138,
+     139,
+     140,
+     141,
+     142,
+     143,
+     144,
+     145,
+     146,
+     147,
+     148,
+     149
+    ],
+    "external_peers": [
+     "45.33.32.156"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.20",
+    "last_seen": "2026-10-20T15:27:06.294940+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "nas_or_desktop",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 2,
+    "total_octets": 220512,
+    "vulnerabilities": []
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [],
+    "external_peers": [
+     "185.220.101.5"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.19",
+    "last_seen": "2026-10-20T15:27:06.293953+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "unknown",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 2,
+    "total_octets": 200512,
+    "vulnerabilities": []
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [],
+    "external_peers": [
+     "203.0.113.50",
+     "8.8.8.8"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.16",
+    "last_seen": "2026-10-20T15:27:06.293985+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "unknown",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 3,
+    "total_octets": 144608,
+    "vulnerabilities": []
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [],
+    "external_peers": [
+     "185.220.101.5",
+     "203.0.113.50"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.15",
+    "last_seen": "2026-10-20T15:27:06.293979+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "unknown",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 3,
+    "total_octets": 124608,
+    "vulnerabilities": []
+   },
+   {
+    "alive": true,
+    "at_risk": true,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [
+     23,
+     5555
+    ],
+    "external_peers": [
+     "45.33.32.156"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.14",
+    "last_seen": "2026-10-20T15:27:06.299786+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "medium",
+    "os_guess": "embedded",
+    "ping_ms": 1.2,
+    "probable_role": "unknown",
+    "scanned_services": [
+     {
+      "banner": "BusyBox v1.19.4 built-in shell",
+      "port": 23,
+      "protocol": "tcp",
+      "service_name": "telnet",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     },
+     {
+      "banner": "",
+      "port": 5555,
+      "protocol": "tcp",
+      "service_name": "adb",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     }
+    ],
+    "source_entity": null,
+    "total_flows": 2,
+    "total_octets": 100512,
+    "vulnerabilities": [
+     {
+      "cve_id": "CVE-NONE-ADB-EXPOSED",
+      "cvss": 9.8,
+      "host_ip": "192.168.1.14",
+      "matched_version": "",
+      "port": 5555,
+      "remediation": "Disable network ADB (adb tcpip). Device should only use USB debugging.",
+      "service": "adb",
+      "severity": "critical",
+      "summary": "Android Debug Bridge (5555) exposed. Allows full shell access to the device."
+     },
+     {
+      "cve_id": "CVE-NONE-TELNET-EXPOSED",
+      "cvss": 9.0,
+      "host_ip": "192.168.1.14",
+      "matched_version": "BusyBox v1.19.4 built-in shell",
+      "port": 23,
+      "remediation": "Disable Telnet and switch to SSH. If device requires Telnet, isolate it on a dedicated VLAN.",
+      "service": "telnet",
+      "severity": "critical",
+      "summary": "Telnet service transmits credentials in cleartext and is frequently targeted by botnets."
+     }
+    ]
+   },
+   {
+    "alive": true,
+    "at_risk": false,
+    "confidence": "manual",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [
+     631,
+     9100
+    ],
+    "external_peers": [
+     "185.220.101.5"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.13",
+    "last_seen": "2026-10-20T15:27:06.299778+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "medium",
+    "os_guess": "linux/unix",
+    "ping_ms": 1.2,
+    "probable_role": "printer",
+    "scanned_services": [
+     {
+      "banner": "",
+      "port": 631,
+      "protocol": "tcp",
+      "service_name": "ipp",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     },
+     {
+      "banner": "",
+      "port": 9100,
+      "protocol": "tcp",
+      "service_name": "jetdirect",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     }
+    ],
+    "source_entity": null,
+    "total_flows": 2,
+    "total_octets": 80512,
+    "vulnerabilities": []
+   },
+   {
+    "alive": true,
+    "at_risk": false,
+    "confidence": "medium",
+    "display_name": "Garage camera <img src=x onerror=\"window.__xss=1\">",
+    "enriched": false,
+    "exposed_ports": [
+     80,
+     554
+    ],
+    "external_peers": [
+     "93.184.216.34"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.12",
+    "last_seen": "2026-10-20T15:27:06.299767+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "medium",
+    "os_guess": "embedded",
+    "ping_ms": 1.2,
+    "probable_role": "camera",
+    "scanned_services": [
+     {
+      "banner": "RTSP/1.0 200 OK",
+      "port": 554,
+      "protocol": "tcp",
+      "service_name": "rtsp",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     },
+     {
+      "banner": "Server: <img src=x onerror=\"window.__xss=1\">",
+      "port": 80,
+      "protocol": "tcp",
+      "service_name": "http",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     }
+    ],
+    "source_entity": null,
+    "total_flows": 3,
+    "total_octets": 64608,
+    "vulnerabilities": []
+   },
+   {
+    "alive": true,
+    "at_risk": true,
+    "confidence": "medium",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [
+     22,
+     445,
+     3389
+    ],
+    "external_peers": [
+     "1.1.1.1"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.11",
+    "last_seen": "2026-10-20T15:27:06.299755+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "medium",
+    "os_guess": "windows",
+    "ping_ms": 1.2,
+    "probable_role": "nas_or_desktop",
+    "scanned_services": [
+     {
+      "banner": "",
+      "port": 445,
+      "protocol": "tcp",
+      "service_name": "smb",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     },
+     {
+      "banner": "",
+      "port": 3389,
+      "protocol": "tcp",
+      "service_name": "rdp",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     }
+    ],
+    "source_entity": null,
+    "total_flows": 2,
+    "total_octets": 40512,
+    "vulnerabilities": [
+     {
+      "cve_id": "CVE-NONE-RDP-EXPOSED",
+      "cvss": 8.5,
+      "host_ip": "192.168.1.11",
+      "matched_version": "",
+      "port": 3389,
+      "remediation": "Restrict RDP access via VPN or firewall rules. Enable NLA and strong passwords.",
+      "service": "rdp",
+      "severity": "high",
+      "summary": "RDP (3389) exposed on the local network. Frequently brute-forced and targeted by ransomware."
+     }
+    ]
+   },
+   {
+    "alive": true,
+    "at_risk": true,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [
+     22,
+     80
+    ],
+    "external_peers": [
+     "198.51.100.99",
+     "8.8.8.8"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.10",
+    "last_seen": "2026-10-20T15:27:06.299724+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "medium",
+    "os_guess": "linux/unix",
+    "ping_ms": 1.2,
+    "probable_role": "linux_host",
+    "scanned_services": [
+     {
+      "banner": "SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8",
+      "port": 22,
+      "protocol": "tcp",
+      "service_name": "ssh",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     },
+     {
+      "banner": "Server: nginx/1.10.3",
+      "port": 80,
+      "protocol": "tcp",
+      "service_name": "http",
+      "state": "open",
+      "technologies": [],
+      "version": ""
+     }
+    ],
+    "source_entity": null,
+    "total_flows": 3,
+    "total_octets": 24608,
+    "vulnerabilities": [
+     {
+      "cve_id": "CVE-2023-44487",
+      "cvss": 7.5,
+      "host_ip": "192.168.1.10",
+      "matched_version": "Server: nginx/1.10.3",
+      "port": 80,
+      "remediation": "Upgrade nginx to 1.25.3+ or disable HTTP/2.",
+      "service": "http",
+      "severity": "high",
+      "summary": "nginx: HTTP/2 rapid reset DoS (affects < 1.25.3)."
+     },
+     {
+      "cve_id": "CVE-2023-51385",
+      "cvss": 6.5,
+      "host_ip": "192.168.1.10",
+      "matched_version": "SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8",
+      "port": 22,
+      "remediation": "Upgrade OpenSSH to 9.6 or later.",
+      "service": "ssh",
+      "severity": "medium",
+      "summary": "OpenSSH < 9.6 OS command injection via expansion tokens in user/host names."
+     },
+     {
+      "configurations": [],
+      "cve_id": "CVE-2016-6210",
+      "cvss": 5.9,
+      "host_ip": "192.168.1.10",
+      "port": 22,
+      "published": "2017-02-13",
+      "remediation": "See https://nvd.nist.gov/vuln/detail/CVE-2016-6210",
+      "service": "ssh",
+      "severity": "MEDIUM",
+      "source": "nvd",
+      "summary": "OpenSSH user enumeration <img src=x onerror=\"window.__xss=1\">"
+     }
+    ]
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "low",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [],
+    "external_peers": [
+     "198.51.100.77"
+    ],
+    "hostname": null,
+    "ip": "192.168.1.30",
+    "last_seen": "2026-10-20T15:27:06.304412+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "unknown",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 1,
+    "total_octets": 4096,
+    "vulnerabilities": []
+   },
+   {
+    "alive": false,
+    "at_risk": false,
+    "confidence": "medium",
+    "display_name": null,
+    "enriched": false,
+    "exposed_ports": [
+     53
+    ],
+    "external_peers": [],
+    "hostname": null,
+    "ip": "192.168.1.1",
+    "last_seen": "2026-10-20T15:27:06.293973+00:00",
+    "mac_address": null,
+    "manufacturer": null,
+    "os_confidence": "",
+    "os_guess": "",
+    "ping_ms": null,
+    "probable_role": "dns_or_gateway",
+    "scanned_services": [],
+    "source_entity": null,
+    "total_flows": 0,
+    "total_octets": 0,
+    "vulnerabilities": []
+   }
+  ],
+  "dismissed_findings": [
+   {
+    "category": "suspicious_port",
+    "count": 1,
+    "details": {
+     "destination_ip": "203.0.113.50",
+     "destination_port": 3389,
+     "protocol": 6
+    },
+    "dismiss_note": "Known admin jump host",
+    "key": "port:192.168.1.16:3389",
+    "last_seen": "2026-10-20T15:27:06.293985+00:00",
+    "severity": "high",
+    "source_ip": "192.168.1.16",
+    "summary": "Outbound flow matched a commonly abused destination port"
+   }
+  ],
+  "dns_log": [
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:26:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:25:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T15:24:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:23:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:22:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:21:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:20:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:19:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T15:18:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:17:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:16:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:15:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:14:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:13:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T15:12:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:11:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:10:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:09:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:08:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:07:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T15:06:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:05:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T15:04:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:03:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:02:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T15:01:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T15:00:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:59:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:58:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:57:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:56:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:55:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T14:54:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:53:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:52:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:51:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:50:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:49:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T14:48:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:47:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:46:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:45:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:44:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:43:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T14:42:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:41:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:40:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:39:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:38:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:37:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T14:36:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:35:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:34:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:33:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "other",
+    "domain": "<img src=x onerror=\"window.__xss=1\">.example",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.15",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:32:06.299796+00:00"
+   },
+   {
+    "answer": "52.1.1.1",
+    "category": "streaming",
+    "domain": "www.netflix.com",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.14",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:31:06.299796+00:00"
+   },
+   {
+    "answer": "192.168.1.5",
+    "category": "override",
+    "domain": "nas.lan",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.13",
+    "status": "overridden",
+    "timestamp": "2026-10-20T14:30:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "malware",
+    "domain": "c2.evil.example",
+    "malicious": true,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.12",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:29:06.299796+00:00"
+   },
+   {
+    "answer": null,
+    "category": "ads",
+    "domain": "ads.doubleclick.net",
+    "malicious": false,
+    "qtype": "A",
+    "rcode": "NXDOMAIN",
+    "src_ip": "192.168.1.11",
+    "status": "blocked",
+    "timestamp": "2026-10-20T14:28:06.299796+00:00"
+   },
+   {
+    "answer": "93.184.216.34",
+    "category": "other",
+    "domain": "www.example.org",
+    "malicious": false,
+    "qtype": "AAAA",
+    "rcode": "NOERROR",
+    "src_ip": "192.168.1.10",
+    "status": "allowed",
+    "timestamp": "2026-10-20T14:27:06.299796+00:00"
+   }
+  ],
+  "dns_log_limit": 2000,
+  "dns_log_offset": 0,
+  "dns_log_total": 60,
+  "dns_proxy_enabled": false,
+  "dns_proxy_stats": {
+   "running": false
+  },
+  "enrichment_stats": [
+   {
+    "budget": null,
+    "configured": true,
+    "exhausted": false,
+    "last_error": null,
+    "provider": "ipwho",
+    "used": 0,
+    "variant": "free"
+   },
+   {
+    "budget": 500,
+    "configured": true,
+    "exhausted": false,
+    "last_error": null,
+    "provider": "virustotal",
+    "used": 0,
+    "variant": "community"
+   },
+   {
+    "budget": 1000,
+    "configured": false,
+    "exhausted": false,
+    "last_error": null,
+    "provider": "abuseipdb",
+    "used": 0,
+    "variant": null
+   }
+  ],
+  "external_ips": [
+   {
+    "as_name": "Cloudflare",
+    "blacklist_info": null,
+    "blacklisted": false,
+    "country": "AU",
+    "country_name": "Australia",
+    "direction": "outbound",
+    "direction_alert": false,
+    "dst_ports": [
+     443
+    ],
+    "enriched_at": "2026-10-20T15:27:06.299796+00:00",
+    "first_seen": "2026-10-20T15:27:06.299512+00:00",
+    "hostname": "one.one.one.one",
+    "internal_sources": [
+     "192.168.1.11",
+     "192.168.1.17"
+    ],
+    "ip": "1.1.1.1",
+    "isp": "Cloudflare",
+    "last_seen": "2026-10-20T15:27:06.299512+00:00",
+    "rating": "clean",
+    "rating_source": "No threats found across checked sources",
+    "sources": [
+     "ipwho"
+    ],
+    "total_flows": 2,
+    "total_kb": 195.3,
+    "total_octets": 200000
+   },
+   {
+    "abuse_confidence": 100,
+    "as_name": "F3 Netze",
+    "asn": "AS205100",
+    "blacklist_info": {
+     "indicator": "185.220.101.5",
+     "source": "feodotracker.abuse.ch",
+     "type": "ip"
+    },
+    "blacklisted": true,
+    "country": "DE",
+    "country_name": "Germany",
+    "direction": "both",
+    "direction_alert": true,
+    "dst_ports": [
+     23,
+     443
+    ],
+    "enriched_at": "2026-10-20T15:27:06.299796+00:00",
+    "first_seen": "2026-10-20T15:27:06.299512+00:00",
+    "hostname": null,
+    "internal_sources": [
+     "192.168.1.11",
+     "192.168.1.13",
+     "192.168.1.15",
+     "192.168.1.19"
+    ],
+    "ip": "185.220.101.5",
+    "isp": "F3 Netze",
+    "last_seen": "2026-10-20T15:27:06.299512+00:00",
+    "rating": "malicious",
+    "rating_source": "Blacklist: feodotracker.abuse.ch",
+    "sources": [
+     "ipwho",
+     "virustotal"
+    ],
+    "total_flows": 4,
+    "total_kb": 277.4,
+    "total_octets": 284096,
+    "vt_malicious": 9
+   },
+   {
+    "blacklist_info": null,
+    "blacklisted": false,
+    "direction": "outbound",
+    "direction_alert": false,
+    "dst_ports": [],
+    "first_seen": "2026-10-20T15:27:06.304487+00:00",
+    "hostname": null,
+    "internal_sources": [
+     "192.168.1.30"
+    ],
+    "ip": "198.51.100.77",
+    "last_seen": "2026-10-20T15:27:06.304487+00:00",
+    "total_flows": 0,
+    "total_kb": 0.0,
+    "total_octets": 0
+   },
+   {
+    "blacklist_info": null,
+    "blacklisted": false,
+    "direction": "outbound",
+    "direction_alert": false,
+    "dst_ports": [],
+    "first_seen": "2026-10-20T15:27:06.304487+00:00",
+    "hostname": null,
+    "internal_sources": [
+     "192.168.1.10"
+    ],
+    "ip": "198.51.100.99",
+    "last_seen": "2026-10-20T15:27:06.304487+00:00",
+    "total_flows": 0,
+    "total_kb": 0.0,
+    "total_octets": 0
+   },
+   {
+    "blacklist_info": null,
+    "blacklisted": false,
+    "country": "NL",
+    "country_name": "Netherlands",
+    "direction": "outbound",
+    "direction_alert": false,
+    "dst_ports": [
+     443,
+     3389
+    ],
+    "enriched_at": "2026-10-20T15:27:06.299796+00:00",
+    "first_seen": "2026-10-20T15:27:06.299512+00:00",
+    "hostname": null,
+    "internal_sources": [
+     "192.168.1.15",
+     "192.168.1.16",
+     "192.168.1.21"
+    ],
+    "ip": "203.0.113.50",
+    "isp": "<img src=x onerror=\"window.__xss=1\">",
+    "last_seen": "2026-10-20T15:27:06.299512+00:00",
+    "rating": "suspicious",
+    "rating_source": "VirusTotal: 1 malicious detection(s)",
+    "sources": [
+     "ipwho"
+    ],
+    "total_flows": 3,
+    "total_kb": 355.6,
+    "total_octets": 364096,
+    "vt_malicious": 1
+   },
+   {
+    "as_name": "Linode",
+    "blacklist_info": null,
+    "blacklisted": false,
+    "country": "US",
+    "country_name": "United States",
+    "direction": "outbound",
+    "direction_alert": false,
+    "dst_ports": [
+     443
+    ],
+    "enriched_at": "2026-10-20T15:27:06.299796+00:00",
+    "first_seen": "2026-10-20T15:27:06.299512+00:00",
+    "hostname": "<img src=x onerror=\"window.__xss=1\">",
+    "internal_sources": [
+     "192.168.1.14",
+     "192.168.1.18",
+     "192.168.1.20"
+    ],
+    "ip": "45.33.32.156",
+    "isp": "Linode",
+    "last_seen": "2026-10-20T15:27:06.299512+00:00",
+    "rating": "clean",
+    "rating_source": "No threats found across checked sources",
+    "sources": [
+     "ipwho"
+    ],
+    "total_flows": 3,
+    "total_kb": 78437.5,
+    "total_octets": 80320000
+   },
+   {
+    "as_name": "Google LLC",
+    "blacklist_info": null,
+    "blacklisted": false,
+    "country": "US",
+    "country_name": "United States",
+    "direction": "outbound",
+    "direction_alert": false,
+    "dst_ports": [
+     443
+    ],
+    "enriched_at": "2026-10-20T15:27:06.299796+00:00",
+    "first_seen": "2026-10-20T15:27:06.299512+00:00",
+    "hostname": "dns.google",
+    "internal_sources": [
+     "192.168.1.10",
+     "192.168.1.16"
+    ],
+    "ip": "8.8.8.8",
+    "isp": "Google LLC",
+    "last_seen": "2026-10-20T15:27:06.299512+00:00",
+    "rating": "clean",
+    "rating_source": "No threats found across checked sources",
+    "sources": [
+     "ipwho"
+    ],
+    "total_flows": 2,
+    "total_kb": 156.2,
+    "total_octets": 160000
+   },
+   {
+    "as_name": "Edgecast",
+    "blacklist_info": null,
+    "blacklisted": false,
+    "country": "US",
+    "country_name": "United States",
+    "direction": "outbound",
+    "direction_alert": false,
+    "dst_ports": [
+     443
+    ],
+    "enriched_at": "2026-10-20T15:27:06.299796+00:00",
+    "first_seen": "2026-10-20T15:27:06.299512+00:00",
+    "hostname": null,
+    "internal_sources": [
+     "192.168.1.12",
+     "192.168.1.18"
+    ],
+    "ip": "93.184.216.34",
+    "isp": "Edgecast",
+    "last_seen": "2026-10-20T15:27:06.299512+00:00",
+    "rating": "clean",
+    "rating_source": "No threats found across checked sources",
+    "sources": [
+     "ipwho"
+    ],
+    "total_flows": 2,
+    "total_kb": 234.4,
+    "total_octets": 240000
+   }
+  ],
+  "findings": [
+   {
+    "category": "vulnerability",
+    "count": 1,
+    "details": {
+     "cve_id": "CVE-NONE-TELNET-EXPOSED",
+     "cvss": 9.0,
+     "matched_version": "BusyBox v1.19.4 built-in shell",
+     "port": 23,
+     "remediation": "Disable Telnet and switch to SSH. If device requires Telnet, isolate it on a dedicated VLAN.",
+     "service": "telnet"
+    },
+    "key": "vuln:192.168.1.14:23:CVE-NONE-TELNET-EXPOSED",
+    "last_seen": "2026-10-20T15:27:06.304714+00:00",
+    "severity": "critical",
+    "source_ip": "192.168.1.14",
+    "summary": "Telnet service transmits credentials in cleartext and is frequently targeted by botnets."
+   },
+   {
+    "category": "vulnerability",
+    "count": 1,
+    "details": {
+     "cve_id": "CVE-NONE-ADB-EXPOSED",
+     "cvss": 9.8,
+     "matched_version": "",
+     "port": 5555,
+     "remediation": "Disable network ADB (adb tcpip). Device should only use USB debugging.",
+     "service": "adb"
+    },
+    "key": "vuln:192.168.1.14:5555:CVE-NONE-ADB-EXPOSED",
+    "last_seen": "2026-10-20T15:27:06.304711+00:00",
+    "severity": "critical",
+    "source_ip": "192.168.1.14",
+    "summary": "Android Debug Bridge (5555) exposed. Allows full shell access to the device."
+   },
+   {
+    "category": "port_scan",
+    "count": 51,
+    "details": {
+     "unique_ports": 150,
+     "window_seconds": 600
+    },
+    "key": "scan:192.168.1.17",
+    "last_seen": "2026-10-20T15:27:06.294940+00:00",
+    "severity": "high",
+    "source_ip": "192.168.1.17",
+    "summary": "Source contacted many destination ports in a short window"
+   },
+   {
+    "category": "suspicious_port",
+    "count": 1,
+    "details": {
+     "destination_ip": "185.220.101.5",
+     "destination_port": 23,
+     "protocol": 6
+    },
+    "key": "port:192.168.1.15:23",
+    "last_seen": "2026-10-20T15:27:06.293979+00:00",
+    "severity": "high",
+    "source_ip": "192.168.1.15",
+    "summary": "Outbound flow matched a commonly abused destination port"
+   },
+   {
+    "category": "vulnerability",
+    "count": 1,
+    "details": {
+     "cve_id": "CVE-2023-44487",
+     "cvss": 7.5,
+     "matched_version": "Server: nginx/1.10.3",
+     "port": 80,
+     "remediation": "Upgrade nginx to 1.25.3+ or disable HTTP/2.",
+     "service": "http"
+    },
+    "key": "vuln:192.168.1.10:80:CVE-2023-44487",
+    "last_seen": "2026-10-20T15:27:06.304691+00:00",
+    "severity": "high",
+    "source_ip": "192.168.1.10",
+    "summary": "nginx: HTTP/2 rapid reset DoS (affects < 1.25.3)."
+   },
+   {
+    "category": "vulnerability",
+    "count": 1,
+    "details": {
+     "cve_id": "CVE-NONE-RDP-EXPOSED",
+     "cvss": 8.5,
+     "matched_version": "",
+     "port": 3389,
+     "remediation": "Restrict RDP access via VPN or firewall rules. Enable NLA and strong passwords.",
+     "service": "rdp"
+    },
+    "key": "vuln:192.168.1.11:3389:CVE-NONE-RDP-EXPOSED",
+    "last_seen": "2026-10-20T15:27:06.304708+00:00",
+    "severity": "high",
+    "source_ip": "192.168.1.11",
+    "summary": "RDP (3389) exposed on the local network. Frequently brute-forced and targeted by ransomware."
+   },
+   {
+    "category": "anomaly_new_host",
+    "details": {
+     "ip": "192.168.1.30"
+    },
+    "key": "baseline:new_host:192.168.1.30",
+    "last_seen": "2026-10-20T15:27:06.305214+00:00",
+    "severity": "high",
+    "source_ip": "192.168.1.30",
+    "summary": "New internal host 192.168.1.30 not seen during baseline training"
+   },
+   {
+    "category": "high_egress",
+    "count": 1,
+    "details": {
+     "octets": 80180000,
+     "threshold": 50000000
+    },
+    "key": "egress:192.168.1.18",
+    "last_seen": "2026-10-20T15:27:06.294947+00:00",
+    "severity": "medium",
+    "source_ip": "192.168.1.18",
+    "summary": "Source exceeded the high egress threshold in the current interval"
+   },
+   {
+    "category": "vulnerability",
+    "count": 1,
+    "details": {
+     "cve_id": "CVE-2023-51385",
+     "cvss": 6.5,
+     "matched_version": "SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.8",
+     "port": 22,
+     "remediation": "Upgrade OpenSSH to 9.6 or later.",
+     "service": "ssh"
+    },
+    "key": "vuln:192.168.1.10:22:CVE-2023-51385",
+    "last_seen": "2026-10-20T15:27:06.304701+00:00",
+    "severity": "medium",
+    "source_ip": "192.168.1.10",
+    "summary": "OpenSSH < 9.6 OS command injection via expansion tokens in user/host names."
+   },
+   {
+    "category": "anomaly_new_peer",
+    "details": {
+     "peer": "198.51.100.99"
+    },
+    "key": "baseline:new_peer:192.168.1.10:198.51.100.99",
+    "last_seen": "2026-10-20T15:27:06.305214+00:00",
+    "severity": "medium",
+    "source_ip": "192.168.1.10",
+    "summary": "Host 192.168.1.10 communicated with new external peer 198.51.100.99"
+   },
+   {
+    "category": "vulnerability",
+    "count": 1,
+    "details": {
+     "cve_id": "CVE-2016-6210",
+     "cvss": 5.9,
+     "matched_version": null,
+     "port": 22,
+     "remediation": "See https://nvd.nist.gov/vuln/detail/CVE-2016-6210",
+     "service": "ssh"
+    },
+    "key": "vuln:192.168.1.10:22:CVE-2016-6210",
+    "last_seen": "2026-10-20T15:27:06.304705+00:00",
+    "severity": "MEDIUM",
+    "source_ip": "192.168.1.10",
+    "summary": "OpenSSH user enumeration <img src=x onerror=\"window.__xss=1\">"
+   }
+  ],
+  "kev_last_updated": "2026-10-20T15:27:06.299796+00:00",
+  "kev_total": 1,
+  "kev_ttl_hours": 12,
+  "multicast_ips": [],
+  "name_overrides": {
+   "192.168.1.12": "Garage camera <img src=x onerror=\"window.__xss=1\">"
+  },
+  "netflow_listener_enabled": false,
+  "nvd_keywords": [
+   {
+    "cve_count": 2,
+    "fetched_at": "2026-10-20T15:27:06.299796+00:00",
+    "keyword": "OpenSSH",
+    "source": "custom"
+   }
+  ],
+  "nvd_last_updated": "2026-10-20T15:27:06.299796+00:00",
+  "nvd_min_year": 2020,
+  "nvd_total_cves": 2,
+  "nvd_ttl_hours": 12,
+  "panel_require_admin": true,
+  "recommendations": [
+   {
+    "category": "patch_vulnerable",
+    "detail": "3 device(s) have known high or critical CVE vulnerabilities. Update firmware/software or restrict network access immediately.",
+    "findings_refs": [],
+    "hosts": [
+     {
+      "cves": [
+       "CVE-2023-44487"
+      ],
+      "ip": "192.168.1.10",
+      "name": "192.168.1.10",
+      "role": "linux_host",
+      "vuln_count": 3
+     },
+     {
+      "cves": [
+       "CVE-NONE-RDP-EXPOSED"
+      ],
+      "ip": "192.168.1.11",
+      "name": "192.168.1.11",
+      "role": "nas_or_desktop",
+      "vuln_count": 1
+     },
+     {
+      "cves": [
+       "CVE-NONE-ADB-EXPOSED",
+       "CVE-NONE-TELNET-EXPOSED"
+      ],
+      "ip": "192.168.1.14",
+      "name": "192.168.1.14",
+      "role": "unknown",
+      "vuln_count": 2
+     }
+    ],
+    "priority": "critical",
+    "title": "Patch vulnerable devices"
+   },
+   {
+    "category": "vulnerability",
+    "detail": "Active scanning found services with known security issues. Check the findings tab for CVE details and remediation steps.",
+    "findings_refs": [
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.304714+00:00",
+      "severity": "critical",
+      "source_ip": "192.168.1.14",
+      "summary": "Telnet service transmits credentials in cleartext and is frequently targeted by botnets."
+     },
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.304711+00:00",
+      "severity": "critical",
+      "source_ip": "192.168.1.14",
+      "summary": "Android Debug Bridge (5555) exposed. Allows full shell access to the device."
+     },
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.304691+00:00",
+      "severity": "high",
+      "source_ip": "192.168.1.10",
+      "summary": "nginx: HTTP/2 rapid reset DoS (affects < 1.25.3)."
+     },
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.304708+00:00",
+      "severity": "high",
+      "source_ip": "192.168.1.11",
+      "summary": "RDP (3389) exposed on the local network. Frequently brute-forced and targeted by ransomware."
+     },
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.304701+00:00",
+      "severity": "medium",
+      "source_ip": "192.168.1.10",
+      "summary": "OpenSSH < 9.6 OS command injection via expansion tokens in user/host names."
+     },
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.304705+00:00",
+      "severity": "MEDIUM",
+      "source_ip": "192.168.1.10",
+      "summary": "OpenSSH user enumeration <img src=x onerror=\"window.__xss=1\">"
+     }
+    ],
+    "hosts": [],
+    "priority": "high",
+    "title": "Review vulnerability findings"
+   },
+   {
+    "category": "no_exporter",
+    "detail": "No NetFlow or IPFIX exporters have been observed yet. Configure your gateway, firewall, or switch to export flows to HomeSec.",
+    "findings_refs": [],
+    "hosts": [],
+    "priority": "high",
+    "title": "Connect a flow exporter"
+   },
+   {
+    "category": "suspicious_port",
+    "detail": "At least one device reached a commonly abused external port such as Telnet or RDP. Block or alert on these ports at the gateway and patch the source device.",
+    "findings_refs": [
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.293979+00:00",
+      "severity": "high",
+      "source_ip": "192.168.1.15",
+      "summary": "Outbound flow matched a commonly abused destination port"
+     }
+    ],
+    "hosts": [],
+    "priority": "high",
+    "title": "Restrict risky outbound ports"
+   },
+   {
+    "category": "port_scan",
+    "detail": "A device is touching many ports in a short time window. Move it to an isolated VLAN or guest network until you confirm the behavior is expected.",
+    "findings_refs": [
+     {
+      "count": 51,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.294940+00:00",
+      "severity": "high",
+      "source_ip": "192.168.1.17",
+      "summary": "Source contacted many destination ports in a short window"
+     }
+    ],
+    "hosts": [],
+    "priority": "high",
+    "title": "Isolate scanning hosts"
+   },
+   {
+    "category": "high_egress",
+    "detail": "One or more devices exceeded the outbound data threshold. Confirm whether the traffic matches backups, cameras, or media uploads instead of malware or exfiltration.",
+    "findings_refs": [
+     {
+      "count": 1,
+      "detail": {},
+      "last_seen": "2026-10-20T15:27:06.294947+00:00",
+      "severity": "medium",
+      "source_ip": "192.168.1.18",
+      "summary": "Source exceeded the high egress threshold in the current interval"
+     }
+    ],
+    "hosts": [],
+    "priority": "medium",
+    "title": "Review high egress devices"
+   },
+   {
+    "category": "unknown_roles",
+    "detail": "1 devices still have unknown roles. Add router, DHCP, or tracker integrations so HomeSec can correlate names, MAC addresses, and hostnames.",
+    "findings_refs": [],
+    "hosts": [
+     {
+      "cves": [
+       "CVE-NONE-ADB-EXPOSED",
+       "CVE-NONE-TELNET-EXPOSED"
+      ],
+      "ip": "192.168.1.14",
+      "name": "192.168.1.14",
+      "role": "unknown",
+      "vuln_count": 2
+     }
+    ],
+    "priority": "medium",
+    "title": "Improve device identity coverage"
+   },
+   {
+    "category": "no_tracker",
+    "detail": "HomeSec is seeing devices but none were enriched from Home Assistant trackers. Adding router or presence integrations will make the dashboard much more readable.",
+    "findings_refs": [],
+    "hosts": [
+     {
+      "cves": [
+       "CVE-2023-44487"
+      ],
+      "ip": "192.168.1.10",
+      "name": "192.168.1.10",
+      "role": "linux_host",
+      "vuln_count": 3
+     },
+     {
+      "cves": [
+       "CVE-NONE-RDP-EXPOSED"
+      ],
+      "ip": "192.168.1.11",
+      "name": "192.168.1.11",
+      "role": "nas_or_desktop",
+      "vuln_count": 1
+     },
+     {
+      "cves": [],
+      "ip": "192.168.1.12",
+      "name": "Garage camera <img src=x onerror=\"window.__xss=1\">",
+      "role": "camera",
+      "vuln_count": 0
+     },
+     {
+      "cves": [],
+      "ip": "192.168.1.13",
+      "name": "192.168.1.13",
+      "role": "printer",
+      "vuln_count": 0
+     },
+     {
+      "cves": [
+       "CVE-NONE-ADB-EXPOSED",
+       "CVE-NONE-TELNET-EXPOSED"
+      ],
+      "ip": "192.168.1.14",
+      "name": "192.168.1.14",
+      "role": "unknown",
+      "vuln_count": 2
+     }
+    ],
+    "priority": "medium",
+    "title": "Enable device tracker enrichment"
+   }
+  ],
+  "role_overrides": {
+   "192.168.1.13": "printer"
+  },
+  "scan_duration": 42.5,
+  "scan_hosts_found": 5,
+  "scan_interval": 3000,
+  "scan_last_at": "2026-10-20T15:27:06.299794+00:00",
+  "scan_last_status": "ok",
+  "scan_last_targets": 254,
+  "stats_top_n": 5,
+  "summary": {
+   "active_templates": 0,
+   "collector_started_at": "2026-10-20T15:27:06.278535+00:00",
+   "data_sets_without_template": 0,
+   "devices": 14,
+   "dropped_datagrams": 0,
+   "entries": 1,
+   "exporters": [],
+   "findings": 11,
+   "last_flow_at": "2026-10-20T15:27:06.304420+00:00",
+   "last_parser_error": null,
+   "parsed_datagrams": 0,
+   "recommendations": 8,
+   "scanned_devices": 5,
+   "total_datagrams": 0,
+   "total_flows": 180,
+   "tracker_enriched_devices": 0,
+   "version": "0.11.0",
+   "versions_seen": [],
+   "vulnerability_count": 6
+  },
+  "suricata_log": [
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1029,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 29",
+    "signature_id": 2001248,
+    "src_ip": "185.220.101.5",
+    "src_port": 40029,
+    "timestamp": "2026-10-20T15:26:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1028,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 28",
+    "signature_id": 2001247,
+    "src_ip": "192.168.1.15",
+    "src_port": 40028,
+    "timestamp": "2026-10-20T15:25:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1027,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 27",
+    "signature_id": 2001246,
+    "src_ip": "185.220.101.5",
+    "src_port": 40027,
+    "timestamp": "2026-10-20T15:24:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1026,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 26",
+    "signature_id": 2001245,
+    "src_ip": "192.168.1.15",
+    "src_port": 40026,
+    "timestamp": "2026-10-20T15:23:06.299796+00:00"
+   },
+   {
+    "action": "blocked",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1025,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 25",
+    "signature_id": 2001244,
+    "src_ip": "185.220.101.5",
+    "src_port": 40025,
+    "timestamp": "2026-10-20T15:22:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1024,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 24",
+    "signature_id": 2001243,
+    "src_ip": "192.168.1.15",
+    "src_port": 40024,
+    "timestamp": "2026-10-20T15:21:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1023,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 23",
+    "signature_id": 2001242,
+    "src_ip": "185.220.101.5",
+    "src_port": 40023,
+    "timestamp": "2026-10-20T15:20:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1022,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 22",
+    "signature_id": 2001241,
+    "src_ip": "192.168.1.15",
+    "src_port": 40022,
+    "timestamp": "2026-10-20T15:19:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1021,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 21",
+    "signature_id": 2001240,
+    "src_ip": "185.220.101.5",
+    "src_port": 40021,
+    "timestamp": "2026-10-20T15:18:06.299796+00:00"
+   },
+   {
+    "action": "blocked",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1020,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 20",
+    "signature_id": 2001239,
+    "src_ip": "192.168.1.15",
+    "src_port": 40020,
+    "timestamp": "2026-10-20T15:17:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1019,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 19",
+    "signature_id": 2001238,
+    "src_ip": "185.220.101.5",
+    "src_port": 40019,
+    "timestamp": "2026-10-20T15:16:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1018,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 18",
+    "signature_id": 2001237,
+    "src_ip": "192.168.1.15",
+    "src_port": 40018,
+    "timestamp": "2026-10-20T15:15:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1017,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 17",
+    "signature_id": 2001236,
+    "src_ip": "185.220.101.5",
+    "src_port": 40017,
+    "timestamp": "2026-10-20T15:14:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1016,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 16",
+    "signature_id": 2001235,
+    "src_ip": "192.168.1.15",
+    "src_port": 40016,
+    "timestamp": "2026-10-20T15:13:06.299796+00:00"
+   },
+   {
+    "action": "blocked",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1015,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 15",
+    "signature_id": 2001234,
+    "src_ip": "185.220.101.5",
+    "src_port": 40015,
+    "timestamp": "2026-10-20T15:12:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1014,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 14",
+    "signature_id": 2001233,
+    "src_ip": "192.168.1.15",
+    "src_port": 40014,
+    "timestamp": "2026-10-20T15:11:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1013,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 13",
+    "signature_id": 2001232,
+    "src_ip": "185.220.101.5",
+    "src_port": 40013,
+    "timestamp": "2026-10-20T15:10:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1012,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 12",
+    "signature_id": 2001231,
+    "src_ip": "192.168.1.15",
+    "src_port": 40012,
+    "timestamp": "2026-10-20T15:09:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1011,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 11",
+    "signature_id": 2001230,
+    "src_ip": "185.220.101.5",
+    "src_port": 40011,
+    "timestamp": "2026-10-20T15:08:06.299796+00:00"
+   },
+   {
+    "action": "blocked",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1010,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 10",
+    "signature_id": 2001229,
+    "src_ip": "192.168.1.15",
+    "src_port": 40010,
+    "timestamp": "2026-10-20T15:07:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1009,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 9",
+    "signature_id": 2001228,
+    "src_ip": "185.220.101.5",
+    "src_port": 40009,
+    "timestamp": "2026-10-20T15:06:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1008,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 8",
+    "signature_id": 2001227,
+    "src_ip": "192.168.1.15",
+    "src_port": 40008,
+    "timestamp": "2026-10-20T15:05:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1007,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 7",
+    "signature_id": 2001226,
+    "src_ip": "185.220.101.5",
+    "src_port": 40007,
+    "timestamp": "2026-10-20T15:04:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1006,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 6",
+    "signature_id": 2001225,
+    "src_ip": "192.168.1.15",
+    "src_port": 40006,
+    "timestamp": "2026-10-20T15:03:06.299796+00:00"
+   },
+   {
+    "action": "blocked",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1005,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 5",
+    "signature_id": 2001224,
+    "src_ip": "185.220.101.5",
+    "src_port": 40005,
+    "timestamp": "2026-10-20T15:02:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1004,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 4",
+    "signature_id": 2001223,
+    "src_ip": "192.168.1.15",
+    "src_port": 40004,
+    "timestamp": "2026-10-20T15:01:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1003,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "ET SCAN Potential SSH Scan 3",
+    "signature_id": 2001222,
+    "src_ip": "185.220.101.5",
+    "src_port": 40003,
+    "timestamp": "2026-10-20T15:00:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1002,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 3,
+    "signature": "ET SCAN Potential SSH Scan 2",
+    "signature_id": 2001221,
+    "src_ip": "192.168.1.15",
+    "src_port": 40002,
+    "timestamp": "2026-10-20T14:59:06.299796+00:00"
+   },
+   {
+    "action": "allowed",
+    "app_proto": "ssh",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 22,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1001,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 2,
+    "signature": "ET SCAN Potential SSH Scan 1",
+    "signature_id": 2001220,
+    "src_ip": "185.220.101.5",
+    "src_port": 40001,
+    "timestamp": "2026-10-20T14:58:06.299796+00:00"
+   },
+   {
+    "action": "blocked",
+    "app_proto": "tls",
+    "category": "Attempted Information Leak",
+    "dest_ip": "192.168.1.11",
+    "dest_port": 443,
+    "event_timestamp": "2026-10-20T11:00:00+0000",
+    "flow_id": 1000,
+    "in_iface": "eth0",
+    "proto": "TCP",
+    "severity": 1,
+    "signature": "<img src=x onerror=\"window.__xss=1\">",
+    "signature_id": 2001219,
+    "src_ip": "192.168.1.15",
+    "src_port": 40000,
+    "timestamp": "2026-10-20T14:57:06.299796+00:00"
+   }
+  ],
+  "suricata_log_total": 30,
+  "suricata_stats": {
+   "running": false
+  },
+  "timeseries": [
+   {
+    "deviance_score": 0,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T15:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 7,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T15:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 14,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T15:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 21,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T15:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 28,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T15:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 35,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T15:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 42,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T15:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 49,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T16:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 56,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T16:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 3,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T16:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 10,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T16:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 17,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T16:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 24,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T16:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 31,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T16:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 38,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T16:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 45,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T16:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 52,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T16:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 59,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T16:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 6,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T16:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 13,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T17:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 20,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T17:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 27,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T17:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 34,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T17:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 41,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T17:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 48,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T17:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 55,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T17:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 2,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T17:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 9,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T17:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 16,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T17:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 23,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T17:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 30,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T17:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 37,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T18:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 44,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T18:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 51,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T18:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 58,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T18:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 5,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T18:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 12,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T18:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 19,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T18:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 26,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T18:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 33,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T18:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 40,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T18:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 47,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T18:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 54,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T18:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 1,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T19:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 8,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T19:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 15,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T19:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 22,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T19:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 29,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T19:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 36,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T19:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 43,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T19:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 50,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T19:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 57,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T19:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 4,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T19:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 11,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T19:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 18,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T19:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 25,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T20:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 32,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T20:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 39,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T20:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 46,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T20:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 53,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T20:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 0,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T20:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 7,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T20:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 14,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T20:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 21,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T20:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 28,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T20:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 35,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T20:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 42,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T20:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 49,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T21:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 56,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T21:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 3,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T21:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 10,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T21:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 17,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T21:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 24,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T21:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 31,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T21:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 38,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T21:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 45,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T21:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 52,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T21:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 59,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T21:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 6,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T21:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 13,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T22:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 20,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T22:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 27,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T22:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 34,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T22:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 41,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T22:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 48,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T22:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 55,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T22:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 2,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T22:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 9,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T22:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 16,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T22:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 23,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T22:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 30,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T22:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 37,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T23:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 44,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T23:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 51,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T23:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 58,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T23:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 5,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T23:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 12,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T23:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 19,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T23:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 26,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T23:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 33,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T23:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 40,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-19T23:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 47,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-19T23:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 54,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-19T23:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 1,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T00:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 8,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T00:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 15,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T00:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 22,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T00:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 29,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T00:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 36,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T00:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 43,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T00:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 50,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T00:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 57,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T00:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 4,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T00:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 11,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T00:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 18,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T00:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 25,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T01:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 32,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T01:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 39,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T01:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 46,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T01:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 53,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T01:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 0,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T01:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 7,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T01:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 14,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T01:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 21,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T01:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 28,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T01:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 35,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T01:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 42,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T01:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 49,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T02:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 56,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T02:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 3,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T02:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 10,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T02:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 17,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T02:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 24,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T02:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 31,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T02:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 38,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T02:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 45,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T02:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 52,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T02:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 59,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T02:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 6,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T02:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 13,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T03:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 20,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T03:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 27,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T03:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 34,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T03:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 41,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T03:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 48,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T03:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 55,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T03:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 2,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T03:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 9,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T03:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 16,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T03:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 23,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T03:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 30,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T03:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 37,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T04:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 44,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T04:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 51,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T04:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 58,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T04:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 5,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T04:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 12,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T04:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 19,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T04:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 26,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T04:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 33,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T04:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 40,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T04:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 47,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T04:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 54,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T04:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 1,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T05:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 8,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T05:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 15,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T05:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 22,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T05:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 29,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T05:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 36,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T05:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 43,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T05:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 50,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T05:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 57,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T05:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 4,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T05:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 11,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T05:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 18,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T05:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 25,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T06:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 32,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T06:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 39,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T06:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 46,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T06:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 53,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T06:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 0,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T06:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 7,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T06:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 14,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T06:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 21,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T06:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 28,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T06:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 35,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T06:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 42,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T06:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 49,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T07:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 56,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T07:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 3,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T07:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 10,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T07:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 17,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T07:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 24,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T07:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 31,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T07:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 38,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T07:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 45,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T07:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 52,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T07:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 59,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T07:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 6,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T07:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 13,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T08:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 20,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T08:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 27,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T08:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 34,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T08:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 41,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T08:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 48,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T08:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 55,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T08:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 2,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T08:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 9,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T08:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 16,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T08:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 23,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T08:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 30,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T08:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 37,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T09:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 44,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T09:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 51,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T09:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 58,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T09:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 5,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T09:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 12,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T09:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 19,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T09:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 26,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T09:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 33,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T09:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 40,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T09:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 47,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T09:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 54,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T09:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 1,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T10:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 8,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T10:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 15,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T10:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 22,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T10:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 29,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T10:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 36,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T10:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 43,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T10:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 50,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T10:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 57,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T10:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 4,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T10:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 11,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T10:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 18,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T10:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 25,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T11:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 32,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T11:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 39,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T11:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 46,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T11:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 53,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T11:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 0,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T11:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 7,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T11:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 14,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T11:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 21,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T11:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 28,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T11:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 35,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T11:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 42,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T11:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 49,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T12:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 56,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T12:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 3,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T12:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 10,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T12:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 17,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T12:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 24,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T12:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 31,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T12:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 38,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T12:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 45,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T12:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 52,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T12:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 59,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T12:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 6,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T12:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 13,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T13:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 20,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T13:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 27,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T13:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 34,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T13:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 41,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T13:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 48,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T13:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 55,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T13:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 2,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T13:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 9,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T13:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 16,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T13:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 23,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T13:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 30,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T13:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 37,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T14:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 44,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T14:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 51,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 23,
+    "ext_ips": 7,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T14:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 58,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 24,
+    "ext_ips": 8,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T14:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 5,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 25,
+    "ext_ips": 4,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T14:22:06.299796+00:00"
+   },
+   {
+    "deviance_score": 12,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 26,
+    "ext_ips": 5,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T14:27:06.299796+00:00"
+   },
+   {
+    "deviance_score": 19,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 27,
+    "ext_ips": 6,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T14:32:06.299796+00:00"
+   },
+   {
+    "deviance_score": 26,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 28,
+    "ext_ips": 7,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T14:37:06.299796+00:00"
+   },
+   {
+    "deviance_score": 33,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 29,
+    "ext_ips": 8,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T14:42:06.299796+00:00"
+   },
+   {
+    "deviance_score": 40,
+    "dns_blocked": 0,
+    "dns_malicious": 1,
+    "dns_total": 30,
+    "ext_ips": 4,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T14:47:06.299796+00:00"
+   },
+   {
+    "deviance_score": 47,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 31,
+    "ext_ips": 5,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T14:52:06.299796+00:00"
+   },
+   {
+    "deviance_score": 54,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 32,
+    "ext_ips": 6,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T14:57:06.299796+00:00"
+   },
+   {
+    "deviance_score": 1,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 33,
+    "ext_ips": 7,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T15:02:06.299796+00:00"
+   },
+   {
+    "deviance_score": 8,
+    "dns_blocked": 0,
+    "dns_malicious": 0,
+    "dns_total": 34,
+    "ext_ips": 8,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T15:07:06.299796+00:00"
+   },
+   {
+    "deviance_score": 15,
+    "dns_blocked": 1,
+    "dns_malicious": 0,
+    "dns_total": 20,
+    "ext_ips": 4,
+    "hosts": 10,
+    "scanned": 5,
+    "ts": "2026-10-20T15:12:06.299796+00:00"
+   },
+   {
+    "deviance_score": 22,
+    "dns_blocked": 2,
+    "dns_malicious": 0,
+    "dns_total": 21,
+    "ext_ips": 5,
+    "hosts": 11,
+    "scanned": 5,
+    "ts": "2026-10-20T15:17:06.299796+00:00"
+   },
+   {
+    "deviance_score": 29,
+    "dns_blocked": 3,
+    "dns_malicious": 0,
+    "dns_total": 22,
+    "ext_ips": 6,
+    "hosts": 12,
+    "scanned": 5,
+    "ts": "2026-10-20T15:22:06.299796+00:00"
+   }
+  ],
+  "top_countries": [
+   {
+    "country": "US",
+    "country_name": "United States",
+    "flow_count": 7,
+    "ip_count": 3
+   },
+   {
+    "country": "DE",
+    "country_name": "Germany",
+    "flow_count": 3,
+    "ip_count": 1
+   },
+   {
+    "country": "NL",
+    "country_name": "Netherlands",
+    "flow_count": 3,
+    "ip_count": 1
+   },
+   {
+    "country": "AU",
+    "country_name": "Australia",
+    "flow_count": 2,
+    "ip_count": 1
+   }
+  ],
+  "top_internal_talkers": [
+   {
+    "display_name": "192.168.1.18",
+    "ip": "192.168.1.18",
+    "probable_role": "unknown",
+    "total_octets": 80180512
+   },
+   {
+    "display_name": "192.168.1.17",
+    "ip": "192.168.1.17",
+    "probable_role": "unknown",
+    "total_octets": 770816
+   },
+   {
+    "display_name": "192.168.1.21",
+    "ip": "192.168.1.21",
+    "probable_role": "unknown",
+    "total_octets": 240512
+   },
+   {
+    "display_name": "192.168.1.20",
+    "ip": "192.168.1.20",
+    "probable_role": "nas_or_desktop",
+    "total_octets": 220512
+   },
+   {
+    "display_name": "192.168.1.19",
+    "ip": "192.168.1.19",
+    "probable_role": "unknown",
+    "total_octets": 200512
+   }
+  ],
+  "top_public_ips": [
+   {
+    "blacklisted": false,
+    "country": "US",
+    "country_name": "United States",
+    "flows": 3,
+    "hostname": "<img src=x onerror=\"window.__xss=1\">",
+    "ip": "45.33.32.156",
+    "org": "",
+    "rating": "clean",
+    "total_octets": 80320000
+   },
+   {
+    "blacklisted": false,
+    "country": "NL",
+    "country_name": "Netherlands",
+    "flows": 3,
+    "hostname": "",
+    "ip": "203.0.113.50",
+    "org": "",
+    "rating": "suspicious",
+    "total_octets": 364096
+   },
+   {
+    "blacklisted": true,
+    "country": "DE",
+    "country_name": "Germany",
+    "flows": 3,
+    "hostname": "",
+    "ip": "185.220.101.5",
+    "org": "",
+    "rating": "malicious",
+    "total_octets": 284096
+   },
+   {
+    "blacklisted": false,
+    "country": "US",
+    "country_name": "United States",
+    "flows": 2,
+    "hostname": "",
+    "ip": "93.184.216.34",
+    "org": "",
+    "rating": "clean",
+    "total_octets": 240000
+   },
+   {
+    "blacklisted": false,
+    "country": "AU",
+    "country_name": "Australia",
+    "flows": 2,
+    "hostname": "one.one.one.one",
+    "ip": "1.1.1.1",
+    "org": "",
+    "rating": "clean",
+    "total_octets": 200000
+   }
+  ],
+  "top_threat_ips": [
+   {
+    "abuse_confidence": 100,
+    "blacklist_info": {
+     "indicator": "185.220.101.5",
+     "source": "feodotracker.abuse.ch",
+     "type": "ip"
+    },
+    "blacklisted": true,
+    "country": "DE",
+    "country_name": "Germany",
+    "flows": 3,
+    "hostname": "",
+    "internal_sources": [
+     "192.168.1.11",
+     "192.168.1.13",
+     "192.168.1.15",
+     "192.168.1.19"
+    ],
+    "ip": "185.220.101.5",
+    "org": "",
+    "rating": "malicious",
+    "total_octets": 284096,
+    "vt_malicious": 9
+   },
+   {
+    "abuse_confidence": null,
+    "blacklist_info": null,
+    "blacklisted": false,
+    "country": "NL",
+    "country_name": "Netherlands",
+    "flows": 3,
+    "hostname": "",
+    "internal_sources": [
+     "192.168.1.15",
+     "192.168.1.16",
+     "192.168.1.21"
+    ],
+    "ip": "203.0.113.50",
+    "org": "",
+    "rating": "suspicious",
+    "total_octets": 364096,
+    "vt_malicious": 1
+   }
+  ]
+ },
+ "generated_at": "2026-10-20T15:27:06.338118+00:00",
+ "lookup": {
+  "abuse_confidence": 100,
+  "as_name": "F3 Netze",
+  "asn": "AS205100",
+  "blacklist_info": {
+   "indicator": "185.220.101.5",
+   "source": "feodotracker.abuse.ch",
+   "type": "ip"
+  },
+  "blacklisted": true,
+  "country": "DE",
+  "country_name": "Germany",
+  "enriched_at": "2026-10-20T15:27:06.299796+00:00",
+  "hostname": "berlin01.tor-exit.artikel10.org",
+  "ip": "185.220.101.5",
+  "isp": "F3 Netze",
+  "rating": "malicious",
+  "rating_source": "Blacklist: feodotracker.abuse.ch",
+  "sources": [
+   "ipwho",
+   "virustotal"
+  ],
+  "vt_malicious": 9
+ },
+ "settings": {
+  "config": {
+   "abuseipdb_api_key": "",
+   "abuseipdb_daily_budget": 1000,
+   "baseline_egress_multiplier": 2.5,
+   "baseline_enabled": true,
+   "baseline_min_observations": 3,
+   "baseline_training_hours": 168,
+   "bind_host": "127.0.0.1",
+   "bind_port": 2055,
+   "blacklist_urls": "https://feodotracker.abuse.ch/downloads/ipblocklist.txt,https://sslbl.abuse.ch/blacklist/sslipblacklist.txt,https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt",
+   "dns_blocked_categories": "",
+   "dns_log_retention_hours": 24,
+   "dns_overrides": "",
+   "dns_proxy_bind_host": "0.0.0.0",
+   "dns_proxy_enabled": false,
+   "dns_proxy_port": 53,
+   "dns_proxy_upstream": "1.1.1.1",
+   "dns_warn_blocked_logs": false,
+   "enable_dns_resolution": true,
+   "enable_ip_geolocation": true,
+   "enable_netflow_listener": false,
+   "enable_scanner": true,
+   "enrichment_ttl_minutes": 1440,
+   "external_ip_retention_hours": 5,
+   "high_egress_threshold": 50000000,
+   "internal_networks": "192.168.1.0/24",
+   "netflow_allowed_exporters": "",
+   "nvd_api_url": "https://services.nvd.nist.gov/rest/json/cves/2.0",
+   "nvd_keywords": "OpenSSH,Android Debug Bridge,Apache HTTP Server,nginx,MySQL,MariaDB,Samba",
+   "nvd_min_year": 2020,
+   "nvd_ttl_hours": 12,
+   "retention_malicious_hours": 168,
+   "retention_suspicious_hours": 48,
+   "scan_exceptions": "",
+   "scan_interval": 3000,
+   "scan_port_threshold": 100,
+   "scan_ports": "21-23,25,53,80,110,111,135,139,143,443,445,465,515,554,587,631,993,995,1080,1433,1521,1723,1883,2049,2323,3306,3389,4443,5000,5060,5432,5555,5900,6379,6667,8000,8008,8080,8443,8883,8888,9090,9100,9200,27017,49152",
+   "scan_window_seconds": 600,
+   "stats_top_n": 5,
+   "suricata_allowed_sources": "",
+   "suricata_auth_token": "",
+   "suricata_listener_enabled": false,
+   "suricata_listener_host": "0.0.0.0",
+   "suricata_listener_port": 6343,
+   "suricata_log_retention_hours": 24,
+   "virustotal_api_key": "********",
+   "virustotal_daily_budget": 500,
+   "vt_abuseipdb_threshold": 30,
+   "webui_require_admin": true
+  },
+  "schema": [
+   {
+    "fields": [
+     {
+      "help": "IP address to bind the NetFlow UDP listener (use 0.0.0.0 for all interfaces)",
+      "key": "bind_host",
+      "label": "NetFlow Bind Host",
+      "type": "text"
+     },
+     {
+      "help": "UDP port for NetFlow v5/v9/IPFIX datagrams (default 2055)",
+      "key": "bind_port",
+      "label": "NetFlow Bind Port",
+      "max": 65535,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "help": "Enable UDP NetFlow/IPFIX listener and flow ingestion",
+      "key": "enable_netflow_listener",
+      "label": "Enable NetFlow Listener",
+      "type": "boolean"
+     },
+     {
+      "help": "Comma-separated IPs or CIDRs allowed to send flows (e.g. your router). Empty accepts any sender \u2014 recommended to set.",
+      "key": "netflow_allowed_exporters",
+      "label": "Allowed NetFlow Exporters",
+      "type": "text"
+     },
+     {
+      "help": "Comma-separated CIDR ranges that are considered internal (e.g. 192.168.0.0/16,10.0.0.0/8)",
+      "key": "internal_networks",
+      "label": "Internal Networks",
+      "type": "text"
+     }
+    ],
+    "section": "Network & NetFlow"
+   },
+   {
+    "fields": [
+     {
+      "help": "Time window in seconds for port-scan detection",
+      "key": "scan_window_seconds",
+      "label": "Port Scan Window (s)",
+      "max": 3600,
+      "min": 10,
+      "type": "number"
+     },
+     {
+      "help": "Number of distinct ports contacted within the window to trigger a port-scan alert",
+      "key": "scan_port_threshold",
+      "label": "Port Scan Threshold",
+      "max": 10000,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "help": "Bytes sent outbound to trigger a high-egress alert",
+      "key": "high_egress_threshold",
+      "label": "High Egress Threshold (bytes)",
+      "min": 100000,
+      "type": "number"
+     }
+    ],
+    "section": "Threat Detection"
+   },
+   {
+    "fields": [
+     {
+      "help": "Periodically ping, port-scan and banner-grab internal hosts (Home Assistant's own addresses are always skipped). Off by default: scanning can trip other intrusion detection and upset fragile IoT devices.",
+      "key": "enable_scanner",
+      "label": "Enable Scanner",
+      "type": "boolean"
+     },
+     {
+      "help": "Seconds between active scan cycles",
+      "key": "scan_interval",
+      "label": "Scan Interval (s)",
+      "max": 604800,
+      "min": 60,
+      "type": "number"
+     },
+     {
+      "help": "Ports to scan (ranges and commas allowed, e.g. 22,80,443,8080-8090)",
+      "key": "scan_ports",
+      "label": "Scan Ports",
+      "type": "text"
+     },
+     {
+      "help": "Comma-separated IPs to exclude from active scanning",
+      "key": "scan_exceptions",
+      "label": "Scan Exceptions",
+      "type": "text"
+     }
+    ],
+    "section": "Active Scanner"
+   },
+   {
+    "fields": [
+     {
+      "help": "Resolve hostnames for external IPs and check them against blacklists",
+      "key": "enable_dns_resolution",
+      "label": "Enable DNS Resolution",
+      "type": "boolean"
+     },
+     {
+      "help": "Comma or newline-separated HTTPS URLs of threat-intel blocklists to download",
+      "key": "blacklist_urls",
+      "label": "Blacklist URLs",
+      "type": "text"
+     }
+    ],
+    "section": "DNS & Threat Intelligence"
+   },
+   {
+    "fields": [
+     {
+      "help": "Run a DNS proxy that logs and optionally blocks queries",
+      "key": "dns_proxy_enabled",
+      "label": "Enable DNS Proxy",
+      "type": "boolean"
+     },
+     {
+      "help": "Listener bind address for DNS proxy (recommended: 127.0.0.1 or a specific LAN IP)",
+      "key": "dns_proxy_bind_host",
+      "label": "DNS Proxy Bind Host",
+      "type": "text"
+     },
+     {
+      "help": "UDP/TCP port for the DNS proxy listener (default 53 \u2014 requires root/CAP_NET_BIND_SERVICE)",
+      "key": "dns_proxy_port",
+      "label": "DNS Proxy Port",
+      "max": 65535,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "help": "Upstream DNS resolver IP (e.g. 1.1.1.1); several may be comma-separated",
+      "key": "dns_proxy_upstream",
+      "label": "Upstream DNS Server",
+      "type": "text"
+     },
+     {
+      "help": "How many hours to keep DNS query log entries (0 = until the 10,000-entry cap)",
+      "key": "dns_log_retention_hours",
+      "label": "DNS Log Retention (h)",
+      "max": 8760,
+      "min": 0,
+      "type": "number"
+     },
+     {
+      "help": "Write warning logs for each blocked DNS query (disabled by default to reduce log noise)",
+      "key": "dns_warn_blocked_logs",
+      "label": "Warn Logs for Blocked Domains",
+      "type": "boolean"
+     },
+     {
+      "help": "Comma or newline-separated category names to block (e.g. ads,malware,tracking)",
+      "key": "dns_blocked_categories",
+      "label": "Blocked DNS Categories",
+      "type": "text"
+     },
+     {
+      "help": "Local DNS overrides, one per line: hostname=IP (e.g. myhost.local=192.168.1.5)",
+      "key": "dns_overrides",
+      "label": "DNS Local Overrides",
+      "type": "text"
+     }
+    ],
+    "section": "DNS Proxy"
+   },
+   {
+    "fields": [
+     {
+      "help": "Look up country and network owner of contacted public IPs at ipwho.is. Off by default: every public IP your devices contact is sent to that third-party service.",
+      "key": "enable_ip_geolocation",
+      "label": "IP Geolocation (ipwho.is)",
+      "type": "boolean"
+     },
+     {
+      "help": "Optional VirusTotal API key for external IP reputation lookup",
+      "key": "virustotal_api_key",
+      "label": "VirusTotal API Key",
+      "type": "password"
+     },
+     {
+      "help": "Optional AbuseIPDB API key for external IP reputation lookup",
+      "key": "abuseipdb_api_key",
+      "label": "AbuseIPDB API Key",
+      "type": "password"
+     },
+     {
+      "help": "Minimum abuse confidence score (0-100) to flag an IP as suspicious",
+      "key": "vt_abuseipdb_threshold",
+      "label": "Threat Score Threshold (%)",
+      "max": 100,
+      "min": 0,
+      "type": "number"
+     },
+     {
+      "help": "Max VirusTotal API lookups per day",
+      "key": "virustotal_daily_budget",
+      "label": "VirusTotal Daily Budget",
+      "max": 1000000,
+      "min": 0,
+      "type": "number"
+     },
+     {
+      "help": "Max AbuseIPDB API lookups per day",
+      "key": "abuseipdb_daily_budget",
+      "label": "AbuseIPDB Daily Budget",
+      "max": 1000000,
+      "min": 0,
+      "type": "number"
+     },
+     {
+      "help": "Minutes before re-querying enrichment APIs for a known IP",
+      "key": "enrichment_ttl_minutes",
+      "label": "Enrichment Cache TTL (min)",
+      "max": 525600,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "help": "Hours to retain clean external IPs in the dashboard",
+      "key": "external_ip_retention_hours",
+      "label": "External IP Retention (h)",
+      "max": 8760,
+      "min": 0,
+      "type": "number"
+     },
+     {
+      "help": "Hours to retain suspicious IPs",
+      "key": "retention_suspicious_hours",
+      "label": "Suspicious IP Retention (h)",
+      "max": 8760,
+      "min": 0,
+      "type": "number"
+     },
+     {
+      "help": "Hours to retain malicious IPs",
+      "key": "retention_malicious_hours",
+      "label": "Malicious IP Retention (h)",
+      "max": 8760,
+      "min": 0,
+      "type": "number"
+     }
+    ],
+    "section": "External IP Enrichment"
+   },
+   {
+    "fields": [
+     {
+      "help": "NVD CVE API endpoint URL (HTTPS)",
+      "key": "nvd_api_url",
+      "label": "NVD API URL",
+      "type": "text"
+     },
+     {
+      "help": "Hours before refreshing the NVD CVE cache",
+      "key": "nvd_ttl_hours",
+      "label": "NVD Cache TTL (h)",
+      "max": 8760,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "help": "Only show CVEs published on or after this year",
+      "key": "nvd_min_year",
+      "label": "CVE Min Year",
+      "max": 2100,
+      "min": 1999,
+      "type": "number"
+     },
+     {
+      "help": "Comma-separated product keywords to pre-fetch from NVD (e.g. OpenSSH,nginx,Samba)",
+      "key": "nvd_keywords",
+      "label": "NVD Keywords",
+      "type": "text"
+     }
+    ],
+    "section": "NVD Vulnerability Intelligence"
+   },
+   {
+    "fields": [
+     {
+      "help": "Enable behavioural baseline learning and anomaly detection",
+      "key": "baseline_enabled",
+      "label": "Enable Baseline",
+      "type": "boolean"
+     },
+     {
+      "help": "Hours of traffic to observe before the baseline is considered trained",
+      "key": "baseline_training_hours",
+      "label": "Training Duration (h)",
+      "max": 168,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "help": "Minimum number of flow observations before treating a pattern as normal",
+      "key": "baseline_min_observations",
+      "label": "Min Observations",
+      "max": 50,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "float": true,
+      "help": "How many times the baseline egress a device must exceed before it is flagged",
+      "key": "baseline_egress_multiplier",
+      "label": "Egress Anomaly Multiplier",
+      "max": 100.0,
+      "min": 1.0,
+      "type": "number"
+     }
+    ],
+    "section": "Baseline & Behaviour Analysis"
+   },
+   {
+    "fields": [
+     {
+      "help": "When enabled, only Home Assistant admin users can see the Security Assistant sidebar panel and read its data. Changing data always requires an admin.",
+      "key": "webui_require_admin",
+      "label": "Sidebar panel requires admin",
+      "type": "boolean"
+     },
+     {
+      "help": "How many top entries to show in statistics charts",
+      "key": "stats_top_n",
+      "label": "Statistics Top N",
+      "max": 25,
+      "min": 3,
+      "type": "number"
+     }
+    ],
+    "section": "Display"
+   },
+   {
+    "fields": [
+     {
+      "help": "Accept Suricata EVE JSON alerts over TCP from suricata_pusher.py",
+      "key": "suricata_listener_enabled",
+      "label": "Enable Suricata Listener",
+      "type": "boolean"
+     },
+     {
+      "help": "IP address to bind the TCP listener (0.0.0.0 for all interfaces)",
+      "key": "suricata_listener_host",
+      "label": "Listener Bind Host",
+      "type": "text"
+     },
+     {
+      "help": "TCP port for the Suricata pusher to connect to (default 6343)",
+      "key": "suricata_listener_port",
+      "label": "Listener TCP Port",
+      "max": 65535,
+      "min": 1,
+      "type": "number"
+     },
+     {
+      "help": "Shared secret the pusher must send first (suricata_pusher.py --token or HSA_SURICATA_TOKEN). Strongly recommended.",
+      "key": "suricata_auth_token",
+      "label": "Listener Auth Token",
+      "type": "password"
+     },
+     {
+      "help": "Comma-separated IPs or CIDRs allowed to connect (e.g. the Suricata host). Empty accepts any source.",
+      "key": "suricata_allowed_sources",
+      "label": "Allowed Pusher Sources",
+      "type": "text"
+     },
+     {
+      "help": "Hours to keep Suricata alert log entries (0 = until the 10,000-entry cap)",
+      "key": "suricata_log_retention_hours",
+      "label": "Alert Log Retention (h)",
+      "max": 8760,
+      "min": 0,
+      "type": "number"
+     }
+    ],
+    "section": "Suricata Alert Listener"
+   }
+  ]
+ },
+ "vulnerabilities": {
+  "detected_cves": 6,
+  "kev_matches": 1,
+  "kev_total": 1,
+  "total": 7,
+  "vulnerabilities": [
+   {
+    "affected_hosts": [
+     "192.168.1.14"
+    ],
+    "cpe_criteria": [],
+    "cve_id": "CVE-NONE-ADB-EXPOSED",
+    "cvss": 9.8,
+    "in_kev": false,
+    "ports": [
+     5555
+    ],
+    "services": [
+     "adb"
+    ],
+    "severity": "critical",
+    "source": "static_rules",
+    "summary": "Android Debug Bridge (5555) exposed. Allows full shell access to the device."
+   },
+   {
+    "affected_hosts": [
+     "192.168.1.14"
+    ],
+    "cpe_criteria": [],
+    "cve_id": "CVE-NONE-TELNET-EXPOSED",
+    "cvss": 9.0,
+    "in_kev": false,
+    "ports": [
+     23
+    ],
+    "services": [
+     "telnet"
+    ],
+    "severity": "critical",
+    "source": "static_rules",
+    "summary": "Telnet service transmits credentials in cleartext and is frequently targeted by botnets."
+   },
+   {
+    "affected_hosts": [
+     "192.168.1.11"
+    ],
+    "cpe_criteria": [],
+    "cve_id": "CVE-NONE-RDP-EXPOSED",
+    "cvss": 8.5,
+    "in_kev": false,
+    "ports": [
+     3389
+    ],
+    "services": [
+     "rdp"
+    ],
+    "severity": "high",
+    "source": "static_rules",
+    "summary": "RDP (3389) exposed on the local network. Frequently brute-forced and targeted by ransomware."
+   },
+   {
+    "affected_hosts": [],
+    "cpe_criteria": [
+     "cpe:2.3:a:openbsd:openssh:*:*:*:*:*:*:*:*"
+    ],
+    "cve_id": "CVE-2024-6387",
+    "cvss": 8.1,
+    "in_kev": true,
+    "kev_action": "Apply updates",
+    "kev_date_added": "2024-07-15",
+    "kev_name": "regreSSHion",
+    "kev_product": "OpenSSH",
+    "kev_vendor": "OpenBSD",
+    "ports": [],
+    "published": "2024-07-01",
+    "services": [],
+    "severity": "HIGH",
+    "source": "nvd",
+    "summary": "regreSSHion race condition"
+   },
+   {
+    "affected_hosts": [
+     "192.168.1.10"
+    ],
+    "cpe_criteria": [],
+    "cve_id": "CVE-2023-44487",
+    "cvss": 7.5,
+    "in_kev": false,
+    "ports": [
+     80
+    ],
+    "services": [
+     "http"
+    ],
+    "severity": "high",
+    "source": "static_rules",
+    "summary": "nginx: HTTP/2 rapid reset DoS (affects < 1.25.3)."
+   },
+   {
+    "affected_hosts": [
+     "192.168.1.10"
+    ],
+    "cpe_criteria": [],
+    "cve_id": "CVE-2023-51385",
+    "cvss": 6.5,
+    "in_kev": false,
+    "ports": [
+     22
+    ],
+    "services": [
+     "ssh"
+    ],
+    "severity": "medium",
+    "source": "static_rules",
+    "summary": "OpenSSH < 9.6 OS command injection via expansion tokens in user/host names."
+   },
+   {
+    "affected_hosts": [
+     "192.168.1.10"
+    ],
+    "cpe_criteria": [],
+    "cve_id": "CVE-2016-6210",
+    "cvss": 5.9,
+    "in_kev": false,
+    "ports": [
+     22
+    ],
+    "published": "2017-02-13",
+    "services": [
+     "ssh"
+    ],
+    "severity": "MEDIUM",
+    "source": "nvd",
+    "summary": "OpenSSH user enumeration <img src=x onerror=\"window.__xss=1\">"
+   }
+  ]
+ }
+}

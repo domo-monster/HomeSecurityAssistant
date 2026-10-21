@@ -31,6 +31,9 @@ jobs:
 
   panel:
     runs-on: "ubuntu-latest"
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - name: Checkout
         uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
@@ -38,7 +41,23 @@ jobs:
         uses: "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1" # v7.1.0
         with:
           node-version: "20"
-      - name: Check panel syntax
-        run: node --check custom_components/homesec/frontend/homesec-panel.js
-      - name: Run panel escaping tests
-        run: node --test tests/js/
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Committed bundle matches the sources
+        run: npm run check-bundle
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser regression tests
+        # DOM snapshots are platform independent; pixel screenshots depend on
+        # the fonts of the machine that made the baselines, so skip them here.
+        env:
+          SKIP_SCREENSHOTS: "1"
+        run: npm test
+      - name: Upload test report on failure
+        if: failure()
+        uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" # v4.6.2
+        with:
+          name: playwright-results
+          path: frontend/test-results

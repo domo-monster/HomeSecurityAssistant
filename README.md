@@ -448,5 +448,30 @@ Tests (Python 3.13):
 ```sh
 pip install -r requirements_test.txt
 pytest                      # integration, parser and fuzz tests
-node --test tests/js/       # panel escaping regression tests
+ruff check . && mypy        # lint and type check
 ```
+
+### Sidebar panel (frontend)
+
+The panel is written with [Lit](https://lit.dev) in `frontend/src/` and bundled by esbuild into `custom_components/homesec/frontend/homesec-panel.js`. The bundle is committed because HACS installs straight from the repository; never edit it by hand.
+
+| Path | Contents |
+|---|---|
+| `frontend/src/panel.js` | Element lifecycle, state, rendering loop and event dispatch |
+| `frontend/src/views/*.js` | One module per view (overview, map, hosts, findings, …) mixed into the element |
+| `frontend/src/i18n/*.json` | UI and Settings-form translations (English text is the inline fallback of each `_t()` call) |
+| `frontend/src/styles.js`, `icons.js`, `templates.js` | Stylesheet, sidebar icons, template helpers |
+| `frontend/tests/` | Playwright browser tests, fixtures and snapshots |
+
+```sh
+cd frontend
+npm ci
+npm run build               # rebuild the bundle after editing src/
+npx playwright install chromium
+npm test                    # browser regression tests
+npm run test:update         # accept intended UI changes (review the snapshot diff!)
+```
+
+All dynamic values go through Lit templates (`html`/`svg`), which escape them; do not build HTML from strings or set `innerHTML`.
+
+The browser tests render every view, modal and main interaction against `frontend/tests/fixtures/api.json`, which is generated from the real backend (`pytest frontend/tests/fixtures/generate_fixture.py -p no:cacheprovider`; regenerating changes every timestamp, so run `npm run test:update` afterwards). Each state is checked for page errors, executed injected script (the fixture contains hostile strings), leaked markup, a normalised DOM snapshot and a screenshot. CI compares DOM snapshots only (`SKIP_SCREENSHOTS=1`), because screenshots depend on installed fonts.

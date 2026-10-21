@@ -1,0 +1,266 @@
+<header class=mobile-topbar>
+  <button aria-label=Open menu class=mobile-menu-btn data-mobile-menu-toggle=>
+    #☰
+  <div class=mobile-topbar-title id=hsa-mobile-title>
+    #Findings
+<div class=mobile-backdrop data-mobile-menu-close=>
+<nav class=sidebar id=hsa-sidebar>
+  <div class=brand>
+    <img alt=logo src=/api/homesec/frontend/hsa-logo.svg style=height: 32px; width: 32px; margin-right: 10px; border-radius: 8px; box-shadow: rgba(98, 232, 255, 0.333) 0px 0px 8px; vertical-align: middle;>
+    <div class=brand-text>
+      <span class=brand-name>
+        #Security
+      <span class=brand-sub>
+        #Assistant
+      <span class=brand-tagline>
+        #Network security telemetry with live flow context
+  <ul class=nav-list>
+    <li class=nav-item data-view=overview>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z>
+      <span class=nav-label>
+        #Overview
+    <li class=nav-item data-view=map>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z>
+      <span class=nav-label>
+        #Network Map
+    <li class=nav-item data-view=hosts>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z>
+      <span class=nav-label>
+        #Hosts
+    <li class=nav-item active data-view=findings>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v6h-2V7zm0 8h2v2h-2v-2z>
+      <span class=nav-label>
+        #Findings
+      <span class=nav-badge>
+        #11
+    <li class=nav-item data-view=external>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z>
+      <span class=nav-label>
+        #External IPs
+      <span class=nav-badge danger>
+        #1
+    <li class=nav-item data-view=vulnerabilities>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z>
+      <span class=nav-label>
+        #Vulnerabilities
+    <li class=nav-item data-view=statistics>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z>
+      <span class=nav-label>
+        #Statistics
+    <li class=nav-item data-view=dns>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z>
+      <span class=nav-label>
+        #DNS Queries
+    <li class=nav-item data-view=suricata>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm1 14h-2v-2h2v2zm0-4h-2V7h2v4z>
+      <span class=nav-label>
+        #Suricata Alerts
+    <li class=nav-item data-view=recommendations>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z>
+      <span class=nav-label>
+        #Recommendations
+    <li class=nav-item data-view=settings>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z>
+      <span class=nav-label>
+        #Settings
+  <div class=sidebar-status online>
+    <div class=status-dot>
+    <span>
+      #Collector active
+    <span style=margin-left: auto; opacity: 0.45; font-size: 9px;>
+      #v0.11.0
+  <div class=sidebar-copy>
+    <a href=https://domotic.monster rel=noopener noreferrer target=_blank>
+      #© 2026 domotic.monster
+<main class=content id=hsa-content>
+  <div style=display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;>
+    <div class=page-header style=margin: 0px;>
+      <h1 class=page-title>
+        #Findings
+    <div style=display: flex; gap: 6px; flex-wrap: wrap; align-items: center;>
+      <button class=btn data-regex-dismiss-open= title=Dismiss multiple findings by regex pattern>
+        #🗑 Pattern…
+  <div style=margin-bottom: 28px;>
+    <div class=view-header>
+      <h1>
+        #Baseline Anomalies 
+        <span class=dim>
+          #(2)
+    <div style=display: flex; gap: 4px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;>
+      <button class=btn active data-baseline-group-mode=category>
+        #By Category
+      <button class=btn data-baseline-group-mode=host>
+        #By Host
+      <button class=btn data-baseline-group-mode=flat>
+        #Flat
+      <span style=flex: 1 1 0%;>
+      <input data-baseline-search= placeholder=Search + Enter style=background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: rgb(255, 255, 255); padding: 3px 8px; font-size: 11px; width: 160px; outline: none; type=search value=>
+    <div class=finding-group-wrap>
+      <div class=finding-card sev-high finding-group-card data-expand-baseline-group=bcat:anomaly_new_host>
+        <div class=finding-header>
+          <span class=badge badge-high>
+            #high
+          <span class=badge style=background: rgba(98, 232, 255, 0.1); border: 1px solid rgba(98, 232, 255, 0.2); padding: 1px 8px; font-size: 10px; border-radius: 100px;>
+            #1 finding · 1 host
+          <span class=finding-title>
+            #New Host Detected
+          <button class=btn btn-dismiss data-dismiss-group=bcat:anomaly_new_host>
+            #Dismiss all 1
+          <span class=finding-group-chevron style=transform: rotate(0deg);>
+            #▶
+        <div class=finding-meta>
+          <span>
+            #Latest: just now
+    <div class=finding-group-wrap>
+      <div class=finding-card sev-medium finding-group-card data-expand-baseline-group=bcat:anomaly_new_peer>
+        <div class=finding-header>
+          <span class=badge badge-medium>
+            #medium
+          <span class=badge style=background: rgba(98, 232, 255, 0.1); border: 1px solid rgba(98, 232, 255, 0.2); padding: 1px 8px; font-size: 10px; border-radius: 100px;>
+            #1 finding · 1 host
+          <span class=finding-title>
+            #New External Peer
+          <button class=btn btn-dismiss data-dismiss-group=bcat:anomaly_new_peer>
+            #Dismiss all 1
+          <span class=finding-group-chevron style=transform: rotate(0deg);>
+            #▶
+        <div class=finding-meta>
+          <span>
+            #Latest: just now
+  <div>
+    <div class=view-header>
+      <h1>
+        #Security Findings 
+        <span class=dim>
+          #(9 actionable, 1 dismissed)
+    <div style=display: flex; gap: 4px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;>
+      <button class=btn active data-findings-group-mode=category style=font-size: 10px; padding: 3px 8px;>
+        #By Category
+      <button class=btn data-findings-group-mode=host style=font-size: 10px; padding: 3px 8px;>
+        #By Host
+      <button class=btn data-findings-group-mode=severity style=font-size: 10px; padding: 3px 8px;>
+        #By Severity
+      <button class=btn data-findings-group-mode=flat style=font-size: 10px; padding: 3px 8px;>
+        #Flat
+      <span style=flex: 1 1 0%;>
+      <input data-findings-search= placeholder=Search + Enter style=background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: rgb(255, 255, 255); padding: 3px 8px; font-size: 11px; width: 160px; outline: none; type=search value=>
+    <div class=dim style=font-size: 11px; line-height: 1.5; margin: 0px 2px 10px;>
+      #⚠️ CVE matches are based on the product and version reported in service banners. Distributions such as Ubuntu, Debian or RHEL often backport security fixes without changing the upstream version, so a match may be a false positive. Check your vendor’s security tracker and dismiss findings that do not apply.
+    <div class=finding-group-wrap>
+      <div class=finding-card sev-critical finding-group-card data-expand-group=fcat:vulnerability>
+        <div class=finding-header>
+          <span class=badge badge-critical>
+            #critical
+          <span class=badge style=background: rgba(98, 232, 255, 0.1); border: 1px solid rgba(98, 232, 255, 0.2); padding: 1px 8px; font-size: 10px; border-radius: 100px;>
+            #6 findings
+          <span class=finding-title>
+            #Vulnerability / CVE
+          <button class=btn btn-dismiss data-dismiss-group=fcat:vulnerability>
+            #Dismiss all 6
+          <span class=finding-group-chevron style=transform: rotate(0deg);>
+            #▶
+        <div class=finding-meta>
+          <span>
+            #6× total
+          <span>
+            #Latest: just now
+    <div class=finding-group-wrap>
+      <div class=finding-card sev-high finding-group-card data-expand-group=fcat:port_scan>
+        <div class=finding-header>
+          <span class=badge badge-high>
+            #high
+          <span class=badge style=background: rgba(98, 232, 255, 0.1); border: 1px solid rgba(98, 232, 255, 0.2); padding: 1px 8px; font-size: 10px; border-radius: 100px;>
+            #1 finding
+          <span class=finding-title>
+            #Port Scan
+          <button class=btn btn-dismiss data-dismiss-group=fcat:port_scan>
+            #Dismiss all 1
+          <span class=finding-group-chevron style=transform: rotate(0deg);>
+            #▶
+        <div class=finding-meta>
+          <span>
+            #51× total
+          <span>
+            #Latest: just now
+    <div class=finding-group-wrap>
+      <div class=finding-card sev-high finding-group-card data-expand-group=fcat:suspicious_port>
+        <div class=finding-header>
+          <span class=badge badge-high>
+            #high
+          <span class=badge style=background: rgba(98, 232, 255, 0.1); border: 1px solid rgba(98, 232, 255, 0.2); padding: 1px 8px; font-size: 10px; border-radius: 100px;>
+            #1 finding
+          <span class=finding-title>
+            #Suspicious Open Port
+          <button class=btn btn-dismiss data-dismiss-group=fcat:suspicious_port>
+            #Dismiss all 1
+          <span class=finding-group-chevron style=transform: rotate(0deg);>
+            #▶
+        <div class=finding-meta>
+          <span>
+            #1× total
+          <span>
+            #Latest: just now
+    <div class=finding-group-wrap>
+      <div class=finding-card sev-medium finding-group-card data-expand-group=fcat:high_egress>
+        <div class=finding-header>
+          <span class=badge badge-medium>
+            #medium
+          <span class=badge style=background: rgba(98, 232, 255, 0.1); border: 1px solid rgba(98, 232, 255, 0.2); padding: 1px 8px; font-size: 10px; border-radius: 100px;>
+            #1 finding
+          <span class=finding-title>
+            #High Egress Traffic
+          <button class=btn btn-dismiss data-dismiss-group=fcat:high_egress>
+            #Dismiss all 1
+          <span class=finding-group-chevron style=transform: rotate(0deg);>
+            #▶
+        <div class=finding-meta>
+          <span>
+            #1× total
+          <span>
+            #Latest: just now
+  <div style=margin-top: 28px; opacity: 0.7;>
+    <div class=view-header>
+      <h1>
+        #Dismissed 
+        <span class=dim>
+          #(1)
+    <div style=display: flex; gap: 4px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;>
+      <button class=btn active data-dismissed-group-mode=category style=font-size: 10px; padding: 3px 8px;>
+        #By Category
+      <button class=btn data-dismissed-group-mode=host style=font-size: 10px; padding: 3px 8px;>
+        #By Host
+      <button class=btn data-dismissed-group-mode=severity style=font-size: 10px; padding: 3px 8px;>
+        #By Severity
+      <button class=btn data-dismissed-group-mode=flat style=font-size: 10px; padding: 3px 8px;>
+        #Flat
+      <span style=flex: 1 1 0%;>
+      <input data-dismissed-search= placeholder=Search + Enter style=background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: rgb(255, 255, 255); padding: 3px 8px; font-size: 11px; width: 160px; outline: none; type=search value=>
+    <div class=finding-group-wrap>
+      <div class=finding-card sev-high finding-group-card data-expand-group=dismissed:fcat:suspicious_port>
+        <div class=finding-header>
+          <span class=badge badge-high>
+            #high
+          <span class=badge style=background: rgba(98, 232, 255, 0.1); border: 1px solid rgba(98, 232, 255, 0.2); padding: 1px 8px; font-size: 10px; border-radius: 100px;>
+            #1 finding
+          <span class=finding-title>
+            #Suspicious Open Port
+          <button class=btn data-undismiss-group=fcat:suspicious_port>
+            #Restore all 1
+          <span class=finding-group-chevron style=transform: rotate(0deg);>
+            #▶
+        <div class=finding-meta>
+          <span>
+            #1× total
+          <span>
+            #Latest: just now

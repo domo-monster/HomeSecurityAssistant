@@ -1,0 +1,522 @@
+<header class=mobile-topbar>
+  <button aria-label=Open menu class=mobile-menu-btn data-mobile-menu-toggle=>
+    #☰
+  <div class=mobile-topbar-title id=hsa-mobile-title>
+    #Settings
+<div class=mobile-backdrop data-mobile-menu-close=>
+<nav class=sidebar id=hsa-sidebar>
+  <div class=brand>
+    <img alt=logo src=/api/homesec/frontend/hsa-logo.svg style=height: 32px; width: 32px; margin-right: 10px; border-radius: 8px; box-shadow: rgba(98, 232, 255, 0.333) 0px 0px 8px; vertical-align: middle;>
+    <div class=brand-text>
+      <span class=brand-name>
+        #Security
+      <span class=brand-sub>
+        #Assistant
+      <span class=brand-tagline>
+        #Network security telemetry with live flow context
+  <ul class=nav-list>
+    <li class=nav-item data-view=overview>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z>
+      <span class=nav-label>
+        #Overview
+    <li class=nav-item data-view=map>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z>
+      <span class=nav-label>
+        #Network Map
+    <li class=nav-item data-view=hosts>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.89 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z>
+      <span class=nav-label>
+        #Hosts
+    <li class=nav-item data-view=findings>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 6h2v6h-2V7zm0 8h2v2h-2v-2z>
+      <span class=nav-label>
+        #Findings
+      <span class=nav-badge>
+        #11
+    <li class=nav-item data-view=external>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z>
+      <span class=nav-label>
+        #External IPs
+      <span class=nav-badge danger>
+        #1
+    <li class=nav-item data-view=vulnerabilities>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z>
+      <span class=nav-label>
+        #Vulnerabilities
+    <li class=nav-item data-view=statistics>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.74-.47 8.5-4.25 8.97-8.99h-8.97z>
+      <span class=nav-label>
+        #Statistics
+    <li class=nav-item data-view=dns>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z>
+      <span class=nav-label>
+        #DNS Queries
+    <li class=nav-item data-view=suricata>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm1 14h-2v-2h2v2zm0-4h-2V7h2v4z>
+      <span class=nav-label>
+        #Suricata Alerts
+    <li class=nav-item data-view=recommendations>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z>
+      <span class=nav-label>
+        #Recommendations
+    <li class=nav-item active data-view=settings>
+      <svg fill=currentColor viewBox=0 0 24 24>
+        <path d=M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z>
+      <span class=nav-label>
+        #Settings
+  <div class=sidebar-status online>
+    <div class=status-dot>
+    <span>
+      #Collector active
+    <span style=margin-left: auto; opacity: 0.45; font-size: 9px;>
+      #v0.11.0
+  <div class=sidebar-copy>
+    <a href=https://domotic.monster rel=noopener noreferrer target=_blank>
+      #© 2026 domotic.monster
+<main class=content id=hsa-content>
+  <div>
+    <div class=view-header>
+      <h1>
+        #Settings
+      <div style=font-size: 11px; color: var(--muted);>
+        #Changes take effect after reloading the integration.
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #Network & NetFlow
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #NetFlow Bind Host
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #IP address to bind the NetFlow UDP listener (use 0.0.0.0 for all interfaces)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-bind_host style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=127.0.0.1>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #NetFlow Bind Port
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #UDP port for NetFlow v5/v9/IPFIX datagrams (default 2055)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-bind_port max=65535 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=2055>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Enable NetFlow Listener
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Enable UDP NetFlow/IPFIX listener and flow ingestion
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-enable_netflow_listener style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Allowed NetFlow Exporters
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Comma-separated IPs or CIDRs allowed to send flows (e.g. your router). Empty accepts any sender — recommended to set.
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-netflow_allowed_exporters style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Internal Networks
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Comma-separated CIDR ranges that are considered internal (e.g. 192.168.0.0/16,10.0.0.0/8)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-internal_networks style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=192.168.1.0/24>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #Threat Detection
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Port Scan Window (s)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Time window in seconds for port-scan detection
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-scan_window_seconds max=3600 min=10 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=600>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Port Scan Threshold
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Number of distinct ports contacted within the window to trigger a port-scan alert
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-scan_port_threshold max=10000 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=100>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #High Egress Threshold (bytes)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Bytes sent outbound to trigger a high-egress alert
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-high_egress_threshold min=100000 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=50000000>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #Active Scanner
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Enable Scanner
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Periodically ping, port-scan and banner-grab internal hosts (Home Assistant's own addresses are always skipped). Off by default: scanning can trip other intrusion detection and upset fragile IoT devices.
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input checked= id=hsa-setting-enable_scanner style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Scan Interval (s)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Seconds between active scan cycles
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-scan_interval max=604800 min=60 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=3000>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Scan Ports
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Ports to scan (ranges and commas allowed, e.g. 22,80,443,8080-8090)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-scan_ports style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=21-23,25,53,80,110,111,135,139,143,443,445,465,515,554,587,631,993,995,1080,1433,1521,1723,1883,2049,2323,3306,3389,4443,5000,5060,5432,5555,5900,6379,6667,8000,8008,8080,8443,8883,8888,9090,9100,9200,27017,49152>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Scan Exceptions
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Comma-separated IPs to exclude from active scanning
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-scan_exceptions style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #DNS & Threat Intelligence
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Enable DNS Resolution
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Resolve hostnames for external IPs and check them against blacklists
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input checked= id=hsa-setting-enable_dns_resolution style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Blacklist URLs
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Comma or newline-separated HTTPS URLs of threat-intel blocklists to download
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-blacklist_urls style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=https://feodotracker.abuse.ch/downloads/ipblocklist.txt,https://sslbl.abuse.ch/blacklist/sslipblacklist.txt,https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #DNS Proxy
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Enable DNS Proxy
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Run a DNS proxy that logs and optionally blocks queries
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_proxy_enabled style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #DNS Proxy Bind Host
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Listener bind address for DNS proxy (recommended: 127.0.0.1 or a specific LAN IP)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_proxy_bind_host style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=0.0.0.0>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #DNS Proxy Port
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #UDP/TCP port for the DNS proxy listener (default 53 — requires root/CAP_NET_BIND_SERVICE)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_proxy_port max=65535 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=53>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Upstream DNS Server
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Upstream DNS resolver IP (e.g. 1.1.1.1); several may be comma-separated
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_proxy_upstream style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=1.1.1.1>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #DNS Log Retention (h)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #How many hours to keep DNS query log entries (0 = until the 10,000-entry cap)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_log_retention_hours max=8760 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=24>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Warn Logs for Blocked Domains
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Write warning logs for each blocked DNS query (disabled by default to reduce log noise)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_warn_blocked_logs style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Blocked DNS Categories
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Comma or newline-separated category names to block (e.g. ads,malware,tracking)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_blocked_categories style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #DNS Local Overrides
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Local DNS overrides, one per line: hostname=IP (e.g. myhost.local=192.168.1.5)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-dns_overrides style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #External IP Enrichment
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #IP Geolocation (ipwho.is)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Look up country and network owner of contacted public IPs at ipwho.is. Off by default: every public IP your devices contact is sent to that third-party service.
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input checked= id=hsa-setting-enable_ip_geolocation style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #VirusTotal API Key
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Optional VirusTotal API key for external IP reputation lookup
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-virustotal_api_key style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=password value=********>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #AbuseIPDB API Key
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Optional AbuseIPDB API key for external IP reputation lookup
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-abuseipdb_api_key style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=password value=>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Threat Score Threshold (%)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Minimum abuse confidence score (0-100) to flag an IP as suspicious
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-vt_abuseipdb_threshold max=100 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=30>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #VirusTotal Daily Budget
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Max VirusTotal API lookups per day
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-virustotal_daily_budget max=1000000 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=500>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #AbuseIPDB Daily Budget
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Max AbuseIPDB API lookups per day
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-abuseipdb_daily_budget max=1000000 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=1000>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Enrichment Cache TTL (min)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Minutes before re-querying enrichment APIs for a known IP
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-enrichment_ttl_minutes max=525600 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=1440>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #External IP Retention (h)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Hours to retain clean external IPs in the dashboard
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-external_ip_retention_hours max=8760 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=5>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Suspicious IP Retention (h)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Hours to retain suspicious IPs
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-retention_suspicious_hours max=8760 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=48>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Malicious IP Retention (h)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Hours to retain malicious IPs
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-retention_malicious_hours max=8760 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=168>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #NVD Vulnerability Intelligence
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #NVD API URL
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #NVD CVE API endpoint URL (HTTPS)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-nvd_api_url style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=https://services.nvd.nist.gov/rest/json/cves/2.0>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #NVD Cache TTL (h)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Hours before refreshing the NVD CVE cache
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-nvd_ttl_hours max=8760 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=12>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #CVE Min Year
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Only show CVEs published on or after this year
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-nvd_min_year max=2100 min=1999 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=2020>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #NVD Keywords
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Comma-separated product keywords to pre-fetch from NVD (e.g. OpenSSH,nginx,Samba)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-nvd_keywords style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=OpenSSH,Android Debug Bridge,Apache HTTP Server,nginx,MySQL,MariaDB,Samba>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #Baseline & Behaviour Analysis
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Enable Baseline
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Enable behavioural baseline learning and anomaly detection
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input checked= id=hsa-setting-baseline_enabled style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Training Duration (h)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Hours of traffic to observe before the baseline is considered trained
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-baseline_training_hours max=168 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=168>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Min Observations
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Minimum number of flow observations before treating a pattern as normal
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-baseline_min_observations max=50 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=3>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Egress Anomaly Multiplier
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #How many times the baseline egress a device must exceed before it is flagged
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-baseline_egress_multiplier max=100 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=2.5>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #Display
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Sidebar panel requires admin
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #When enabled, only Home Assistant admin users can see the Security Assistant sidebar panel and read its data. Changing data always requires an admin.
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input checked= id=hsa-setting-webui_require_admin style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Statistics Top N
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #How many top entries to show in statistics charts
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-stats_top_n max=25 min=3 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=5>
+    <div class=card style=margin-bottom: 12px;>
+      <div class=card-title>
+        #Suricata Alert Listener
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Enable Suricata Listener
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Accept Suricata EVE JSON alerts over TCP from suricata_pusher.py
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-suricata_listener_enabled style=width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); type=checkbox>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Listener Bind Host
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #IP address to bind the TCP listener (0.0.0.0 for all interfaces)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-suricata_listener_host style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=0.0.0.0>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Listener TCP Port
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #TCP port for the Suricata pusher to connect to (default 6343)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-suricata_listener_port max=65535 min=1 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=6343>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Listener Auth Token
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Shared secret the pusher must send first (suricata_pusher.py --token or HSA_SURICATA_TOKEN). Strongly recommended.
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-suricata_auth_token style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=password value=>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Allowed Pusher Sources
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Comma-separated IPs or CIDRs allowed to connect (e.g. the Suricata host). Empty accepts any source.
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-suricata_allowed_sources style=width: 340px; max-width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=text value=>
+      <div style=display: flex; align-items: flex-start; gap: 12px; padding: 8px 0px; border-bottom: 1px solid rgba(98, 232, 255, 0.04);>
+        <div style=flex: 0 0 240px; min-width: 0px;>
+          <div style=font-size: 12px; font-weight: 600; color: var(--text);>
+            #Alert Log Retention (h)
+          <div style=font-size: 10px; color: var(--muted); margin-top: 2px; line-height: 1.4;>
+            #Hours to keep Suricata alert log entries (0 = until the 10,000-entry cap)
+        <div style=flex: 1 1 0%; min-width: 0px;>
+          <input id=hsa-setting-suricata_log_retention_hours max=8760 min=0 style=width: 160px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; padding: 4px 8px; font-family: inherit; type=number value=24>
+    <div style=margin-top: 6px;>
+      <button class=btn data-settings-save= style=padding: 6px 18px; font-size: 12px;>
+        #Save settings
+      <button class=btn data-settings-reset= style=font-size: 11px; opacity: 0.6;>
+        #Reload from server
+    <div class=card style=margin-top: 14px;>
+      <div class=card-title>
+        #Links
+      <div style=font-size: 12px; color: var(--text); line-height: 1.7;>
+        #Project: 
+        <a class=ext-report-link href=https://github.com/domo-monster/HomeSecurityAssistant rel=noopener noreferrer target=_blank>
+          #GitHub Repository
+        <br>
+        #Documentation: 
+        <a class=ext-report-link href=https://domotic.monster/homesec.html rel=noopener noreferrer target=_blank>
+          #Open Documentation
